@@ -56,7 +56,8 @@ def main():
             errors.append(f"Unrecorded third-party modification: afero/{name}")
     for directory, manifest_name in (("third_party/rc2", "UPSTREAM.json"),
                                      ("testdata/chains", "manifest.json"),
-                                     ("testdata/pkcs12", "manifest.json")):
+                                     ("testdata/pkcs12", "manifest.json"),
+                                     ("testdata/timestamps", "manifest.json")):
         base = ROOT / directory
         record = json.loads((base / manifest_name).read_text())
         for name, expected in record["files"].items():

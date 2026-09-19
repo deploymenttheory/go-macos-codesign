@@ -71,6 +71,8 @@ type CMSInfo struct {
 	SignerCertificate []byte
 	Certificates      [][]byte
 	SigningTime       time.Time
+	// Timestamp is cryptographically bound, but its CA trust is not asserted.
+	Timestamp *TimestampInfo
 }
 
 func derSequence(parts ...[]byte) []byte { return derWrap(0x30, bytes.Join(parts, nil)) }
@@ -211,16 +213,30 @@ func appleHashAgilityPlist(pl cdHashPlist) []byte {
 }
 
 func verifyCMSSignature(pub crypto.PublicKey, alg algorithmIdentifier, hashed, sig []byte) error {
+	return verifyCMSDigestSignature(pub, alg, crypto.SHA256, hashed, sig)
+}
+
+func verifyCMSDigestSignature(pub crypto.PublicKey, alg algorithmIdentifier, h crypto.Hash, hashed, sig []byte) error {
+	rsaOID, ecOID := "1.2.840.113549.1.1.11", "1.2.840.10045.4.3.2"
+	if h == crypto.SHA1 {
+		rsaOID, ecOID = "1.2.840.113549.1.1.5", "1.2.840.10045.4.1"
+	}
+	if h == crypto.SHA384 {
+		rsaOID, ecOID = "1.2.840.113549.1.1.12", "1.2.840.10045.4.3.3"
+	}
+	if h == crypto.SHA512 {
+		rsaOID, ecOID = "1.2.840.113549.1.1.13", "1.2.840.10045.4.3.4"
+	}
 	switch key := pub.(type) {
 	case *rsa.PublicKey:
-		if !alg.Algorithm.Equal(oidRSA) && !alg.Algorithm.Equal(oidSHA256RSA) || !nullOrAbsent(alg.Parameters) {
+		if !alg.Algorithm.Equal(oidRSA) && alg.Algorithm.String() != rsaOID || !nullOrAbsent(alg.Parameters) {
 			return unsupported("CMS RSA signature algorithm")
 		}
-		if err := rsa.VerifyPKCS1v15(key, crypto.SHA256, hashed, sig); err != nil {
+		if err := rsa.VerifyPKCS1v15(key, h, hashed, sig); err != nil {
 			return invalid("CMS RSA signature: %v", err)
 		}
 	case *ecdsa.PublicKey:
-		if !alg.Algorithm.Equal(oidSHA256ECDSA) || len(alg.Parameters.FullBytes) != 0 {
+		if alg.Algorithm.String() != ecOID || len(alg.Parameters.FullBytes) != 0 {
 			return unsupported("CMS ECDSA signature algorithm")
 		}
 		if !ecdsa.VerifyASN1(key, hashed, sig) {
@@ -233,6 +249,23 @@ func verifyCMSSignature(pub crypto.PublicKey, alg algorithmIdentifier, hashed, s
 }
 
 func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
+	sd, certs, err := decodeSignedData(der)
+	if err != nil {
+		return nil, nil, err
+	}
+	if sd.Version != 1 {
+		return nil, nil, unsupported("CMS version")
+	}
+	if !sd.Digests[0].Algorithm.Equal(oidSHA256) || !nullOrAbsent(sd.Digests[0].Parameters) || !sd.Signers[0].Digest.Algorithm.Equal(oidSHA256) || !nullOrAbsent(sd.Signers[0].Digest.Parameters) {
+		return nil, nil, unsupported("CMS digest algorithm")
+	}
+	if !sd.Content.Type.Equal(oidData) || len(sd.Content.Content.FullBytes) > 0 {
+		return nil, nil, malformed("CMS requires detached data content")
+	}
+	return sd, certs, nil
+}
+
+func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
 	der, err := cmsEnvelopeDER(der)
 	if err != nil {
 		return nil, nil, err
@@ -248,14 +281,8 @@ func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
 	if err := decodeDER(envelope.Content.Bytes, &sd); err != nil {
 		return nil, nil, err
 	}
-	if sd.Version != 1 || len(sd.Signers) != 1 || sd.Signers[0].Version != 1 || len(sd.Digests) != 1 || len(sd.CRLs.FullBytes) > 0 || len(sd.Signers[0].Unsigned.FullBytes) > 0 {
-		return nil, nil, unsupported("CMS version, signer count, CRLs, or unsigned attributes")
-	}
-	if !sd.Digests[0].Algorithm.Equal(oidSHA256) || !nullOrAbsent(sd.Digests[0].Parameters) || !sd.Signers[0].Digest.Algorithm.Equal(oidSHA256) || !nullOrAbsent(sd.Signers[0].Digest.Parameters) {
-		return nil, nil, unsupported("CMS digest algorithm")
-	}
-	if !sd.Content.Type.Equal(oidData) || len(sd.Content.Content.FullBytes) > 0 {
-		return nil, nil, malformed("CMS requires detached data content")
+	if len(sd.Signers) != 1 || sd.Signers[0].Version != 1 || len(sd.Digests) != 1 || len(sd.CRLs.FullBytes) > 0 {
+		return nil, nil, unsupported("CMS signer count, signer version, digest count, or CRLs")
 	}
 	if sd.Certificates.Class != 2 || sd.Certificates.Tag != 0 || !sd.Certificates.IsCompound {
 		return nil, nil, malformed("CMS certificates")
@@ -390,5 +417,9 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 		return nil, err
 	}
 	info.SignerCertificate = bytes.Clone(signer.raw)
+	info.Timestamp, err = cmsTimestamp(si)
+	if err != nil {
+		return nil, err
+	}
 	return info, nil
 }

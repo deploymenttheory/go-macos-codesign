@@ -83,7 +83,7 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CertificateMetadata{Authorities: chain.Authorities, SigningTime: info.SigningTime}, nil
+	return &CertificateMetadata{Authorities: chain.Authorities, SigningTime: info.SigningTime, Timestamp: info.Timestamp}, nil
 }
 
 func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
@@ -143,6 +143,15 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 			if at.IsZero() {
 				at = time.Now()
 			}
+			if info.Timestamp != nil {
+				if err := verifyTimestampTrust(info.Timestamp, opts.TimestampRoots, at); err != nil {
+					return r, err
+				}
+				at = info.Timestamp.Time
+				if a.Signature.CertificateMetadata != nil {
+					a.Signature.CertificateMetadata.Timestamp = info.Timestamp
+				}
+			}
 			if err := checkCertificatePurpose(cert, at); err != nil {
 				return r, err
 			}
@@ -156,6 +165,11 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 			path, err := linkedCertificates(signer, info.Certificates)
 			if err != nil {
 				return r, err
+			}
+			if info.Timestamp != nil {
+				if err := checkTimestampApplePolicy(path, info.Timestamp); err != nil {
+					return r, err
+				}
 			}
 			for i := range a.Signature.Directories {
 				a.Signature.Directories[i].chain = path

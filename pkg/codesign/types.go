@@ -45,7 +45,10 @@ type SignOptions struct {
 	// SigningTime is the CMS signing-time claim. Zero uses the current time.
 	// It is not an RFC 3161 timestamp.
 	SigningTime time.Time
-	teamID      string
+	// Timestamp obtains and validates an RFC 3161 token for each architecture.
+	// DryRun still calls the provider because it constructs complete signatures.
+	Timestamp *TimestampOptions
+	teamID    string
 }
 
 // VerifyOptions selects an architecture and optional external special-slot data.
@@ -62,7 +65,13 @@ type VerifyOptions struct {
 	// TrustedRoots enables portable CA path validation in addition to leaf pins.
 	// No system trust, revocation lookup or network issuer fetching is performed.
 	TrustedRoots [][]byte
-	// CurrentTime controls certificate validity checks. Zero uses time.Now.
+	// TimestampRoots separately anchors RFC 3161 TSA chains. A timestamp that
+	// is present must validate; it is never silently ignored or treated as trust
+	// merely because the code-signing certificate was pinned.
+	TimestampRoots [][]byte
+	// CurrentTime controls certificate validity checks. An authenticated,
+	// explicitly trusted timestamp selects genTime instead and must not be in
+	// the future relative to CurrentTime. Zero uses time.Now.
 	CurrentTime time.Time
 }
 
@@ -111,6 +120,7 @@ type Signature struct {
 type CertificateMetadata struct {
 	Authorities []CertificateInfo
 	SigningTime time.Time
+	Timestamp   *TimestampInfo `json:",omitempty"`
 }
 
 // Architecture contains the observed signature of one Mach-O slice.

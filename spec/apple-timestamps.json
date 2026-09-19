@@ -1,0 +1,486 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "declarations": "be8fe01678282da4dcd2e8e26bf7a31912fb939c22379e6624722daa926c8945",
+    "verifyTSTInfo": "137c50acbc189c185c6509263f321f77fccbc6da44e9040be3090b389495cd1a"
+  },
+  "schema": 1,
+  "scope": "Verbatim timestamp ASN.1 carrier declarations, status/failure enums and verifyTSTInfo body with explicit type/function/macro shims; not a full Apple translation unit or an executed policy oracle.",
+  "sources": {
+    "tsaSupport.c": {
+      "sha256": "95ed2eb73eeb73c30fd30e32b448017f9b5886aae278a1c2328aa62fcd46719c",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/tsaSupport.c"
+    },
+    "tsaTemplates.h": {
+      "sha256": "48077c73f56d4e9c974f749c3d1fd65c709d615fece3aaa20b63ddba848f1cc8",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/tsaTemplates.h"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "enums": {
+        "FI_AddInfoNotAvailable": "17",
+        "FI_BadAlg": "0",
+        "FI_BadDataFormat": "5",
+        "FI_BadRequest": "2",
+        "FI_SystemFailure": "25",
+        "FI_TimeNotAvailable": "14",
+        "FI_UnacceptedExtension": "16",
+        "FI_UnacceptedPolicy": "15",
+        "PKIS_Granted": "0",
+        "PKIS_GrantedWithMods": "1",
+        "PKIS_Rejection": "2",
+        "PKIS_RevocationNotification": "5",
+        "PKIS_RevocationWarning": "4",
+        "PKIS_Waiting": "3"
+      },
+      "records": {
+        "SecAsn1TSAAccuracy": [
+          {
+            "name": "seconds",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "millis",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "micros",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSAMessageImprint": [
+          {
+            "name": "hashAlgorithm",
+            "type": "CSSM_X509_ALGORITHM_IDENTIFIER"
+          },
+          {
+            "name": "hashedMessage",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSAPKIFailureInfo": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSAPKIStatus": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSAPKIStatusInfo": [
+          {
+            "name": "status",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "statusString",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "failInfo",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSATSTInfo": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSATimeStampReq": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "certReq",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ]
+      },
+      "verifyTSTInfo_ast_kinds": {
+        "BinaryOperator": 15,
+        "CStyleCastExpr": 3,
+        "CallExpr": 11,
+        "CompoundStmt": 13,
+        "DeclRefExpr": 52,
+        "DeclStmt": 6,
+        "DoStmt": 7,
+        "FunctionDecl": 1,
+        "GotoStmt": 7,
+        "IfStmt": 10,
+        "ImplicitCastExpr": 51,
+        "IntegerLiteral": 15,
+        "LabelStmt": 1,
+        "MemberExpr": 12,
+        "ParenExpr": 10,
+        "ParmVarDecl": 6,
+        "ReturnStmt": 2,
+        "StringLiteral": 1,
+        "UnaryOperator": 11,
+        "VarDecl": 6
+      }
+    },
+    "x86_64-apple-macos27": {
+      "enums": {
+        "FI_AddInfoNotAvailable": "17",
+        "FI_BadAlg": "0",
+        "FI_BadDataFormat": "5",
+        "FI_BadRequest": "2",
+        "FI_SystemFailure": "25",
+        "FI_TimeNotAvailable": "14",
+        "FI_UnacceptedExtension": "16",
+        "FI_UnacceptedPolicy": "15",
+        "PKIS_Granted": "0",
+        "PKIS_GrantedWithMods": "1",
+        "PKIS_Rejection": "2",
+        "PKIS_RevocationNotification": "5",
+        "PKIS_RevocationWarning": "4",
+        "PKIS_Waiting": "3"
+      },
+      "records": {
+        "SecAsn1TSAAccuracy": [
+          {
+            "name": "seconds",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "millis",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "micros",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSAMessageImprint": [
+          {
+            "name": "hashAlgorithm",
+            "type": "CSSM_X509_ALGORITHM_IDENTIFIER"
+          },
+          {
+            "name": "hashedMessage",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSAPKIFailureInfo": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSAPKIStatus": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSAPKIStatusInfo": [
+          {
+            "name": "status",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "statusString",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "failInfo",
+            "type": "CSSM_DATA"
+          }
+        ],
+        "SecAsn1TSATSTInfo": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "serialNumber",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "genTime",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "accuracy",
+            "type": "SecAsn1TSAAccuracy"
+          },
+          {
+            "name": "ordering",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "tsa",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ],
+        "SecAsn1TSATimeStampReq": [
+          {
+            "name": "version",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "messageImprint",
+            "type": "SecAsn1TSAMessageImprint"
+          },
+          {
+            "name": "reqPolicy",
+            "type": "TSAPolicyId"
+          },
+          {
+            "name": "nonce",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "certReq",
+            "type": "CSSM_DATA"
+          },
+          {
+            "name": "extensions",
+            "type": "CSSM_X509_EXTENSIONS **"
+          }
+        ]
+      },
+      "verifyTSTInfo_ast_kinds": {
+        "BinaryOperator": 15,
+        "CStyleCastExpr": 3,
+        "CallExpr": 11,
+        "CompoundStmt": 13,
+        "DeclRefExpr": 52,
+        "DeclStmt": 6,
+        "DoStmt": 7,
+        "FunctionDecl": 1,
+        "GotoStmt": 7,
+        "IfStmt": 10,
+        "ImplicitCastExpr": 51,
+        "IntegerLiteral": 15,
+        "LabelStmt": 1,
+        "MemberExpr": 12,
+        "ParenExpr": 10,
+        "ParmVarDecl": 6,
+        "ReturnStmt": 2,
+        "StringLiteral": 1,
+        "UnaryOperator": 11,
+        "VarDecl": 6
+      }
+    }
+  },
+  "translation_unit_sha256": "828709d7df99680dcf4423c3cc9a7705a6f3e817830061cee218b8fedc78f32a"
+}

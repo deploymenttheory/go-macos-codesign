@@ -63,6 +63,9 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 	if opts.Identifier == "" || bytes.IndexByte([]byte(opts.Identifier), 0) >= 0 {
 		return nil, fmt.Errorf("identifier must be nonempty and contain no NUL")
 	}
+	if opts.Timestamp != nil && (opts.Identity == nil || opts.Timestamp.Provider == nil || len(opts.Timestamp.TrustedRoots) == 0) {
+		return nil, invalid("timestamp requires a signing identity, provider and TSA roots")
+	}
 	if opts.Identity != nil {
 		if opts.Flags&FlagAdhoc != 0 {
 			return nil, invalid("ad-hoc flag conflicts with signing identity")
@@ -256,6 +259,12 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		cms, err := SignCMS(ctx, opts.Identity, [][]byte{cd}, opts.SigningTime)
 		if err != nil {
 			return nil, err
+		}
+		if opts.Timestamp != nil {
+			cms, err = TimestampCMS(ctx, cms, [][]byte{cd}, *opts.Timestamp)
+			if err != nil {
+				return nil, err
+			}
 		}
 		for i := range blobs {
 			if blobs[i].Slot == SlotCMS {

@@ -1,0 +1,21 @@
+{
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "command": [
+    "codesign",
+    "--keychain",
+    "\u003ctemporary public-test keychain\u003e",
+    "-s",
+    "Public codesign test identity rsa",
+    "-i",
+    "org.example.timestamp",
+    "--timestamp",
+    "\u003cunsigned-arm64 copy\u003e"
+  ],
+  "display": "Executable=\u003cfixture\u003e\nIdentifier=org.example.timestamp\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=238 flags=0x0(none) hashes=2+2 location=embedded\nSignature size=6042\nAuthority=Public codesign test identity rsa\nTimestamp=19 Sep 2026 at 19:28:22\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=1 size=100\nTotal signatures=1\nChosen signature=1\n",
+  "files": {
+    "apple-rsa-arm64": "35d8cbef8c67b1176d49085f5de53235e3ea216f24567aec2dba5a1961ba47b5"
+  },
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+  "native_strict_verified": true,
+  "schema": 1
+}

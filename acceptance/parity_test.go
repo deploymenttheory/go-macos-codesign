@@ -231,8 +231,11 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 52 {
-		t.Fatalf("expected 52 ad-hoc, PEM, PKCS#12 and chain artifacts from Linux and Windows, found %d", count)
+	if count != 54 {
+		t.Fatalf("expected 54 ad-hoc, PEM, PKCS#12, chain and timestamp artifacts from Linux and Windows, found %d", count)
+	}
+	if seen["signed-timestamp-arm64"] != 2 {
+		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		for _, prefix := range []string{"signed-", "signed-cert-rsa-", "signed-cert-p256-", "signed-cert-p384-", "signed-cert-p521-"} {
