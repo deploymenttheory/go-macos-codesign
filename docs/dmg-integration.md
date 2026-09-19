@@ -17,7 +17,8 @@ macoscodesign --verify --trust-root code-root.pem --timestamp-root apple ./Examp
 ```
 
 `Sign`, `Inspect`, `Verify` and their byte counterparts recognize the trailing
-UDIF footer. Inspection reports `Format="disk image"` and one signature entry
+UDIF footer. A Mach-O header takes precedence, matching Apple's format detection.
+Inspection reports `Format="disk image"` and one signature entry
 named `dmg`; that is a format name, not a CPU architecture. Signing reuses the
 requirements, CMS, certificate-chain and timestamp implementations. Trust remains
 explicit; see [certificates](certificates.md) and [timestamps](timestamps.md).

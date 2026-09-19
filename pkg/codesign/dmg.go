@@ -25,7 +25,16 @@ type dmgImage struct {
 }
 
 func isDMG(data []byte) bool {
-	return len(data) >= dmgFooterSize && string(data[len(data)-dmgFooterSize:][:4]) == "koly"
+	if len(data) < dmgFooterSize {
+		return false
+	}
+	// Apple's DiskRep::bestGuess tries Mach-O before a trailing UDIF marker.
+	// A crafted trailer must not change how an executable is interpreted.
+	switch be.Uint32(data) {
+	case 0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe, 0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca:
+		return false
+	}
+	return string(data[len(data)-dmgFooterSize:][:4]) == "koly"
 }
 
 func parseDMG(data []byte) (*dmgImage, error) {

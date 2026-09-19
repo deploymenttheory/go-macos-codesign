@@ -70,6 +70,23 @@ func TestDMGLifecycle(t *testing.T) {
 	}
 }
 
+func TestDMGDoesNotMaskMachO(t *testing.T) {
+	data := testDMG(t)
+	for _, magic := range []uint32{0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe, 0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca} {
+		mixed := bytes.Clone(data)
+		be.PutUint32(mixed, magic)
+		if isDMG(mixed) {
+			t.Fatalf("UDIF trailer masked executable magic %#x", magic)
+		}
+	}
+	image := fixture(t, "unsigned-arm64")
+	copy(image[len(image)-512:], data[len(data)-512:])
+	r, err := InspectBytes(image)
+	if err != nil || r.Format != "Mach-O thin" {
+		t.Fatal("changed executable interpretation", r, err)
+	}
+}
+
 func TestDMGMalformedTrailer(t *testing.T) {
 	ctx := context.Background()
 	data, err := SignBytes(ctx, testDMG(t), SignOptions{Identifier: "test"})

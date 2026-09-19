@@ -23,8 +23,8 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The DMG phase passes local `make verify` on macOS 27 build 26A428 with 3,089/3,212
-library statements (96.17%), 418/420 CLI statements (99.52%) and 1/1 entry-point
+The DMG phase passes local `make verify` on macOS 27 build 26A428 with 3,093/3,216
+library statements (96.18%), 418/420 CLI statements (99.52%) and 1/1 entry-point
 statement covered. Forty native byte comparisons, 200 display comparisons,
 fifteen signature/image-checksum cases, five committed native fixtures, local TSA
 tests, lint and a 30-second DMG fuzz run pass. A live Apple timestamp on the APFS
