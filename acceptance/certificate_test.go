@@ -77,7 +77,20 @@ func TestPortableCertificateCLI(t *testing.T) {
 						t.Fatal(err)
 					}
 				}
-				attest(t, map[string]any{"algorithm": identity, "architecture": arch, "portable_verified": true, "apple_verified": runtime.GOOS == "darwin", "openssl_verified": runtime.GOOS == "darwin", "apple_and_go_reject_code_and_cms_tampering": runtime.GOOS == "darwin", "comparison": "cryptographic integrity and native acceptance; allocation and ECDSA randomness are not byte parity"})
+				attest(t, map[string]any{"algorithm": identity, "architecture": arch, "portable_verified": true, "apple_verified": runtime.GOOS == "darwin", "openssl_verified": runtime.GOOS == "darwin", "apple_and_go_reject_code_and_cms_tampering": runtime.GOOS == "darwin", "comparison": "cryptographic integrity and native acceptance; native byte comparisons are recorded by TestAppleNativeCertificateLayout"})
+			})
+		}
+	}
+}
+
+func TestPortableAppleCertificateCLI(t *testing.T) {
+	for _, algorithm := range []string{"rsa", "p256", "p384", "p521"} {
+		for _, arch := range []string{"arm64", "x86_64", "universal"} {
+			t.Run(algorithm+"/"+arch, func(t *testing.T) {
+				path := filepath.Join(root, "testdata/certificate-layout", algorithm+"-"+arch)
+				cert := filepath.Join(root, "testdata/identities", algorithm+"-cert.pem")
+				mustRun(t, binaryPath, "--verify", "--trust", cert, path)
+				attest(t, map[string]any{"algorithm": algorithm, "architecture": arch, "apple_created_signature_verified_by_portable_cli": true})
 			})
 		}
 	}
@@ -97,7 +110,9 @@ func verifyCertificateTampering(t *testing.T, target, cert, dir string) {
 	offsets := map[string]int{"code": int(a.Offset) + 4096}
 	for _, blob := range a.Signature.Blobs {
 		if blob.Slot == codesign.SlotCMS {
-			offsets["cms"] = bytes.Index(data, blob.Data) + len(blob.Data) - 1
+			// Skip the six EOC bytes terminating the three BER envelopes;
+			// mutate the signature itself, not its unsigned framing.
+			offsets["cms"] = bytes.Index(data, blob.Data) + len(blob.Data) - 7
 		}
 	}
 	for name, offset := range offsets {

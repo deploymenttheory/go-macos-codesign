@@ -16,6 +16,9 @@ import (
 // maxFileSize bounds in-memory operations. Larger files fail explicitly.
 const maxFileSize = 1 << 30
 
+// Apple CodeSigner.cpp's default CMS blob budget, including its wrapper.
+const defaultCMSSize = 18000
+
 func readFile(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -180,17 +183,12 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	// Apple's first pass reserves a current-version CodeDirectory, even when
 	// the emitted directory needs the shorter 0x20400 header. The 8-byte delta
 	// affects page hashes through LC_CODE_SIGNATURE and must be reproduced.
-	sigSize := (sigLen + max(96-header, 0) + 15) &^ 15
 	if opts.Identity != nil {
-		// Reserve before hashing the load commands. ECDSA DER signatures vary
-		// in length; fixed allocation avoids a size/hash/signature feedback loop.
-		// This allocation is valid but is not yet Apple's exact sizing policy.
-		reserve := 16384
-		for _, cert := range opts.Identity.Certificates {
-			reserve += len(cert)
-		}
-		sigSize += (reserve + 15) &^ 15
+		// SuperBlob::Maker::size counts the estimate as the entire CMS blob.
+		// Replace the empty wrapper already counted above, then align once.
+		sigLen += defaultCMSSize - 8
 	}
+	sigSize := (sigLen + max(96-header, 0) + 15) &^ 15
 	if codeEnd+sigSize > maxFileSize {
 		return nil, unsupported("output exceeds memory limit")
 	}

@@ -65,7 +65,10 @@ The authenticated signing-time attribute is a signer's claim, not trusted proof
 of time. Expiration is checked against verification time, never bypassed by that
 claim. RFC 3161 tokens, revocation, CRLs, and other unsigned CMS attributes are
 currently rejected rather than silently treated as verified. CMS parsing accepts
-DER; BER indefinite-length support remains unfinished.
+DER and Apple's indefinite-length BER outer containers. Size, nesting, and
+element-count limits bound parsing. Certificates, signer records, and signed
+attributes retain their original bytes and must decode as DER; envelope conversion
+does not repair authenticated data. This is not a general BER codec.
 
 The default designated requirement binds the identifier and SHA-1 hash of the
 leaf certificate. SHA-1 here is Apple's requirement-format certificate identifier;
@@ -82,13 +85,27 @@ test identities, not Developer ID credentials or notarized distribution.
 Two leaf-certificate requirement expressions additionally match Apple's `csreq`
 compiler output byte for byte.
 
-The existing 21 exact ad-hoc signing comparisons remain separate. Certificate
-signatures currently reserve a conservative amount of Mach-O signature space,
-and the generated designated requirement differs from Apple's default synthesis.
-ECDSA signatures also contain randomness. These certificate cases establish
-native acceptance and cryptographic integrity, not complete byte-for-byte parity.
+The native certificate matrix adds 64 comparisons across the four key types,
+three Mach-O forms, runtime flags, entitlements, explicit requirements, and
+sixteen identifier lengths. The writer reproduces Apple's 18,000-byte CMS blob
+budget and single alignment pass. It also reproduces Apple's BER containers,
+SHA-256 algorithm parameters, and hash-agility XML formatting.
+
+The 28 RSA cases compare complete Mach-O slice bytes, including CMS and padding,
+using the same signing-time claim as Apple. The 36 ECDSA cases compare layout and
+non-CMS signature components and verify both signatures independently. Committed
+native fixtures additionally compare authenticated attributes and algorithm
+identifiers on every OS. Randomized ECDSA signature bytes are not asserted equal.
+Fat slices can have different native signing times; each slice is compared at
+its own recorded time. The 21 ad-hoc byte comparisons remain unchanged.
+
+The tested self-signed certificates have a Common Name and no Organization.
+Their default leaf-hash requirements match Apple. Organization-based anchor
+selection, Developer ID requirements and Team IDs, certificate display metadata,
+and general chain-policy equivalence remain unfinished.
 
 The three-OS CI runs portable certificate signing and verification on each OS.
 Linux and Windows export their signed Mach-O files for a downstream Mac to verify.
+The CLI also verifies the twelve committed Apple-created signatures on every OS.
 Configured CI is not evidence of a remote run; inspect its actual artifacts and
 logs before making a cross-platform execution claim.

@@ -1,0 +1,16 @@
+{
+  "apple_strict_verified": true,
+  "argv": [
+    "--keychain",
+    "\u003ctemporary-test-keychain\u003e",
+    "-s",
+    "Public codesign test identity p521",
+    "-i",
+    "org.example.certificate",
+    "--timestamp=none",
+    "\u003cunsigned-x86_64\u003e"
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+  "sha256": "8dd8bb21ba56d7adea45518b1ede4090e7e501d0fd410bbe2437dcb74d888339"
+}

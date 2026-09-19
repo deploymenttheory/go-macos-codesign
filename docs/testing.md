@@ -66,6 +66,15 @@ Published self-signed identities under `testdata/identities` are test data only.
 Two certificate-hash requirement expressions are also compiled by Apple's
 `csreq` and compared byte for byte with the Go compiler output.
 
+`TestAppleNativeCertificateLayout` adds 64 native signing comparisons using
+temporary keychains containing public test identities: 28 RSA cases require
+complete slice byte equality at matched signing times, and 36 ECDSA cases require
+matching layout and non-CMS bytes with independent verification. Twelve native
+fixtures under `testdata/certificate-layout` are verified by the library and CLI
+on all three operating systems. Their provenance and hashes are committed;
+authenticated CMS attributes and algorithm encodings are also compared. See the
+fixture README for explicit regeneration instructions.
+
 The `xcode-27` hosted runner is selected because its documented image uses macOS
 27. Every run records the actual host and `codesign` hash; that rolling preview
 image is not assumed identical to the local baseline. Output drift fails the
