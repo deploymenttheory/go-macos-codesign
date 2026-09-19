@@ -21,10 +21,13 @@ implemented development work, not published versioned releases. See
   validation, library signing callbacks and nonce-bound SHA-256 exchanges.
 - Online CLI timestamps through Apple's HTTP TSA or a custom HTTP endpoint,
   bundled public Apple roots, request deadlines and cancellation.
+- Contents-based APPL bundle signing, inspection, verification and removal;
+  deterministic CodeResources, Info.plist binding, localization rules and
+  resource tamper detection, with explicit layout/path/size limits.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
-- Linux/macOS/Windows CI, race checks, six fuzz targets, and native verification
-  of 54 Linux/Windows-produced signatures.
+- Linux/macOS/Windows CI, race checks, seven fuzz targets, and required native
+  verification of 66 Linux/Windows-produced files and app bundles.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed

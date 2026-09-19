@@ -38,6 +38,9 @@ func readFile(path string) ([]byte, error) {
 
 // Sign constructs all architectures before writing the result to path.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
+	if isBundle(path) {
+		return signBundle(ctx, path, opts)
+	}
 	if opts.Identifier == "" {
 		opts.Identifier = filepath.Base(path)
 	}
@@ -296,6 +299,9 @@ func updateLinkedit(out []byte, im *image, end int) {
 
 // RemoveSignature removes embedded signatures from every architecture.
 func RemoveSignature(ctx context.Context, path string) error {
+	if isBundle(path) {
+		return removeBundle(ctx, path)
+	}
 	data, err := readFile(path)
 	if err != nil {
 		return err

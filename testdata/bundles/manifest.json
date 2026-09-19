@@ -1,0 +1,50 @@
+{
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "files": {
+    "arm64.app/Contents/Info.plist": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
+    "arm64.app/Contents/MacOS/hello": "396f6b29bb5bdf2f1eb503525a505ce05d27e10fd8529716dd55a3499ba9f76d",
+    "arm64.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "arm64.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "arm64.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "arm64.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "arm64.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "arm64.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "arm64.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "arm64.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8",
+    "universal.app/Contents/Info.plist": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
+    "universal.app/Contents/MacOS/hello": "df15ee9426c34d780aab0517311b8e5442473b7a170c908be00e9b7f2f4887ac",
+    "universal.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "universal.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "universal.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "universal.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "universal.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "universal.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "universal.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "universal.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8",
+    "x86_64.app/Contents/Info.plist": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
+    "x86_64.app/Contents/MacOS/hello": "c3b73701273265090c5767463d3b36178761fd2a9b03478ae24b7fa69fd3642d",
+    "x86_64.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "x86_64.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "x86_64.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "x86_64.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "x86_64.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "x86_64.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "x86_64.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "x86_64.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8"
+  },
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "native_strict_verified": true,
+  "schema": 1,
+  "sign_arguments": [
+    "-s",
+    "-",
+    "--timestamp=none",
+    "\u003cbundle\u003e"
+  ],
+  "source": "acceptance/bundle_test.go: bundleFixture",
+  "verify_arguments": [
+    "--verify",
+    "--strict",
+    "\u003cbundle\u003e"
+  ]
+}

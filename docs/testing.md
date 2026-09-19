@@ -49,6 +49,9 @@ The committed fixtures are small executables compiled from this repository's
 `testdata/src/hello.c`. `scripts/gen-fixtures.py` regenerates them on a development
 Mac and records Apple signing, display, verification, and hashes in the manifest.
 Fixture generation is explicit: normal tests never rewrite expected results.
+The three [native app fixtures](../testdata/bundles/README.md) wrap those small
+programs with public XML/resources and carry a separate manifest. All bundle
+fixture bytes, including Info.plist, are protected from CRLF conversion.
 
 ## Host acceptance
 
@@ -87,6 +90,13 @@ PKCS#12 fixtures cover modern and legacy algorithms; 24 signatures from those
 imports pass native strict verification. These use public test identities, not
 an end-to-end Developer ID signing credential.
 
+Bundle acceptance adds exact executable and CodeResources comparisons for three
+ad-hoc apps, fifteen display comparisons (five per architecture), eleven mutation
+cases and six ad-hoc/RSA apps verified by Apple. Go reproduces the committed
+Apple app fixtures on every OS. Tests also cover force/removal, dry runs and
+unchanged files after timestamp failure. Layout, path, XML and filesystem
+rejection cases run in unit tests. See [bundle scope](bundles.md).
+
 The `xcode-27` hosted runner is selected because its documented image uses macOS
 27. Every run records the actual host and `codesign` hash; that rolling preview
 image is not assumed identical to the local baseline. Output drift fails the
@@ -95,17 +105,18 @@ comparison and must be investigated without silently normalizing it away.
 ## CI
 
 The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
-and Windows jobs upload the actual Mach-O files they signed. A downstream Mac
+and Windows jobs upload the actual Mach-O files and app bundles they signed,
+including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 54 imported files (three ad-hoc, twelve PEM, eight PKCS#12, three chain
-and one timestamp replay per OS).
+all 66 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay and six app bundles per OS).
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector and six bounded fuzz targets:
+Separate jobs run the Go race detector and seven bounded fuzz targets:
 `FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
-`FuzzTimestampHTTP`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
+`FuzzTimestampHTTP` and `FuzzBundleResources`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
 snapshots for all six OS/architecture pairs. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
 

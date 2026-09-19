@@ -1,0 +1,213 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "defaultResourceRules": "0abe26b8d43c952cc17d01b156625376b2b517b9ad6cbbcef9b30acb4be3c9ff",
+    "flags": "ac1b86e03cb13603dcb89662b18112305362a63592b529edb058b0bd43313baa",
+    "hashName": "b21fef90d79b435794a0fa07a9e4b6ca946c3f2b418abc4113c8158c6571cffe"
+  },
+  "schema": 1,
+  "scope": "Verbatim defaultResourceRules and hashName methods and ResourceBuilder flags, with explicit interface/type/signing-flag shims. Source AST facts, not execution of Apple's bundle or trust services.",
+  "sources": {
+    "bundlediskrep.cpp": {
+      "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "resources.cpp": {
+      "sha256": "1a911c38fd9aaa4ddda0e041d5711317e92b312fe62d9b99674f7eca8c5b85c4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/resources.cpp"
+    },
+    "resources.h": {
+      "sha256": "aca0aab49382761c5802f1cc2627e6b80b473b272409ee78eba11c93103214e6",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/resources.h"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "flags": {
+        "exclusion": "16",
+        "nested": "4",
+        "omitted": "2",
+        "optional": "1",
+        "softTarget": "32",
+        "user_controlled": "64"
+      },
+      "methods": {
+        "defaultResourceRules": {
+          "ast_kinds": {
+            "BinaryOperator": 2,
+            "CXXBindTemporaryExpr": 34,
+            "CXXConstructExpr": 12,
+            "CXXFunctionalCastExpr": 12,
+            "CXXMemberCallExpr": 16,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 21,
+            "CXXThisExpr": 2,
+            "CallExpr": 5,
+            "CompoundStmt": 3,
+            "DeclRefExpr": 43,
+            "DeclStmt": 1,
+            "ExprWithCleanups": 4,
+            "IfStmt": 4,
+            "ImplicitCastExpr": 82,
+            "MaterializeTemporaryExpr": 33,
+            "MemberExpr": 17,
+            "ParenExpr": 12,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 5,
+            "StringLiteral": 26,
+            "UnaryOperator": 1,
+            "VarDecl": 1
+          },
+          "literals": [
+            "\"{rules={'^.*' = #T%s = {optional=#T, weight=1000}'^.*/.*\\\\.pkg/' = {omit=#T, weight=10000}}}\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"{rules={'^version.plist$' = #T%s = #T%s = {optional=#T, weight=1000}%s = {omit=#T, weight=1100}}}\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"{rules={'^.*' = #T'^Info\\\\.plist$' = {omit=#T,weight=10}}}\"",
+            "\"{rules={'^version.plist$' = #T%s = #T%s = {optional=#T, weight=1000}%s = {weight=1010}%s = {omit=#T, weight=1100}},rules2={'^.*' = #T'^[^/]+$' = {nested=#T, weight=10}'^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/' = {nested=#T, weight=10}'.*\\\\.dSYM($|/)' = {weight=11}'^(.*/)?\\\\.DS_Store$' = {omit=#T,weight=2000}'^Info\\\\.plist$' = {omit=#T, weight=20}'^version\\\\.plist$' = {weight=20}'^embedded\\\\.provisionprofile$' = {weight=20}'^PkgInfo$' = {omit=#T, weight=20}%s = {weight=20}%s = {optional=#T, weight=1000}%s = {weight=1010}%s = {omit=#T, weight=1100}}}\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\"Base\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\"Base\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"{rules={'^version.plist$' = #T'^.*' = #T'^.*\\\\.lproj/' = {optional=#T, weight=1000}'^Base\\\\.lproj/' = {weight=1010}'^.*\\\\.lproj/locversion.plist$' = {omit=#T, weight=1100}},rules2={'^.*' = #T'.*\\\\.dSYM($|/)' = {weight=11}'^(.*/)?\\\\.DS_Store$' = {omit=#T,weight=2000}'^Info\\\\.plist$' = {omit=#T, weight=20}'^version\\\\.plist$' = {weight=20}'^embedded\\\\.provisionprofile$' = {weight=20}'^PkgInfo$' = {omit=#T, weight=20}'^.*\\\\.lproj/' = {optional=#T, weight=1000}'^Base\\\\.lproj/' = {weight=1010}'^.*\\\\.lproj/locversion.plist$' = {omit=#T, weight=1100}}}\""
+          ]
+        },
+        "hashName": {
+          "ast_kinds": {
+            "CXXConstructExpr": 2,
+            "CXXFunctionalCastExpr": 1,
+            "CXXMethodDecl": 1,
+            "CallExpr": 1,
+            "CaseStmt": 1,
+            "CompoundStmt": 2,
+            "ConstantExpr": 1,
+            "DeclRefExpr": 7,
+            "DeclStmt": 1,
+            "DefaultStmt": 1,
+            "ImplicitCastExpr": 12,
+            "ParenExpr": 1,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 2,
+            "StringLiteral": 2,
+            "SwitchStmt": 1,
+            "UnaryExprOrTypeTraitExpr": 1,
+            "VarDecl": 1
+          },
+          "literals": [
+            "\"hash\"",
+            "\"hash%d\""
+          ]
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "flags": {
+        "exclusion": "16",
+        "nested": "4",
+        "omitted": "2",
+        "optional": "1",
+        "softTarget": "32",
+        "user_controlled": "64"
+      },
+      "methods": {
+        "defaultResourceRules": {
+          "ast_kinds": {
+            "BinaryOperator": 2,
+            "CXXBindTemporaryExpr": 34,
+            "CXXConstructExpr": 12,
+            "CXXFunctionalCastExpr": 12,
+            "CXXMemberCallExpr": 16,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 21,
+            "CXXThisExpr": 2,
+            "CallExpr": 5,
+            "CompoundStmt": 3,
+            "DeclRefExpr": 43,
+            "DeclStmt": 1,
+            "ExprWithCleanups": 4,
+            "IfStmt": 4,
+            "ImplicitCastExpr": 82,
+            "MaterializeTemporaryExpr": 33,
+            "MemberExpr": 17,
+            "ParenExpr": 12,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 5,
+            "StringLiteral": 26,
+            "UnaryOperator": 1,
+            "VarDecl": 1
+          },
+          "literals": [
+            "\"{rules={'^.*' = #T%s = {optional=#T, weight=1000}'^.*/.*\\\\.pkg/' = {omit=#T, weight=10000}}}\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"{rules={'^version.plist$' = #T%s = #T%s = {optional=#T, weight=1000}%s = {omit=#T, weight=1100}}}\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"{rules={'^.*' = #T'^Info\\\\.plist$' = {omit=#T,weight=10}}}\"",
+            "\"{rules={'^version.plist$' = #T%s = #T%s = {optional=#T, weight=1000}%s = {weight=1010}%s = {omit=#T, weight=1100}},rules2={'^.*' = #T'^[^/]+$' = {nested=#T, weight=10}'^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/' = {nested=#T, weight=10}'.*\\\\.dSYM($|/)' = {weight=11}'^(.*/)?\\\\.DS_Store$' = {omit=#T,weight=2000}'^Info\\\\.plist$' = {omit=#T, weight=20}'^version\\\\.plist$' = {weight=20}'^embedded\\\\.provisionprofile$' = {weight=20}'^PkgInfo$' = {omit=#T, weight=20}%s = {weight=20}%s = {optional=#T, weight=1000}%s = {weight=1010}%s = {omit=#T, weight=1100}}}\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\"Base\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"^\"",
+            "\"^\"",
+            "\".*\\\\.lproj/\"",
+            "\"^\"",
+            "\"Base\\\\.lproj/\"",
+            "\"^\"",
+            "\".*\\\\.lproj/locversion.plist$\"",
+            "\"{rules={'^version.plist$' = #T'^.*' = #T'^.*\\\\.lproj/' = {optional=#T, weight=1000}'^Base\\\\.lproj/' = {weight=1010}'^.*\\\\.lproj/locversion.plist$' = {omit=#T, weight=1100}},rules2={'^.*' = #T'.*\\\\.dSYM($|/)' = {weight=11}'^(.*/)?\\\\.DS_Store$' = {omit=#T,weight=2000}'^Info\\\\.plist$' = {omit=#T, weight=20}'^version\\\\.plist$' = {weight=20}'^embedded\\\\.provisionprofile$' = {weight=20}'^PkgInfo$' = {omit=#T, weight=20}'^.*\\\\.lproj/' = {optional=#T, weight=1000}'^Base\\\\.lproj/' = {weight=1010}'^.*\\\\.lproj/locversion.plist$' = {omit=#T, weight=1100}}}\""
+          ]
+        },
+        "hashName": {
+          "ast_kinds": {
+            "CXXConstructExpr": 2,
+            "CXXFunctionalCastExpr": 1,
+            "CXXMethodDecl": 1,
+            "CallExpr": 1,
+            "CaseStmt": 1,
+            "CompoundStmt": 2,
+            "ConstantExpr": 1,
+            "DeclRefExpr": 7,
+            "DeclStmt": 1,
+            "DefaultStmt": 1,
+            "ImplicitCastExpr": 12,
+            "ParenExpr": 1,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 2,
+            "StringLiteral": 2,
+            "SwitchStmt": 1,
+            "UnaryExprOrTypeTraitExpr": 1,
+            "VarDecl": 1
+          },
+          "literals": [
+            "\"hash\"",
+            "\"hash%d\""
+          ]
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "ac5802104b066c10f33bf845661b4e157daee8479c77cf219e179a97d645bb09"
+}

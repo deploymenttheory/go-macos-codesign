@@ -10,6 +10,8 @@ partial; the [capability matrix](compatibility.md) records the remaining gaps.
 | [CLI/build quick start](../README.md) | GoReleaser, common operations and library entry points |
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
+| [App bundles](bundles.md) | Supported layout, resource sealing, verification and filesystem limits |
+| [DMG integration](dmg-integration.md) | Direct reuse of go-apfs-v2 and the boundary with signature generation |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
 | [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and release gates |

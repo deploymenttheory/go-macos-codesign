@@ -13,6 +13,7 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | Certificate signing and policy | RSA/ECDSA CMS, native signature allocation, PEM and authenticated PKCS#12, bounded certificate chains, Team IDs and display metadata | [PR #8, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/8) |
 | RFC 3161 core | Token verification, explicit TSA trust, historical certificate validation, signing callbacks and nonce-bound request/response processing | [PR #9, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/9) |
 | Online timestamps | Pure-Go HTTP transport, Apple/custom TSA CLI options, pinned Apple roots, deadlines, cancellation and failure preservation | [PR #10, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/10) |
+| Basic app bundles | Contents-based APPL signing/removal, XML Info.plist binding, deterministic resource envelopes, metadata display and tamper checks | [Supported profile and native evidence](bundles.md) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -20,6 +21,16 @@ and timestamp handling avoid `crypto/x509`, `crypto/tls` and `net/http`; depende
 guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
+
+The bundle phase passes local `make verify` on the same macOS 27 build, with
+2,926/3,041 library statements (96.22%), 411/413 CLI statements (99.52%) and
+1/1 entry-point statement covered. Native comparisons cover all three app
+executable forms, identical CodeResources, fifteen display cases and eleven
+mutations. golangci-lint and a 30-second resource-parser fuzz run also pass.
+These are local results; this phase's remote checks must establish the expanded
+66-artifact matrix on Linux, Windows and macOS before it is ready to merge.
+
+### Online-timestamp phase CI
 
 The [implementation workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35466827806)
 ran commit `eb5cc318def53a750a0736d42546b3751bec6266` on real Linux, Windows 2025
@@ -53,8 +64,9 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 ## What is still incomplete
 
-App/framework/plugin bundles and resource envelopes are the next planned format
-phase. UDIF/DMG, generic-file and detached signatures follow. Further work includes
+The initial Contents-based app/resource profile is implemented. Binary bundle
+plists, nested code, framework/plugin layouts and symlink/xattr policy are the
+next format work. UDIF/DMG, generic-file and detached signatures follow. Further work includes
 requirement predicates, CodeDirectory variants, metadata preservation, certificate
 and timestamp policy, revocation, and exact CLI diagnostics/localization.
 

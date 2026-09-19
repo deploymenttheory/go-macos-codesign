@@ -141,6 +141,7 @@ type Architecture struct {
 type Report struct {
 	Path          string
 	Format        string
+	Bundle        *BundleInfo `json:",omitempty"`
 	Architectures []Architecture
 	Valid         bool
 }
