@@ -90,49 +90,14 @@ func exportChainArtifact(t *testing.T, name, path string) {
 
 func TestAppleChainRequirements(t *testing.T) {
 	apple(t)
+	keychain := nativeChainKeychain(t)
 	for _, name := range []string{"root", "intermediate", "leaf"} {
 		t.Run(name, func(t *testing.T) {
 			dir := t.TempDir()
-			pfx := filepath.Join(dir, "chain.p12")
-			keychain := filepath.Join(dir, "test.keychain-db")
-			const password = "public-codesign-test-only"
 			bundle := filepath.Join(root, "testdata/chains", name+"-identity.pem")
-			mustRun(t, "/usr/bin/openssl", "pkcs12", "-export", "-in", bundle, "-out", pfx, "-passout", "pass:"+password)
-			exported, err := codesign.LoadIdentityPKCS12(nativeRead(t, pfx), password)
-			if err != nil {
-				t.Fatal("native PFX import", err)
-			}
-			t.Logf("Native export contains %d certificates", len(exported.Certificates))
-			mustRun(t, "/usr/bin/security", "create-keychain", "-p", password, keychain)
-			t.Cleanup(func() { mustRun(t, "/usr/bin/security", "delete-keychain", keychain) })
-			mustRun(t, "/usr/bin/security", "unlock-keychain", "-p", password, keychain)
-			mustRun(t, "/usr/bin/security", "import", pfx, "-k", keychain, "-P", password, "-T", "/usr/bin/codesign")
-			certOutput, certErr, certStatus := run(t, "/usr/bin/security", "find-certificate", "-a", keychain)
-			t.Logf("Imported certificates (status %d): %s %s", certStatus, certOutput, certErr)
-			mustRun(t, "/usr/bin/security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", password, keychain)
-			// --keychain selects an identity, but Apple's chain builder still
-			// searches the user search list. Append only our disposable keychain
-			// and restore the exact original list before deleting it.
-			listing, listErr, listStatus := run(t, "/usr/bin/security", "list-keychains", "-d", "user")
-			if listStatus != 0 {
-				t.Fatal(listErr)
-			}
-			original := []string{"list-keychains", "-d", "user", "-s"}
-			for _, line := range strings.Split(strings.TrimSpace(listing), "\n") {
-				if strings.TrimSpace(line) == "" {
-					continue
-				}
-				name, err := strconv.Unquote(strings.TrimSpace(line))
-				if err != nil {
-					t.Fatal(err)
-				}
-				original = append(original, name)
-			}
-			t.Cleanup(func() { mustRun(t, "/usr/bin/security", original...) })
-			mustRun(t, "/usr/bin/security", append(append([]string(nil), original...), keychain)...)
 			native := filepath.Join(dir, "apple")
 			copyFixture(t, "unsigned-arm64", native)
-			mustRun(t, apple(t), "--keychain", keychain, "-s", "leaf", "-i", "org.example.chain", "--timestamp=none", native)
+			mustRun(t, apple(t), "--keychain", keychain, "-s", "leaf-"+name, "-i", "org.example.chain", "--timestamp=none", native)
 			id, err := codesign.LoadIdentityPEM(nativeRead(t, bundle), nil)
 			if err != nil {
 				t.Fatal(err)
@@ -173,6 +138,61 @@ func TestAppleChainRequirements(t *testing.T) {
 			attest(t, map[string]any{"organization_anchor": name, "directory_and_requirement_bytes_equal": true, "authority_and_team_display_equal": true, "apple_strict_verified": true, "signing_time": metadata.SigningTime.Format(time.RFC3339)})
 		})
 	}
+}
+
+func nativeChainKeychain(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	keychain := filepath.Join(dir, "chains.keychain-db")
+	const password = "public-codesign-test-only"
+	mustRun(t, "/usr/bin/security", "create-keychain", "-p", password, keychain)
+	t.Cleanup(func() { mustRun(t, "/usr/bin/security", "delete-keychain", keychain) })
+	mustRun(t, "/usr/bin/security", "unlock-keychain", "-p", password, keychain)
+	// All profiles reuse the same public test signing key. Import it once,
+	// then import every certificate before any native trust evaluation.
+	for _, name := range []string{"root", "intermediate", "leaf"} {
+		bundle := filepath.Join(root, "testdata/chains", name+"-identity.pem")
+		pfx := filepath.Join(dir, name+".p12")
+		mustRun(t, "/usr/bin/openssl", "pkcs12", "-export", "-in", bundle, "-out", pfx, "-passout", "pass:"+password)
+		id, err := codesign.LoadIdentityPKCS12(nativeRead(t, pfx), password)
+		if err != nil || len(id.Certificates) != 3 {
+			t.Fatal("native PFX chain", err)
+		}
+		if name == "root" {
+			mustRun(t, "/usr/bin/security", "import", pfx, "-k", keychain, "-P", password, "-T", "/usr/bin/codesign")
+			continue
+		}
+		for i, der := range id.Certificates {
+			path := filepath.Join(dir, name+"-"+strconv.Itoa(i)+".der")
+			if err := os.WriteFile(path, der, 0600); err != nil {
+				t.Fatal(err)
+			}
+			mustRun(t, "/usr/bin/security", "import", path, "-k", keychain)
+		}
+	}
+	mustRun(t, "/usr/bin/security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", password, keychain)
+	// --keychain selects the identity; SecTrust uses the user search list.
+	// Keep one stable list for all cases, then restore it before deletion.
+	listing, listErr, status := run(t, "/usr/bin/security", "list-keychains", "-d", "user")
+	if status != 0 {
+		t.Fatal(listErr)
+	}
+	original := []string{"list-keychains", "-d", "user", "-s"}
+	for _, line := range strings.Split(strings.TrimSpace(listing), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		name, err := strconv.Unquote(strings.TrimSpace(line))
+		if err != nil {
+			t.Fatal(err)
+		}
+		original = append(original, name)
+	}
+	t.Cleanup(func() { mustRun(t, "/usr/bin/security", original...) })
+	mustRun(t, "/usr/bin/security", append(append([]string(nil), original...), keychain)...)
+	certs, certErr, certStatus := run(t, "/usr/bin/security", "find-certificate", "-a", keychain)
+	t.Logf("Native chain search list %s; imported certificates (status %d): %s %s", listing, certStatus, certs, certErr)
+	return keychain
 }
 
 func TestAppleDeveloperRequirement(t *testing.T) {
