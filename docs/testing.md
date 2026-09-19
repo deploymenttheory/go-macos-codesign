@@ -1,5 +1,9 @@
 # Testing and release evidence
 
+The [progress report](progress.md#recorded-validation) records the measured
+coverage and native results for a specific implementation commit. This guide
+explains how to reproduce those checks and interpret their limits.
+
 ## Local commands
 
 ```sh
@@ -9,8 +13,9 @@ goreleaser check
 make snapshot
 ```
 
-GoReleaser is the build/packaging tool. Python is used for development-only AST
-extraction, fixture provenance, dependency audits, and coverage aggregation.
+GoReleaser is the build/packaging tool. Go and Python research drivers perform
+development-only Clang AST extraction. Python also checks fixture provenance,
+audits dependencies and aggregates coverage.
 The acceptance harness builds an instrumented CLI using Go's native coverage
 support; it does not invoke an installed copy of the implementation.
 
@@ -52,7 +57,7 @@ failure. On non-Mac hosts, Apple-only tests explicitly skip while portable fixtu
 comparisons and CLI tests still run. Skipped Apple checks are not evidence of
 native parity.
 
-The matrix currently contains 21 exact signing comparisons, five exact display
+The ad-hoc matrix contains 21 exact signing comparisons, five exact display
 comparisons, binary-entitlement rejection, tamper rejection, and successful native
 execution of an ad-hoc file signed by the Go CLI. The local baseline is macOS
 27.0 build 26A428. A passing case is evidence for that case and baseline only.
@@ -75,6 +80,13 @@ on all three operating systems. Their provenance and hashes are committed;
 authenticated CMS attributes and algorithm encodings are also compared. See the
 fixture README for explicit regeneration instructions.
 
+Chain acceptance adds three native organization-anchor comparisons and a
+Developer ID requirement comparison against `csreq`. A real public Developer ID
+chain establishes Team ID recognition at a fixed historical time. Twelve
+PKCS#12 fixtures cover modern and legacy algorithms; 24 signatures from those
+imports pass native strict verification. These use public test identities, not
+an end-to-end Developer ID signing credential.
+
 The `xcode-27` hosted runner is selected because its documented image uses macOS
 27. Every run records the actual host and `codesign` hash; that rolling preview
 image is not assumed identical to the local baseline. Output drift fails the
@@ -91,19 +103,42 @@ Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector, bounded Mach-O/identity/CMS/PKCS#12/timestamp fuzzing, and GoReleaser snapshots
-for all six OS/architecture pairs. The race detector's compiler dependency is
+Separate jobs run the Go race detector and six bounded fuzz targets:
+`FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
+`FuzzTimestampHTTP`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
+snapshots for all six OS/architecture pairs. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
 
 Timestamp acceptance replays an Apple-issued token into a freshly signed RSA
 arm64 file and requires complete native-fixture byte equality. The Mac checks
 strict verification and tampering with `codesign`, and independently verifies
 TSA CMS integrity and the path at the recorded time with OpenSSL. Every OS
-checks explicit TSA trust and historical validity. Routine tests do not contact
-a TSA; fixture regeneration is an explicit opt-in. See [timestamps](timestamps.md).
+checks explicit TSA trust and historical validity.
 
-`go-lint.yml` pins the linter and fails on reported issues. It does not suppress
-failures with an exit-code override or automatically modify source files.
+`TestCLITimestampHTTP` runs an independent local HTTP TSA on all three OSes. The
+compiled CLI signs all Mach-O forms, validates nonce/imprint/signature/trust and
+handles chunked replies. The test checks unchanged input after HTTP failure,
+deadline expiry, bad tokens and a failed second architecture; dry runs acquire
+tokens without writing. Unit tests cover cancellation, header/body limits and
+malformed framing. Routine CI contacts only this loopback TSA, not a public one.
+
+On macOS, `TestAppleTimestampOptionParity` compares native and Go ad-hoc results
+and exit codes for bare, disabled, custom-HTTP, empty and HTTPS timestamp options.
+The online live check explicitly contacts Apple's TSA and is opt-in:
+
+```sh
+MACOSCODESIGN_LIVE_TIMESTAMP=1 MACOSCODESIGN_REQUIRE_APPLE=1 \
+  MACOSCODESIGN_EVIDENCE_DIR="$PWD/artifacts/live-timestamps" \
+  CGO_ENABLED=0 go test ./acceptance -run '^TestCLILiveAppleTimestamp$' -count=1 -v
+```
+
+It uses the production CLI transport and native strict verification on arm64,
+x86_64 and universal outputs. The JSON attestations retain timestamps, output
+hashes and native results. Network/service availability affects this check; it
+does not replace deterministic CI. See [timestamp policy and transport limits](timestamps.md).
+
+`go-lint.yml` runs golangci-lint only and fails on reported issues. SuperLinter
+is removed. Lint failures are not suppressed or automatically fixed in CI.
 
 ## Release gate
 

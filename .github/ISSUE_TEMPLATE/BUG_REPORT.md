@@ -1,66 +1,33 @@
 ---
-name: "Bug report 🐛"
-about: Report errors, unexpected behavior, or issues in the project
-title: 'Bug Report: [Short Description of Bug]'
+name: Bug report
+about: Report unexpected signing, verification or CLI behavior
+title: 'Bug: '
 labels: bug
 assignees: ''
 ---
 
-<!-- Please search existing issues to avoid creating duplicates. -->
+## Problem
 
-## Description
+Describe the expected and actual behavior. Include the exact command, exit code,
+stdout and stderr, with secrets removed.
 
-Provide a clear and concise description of the bug. Include any relevant information such as error messages, unexpected behavior, or what you were trying to achieve when the bug occurred.
+## Reproduction
 
-### Steps to Reproduce
+Provide a minimal reproduction using public test data where possible. Describe
+the Mach-O form (arm64, x86_64 or universal), signing algorithm, identity format
+and relevant options. Do not attach private keys, passwords or sensitive binaries.
 
-Please provide a step-by-step list of actions to reproduce the bug:
+## Environment
 
-1. 
-2. 
-3. 
-4. 
+- Repository commit or snapshot:
+- Operating system, version and architecture:
+- Go version, if built locally:
+- Native macOS baseline and `codesign` result, if compared:
 
-### Expected Behavior
+## Evidence
 
-Describe what you expected to happen.
+Link a failing CI run or attach relevant redacted `artifacts/unit.jsonl`,
+`artifacts/acceptance.jsonl` and `artifacts/provenance.json` output. If the result
+differs from Apple, identify the first differing behavior or bytes.
 
-### Actual Behavior
-
-Describe what actually happened.
-
-### Environment
-
-- **OS**: [e.g., Windows, macOS, Linux]
-- **Browser**: [if applicable, include browser name and version]
-- **Terraform Version**: [if applicable]
-- **Provider Version**: [if applicable]
-- **Other dependencies**: [e.g., specific libraries, versions, etc.]
-
-### Additional Context
-
-Add any other context about the problem here. Include logs, error messages, or links to related issues if available.
-
-### Possible Solution
-
-If you have an idea of what might be causing the issue, suggest a fix or workaround here.
-
-### Screenshots or Videos
-
-If applicable, add screenshots or videos to help explain your problem.
-
-### Logs & Console Output
-
-Please include any relevant logs, stack traces, or console output. You can attach files or paste the log content here.
-
-### Related Issues
-
-If this bug is related to other issues, please link them here.
-
-### Priority
-
-How critical is this issue? Choose one of the following:
-- Low (Minor issue, can wait)
-- Medium (Needs to be fixed but not urgent)
-- High (Causes significant problems, needs prompt attention)
-- Critical (Breaks major functionality or causes data loss)
+For a potential vulnerability, follow SECURITY.md instead of publishing details.

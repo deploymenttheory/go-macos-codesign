@@ -1,33 +1,42 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## Unreleased
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-
-- Added xyz [@your_username](https://github.com/your_username)
-
-### Fixed
-
-- Fixed zyx [@your_username](https://github.com/your_username)
-
-## [1.1.0] - 2021-06-23
+The implementation is under development. Full-parity releases remain blocked by
+the [compatibility inventory](spec/compatibility.json). The entries below describe
+implemented development work, not published versioned releases. See
+[project progress](docs/progress.md) for milestones and measured validation.
 
 ### Added
 
-- Added x [@your_username](https://github.com/your_username)
+- Pure-Go Mach-O library and Cobra/Viper CLI for signing, inspecting, verifying
+  and removing embedded signatures on Linux, macOS and Windows.
+- Ad-hoc signing for arm64, x86_64 and universal files; XML/DER entitlements,
+  selected CodeDirectory options and a requirements compiler/evaluator subset.
+- RSA and ECDSA P-256/P-384/P-521 CMS signing, Apple hash-agility attributes,
+  native allocation/BER compatibility and unencrypted PEM identities.
+- Bounded certificate-chain policy, explicit leaf pins/CA roots, recognized
+  Apple Team IDs, authority/signing metadata and authenticated PKCS#12 import.
+- RFC 3161 token verification, separate TSA trust, historical certificate
+  validation, library signing callbacks and nonce-bound SHA-256 exchanges.
+- Online CLI timestamps through Apple's HTTP TSA or a custom HTTP endpoint,
+  bundled public Apple roots, request deadlines and cancellation.
+- Clang AST research with pinned source hashes, native macOS differential
+  acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
+- Linux/macOS/Windows CI, race checks, six fuzz targets, and native verification
+  of 54 Linux/Windows-produced signatures.
+- GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed
 
-- Changed y [@your_username](https://github.com/your_username)
+- Use golangci-lint as the sole code-linting workflow; remove SuperLinter.
+- Keep production dependency graphs free of Apple trust bridges, including
+  indirect `crypto/x509`, TLS and HTTP imports. Retain attributed, pinned Afero
+  and RC2 subsets for portable configuration and legacy PKCS#12 decoding.
 
-## [1.0.0] - 2021-06-20
+### Fixed
 
-### Added
-
-- Inititated y [@your_username](https://github.com/your_username)
-- Inititated z [@your_username](https://github.com/your_username)
+- Preserve LF/binary fixture bytes across Windows checkouts and retain detailed
+  failure transcripts, byte-difference diagnostics and source provenance in CI.
+- Match tested native timestamp option exit codes and ad-hoc behavior; preserve
+  the input when timestamp acquisition fails, including on a later fat slice.

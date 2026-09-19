@@ -4,17 +4,40 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
+The certificate-chain/Team ID/PKCS#12 phase and RFC 3161 core are merged. Online
+HTTP timestamp acquisition is merged in [PR #10](https://github.com/deploymenttheory/go-macos-codesign/pull/10).
+See [progress](progress.md) for the tested commit, native evidence and coverage.
+
 | Stage | Current result | Outstanding work |
 | --- | --- | --- |
-| Repository and research | Go module; Cobra/Viper CLI; reviewed both local references and other-language projects; Clang SDK AST/layout capture | Reproducible Apple C++ source translation units and a wider source/behavior inventory |
+| Repository and research | Go module; Cobra/Viper CLI; local and GitHub references; Clang SDK, C/C++ and Objective-C excerpts for formats, allocation, requirements, Team IDs and timestamps | Wider source/control-flow coverage and full private translation units where reproducible |
 | Binary formats | Bounded Mach-O/fat parsing, SuperBlob, versioned CodeDirectory, hashes, requirement subset, XML/DER entitlements | All historical/new slots, scatter/pre-encrypt data, full requirements and constraints |
 | Ad-hoc writer | Thin/fat signatures, replacement/removal, version and executable metadata, exact fixture comparisons | Header expansion, legacy digest selection, detached formats, full preservation/error semantics |
-| Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata; RFC 3161 callbacks, nonce-bound exchanges and online HTTP CLI timestamps | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence, hybrid algorithms, broader TSA transport behavior |
+| Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence and hybrid algorithms |
+| Timestamps | RFC 3161 verification/providers, nonce-bound SHA-256 exchanges, direct HTTP CLI acquisition, pinned Apple roots, deadlines and cancellation; live native verification on three Mach-O forms | Broader TSA/Apple policy, revocation, proxy/redirect behavior and additional CMS/BER forms |
 | Bundles and resources | External Info.plist/resource hash inputs available in library | Bundle discovery, deterministic resource envelopes, nested signing, symlink/xattr policy, strict verification |
 | Other representations | Format boundaries identified | UDIF/DMG signing using reviewed APFS fields, generic/xattr files, detached signatures and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI and native verification of Linux/Windows artifacts (54 expected with timestamp replay); GoReleaser | Confirm each changed commit's actual CI results, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; 54 Linux/Windows artifacts verified by Apple; six-target GoReleaser builds; golangci-lint, race and six fuzz targets | Validate each changed commit, extend acceptance to every feature/input class, clear every full-parity blocker |
+
+## Next implementation sequence
+
+1. **Bundles and resource envelopes:** use pinned Apple sources and Clang to
+   establish bundle discovery and sealing rules. Implement basic app layouts,
+   Info.plist binding and deterministic CodeResources, then verify resource
+   addition/removal/tampering with both Go and Apple. Extend to nested code,
+   frameworks, symlinks and strict verification after the basic format passes.
+2. **Additional representations:** add UDIF/DMG support using the reviewed APFS
+   fields and signing references, then detached and generic-file representations.
+3. **Wider signature and policy compatibility:** add remaining requirement
+   predicates, CodeDirectory/digest variants, preservation semantics, certificate
+   and timestamp policy, and diagnostic parity with independent acceptance cases.
+
+These are proposed implementation stages, not delivered capabilities. Host-state
+features retain the portability blockers described below.
+
+## Requirements for every phase
 
 Each new capability needs source/AST evidence, malformed-input handling, meaningful
 unit tests, a standalone Linux/Windows execution path, and independent host

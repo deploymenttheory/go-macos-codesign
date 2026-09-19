@@ -109,7 +109,7 @@ source may lag the installed macOS version. Host observations therefore take
 precedence when a versioned discrepancy is found. No claim is made that an older
 source revision describes every macOS 27 feature.
 
-## Local reference repositories
+## Timestamp research
 
 Timestamp research uses [RFC 3161](https://www.rfc-editor.org/rfc/rfc3161) and
 [RFC 5816](https://www.rfc-editor.org/rfc/rfc5816), alongside Apple's pinned
@@ -140,12 +140,15 @@ The [additional GitHub implementation review](reference-implementations.md)
 records pinned Go, Rust, Python, and C++ sources for CMS, bundles, DMGs, and
 further Clang AST research, including their known compatibility limits.
 
+## Local reference repositories
+
 The initial review covered `deploymenttheory/go-macos-pkg-1` and `sdk/go-apfs-v2`.
 Their useful patterns included separation of CLI and SDK code, subprocess-based
 acceptance tests, fixture manifests, and explicit unsupported behavior. The package
 project's identity/CMS/timestamp components and the APFS project's UDIF signature
-offset/length fields remain references for unfinished certificate and disk-image
-work. They have not been introduced as production dependencies.
+offset/length fields informed the implemented certificate/timestamp work and
+remain references for the upcoming disk-image phase. They have not been
+introduced as production dependencies.
 
 ## Observations encoded in tests
 

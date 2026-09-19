@@ -94,11 +94,17 @@ not solve the requirement for a portable signing implementation.
 
 ## Application to this project
 
-Use Relic and ipsw to compare Go CMS structure, with signapple and zsign-rs as
-independent encoding references. Extend acceptance cases to certificate-signed
-thin and universal binaries, then nested bundles and DMGs. Compare both native
-verification behavior and signature structure; acceptance alone does not prove
-byte equality or complete CLI parity.
+Relic and ipsw informed the CMS structure and hash-agility comparisons, with
+signapple and zsign-rs as independent encoding references. Certificate signing
+for thin and universal binaries, native allocation, chain/Team ID policy,
+PKCS#12 and RFC 3161 support are now implemented. Relic's transport interface and
+ipsw's unsigned-attribute handling also informed the timestamp phase. Evidence
+and remaining limits are in [certificates](certificates.md),
+[timestamps](timestamps.md) and the [progress report](progress.md).
+
+Next, apply the resource-envelope and nested-code references to bundle support,
+then the UDIF references to DMGs. Compare native verification and signature
+structure; acceptance alone does not prove byte equality or complete CLI parity.
 
 Use sigtool and LLVM as additional C++ inputs for Clang AST research. Keep Apple
 Security as the primary behavioral source and record disagreements with the
@@ -106,4 +112,5 @@ host version. None of these additional AST analyses has been run yet.
 
 Production remains pure Go. Clang, Apple `codesign`, and other reference tools
 are research/acceptance tools only. Build and release packaging remains with
-GoReleaser. No production code or dependencies changed during this review.
+GoReleaser. The initial reference review introduced no production dependencies;
+subsequent implementation phases are tracked in the project roadmap.

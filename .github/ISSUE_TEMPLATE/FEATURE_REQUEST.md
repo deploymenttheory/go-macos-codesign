@@ -1,40 +1,27 @@
 ---
-name: "Feature request 🚀"
-about: Suggest an idea or improvement for this project
-title: 'Feature Request: [Short Description of Feature]'
+name: Feature request
+about: Propose a codesign compatibility or portability improvement
+title: 'Feature: '
 labels: feature
 assignees: ''
 ---
 
-<!-- Please search existing issues to avoid creating duplicates. -->
+## Requested behavior
 
-## Description
+Describe the use case and the native `codesign` option, format or behavior involved.
+Check docs/compatibility.md and spec/compatibility.json for existing coverage.
 
-Provide a clear and concise description of the feature or improvement you are requesting. Explain why this feature is important and how it would benefit users.
+## Expected result
 
-### Proposed Solution
+Provide an example command and expected result. Identify the macOS reference
+version where known, and how an independent acceptance test could verify it.
 
-Describe how you think the feature should work. Include any details that might help in understanding the implementation.
+## Portability and references
 
-### Use Case
+Describe any dependence on host state, keychains or non-exportable keys. Link
+relevant Apple source, Clang AST facts or other implementation references.
+Production must remain pure Go and work without Apple services.
 
-Explain the use case(s) for this feature. Why do you need it? How will it be used?
+## Related work
 
-### Alternatives Considered
-
-If applicable, list any alternative solutions or features you have considered. Explain why these alternatives are not sufficient.
-
-### Additional Context
-
-Add any other context, screenshots, or details that would help understand your request better.
-
-### Priority
-
-How important is this feature to you? Choose one of the following:
-- Low (Nice to have, but not critical)
-- Medium (Important but not urgent)
-- High (Urgent, needs to be prioritized)
-
-### Related Issues
-
-If this feature request is related to other issues or feature requests, please link them here.
+Link related issues, roadmap entries or PRs, and explain any ordering dependency.
