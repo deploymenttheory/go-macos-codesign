@@ -46,10 +46,44 @@ func InspectBytes(data []byte) (*Report, error) {
 			if err != nil {
 				return nil, err
 			}
+			// Inspection remains possible when a CMS is damaged or unsupported.
+			// Metadata is included only when its binding can be verified.
+			a.Signature.CertificateMetadata, _ = InspectCertificateMetadata(a.Signature)
 		}
 		r.Architectures = append(r.Architectures, a)
 	}
 	return r, nil
+}
+
+// InspectCertificateMetadata verifies the CMS binding and orders authorities by
+// certificate signatures. It does not validate trust or certificate expiration.
+func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
+	if sig == nil {
+		return nil, ErrUnsigned
+	}
+	cms := sig.find(SlotCMS)
+	if len(cms) <= 8 {
+		return nil, nil
+	}
+	dirs := [][]byte{sig.find(SlotDirectory)}
+	for slot := uint32(0x1000); slot < 0x1005; slot++ {
+		if cd := sig.find(slot); cd != nil {
+			dirs = append(dirs, cd)
+		}
+	}
+	info, err := VerifyCMS(cms[8:], dirs)
+	if err != nil {
+		return nil, err
+	}
+	path, err := linkedCertificates(info.SignerCertificate, info.Certificates)
+	if err != nil {
+		return nil, err
+	}
+	chain, err := describeChain(path)
+	if err != nil {
+		return nil, err
+	}
+	return &CertificateMetadata{Authorities: chain.Authorities, SigningTime: info.SigningTime}, nil
 }
 
 func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
@@ -104,9 +138,6 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 			for _, pin := range opts.TrustedCertificates {
 				trusted = trusted || bytes.Equal(pin, signer)
 			}
-			if !trusted {
-				return r, ErrUntrusted
-			}
 			cert, _ := parseCertificate(signer) // VerifyCMS already parsed it.
 			at := opts.CurrentTime
 			if at.IsZero() {
@@ -114,6 +145,23 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 			}
 			if err := checkCertificatePurpose(cert, at); err != nil {
 				return r, err
+			}
+			if !trusted {
+				chain, err := VerifyCertificateChain(signer, info.Certificates, opts.TrustedRoots, at)
+				if err != nil {
+					return r, err
+				}
+				info.Certificates = chain.Certificates
+			}
+			path, err := linkedCertificates(signer, info.Certificates)
+			if err != nil {
+				return r, err
+			}
+			for i := range a.Signature.Directories {
+				a.Signature.Directories[i].chain = path
+				if err := checkTeamID(path, a.Signature.Directories[i].TeamID); err != nil {
+					return r, err
+				}
 			}
 		}
 		for _, d := range a.Signature.Directories {

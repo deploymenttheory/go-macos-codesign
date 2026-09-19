@@ -9,9 +9,11 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/asn1"
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"sort"
+	"strings"
 	"time"
 
 	"howett.net/plist"
@@ -156,11 +158,7 @@ func SignCMS(ctx context.Context, id *Identity, directories [][]byte, signingTim
 	if err != nil {
 		return nil, err
 	}
-	// Marshal only a fixed plist schema containing byte strings.
-	plistBytes, err := plist.MarshalIndent(pl, plist.XMLFormat, "\t")
-	if err != nil {
-		return nil, err
-	}
+	plistBytes := appleHashAgilityPlist(pl)
 	date, err := asn1.Marshal(signingTime)
 	if err != nil {
 		return nil, err
@@ -181,7 +179,7 @@ func SignCMS(ctx context.Context, id *Identity, directories [][]byte, signingTim
 	if err != nil {
 		return nil, fmt.Errorf("CMS signing: %w", err)
 	}
-	sigOID, withNull := oidRSA, true
+	sigOID, withNull := oidSHA256RSA, true
 	if _, ok := leaf.public.(*ecdsa.PublicKey); ok {
 		sigOID, withNull = oidSHA256ECDSA, false
 	}
@@ -192,12 +190,24 @@ func SignCMS(ctx context.Context, id *Identity, directories [][]byte, signingTim
 	}
 	serial := derSequence(leaf.tbs.Issuer.FullBytes, derPositive(leaf.tbs.Serial))
 	attrs[0] = 0xa0 // Signed as SET OF, stored as [0] IMPLICIT (RFC 5652 §5.4).
-	signer := derSequence([]byte{2, 1, 1}, serial, derAlgorithm(oidSHA256, false), attrs, derAlgorithm(sigOID, withNull), derWrap(4, sig))
+	signer := derSequence([]byte{2, 1, 1}, serial, derAlgorithm(oidSHA256, true), attrs, derAlgorithm(sigOID, withNull), derWrap(4, sig))
 	certs := append([][]byte(nil), id.Certificates...)
 	set := derSet(certs...)
 	set[0] = 0xa0
-	signed := derSequence([]byte{2, 1, 1}, derSet(derAlgorithm(oidSHA256, false)), derSequence(derOID(oidData)), set, derSet(signer))
-	return derSequence(derOID(oidSignedData), derWrap(0xa0, signed)), ctx.Err()
+	signed := cmsBERWrap(0x30, []byte{2, 1, 1}, derSet(derAlgorithm(oidSHA256, true)), cmsBERWrap(0x30, derOID(oidData)), set, derSet(signer))
+	return cmsBERWrap(0x30, derOID(oidSignedData), cmsBERWrap(0xa0, signed)), ctx.Err()
+}
+
+// CoreFoundation's XML representation is authenticated by the CMS signature.
+// Hashes are 20-byte CDHashes, so each base64 value fits on a single line.
+func appleHashAgilityPlist(pl cdHashPlist) []byte {
+	var out strings.Builder
+	out.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>cdhashes</key>\n\t<array>\n")
+	for _, hash := range pl.CDHashes {
+		out.WriteString("\t\t<data>\n\t\t" + base64.StdEncoding.EncodeToString(hash) + "\n\t\t</data>\n")
+	}
+	out.WriteString("\t</array>\n</dict>\n</plist>\n")
+	return []byte(out.String())
 }
 
 func verifyCMSSignature(pub crypto.PublicKey, alg algorithmIdentifier, hashed, sig []byte) error {
@@ -223,6 +233,10 @@ func verifyCMSSignature(pub crypto.PublicKey, alg algorithmIdentifier, hashed, s
 }
 
 func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
+	der, err := cmsEnvelopeDER(der)
+	if err != nil {
+		return nil, nil, err
+	}
 	var envelope cmsContent
 	if err := decodeDER(der, &envelope); err != nil {
 		return nil, nil, err
@@ -302,8 +316,8 @@ func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, er
 
 // VerifyCMS verifies cryptographic integrity and Apple CodeDirectory bindings.
 // It deliberately does not evaluate certificate trust, validity dates, a chain,
-// revocation, or timestamp policy. VerifyBytes adds explicit leaf-certificate
-// pinning and current-time purpose/validity checks before reporting Valid.
+// revocation, or timestamp policy. VerifyBytes adds explicit leaf pins or CA
+// paths and current-time purpose/validity checks before reporting Valid.
 func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	pl, agility, err := directoryHashes(directories)
 	if err != nil {

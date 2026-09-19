@@ -54,7 +54,47 @@ ipsw, signapple, and zsign-rs references. The SEC1 key parser follows
 [RFC 5915](https://www.rfc-editor.org/rfc/rfc5915). Native verification and an
 independent OpenSSL CMS verifier check the resulting encodings in acceptance.
 
+### Signature layout and CMS encoding
+
+`scripts/extract-signature.py` compiles the pinned `CodeSigner.cpp` default-budget
+assignment and the complete `SuperBlobCore::Maker::size` method body through Clang
+for both target architectures. Surrounding type declarations are explicit shims;
+the method body and assignment are verbatim. `spec/apple-signature.json` records
+the extracted 18,000-byte CMS budget, method type, AST node counts/operators, and
+source/excerpt/translation-unit hashes. This is source-level AST research, not a
+claim to have compiled the full private Apple implementation or inferred wire
+layout from the shim types.
+
+Download `CodeSigner.cpp`, `superblob.h`, and `cmsasn1.c` from the pinned URLs in
+that record into `.research/apple`, then run `make research-signature`.
+The CMS template source declares streamable outer containers while its signer
+records remain definite-length. Native outputs establish the observed BER form,
+SHA-256 parameters, and CoreFoundation hash-agility XML formatting. Those bytes
+are checked by RSA comparisons at identical signing times and by authenticated
+metadata comparisons for ECDSA. Native fixtures and the 64-case host matrix cover
+allocation alignment; the AST method itself is not an executed native oracle.
+
 ## Primary implementation references
+
+### Certificate chains, Team IDs and PKCS#12
+
+`make research-certificates` analyzes the complete verbatim macOS Team ID method
+from `CodeSigner.cpp`, the organization anchor method from `drmaker.cpp`, and
+developer requirement constants from `StaticCode.cpp`. Two-target Clang AST
+counts, extracted constants and source/excerpt hashes are in
+`spec/apple-certificates.json`. Type shims support parsing; they do not execute
+Apple trust services or establish private-framework behavior.
+
+Portable chain constraints follow the implemented subset of
+[RFC 5280](https://www.rfc-editor.org/rfc/rfc5280). PKCS#12 follows
+[RFC 7292](https://www.rfc-editor.org/rfc/rfc7292) and was compared with
+[SSLMate/go-pkcs12](https://github.com/SSLMate/go-pkcs12). That package was not
+added as a dependency because it imports `crypto/x509`; the parser here always
+requires authenticated PFX contents. Only the unmodified Go `x/crypto` RC2
+primitive is retained as an attributed dependency for legacy imports.
+[Apple's published roots](https://www.apple.com/certificateauthority/) pin
+developer recognition independently of caller trust. See fixture manifests for
+public certificate, OpenSSL version and password provenance.
 
 | Source | Use in this project |
 | --- | --- |

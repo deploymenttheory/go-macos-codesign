@@ -13,10 +13,10 @@ statements, not the percentage of Apple's functionality implemented.
 | --- | --- | --- |
 | Mach-O parsing | Thin 32/64-bit, both byte orders; fat 32/64-bit; bounds and overlap checks | Host acceptance for legacy architectures and unusual load-command layouts |
 | Ad-hoc signing | SHA-256 CodeDirectory, signature allocation, all slices, replacement, identifiers, page size, selected flags, runtime version | Header expansion, alternate digests, scatter/pre-encrypt forms, full metadata preservation |
-| Certificate signing | RSA and ECDSA P-256/P-384/P-521 CMS, PEM identities, Apple hash-agility attributes; host verifies thin/fat output | Native allocation and requirement synthesis, PKCS#12/encrypted keys, timestamps, hybrid signatures |
+| Certificate signing | RSA and ECDSA P-256/P-384/P-521 CMS, PEM/PKCS#12 identities, native allocation and hash agility, organization/Developer ID requirements and Team ID derivation | Broader identity formats, Apple-proper requirements, encrypted PEM, timestamps, hybrid signatures |
 | Entitlements | XML and DER encoding, executable flags, extraction; typed plist values | Full malformed-input/error parity, constraints, macOS 27 hybrid signing interactions |
-| Requirements | Identifier, CDHash, leaf certificate hash, boolean operations, standalone binary requirements and designated sets | Other certificate/anchor predicates, Info.plist predicates, complete native grammar and diagnostic output |
-| Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins, certificate validity/purpose | General CMS/BER forms, chain/Apple policies, timestamps, revocation, platform strictness, notarization |
+| Requirements | Identifier, CDHash, certificate index/root hash, subject CN/O/OU, extension existence, generic Apple anchor, boolean expressions | Remaining predicates, Info.plist predicates, complete native grammar and diagnostic output |
+| Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain policy, Team ID consistency | Full PKIX/Apple policies, general CMS/BER forms, timestamps, revocation, platform strictness, notarization |
 | CLI | Cobra dispatch; native grouped short options; explicit Viper config; sign/verify/display/remove subset | Every native option and combination, complete diagnostics/exit behavior, detached signatures |
 | Formats | Embedded Mach-O signatures | App/framework/plugin bundles, resource envelopes, UDIF/DMG, generic-file/xattr representations |
 | Host state | Explicit unsupported errors | Hosting/PID verification, system detached database, keychain selection and non-exportable keys |
@@ -47,15 +47,21 @@ binary-plist entitlement input on the pinned baseline, and this CLI reproduces
 that rejection. Library conversion is an extension, not a native CLI parity claim.
 
 `Identity` accepts an exportable RSA/ECDSA signing key and leaf-first raw DER
-certificates. `LoadIdentityPEM` loads supported unencrypted PEM forms. Certificate
-verification requires an explicit leaf pin in `VerifyOptions.TrustedCertificates`;
+certificates. `LoadIdentityPEM` loads supported unencrypted PEM forms and
+`LoadIdentityPKCS12` imports authenticated PFX archives. Certificate verification
+requires an explicit leaf pin in `VerifyOptions.TrustedCertificates` or a valid
+path to `VerifyOptions.TrustedRoots`;
 page hashes alone never prove certificate-backed validity. These portable trust
 inputs and the `-s FILE --key FILE` CLI convention are extensions, not native
 keychain behavior. See [certificate signing](certificates.md) for exact limits.
 
 Twelve certificate cases are accepted by Apple and independently verified by
 OpenSSL, with code/CMS tampering rejected by both Apple and Go. Their allocation
-and default designated requirements are not yet exact matches for Apple's.
+and default designated requirements now have the additional native comparisons
+described in [certificate signing](certificates.md), including 64 layout cases,
+three organization-based chain cases, and 24 PKCS#12 signing cases. Display
+authority and Team ID lines match the tested native cases; localized date output
+and metadata for timestamped/unsupported CMS remain incomplete.
 
 The file writer constructs all slices before writing and preserves the target's
 inode, permissions, ownership, and attributes through in-place writes. It rejects

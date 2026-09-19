@@ -1,0 +1,104 @@
+{
+  "assignment_sha256": "8d19325f95330c71d6e55ec4ddb88eaa1d8c4b379934bd79e7cee2f5dd00de69",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "schema": 1,
+  "scope": "verbatim assignment and complete sizing method body, with declared type shims; not the full Apple translation unit or a wire-layout derivation",
+  "sdk": "MacOSX.sdk",
+  "sizing_excerpt_sha256": "15f2cd196b1cf8ba6a1526d62aa9567be06da9dd569a79839fc7560c9e905d4a",
+  "sources": {
+    "CodeSigner.cpp": {
+      "sha256": "3e795cead85abbc48aa665875b7540073212339222af1950b3631922ab425807",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/CodeSigner.cpp"
+    },
+    "cmsasn1.c": {
+      "sha256": "996194ce8cceeed410bf46c0e3acd108921891a10ec6037aeffffcd1265bcba9",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/cmsasn1.c"
+    },
+    "superblob.h": {
+      "sha256": "dde24f47dee3cefc3349d4628df724cf860f552fc78f32544d7a0c2cbd1fa368",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/superblob.h"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "default_cms_blob_size": 18000,
+      "sizing_ast_node_counts": {
+        "BinaryOperator": 5,
+        "CXXDependentScopeMemberExpr": 5,
+        "CXXMemberCallExpr": 3,
+        "CXXMethodDecl": 1,
+        "CXXOperatorCallExpr": 3,
+        "CXXThisExpr": 3,
+        "CallExpr": 6,
+        "CompoundAssignOperator": 4,
+        "CompoundStmt": 3,
+        "DeclRefExpr": 29,
+        "DeclStmt": 5,
+        "DoStmt": 1,
+        "ExprWithCleanups": 1,
+        "ForStmt": 2,
+        "IfStmt": 1,
+        "ImplicitCastExpr": 17,
+        "IntegerLiteral": 1,
+        "MaterializeTemporaryExpr": 1,
+        "MemberExpr": 6,
+        "ParmVarDecl": 2,
+        "ReturnStmt": 1,
+        "UnaryExprOrTypeTraitExpr": 2,
+        "UnaryOperator": 2,
+        "VAArgExpr": 1,
+        "VarDecl": 5
+      },
+      "sizing_method_type": "size_t (const std::vector<size_t> &, size_t, ...) const",
+      "sizing_operators": [
+        "!=",
+        "*",
+        "+",
+        "++",
+        "+=",
+        "="
+      ]
+    },
+    "x86_64-apple-macos27": {
+      "default_cms_blob_size": 18000,
+      "sizing_ast_node_counts": {
+        "BinaryOperator": 5,
+        "CXXConstructExpr": 1,
+        "CXXDependentScopeMemberExpr": 5,
+        "CXXMemberCallExpr": 3,
+        "CXXMethodDecl": 1,
+        "CXXOperatorCallExpr": 3,
+        "CXXThisExpr": 3,
+        "CallExpr": 6,
+        "CompoundAssignOperator": 4,
+        "CompoundStmt": 3,
+        "DeclRefExpr": 29,
+        "DeclStmt": 5,
+        "DoStmt": 1,
+        "ExprWithCleanups": 1,
+        "ForStmt": 2,
+        "IfStmt": 1,
+        "ImplicitCastExpr": 20,
+        "IntegerLiteral": 1,
+        "MaterializeTemporaryExpr": 1,
+        "MemberExpr": 6,
+        "ParmVarDecl": 2,
+        "ReturnStmt": 1,
+        "UnaryExprOrTypeTraitExpr": 2,
+        "UnaryOperator": 2,
+        "VAArgExpr": 1,
+        "VarDecl": 5
+      },
+      "sizing_method_type": "size_t (const std::vector<size_t> &, size_t, ...) const",
+      "sizing_operators": [
+        "!=",
+        "*",
+        "+",
+        "++",
+        "+=",
+        "="
+      ]
+    }
+  },
+  "translation_unit_sha256": "258a0f0e94b242d401983d7cec1bed9aa304a7d633f0b3d7c5b82fbc28f48036"
+}

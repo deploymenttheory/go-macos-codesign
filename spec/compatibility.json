@@ -381,8 +381,8 @@
     {
       "id": "certificate-signing",
       "status": "partial",
-      "notes": "RSA/ECDSA PEM identities, SHA-256 CMS with Apple hash agility, leaf-hash requirements, and explicit leaf-pin verification pass host acceptance. Native allocation/default requirements, PKCS#12, Apple chain policy, timestamps, hybrid algorithms, and revocation remain incomplete.",
-      "evidence": ["acceptance/certificate_test.go", "pkg/codesign/cms_test.go", "pkg/codesign/identity_test.go", "spec/apple-cms.json", "docs/certificates.md"]
+      "notes": "RSA/ECDSA PEM and authenticated PKCS#12 signing, native allocation, Apple BER CMS/hash agility, leaf pins and portable explicit-CA chain policy are implemented. The existing 64-case matrix is supplemented by three organization-anchor comparisons, a Developer ID csreq comparison, 24 native PKCS#12 signatures and real public Developer ID chain/Team ID checks. Authorities and fixed-format signing-time metadata are displayed. Full PKIX/Apple policy, localized dates, end-to-end Developer ID signing, timestamps, hybrid algorithms and revocation remain incomplete.",
+      "evidence": ["acceptance/certificate_test.go", "acceptance/native_identity_test.go", "acceptance/chain_test.go", "pkg/codesign/cms_test.go", "pkg/codesign/native_certificate_test.go", "pkg/codesign/identity_test.go", "pkg/codesign/certificate_test.go", "pkg/codesign/pkcs12_test.go", "spec/apple-cms.json", "spec/apple-signature.json", "spec/apple-certificates.json", "docs/certificates.md"]
     },
     {
       "id": "bundles",

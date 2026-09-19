@@ -11,6 +11,10 @@ its net/http dependency imports Apple's certificate trust bridge on Darwin.
 Other module dependencies retain their own licenses, including Cobra (Apache
 2.0), Viper (MIT), and howett.net/plist (BSD 2-Clause).
 
+third_party/rc2 retains the unmodified RC2 source and tests from golang.org/x/crypto
+v0.50.0, with its upstream LICENSE and file hashes in UPSTREAM.json. A local
+go.mod packages this subset without the upstream crypto/x509 dependency.
+
 Apple SDK declarations and open-source Security code were consulted for format
 facts and behavior. Clang-generated factual metadata is in spec/apple-sdk.json
 and spec/apple-cms.json.

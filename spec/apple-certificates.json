@@ -1,0 +1,146 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "organization": "c6936355da1610888900443150c064ff23d60d8fe4bb3764ecc2d04832f8b150",
+    "team": "144bbb2894bcd4eb3bab79e240c37ae11a7e167de595907b23042413f1b62e06"
+  },
+  "schema": 1,
+  "scope": "verbatim macOS Team ID method, organization anchor method and developer requirement constants with type shims; not a full Apple translation unit or executed policy oracle",
+  "sources": {
+    "CodeSigner.cpp": {
+      "sha256": "3e795cead85abbc48aa665875b7540073212339222af1950b3631922ab425807",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/CodeSigner.cpp"
+    },
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
+    "drmaker.cpp": {
+      "sha256": "08355c401f9b50ae30af4500b0787699656f2734cb9a3b23baad85552f96a7f8",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/drmaker.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "methods": {
+        "getTeamIDFromSigner": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 3,
+          "CXXDefaultArgExpr": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXNullPtrLiteralExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 7,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 19,
+          "DeclStmt": 3,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 29,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 2,
+          "StringLiteral": 2,
+          "UnaryOperator": 3,
+          "VarDecl": 3
+        },
+        "nonAppleAnchor": {
+          "BinaryOperator": 6,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 6,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 30,
+          "DeclStmt": 5,
+          "GNUNullExpr": 2,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 42,
+          "IntegerLiteral": 3,
+          "MemberExpr": 17,
+          "StringLiteral": 4,
+          "UnaryOperator": 6,
+          "VarDecl": 5,
+          "WhileStmt": 1
+        }
+      },
+      "requirements": {
+        "MACWWDRRequirement": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.12] exists\"",
+        "WWDRRequirement": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.2] exists\"",
+        "developerID": "\"anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists\"",
+        "distributionCertificate": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.7] exists\"",
+        "iPhoneDistributionCert": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.4] exists\""
+      }
+    },
+    "x86_64-apple-macos27": {
+      "methods": {
+        "getTeamIDFromSigner": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 3,
+          "CXXDefaultArgExpr": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXNullPtrLiteralExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 7,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 19,
+          "DeclStmt": 3,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 29,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 2,
+          "StringLiteral": 2,
+          "UnaryOperator": 3,
+          "VarDecl": 3
+        },
+        "nonAppleAnchor": {
+          "BinaryOperator": 6,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 6,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 30,
+          "DeclStmt": 5,
+          "GNUNullExpr": 2,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 42,
+          "IntegerLiteral": 3,
+          "MemberExpr": 17,
+          "StringLiteral": 4,
+          "UnaryOperator": 6,
+          "VarDecl": 5,
+          "WhileStmt": 1
+        }
+      },
+      "requirements": {
+        "MACWWDRRequirement": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.12] exists\"",
+        "WWDRRequirement": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.2] exists\"",
+        "developerID": "\"anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists\"",
+        "distributionCertificate": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.7] exists\"",
+        "iPhoneDistributionCert": "\"anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.4] exists\""
+      }
+    }
+  },
+  "translation_unit_sha256": "8e29ad5829ec4efff9960e271f01554c186951715450c673ac5b162c2a5ca992"
+}

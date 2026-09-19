@@ -9,12 +9,12 @@ to be complete.
 | Repository and research | Go module; Cobra/Viper CLI; reviewed both local references and other-language projects; Clang SDK AST/layout capture | Reproducible Apple C++ source translation units and a wider source/behavior inventory |
 | Binary formats | Bounded Mach-O/fat parsing, SuperBlob, versioned CodeDirectory, hashes, requirement subset, XML/DER entitlements | All historical/new slots, scatter/pre-encrypt data, full requirements and constraints |
 | Ad-hoc writer | Thin/fat signatures, replacement/removal, version and executable metadata, exact fixture comparisons | Header expansion, legacy digest selection, detached formats, full preservation/error semantics |
-| Certificate signing | Portable ASN.1 identity parsing; PEM PKCS#1/SEC1/PKCS#8; RSA and P-256/P-384/P-521 CMS; Apple hash-agility attributes; leaf-hash requirements; native acceptance | PKCS#12/encrypted keys, complete X.509/Apple chain policy, native allocation/default requirements, hybrid algorithms, RFC 3161 |
+| Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence, hybrid algorithms, RFC 3161 |
 | Bundles and resources | External Info.plist/resource hash inputs available in library | Bundle discovery, deterministic resource envelopes, nested signing, symlink/xattr policy, strict verification |
 | Other representations | Format boundaries identified | UDIF/DMG signing using reviewed APFS fields, generic/xattr files, detached signatures and certificate interchange |
-| Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and certificate purpose/validity checks | General CMS/BER forms, chain building and Apple policy, timestamps/revocation, notarization and constraints |
+| Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks | General CMS/BER forms, full PKIX and Apple policy, timestamps/revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; cross-platform artifact verification; GoReleaser | Execute remote CI, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; executed three-OS CI and native verification of 30 Linux/Windows signatures; GoReleaser | Extend acceptance to every feature/input class, clear every full-parity blocker |
 
 Each new capability needs source/AST evidence, malformed-input handling, meaningful
 unit tests, a standalone Linux/Windows execution path, and independent host
@@ -25,7 +25,7 @@ with every permitted difference declared in the case definition.
 Certificate and network work must preserve the no-native-framework boundary.
 The standard `crypto/x509` package currently brings a macOS trust bridge into
 Darwin binaries, including indirectly through `net/http`. Certificate decoding now
-uses portable ASN.1 and explicit leaf pins. Future chain and network work must
+uses portable ASN.1, explicit leaf pins and caller-supplied roots. Future network work must
 continue to audit the entire linked dependency graph. Disabling CGO alone is not
 sufficient evidence.
 

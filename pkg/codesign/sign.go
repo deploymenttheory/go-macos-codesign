@@ -3,18 +3,18 @@ package codesign
 import (
 	"bytes"
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	"math/bits"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
 // maxFileSize bounds in-memory operations. Larger files fail explicitly.
 const maxFileSize = 1 << 30
+
+// Apple CodeSigner.cpp's default CMS blob budget, including its wrapper.
+const defaultCMSSize = 18000
 
 func readFile(path string) ([]byte, error) {
 	f, err := os.Open(path)
@@ -73,13 +73,8 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 		if opts.SigningTime.IsZero() {
 			opts.SigningTime = time.Now()
 		}
-		if len(opts.Requirements) == 0 {
-			h := sha1.Sum(opts.Identity.Certificates[0])
-			var err error
-			opts.Requirements, err = CompileRequirements("identifier " + strconv.Quote(opts.Identifier) + ` and certificate leaf = H"` + hex.EncodeToString(h[:]) + `"`)
-			if err != nil {
-				return nil, err
-			}
+		if err := prepareIdentity(&opts); err != nil {
+			return nil, err
 		}
 	}
 	if opts.Flags & ^uint32(0x33f02) != 0 {
@@ -172,7 +167,11 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 			}
 		}
 	}
-	cdSize := header + len(opts.Identifier) + 1 + (int(special)+nPages)*32
+	teamSize := 0
+	if opts.teamID != "" {
+		teamSize = len(opts.teamID) + 1
+	}
+	cdSize := header + len(opts.Identifier) + 1 + teamSize + (int(special)+nPages)*32
 	sigLen := 12 + (len(blobs)+1)*8 + cdSize
 	for _, b := range blobs {
 		sigLen += len(b.Data)
@@ -180,17 +179,12 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	// Apple's first pass reserves a current-version CodeDirectory, even when
 	// the emitted directory needs the shorter 0x20400 header. The 8-byte delta
 	// affects page hashes through LC_CODE_SIGNATURE and must be reproduced.
-	sigSize := (sigLen + max(96-header, 0) + 15) &^ 15
 	if opts.Identity != nil {
-		// Reserve before hashing the load commands. ECDSA DER signatures vary
-		// in length; fixed allocation avoids a size/hash/signature feedback loop.
-		// This allocation is valid but is not yet Apple's exact sizing policy.
-		reserve := 16384
-		for _, cert := range opts.Identity.Certificates {
-			reserve += len(cert)
-		}
-		sigSize += (reserve + 15) &^ 15
+		// SuperBlob::Maker::size counts the estimate as the entire CMS blob.
+		// Replace the empty wrapper already counted above, then align once.
+		sigLen += defaultCMSSize - 8
 	}
+	sigSize := (sigLen + max(96-header, 0) + 15) &^ 15
 	if codeEnd+sigSize > maxFileSize {
 		return nil, unsupported("output exceeds memory limit")
 	}
@@ -220,7 +214,7 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		flags |= FlagAdhoc
 	}
 	be.PutUint32(cd[12:], flags)
-	hashOff := header + len(opts.Identifier) + 1 + int(special)*32
+	hashOff := header + len(opts.Identifier) + 1 + teamSize + int(special)*32
 	be.PutUint32(cd[16:], uint32(hashOff))
 	be.PutUint32(cd[20:], uint32(header))
 	be.PutUint32(cd[24:], special)
@@ -236,6 +230,11 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		be.PutUint32(cd[88:], opts.RuntimeVersion)
 	}
 	copy(cd[header:], opts.Identifier)
+	if teamSize > 0 {
+		offset := header + len(opts.Identifier) + 1
+		be.PutUint32(cd[48:], uint32(offset))
+		copy(cd[offset:], opts.teamID)
+	}
 	for _, b := range blobs {
 		if b.Slot < 0x1000 {
 			h, _ := digest(2, b.Data)

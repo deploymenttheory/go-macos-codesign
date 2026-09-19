@@ -231,13 +231,25 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 30 {
-		t.Fatalf("expected 30 ad-hoc and certificate artifacts from Linux and Windows, found %d", count)
+	if count != 52 {
+		t.Fatalf("expected 52 ad-hoc, PEM, PKCS#12 and chain artifacts from Linux and Windows, found %d", count)
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		for _, prefix := range []string{"signed-", "signed-cert-rsa-", "signed-cert-p256-", "signed-cert-p384-", "signed-cert-p521-"} {
 			if seen[prefix+arch] != 2 {
 				t.Fatalf("expected both OS artifacts for %s%s", prefix, arch)
+			}
+		}
+	}
+	for _, name := range []string{"root", "intermediate", "leaf"} {
+		if seen["signed-chain-"+name] != 2 {
+			t.Fatalf("expected both OS chain artifacts for %s", name)
+		}
+	}
+	for _, algorithm := range []string{"rsa", "p256", "p384", "p521"} {
+		for _, profile := range []string{"legacy", "modern"} {
+			if seen["signed-pfx-"+algorithm+"-"+profile] != 2 {
+				t.Fatalf("expected both OS PKCS#12 artifacts for %s/%s", algorithm, profile)
 			}
 		}
 	}

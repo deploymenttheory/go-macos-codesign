@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"crypto/sha1"
+	"encoding/asn1"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -15,6 +16,8 @@ import (
 type requirementNode struct {
 	op          uint32
 	value       string
+	slot        int32
+	field       string
 	left, right *requirementNode
 }
 type requirementParser struct {
@@ -74,6 +77,16 @@ func (p *requirementParser) atom() (*requirementNode, error) {
 	s := p.text
 	p.next()
 	switch s {
+	case "anchor":
+		if p.text != "apple" {
+			return nil, unsupported("anchor predicate")
+		}
+		p.next()
+		if p.text != "generic" {
+			return nil, unsupported("only generic Apple anchors are implemented")
+		}
+		p.next()
+		return &requirementNode{op: 15}, nil
 	case "always", "true":
 		return &requirementNode{op: 1}, nil
 	case "never", "false":
@@ -117,10 +130,22 @@ func (p *requirementParser) atom() (*requirementNode, error) {
 		}
 		return &requirementNode{op: op, value: value}, nil
 	case "certificate":
-		if p.text != "leaf" && p.text != "0" {
-			return nil, unsupported("only leaf certificate hashes are implemented")
+		var slot int64
+		switch p.text {
+		case "leaf":
+		case "root":
+			slot = -1
+		default:
+			v, err := strconv.ParseInt(p.text, 10, 32)
+			if err != nil || v < 0 || v > 31 {
+				return nil, unsupported("certificate index")
+			}
+			slot = v
 		}
 		p.next()
+		if p.text == "[" {
+			return p.certificateField(int32(slot))
+		}
 		if p.text != "=" {
 			return nil, malformed("expected certificate equality")
 		}
@@ -141,10 +166,63 @@ func (p *requirementParser) atom() (*requirementNode, error) {
 			return nil, malformed("certificate hash must contain 40 hexadecimal digits")
 		}
 		p.next()
-		return &requirementNode{op: 4, value: string(h)}, nil
+		return &requirementNode{op: 4, slot: int32(slot), value: string(h)}, nil
 	default:
 		return nil, unsupported("requirement predicate " + strconv.Quote(s))
 	}
+}
+
+func (p *requirementParser) certificateField(slot int32) (*requirementNode, error) {
+	p.next()
+	field := ""
+	for p.text != "]" && p.token != scanner.EOF {
+		field += p.text
+		p.next()
+	}
+	if p.text != "]" {
+		return nil, malformed("certificate field closing bracket")
+	}
+	p.next()
+	n := &requirementNode{op: 11, slot: slot, field: field}
+	if strings.HasPrefix(field, "field.") {
+		var oid asn1.ObjectIdentifier
+		for _, part := range strings.Split(strings.TrimPrefix(field, "field."), ".") {
+			v, err := strconv.Atoi(part)
+			if err != nil || v < 0 {
+				return nil, malformed("certificate field OID")
+			}
+			oid = append(oid, v)
+		}
+		der, err := asn1.Marshal(oid)
+		if err != nil {
+			return nil, malformed("certificate field OID")
+		}
+		var raw asn1.RawValue
+		_ = decodeDER(der, &raw)
+		n.op, n.field = 14, string(raw.Bytes)
+		if p.text != "exists" {
+			return nil, unsupported("certificate extension match")
+		}
+		p.next()
+		return n, nil
+	}
+	if field != "subject.CN" && field != "subject.OU" && field != "subject.O" {
+		return nil, unsupported("certificate subject field")
+	}
+	if p.text != "=" {
+		return nil, malformed("certificate subject equality")
+	}
+	p.next()
+	if p.token != scanner.String {
+		return nil, malformed("quoted certificate subject value")
+	}
+	value, err := strconv.Unquote(p.text)
+	if err != nil {
+		return nil, err
+	}
+	p.next()
+	n.value = value
+	return n, nil
 }
 func parseRequirement(text string) (*requirementNode, error) {
 	if len(text) > 1<<20 {
@@ -152,7 +230,7 @@ func parseRequirement(text string) (*requirementNode, error) {
 	}
 	p := &requirementParser{}
 	p.scanner.Init(strings.NewReader(text))
-	p.scanner.Mode = scanner.ScanIdents | scanner.ScanStrings | scanner.SkipComments | scanner.ScanComments
+	p.scanner.Mode = scanner.ScanIdents | scanner.ScanInts | scanner.ScanStrings | scanner.SkipComments | scanner.ScanComments
 	var scanErr error
 	p.scanner.Error = func(_ *scanner.Scanner, msg string) { scanErr = fmt.Errorf("requirement: %s", msg) }
 	p.next()
@@ -170,12 +248,29 @@ func parseRequirement(text string) (*requirementNode, error) {
 }
 
 func append32(dst []byte, v uint32) []byte { return be.AppendUint32(dst, v) }
+func appendRequirementData(dst []byte, s string) []byte {
+	dst = append32(dst, uint32(len(s)))
+	dst = append(dst, s...)
+	for len(dst)%4 != 0 {
+		dst = append(dst, 0)
+	}
+	return dst
+}
 func (n *requirementNode) encode(dst []byte) []byte {
 	dst = append32(dst, n.op)
 	switch n.op {
+	case 11, 14:
+		dst = append32(dst, uint32(n.slot))
+		dst = appendRequirementData(dst, n.field)
+		if n.op == 14 {
+			dst = append32(dst, 0)
+		} else {
+			dst = append32(dst, 1)
+			dst = appendRequirementData(dst, n.value)
+		}
 	case 2, 4, 8:
 		if n.op == 4 {
-			dst = append32(dst, 0)
+			dst = append32(dst, uint32(n.slot))
 		}
 		dst = append32(dst, uint32(len(n.value)))
 		dst = append(dst, n.value...)
@@ -219,6 +314,27 @@ func CompileRequirements(text string) ([]byte, error) {
 
 func (n *requirementNode) matches(d Directory) bool {
 	switch n.op {
+	case 15:
+		return appleAnchor(d.chain)
+	case 11, 14:
+		slot := int(n.slot)
+		if slot < 0 {
+			slot += len(d.chain)
+		}
+		if slot < 0 || slot >= len(d.chain) {
+			return false
+		}
+		c := d.chain[slot]
+		if n.op == 14 {
+			var oid asn1.ObjectIdentifier
+			if decodeDER(derWrap(6, []byte(n.field)), &oid) != nil {
+				return false
+			}
+			return extension(c, oid.String()) != nil
+		}
+		oid := map[string]string{"subject.CN": "2.5.4.3", "subject.O": "2.5.4.10", "subject.OU": "2.5.4.11"}[n.field]
+		v, err := subjectAttribute(c, oid)
+		return err == nil && v != "" && v == n.value
 	case 1:
 		return true
 	case 2:
@@ -226,10 +342,23 @@ func (n *requirementNode) matches(d Directory) bool {
 	case 8:
 		return d.CDHash == hex.EncodeToString([]byte(n.value))
 	case 4:
-		if len(d.certificate) == 0 {
+		cert := d.certificate
+		if len(d.chain) > 0 {
+			slot := int(n.slot)
+			if slot < 0 {
+				slot = len(d.chain) + slot
+			}
+			if slot < 0 || slot >= len(d.chain) {
+				return false
+			}
+			cert = d.chain[slot].raw
+		} else if n.slot != 0 {
 			return false
 		}
-		h := sha1.Sum(d.certificate)
+		if len(cert) == 0 {
+			return false
+		}
+		h := sha1.Sum(cert)
 		return bytes.Equal(h[:], []byte(n.value))
 	case 6:
 		return n.left.matches(d) && n.right.matches(d)
@@ -283,6 +412,27 @@ func decodeRequirement(data []byte) (*requirementNode, error) {
 		return nil, malformed("standalone requirement")
 	}
 	pos, nodes := 12, 0
+	readWord := func() (uint32, error) {
+		if pos+4 > len(data) {
+			return 0, malformed("requirement operand")
+		}
+		v := be.Uint32(data[pos:])
+		pos += 4
+		return v, nil
+	}
+	readString := func() (string, error) {
+		n, err := readWord()
+		if err != nil {
+			return "", err
+		}
+		padded := (uint64(n) + 3) &^ uint64(3)
+		if !rangeOK(uint64(pos), padded, uint64(len(data))) {
+			return "", malformed("requirement field")
+		}
+		s := string(data[pos : uint64(pos)+uint64(n)])
+		pos += int(padded)
+		return s, nil
+	}
 	var read func(int) (*requirementNode, error)
 	read = func(depth int) (*requirementNode, error) {
 		nodes++
@@ -295,14 +445,49 @@ func decodeRequirement(data []byte) (*requirementNode, error) {
 		n := &requirementNode{op: be.Uint32(data[pos:])}
 		pos += 4
 		switch n.op {
-		case 0, 1:
+		case 0, 1, 15:
+		case 11, 14:
+			slot, err := readWord()
+			if err != nil {
+				return nil, err
+			}
+			n.slot = int32(slot)
+			if n.slot < -1 || n.slot > 31 {
+				return nil, unsupported("certificate index")
+			}
+			n.field, err = readString()
+			if err != nil {
+				return nil, err
+			}
+			match, err := readWord()
+			if err != nil {
+				return nil, err
+			}
+			if n.op == 14 {
+				var oid asn1.ObjectIdentifier
+				if err := decodeDER(derWrap(6, []byte(n.field)), &oid); err != nil {
+					return nil, err
+				}
+				if match != 0 {
+					return nil, unsupported("certificate extension match")
+				}
+			} else {
+				if match != 1 || n.field != "subject.CN" && n.field != "subject.OU" && n.field != "subject.O" {
+					return nil, unsupported("certificate field match")
+				}
+				n.value, err = readString()
+				if err != nil {
+					return nil, err
+				}
+			}
 		case 2, 4, 8:
 			if n.op == 4 {
 				if pos+4 > len(data) {
 					return nil, malformed("certificate requirement slot")
 				}
-				if be.Uint32(data[pos:]) != 0 {
-					return nil, unsupported("non-leaf certificate requirement")
+				n.slot = int32(be.Uint32(data[pos:]))
+				if n.slot < -1 || n.slot > 31 {
+					return nil, unsupported("certificate requirement index")
 				}
 				pos += 4
 			}

@@ -41,10 +41,28 @@ def main():
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]:
             errors.append(f"Missing or changed Apple fixture: {name}")
     dependency = ROOT / "third_party/afero"
+    certificate_fixtures = ROOT / "testdata/certificate-layout"
+    records = sorted(certificate_fixtures.glob("*.json"))
+    if len(records) != 12:
+        errors.append("Expected twelve native Apple certificate fixtures")
+    for record in records:
+        entry = json.loads(record.read_text())
+        path = record.with_suffix("")
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]:
+            errors.append(f"Missing or changed native certificate fixture: {path.name}")
     upstream = json.loads((dependency / "UPSTREAM.json").read_text())
     for name, expected in upstream["files"].items():
         if hashlib.sha256((dependency / name).read_bytes()).hexdigest() != expected:
             errors.append(f"Unrecorded third-party modification: afero/{name}")
+    for directory, manifest_name in (("third_party/rc2", "UPSTREAM.json"),
+                                     ("testdata/chains", "manifest.json"),
+                                     ("testdata/pkcs12", "manifest.json")):
+        base = ROOT / directory
+        record = json.loads((base / manifest_name).read_text())
+        for name, expected in record["files"].items():
+            path = base / name
+            if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                errors.append(f"Missing or changed pinned file: {directory}/{name}")
     spec = json.loads((ROOT / "spec/compatibility.json").read_text())
     identifiers = set()
     for feature in spec["features"]:
