@@ -21,5 +21,10 @@ and spec/apple-cms.json.
 Apple implementation source and SDK headers are not included in release archives.
 The Mach-O test fixtures were compiled from testdata/src/hello.c in this repository.
 
+pkg/codesign/trust includes three unmodified public Apple PKI root certificates
+published by Apple Inc. The source URLs and SHA-256 fingerprints are recorded in
+pkg/codesign/trust/manifest.json. These public certificates supply explicit TSA
+trust anchors; they do not contain private keys or Apple implementation code.
+
 Research references and the limits of demonstrated compatibility are documented
 in docs/research.md and docs/compatibility.md.

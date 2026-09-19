@@ -24,6 +24,7 @@ testdata/pkcs12/*.md text eol=lf
 testdata/timestamps/* -text
 testdata/timestamps/*.json text eol=lf
 testdata/timestamps/*.md text eol=lf
+pkg/codesign/trust/*.der -text
 third_party/** -text
 NOTICE text eol=lf
 # Retain upstream dependency and license bytes exactly, including whitespace.

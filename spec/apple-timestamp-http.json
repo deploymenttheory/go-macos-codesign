@@ -1,0 +1,159 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "default_url": "http://timestamp.apple.com/ts01",
+  "excerpt_sha256": {
+    "initWithURLString:": "cde6010d06cb68d5254183f562f531bdb7400deb1069b2f20c7b3c6af1896017",
+    "post:": "56df7dc3a278a480294f761c0b3497c7754325a4ebcc06eb825904ae59bc37bc"
+  },
+  "schema": 1,
+  "scope": "Verbatim initWithURLString: and post: bodies with a minimal TimeStampClient interface and the Foundation SDK; request construction facts only, not execution of Apple's transport or trust policy.",
+  "sources": {
+    "TimeStampingPrefs.plist": {
+      "sha256": "0232dc1ab73d85a87b60ebe1208428a80ef9d4ab27fccbc68ed8e315a56b5e6e",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/lib/TimeStampingPrefs.plist"
+    },
+    "timestampclient.m": {
+      "sha256": "978ba2826a1e57b5a33af490ec65e585e02196bed3930032abae360d914d0a5b",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_keychain/xpc-tsa/timestampclient.m"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "initWithURLString:": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 1,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "FloatingLiteral": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 11,
+          "ImplicitParamDecl": 2,
+          "ObjCIvarRefExpr": 2,
+          "ObjCMessageExpr": 8,
+          "ObjCMethodDecl": 1,
+          "ObjCPropertyRefExpr": 1,
+          "OpaqueValueExpr": 3,
+          "ParenExpr": 1,
+          "ParmVarDecl": 1,
+          "PseudoObjectExpr": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "literals": [
+          "15"
+        ],
+        "messages": [
+          "stringByAddingPercentEscapesUsingEncoding:",
+          "init",
+          "stringByAddingPercentEscapesUsingEncoding:",
+          "initWithString:",
+          "alloc",
+          "initWithURL:cachePolicy:timeoutInterval:",
+          "alloc",
+          "url"
+        ]
+      },
+      "post:": {
+        "ast_kinds": {
+          "CompoundStmt": 1,
+          "DeclRefExpr": 10,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 10,
+          "ImplicitParamDecl": 2,
+          "ObjCMessageExpr": 5,
+          "ObjCMethodDecl": 1,
+          "ObjCPropertyRefExpr": 2,
+          "ObjCStringLiteral": 3,
+          "OpaqueValueExpr": 6,
+          "ParmVarDecl": 1,
+          "PseudoObjectExpr": 2,
+          "StringLiteral": 3,
+          "VarDecl": 2
+        },
+        "literals": [
+          "\"POST\"",
+          "\"application/timestamp-query\"",
+          "\"Content-Type\""
+        ],
+        "messages": [
+          "urlRequest",
+          "urlRequest",
+          "setHTTPMethod:",
+          "setHTTPBody:",
+          "setValue:forHTTPHeaderField:"
+        ]
+      }
+    },
+    "x86_64-apple-macos27": {
+      "initWithURLString:": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 1,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "FloatingLiteral": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 11,
+          "ImplicitParamDecl": 2,
+          "ObjCIvarRefExpr": 2,
+          "ObjCMessageExpr": 8,
+          "ObjCMethodDecl": 1,
+          "ObjCPropertyRefExpr": 1,
+          "OpaqueValueExpr": 3,
+          "ParenExpr": 1,
+          "ParmVarDecl": 1,
+          "PseudoObjectExpr": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "literals": [
+          "15"
+        ],
+        "messages": [
+          "stringByAddingPercentEscapesUsingEncoding:",
+          "init",
+          "stringByAddingPercentEscapesUsingEncoding:",
+          "initWithString:",
+          "alloc",
+          "initWithURL:cachePolicy:timeoutInterval:",
+          "alloc",
+          "url"
+        ]
+      },
+      "post:": {
+        "ast_kinds": {
+          "CompoundStmt": 1,
+          "DeclRefExpr": 10,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 10,
+          "ImplicitParamDecl": 2,
+          "ObjCMessageExpr": 5,
+          "ObjCMethodDecl": 1,
+          "ObjCPropertyRefExpr": 2,
+          "ObjCStringLiteral": 3,
+          "OpaqueValueExpr": 6,
+          "ParmVarDecl": 1,
+          "PseudoObjectExpr": 2,
+          "StringLiteral": 3,
+          "VarDecl": 2
+        },
+        "literals": [
+          "\"POST\"",
+          "\"application/timestamp-query\"",
+          "\"Content-Type\""
+        ],
+        "messages": [
+          "urlRequest",
+          "urlRequest",
+          "setHTTPMethod:",
+          "setHTTPBody:",
+          "setValue:forHTTPHeaderField:"
+        ]
+      }
+    }
+  },
+  "translation_unit_sha256": "58e357d4ed06273f7369f1b055261911b58265d037e15e9c30b84f25f6a1b533"
+}
