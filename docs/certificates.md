@@ -74,7 +74,8 @@ algorithms. It does not evaluate certificate trust.
 to match a caller-supplied complete DER leaf pin, or a valid path to a certificate
 in `VerifyOptions.TrustedRoots`. Leaf pinning and CA trust are separate options;
 `--trust` remains an exact leaf pin. Both check certificate validity
-at `CurrentTime` (default: now), digital-signature key usage and code-signing
+at `CurrentTime` (default: now), or at an explicitly trusted RFC 3161 timestamp,
+and check digital-signature key usage and code-signing
 extended key usage when present, and reject unhandled critical extensions.
 Without an explicit pin or roots they return `ErrUntrusted` and never report
 `Valid`. `VerifyCertificateChain` also exposes the portable CA policy directly.
@@ -91,8 +92,9 @@ There is no system trust store, issuer fetching, OCSP or CRL processing.
 `SignOptions.SigningTime` permits reproducible RSA output with a fixed time.
 The authenticated signing-time attribute is a signer's claim, not trusted proof
 of time. Expiration is checked against verification time, never bypassed by that
-claim. RFC 3161 tokens, revocation, CRLs, and other unsigned CMS attributes are
-currently rejected rather than silently treated as verified. CMS parsing accepts
+claim. [RFC 3161 tokens](timestamps.md) require separate explicit TSA roots and
+are authenticated before their time is used. CRLs and other unsigned CMS
+attributes remain unsupported; no revocation check is implied. CMS parsing accepts
 DER and Apple's indefinite-length BER outer containers. Size, nesting, and
 element-count limits bound parsing. Certificates, signer records, and signed
 attributes retain their original bytes and must decode as DER; envelope conversion
@@ -156,8 +158,9 @@ forms. Wrong-password, missing-MAC, fake-Apple, invalid-CA and tampering tests
 exercise rejection paths. Full PKIX/Apple trust equivalence remains unfinished.
 
 The three-OS CI runs portable certificate signing and verification on each OS.
-Linux and Windows each export 26 signed Mach-O files, including eight PKCS#12 and
-three chain cases, for a downstream Mac to verify (52 artifacts in total).
+Linux and Windows each export 27 signed Mach-O files, including eight PKCS#12,
+three chain cases and one timestamp replay, for a downstream Mac to verify
+(54 artifacts in total).
 The CLI also verifies the twelve committed Apple-created signatures on every OS.
 Configured CI is not evidence of a remote run; inspect its actual artifacts and
 logs before making a cross-platform execution claim.

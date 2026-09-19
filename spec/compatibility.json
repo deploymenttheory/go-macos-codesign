@@ -309,9 +309,16 @@
       "status": "partial",
       "manual": ".It Fl -timestamp Ar [ =URL ]",
       "evidence": [
-        "acceptance/parity_test.go"
+        "acceptance/parity_test.go",
+        "acceptance/timestamp_test.go",
+        "pkg/codesign/timestamp_test.go",
+        "pkg/codesign/timestamp_policy_test.go",
+        "pkg/codesign/timestamp_errors_test.go",
+        "spec/apple-timestamps.json",
+        "testdata/timestamps/manifest.json",
+        "docs/timestamps.md"
       ],
-      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "RFC 3161 verification, separate explicit TSA roots, historical certificate validity, library timestamp providers and nonce-bound SHA-256 exchanges are implemented. A public-test RSA arm64 signature exactly replays a recorded native Apple token; Apple and OpenSSL acceptance are exercised. The CLI verifies/displays timestamps and supports --timestamp=none; online --timestamp[=URL], full TSA/Apple policy, revocation, general CMS/BER and localized dates remain incomplete."
     },
     {
       "id": "--runtime-version",
@@ -381,7 +388,7 @@
     {
       "id": "certificate-signing",
       "status": "partial",
-      "notes": "RSA/ECDSA PEM and authenticated PKCS#12 signing, native allocation, Apple BER CMS/hash agility, leaf pins and portable explicit-CA chain policy are implemented. The existing 64-case matrix is supplemented by three organization-anchor comparisons, a Developer ID csreq comparison, 24 native PKCS#12 signatures and real public Developer ID chain/Team ID checks. Authorities and fixed-format signing-time metadata are displayed. Full PKIX/Apple policy, localized dates, end-to-end Developer ID signing, timestamps, hybrid algorithms and revocation remain incomplete.",
+      "notes": "RSA/ECDSA PEM and authenticated PKCS#12 signing, native allocation, Apple BER CMS/hash agility, leaf pins and portable explicit-CA chain policy are implemented. The existing 64-case matrix is supplemented by three organization-anchor comparisons, a Developer ID csreq comparison, 24 native PKCS#12 signatures and real public Developer ID chain/Team ID checks. Authorities, fixed-format signing-time and RFC 3161 timestamp metadata are displayed. Timestamp callbacks and separate TSA trust add native replay evidence. Full PKIX/Apple policy, localized dates, end-to-end Developer ID signing, online CLI timestamp acquisition, hybrid algorithms and revocation remain incomplete.",
       "evidence": ["acceptance/certificate_test.go", "acceptance/native_identity_test.go", "acceptance/chain_test.go", "pkg/codesign/cms_test.go", "pkg/codesign/native_certificate_test.go", "pkg/codesign/identity_test.go", "pkg/codesign/certificate_test.go", "pkg/codesign/pkcs12_test.go", "spec/apple-cms.json", "spec/apple-signature.json", "spec/apple-certificates.json", "docs/certificates.md"]
     },
     {

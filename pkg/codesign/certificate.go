@@ -127,6 +127,10 @@ type basicConstraints struct {
 // This deliberately conservative policy rejects unsupported path constraints,
 // including noncritical constraints, rather than silently ignoring restrictions.
 func certificatePolicy(c *certificate, at time.Time, ca bool, below int) error {
+	return certificatePolicyFor(c, at, ca, below, "1.3.6.1.5.5.7.3.3")
+}
+
+func certificatePolicyFor(c *certificate, at time.Time, ca bool, below int, purpose string) error {
 	if at.Before(c.tbs.Validity.NotBefore) || at.After(c.tbs.Validity.NotAfter) {
 		return invalid("certificate is not valid at verification time")
 	}
@@ -159,10 +163,10 @@ func certificatePolicy(c *certificate, at time.Time, ca bool, below int) error {
 			}
 			allowed := false
 			for _, oid := range purposes {
-				allowed = allowed || oid.String() == "1.3.6.1.5.5.7.3.3" || oid.String() == "2.5.29.37.0"
+				allowed = allowed || oid.String() == purpose || oid.String() == "2.5.29.37.0"
 			}
 			if !allowed {
-				return invalid("certificate does not permit code signing")
+				return invalid("certificate does not permit purpose %s", purpose)
 			}
 		case "2.5.29.30", "2.5.29.33", "2.5.29.36", "2.5.29.54":
 			return unsupported("certificate path constraint " + e.ID.String())
@@ -190,6 +194,10 @@ func certificatePolicy(c *certificate, at time.Time, ca bool, below int) error {
 // issuers or consults the OS. Names must match in DER. Unsupported constraints
 // and weak/unknown link algorithms fail closed. Zero at uses the current time.
 func VerifyCertificateChain(leaf []byte, intermediates, roots [][]byte, at time.Time) (*CertificateChain, error) {
+	return verifyCertificateChainFor(leaf, intermediates, roots, at, "1.3.6.1.5.5.7.3.3")
+}
+
+func verifyCertificateChainFor(leaf []byte, intermediates, roots [][]byte, at time.Time, purpose string) (*CertificateChain, error) {
 	if len(roots) == 0 {
 		return nil, ErrUntrusted
 	}
@@ -203,7 +211,7 @@ func VerifyCertificateChain(leaf []byte, intermediates, roots [][]byte, at time.
 	if at.IsZero() {
 		at = time.Now()
 	}
-	if err := certificatePolicy(c, at, false, 0); err != nil {
+	if err := certificatePolicyFor(c, at, false, 0, purpose); err != nil {
 		return nil, err
 	}
 	var pool []*certificate
@@ -232,7 +240,7 @@ func VerifyCertificateChain(leaf []byte, intermediates, roots [][]byte, at time.
 		}
 		last := path[len(path)-1]
 		if anchors[string(last.raw)] {
-			if err := certificatePolicy(last, at, true, below); err != nil {
+			if err := certificatePolicyFor(last, at, true, below, purpose); err != nil {
 				return nil, err
 			}
 			return path, nil
@@ -258,7 +266,7 @@ func VerifyCertificateChain(leaf []byte, intermediates, roots [][]byte, at time.
 				nextBelow++
 			}
 			// The parent's constraint counts non-self-issued CAs below it.
-			if err := certificatePolicy(parent, at, true, nextBelow); err != nil {
+			if err := certificatePolicyFor(parent, at, true, nextBelow, purpose); err != nil {
 				reason = err
 				continue
 			}

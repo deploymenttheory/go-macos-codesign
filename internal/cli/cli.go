@@ -34,6 +34,7 @@ type options struct {
 	identity, identifier, architecture, requirements, testRequirement, config, timestamp string
 	keyFile, trustFile                                                                   string
 	trustRootFile, passwordFile                                                          string
+	timestampRootFile                                                                    string
 	force, continueOnError, dryrun, json                                                 bool
 	verbose                                                                              int
 	flags, pageSize                                                                      uint32
@@ -48,6 +49,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 			if len(argv) == 1 && argv[0] == "--help" {
 				fmt.Fprint(stdout, usage)
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
+				fmt.Fprintln(stdout, "Timestamp verification additionally requires --timestamp-root TSA-CA.pem. Online --timestamp acquisition remains unsupported.")
 				return nil
 			}
 			opts, err := parse(argv)
@@ -136,7 +138,7 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
-			case "sign", "identifier", "architecture", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file":
+			case "sign", "identifier", "architecture", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root":
 				if has {
 					val = attached
 				} else {
@@ -179,6 +181,8 @@ func parse(args []string) (options, error) {
 					o.trustFile = val
 				case "trust-root":
 					o.trustRootFile = val
+				case "timestamp-root":
+					o.timestampRootFile = val
 				case "password-file":
 					o.passwordFile = val
 				}
@@ -314,8 +318,8 @@ func parseFlags(s string) (uint32, error) {
 
 func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 	signOpts := codesign.SignOptions{Identifier: o.identifier, Force: o.force, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
-	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
-		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
+	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "" || o.timestampRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
+		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root/--timestamp-root require verification")
 		return 2
 	}
 	var trusted [][]byte
@@ -334,6 +338,17 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		data, err := os.ReadFile(o.trustRootFile)
 		if err == nil {
 			roots, err = codesign.ParseCertificatesPEM(data)
+		}
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+	}
+	var timestampRoots [][]byte
+	if o.timestampRootFile != "" {
+		data, err := os.ReadFile(o.timestampRootFile)
+		if err == nil {
+			timestampRoots, err = codesign.ParseCertificatesPEM(data)
 		}
 		if err != nil {
 			fmt.Fprintln(stderr, err)
@@ -423,7 +438,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignature(ctx, path)
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
 			if o.json && report != nil {
 				if e := json.NewEncoder(stdout).Encode(report); e != nil {
 					err = e
@@ -593,7 +608,9 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 			for _, cert := range metadata.Authorities {
 				fmt.Fprintf(w, "Authority=%s\n", cert.CommonName)
 			}
-			if !metadata.SigningTime.IsZero() {
+			if metadata.Timestamp != nil {
+				fmt.Fprintf(w, "Timestamp=%s\n", metadata.Timestamp.Time.UTC().Format("2 Jan 2006 at 15:04:05"))
+			} else if !metadata.SigningTime.IsZero() {
 				fmt.Fprintf(w, "Signed Time=%s\n", metadata.SigningTime.UTC().Format("2 Jan 2006 at 15:04:05"))
 			}
 		}

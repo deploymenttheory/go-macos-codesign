@@ -5,4 +5,5 @@
 - [Additional reference implementations](reference-implementations.md): GitHub source review, priorities, and limitations.
 - [Implementation](implementation.md): completed components and remaining stages.
 - [Certificate signing](certificates.md): PEM identities, CMS verification, explicit trust, and limits.
+- [Timestamps](timestamps.md): RFC 3161 verification, signing callbacks, separate TSA trust, and native evidence.
 - [Testing](testing.md): reproducible checks, acceptance evidence, coverage, and CI.

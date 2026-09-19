@@ -111,6 +111,23 @@ source revision describes every macOS 27 feature.
 
 ## Local reference repositories
 
+Timestamp research uses [RFC 3161](https://www.rfc-editor.org/rfc/rfc3161) and
+[RFC 5816](https://www.rfc-editor.org/rfc/rfc5816), alongside Apple's pinned
+`tsaTemplates.h` and `tsaSupport.c`. `make research-timestamps` runs a Go research
+driver that invokes Clang for arm64 and x86_64 and records enum values, carrier
+fields and `verifyTSTInfo` AST node kinds in `spec/apple-timestamps.json`.
+The declarations and full function body are verbatim excerpts; supporting
+types, function declarations and control-flow macros are explicit shims.
+This does not compile Apple's full Security library or execute its policy.
+
+The pinned [Relic timestamper](https://github.com/sassoftware/relic/blob/02c54d584ca9eaa8f648763cd53bc77c4ff3d19c/internal/signinit/timestamper.go)
+supplied a transport-interface comparison, while
+[ipsw AddTimestamps](https://github.com/blacktop/ipsw/blob/6c4348e321e74d70162d6ff139cb2c76ad2ba2ba/internal/codesign/cms/cms.go)
+provided an unsigned-attribute attachment comparison. Neither is a dependency
+or a substitute for native acceptance. The recorded Apple TSA response uses
+SHA-1 CMS; that compatibility path is verified while new requests use SHA-256
+imprints. See [timestamp evidence and limits](timestamps.md).
+
 The [additional GitHub implementation review](reference-implementations.md)
 records pinned Go, Rust, Python, and C++ sources for CMS, bundles, DMGs, and
 further Clang AST research, including their known compatibility limits.

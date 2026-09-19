@@ -1,4 +1,4 @@
-.PHONY: build snapshot check test verify lint research research-cms research-signature research-certificates release-check
+.PHONY: build snapshot check test verify lint research research-cms research-signature research-certificates research-timestamps release-check
 
 build:
 	goreleaser build --snapshot --clean --parallelism 2
@@ -30,6 +30,9 @@ research-signature:
 
 research-certificates:
 	python3 scripts/extract-certificates.py
+
+research-timestamps:
+	go run scripts/extract-timestamps.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

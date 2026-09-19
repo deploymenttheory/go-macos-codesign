@@ -85,14 +85,22 @@ comparison and must be investigated without silently normalizing it away.
 The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files they signed. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 30 imported files (three ad-hoc and twelve certificate cases per OS).
+all 54 imported files (three ad-hoc, twelve PEM, eight PKCS#12, three chain
+and one timestamp replay per OS).
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector, bounded Mach-O/identity/CMS fuzzing, and GoReleaser snapshots
+Separate jobs run the Go race detector, bounded Mach-O/identity/CMS/PKCS#12/timestamp fuzzing, and GoReleaser snapshots
 for all six OS/architecture pairs. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
+
+Timestamp acceptance replays an Apple-issued token into a freshly signed RSA
+arm64 file and requires complete native-fixture byte equality. The Mac checks
+strict verification and tampering with `codesign`, and independently verifies
+TSA CMS integrity and the path at the recorded time with OpenSSL. Every OS
+checks explicit TSA trust and historical validity. Routine tests do not contact
+a TSA; fixture regeneration is an explicit opt-in. See [timestamps](timestamps.md).
 
 `go-lint.yml` pins the linter and fails on reported issues. It does not suppress
 failures with an exit-code override or automatically modify source files.

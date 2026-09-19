@@ -59,7 +59,10 @@ and private-key PEM file can be passed directly to `-s`; separate files use
 `-s identity.p12 --password-file password.txt`. `--trust` pins the complete leaf
 certificate; it does not accept CA anchors or
 claim Apple trust-policy equivalence. See [certificate signing](docs/certificates.md)
-for supported formats and limits. The CLI supports grouped short
+for supported formats and limits. Timestamped files additionally require
+`--timestamp-root tsa-root.pem`; [RFC 3161 support](docs/timestamps.md) includes
+portable verification and library signing callbacks. Online CLI timestamp
+acquisition remains unsupported. The CLI supports grouped short
 options and Apple's overloaded `-v`. `-h` means native process hosting and reports
 unsupported; use `--help` for the portable help extension. Unsupported features
 return errors and are not counted as implemented.
