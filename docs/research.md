@@ -165,8 +165,12 @@ Their useful patterns included separation of CLI and SDK code, subprocess-based
 acceptance tests, fixture manifests, and explicit unsupported behavior. The package
 project's identity/CMS/timestamp components and the APFS project's UDIF signature
 offset/length fields informed the implemented certificate/timestamp work and
-remain references for the upcoming disk-image phase. They have not been
-introduced as production dependencies.
+remain useful for the disk-image phase. `go-apfs-v2` is the planned direct DMG
+dependency, not merely a source reference. Its `pkg/disk` already exposes
+`DMGFooter` with code-signature fields, `EncodeUDIF` and streaming raw-image
+wrapping. The reviewed local revision and dependency audit are recorded in the
+[DMG integration plan](dmg-integration.md). It is not imported by the current
+app-bundle phase, which operates on directories and Mach-O executables.
 
 ## Observations encoded in tests
 

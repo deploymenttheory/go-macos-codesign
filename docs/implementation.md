@@ -18,7 +18,7 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence and hybrid algorithms |
 | Timestamps | RFC 3161 verification/providers, nonce-bound SHA-256 exchanges, direct HTTP CLI acquisition, pinned Apple roots, deadlines and cancellation; live native verification on three Mach-O forms | Broader TSA/Apple policy, revocation, proxy/redirect behavior and additional CMS/BER forms |
 | Bundles and resources | Contents-based APPL discovery; XML Info.plist binding; deterministic v1/v2 CodeResources; plain resource sealing/verification, display and removal; native byte/mutation comparisons | Binary Info.plist, wider bundle layouts, nested signing, frameworks, symlink/xattr policy, full strict verification |
-| Other representations | Format boundaries identified | UDIF/DMG signing using reviewed APFS fields, generic/xattr files, detached signatures and certificate interchange |
+| Other representations | go-apfs-v2/pkg/disk APIs and three-target dependency graph reviewed for direct reuse | UDIF/DMG signing through go-apfs-v2, generic/xattr files, detached signatures and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
 | Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; required Apple verification of 66 Linux/Windows artifacts; six-target GoReleaser builds; golangci-lint, race and seven fuzz targets | Validate each changed commit, extend acceptance to every feature/input class, clear every full-parity blocker |
@@ -30,8 +30,13 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
    order, framework/plugin layouts, symlink/xattr policy and full strict
    verification. Expand the pinned source/Clang record and independent host
    comparisons for each added case.
-2. **Additional representations:** add UDIF/DMG support using the reviewed APFS
-   fields and signing references, then detached and generic-file representations.
+2. **Additional representations:** use `github.com/deploymenttheory/go-apfs-v2/pkg/disk`
+   directly for UDIF/DMG support. Reuse `DMGFooter`, including its signature
+   offset/length fields, and the existing encoders for test-image generation;
+   retain compressed image bytes while integrating this project's CodeDirectory,
+   CMS and timestamp logic. Do not implement a second DMG reader, writer or
+   compression layer. See the [integration boundary](dmg-integration.md).
+   Detached and generic-file representations follow.
 3. **Wider signature and policy compatibility:** add remaining requirement
    predicates, CodeDirectory/digest variants, preservation semantics, certificate
    and timestamp policy, and diagnostic parity with independent acceptance cases.
