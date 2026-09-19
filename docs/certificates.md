@@ -8,6 +8,9 @@ SHA-256 CodeDirectory per architecture.
 
 ## Identity input
 
+The signing examples below are alternatives for an unsigned file. Add `-f` to
+replace an existing signature.
+
 ```sh
 macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
 macoscodesign --verify --trust certificate.pem ./hello
@@ -19,6 +22,10 @@ macoscodesign -s identity.pem --timestamp=none ./hello
 # Authenticated PKCS#12 and explicit CA trust:
 macoscodesign -s identity.p12 --password-file password.txt ./hello
 macoscodesign --verify --trust-root root-ca.pem ./hello
+
+# Add an online Apple timestamp; TSA trust is separate from code trust:
+macoscodesign -s identity.p12 --password-file password.txt --timestamp ./hello
+macoscodesign --verify --trust-root root-ca.pem --timestamp-root apple ./hello
 ```
 
 PEM private keys may use PKCS#1 RSA, SEC1 EC, or unencrypted PKCS#8. RSA keys must
@@ -117,9 +124,10 @@ are not fetched, and arbitrary OU fields never become Team IDs.
 
 Inspection includes `Signature.CertificateMetadata` when the supported CMS
 binding can be checked. It contains ordered authorities, CN/O/OU, serial number,
-SHA-256 fingerprint, validity dates and signing time; it is not a trust verdict.
-Verbose display prints `Authority`, `Signed Time`, and `TeamIdentifier`. Signing
-time uses a fixed English UTC format, so localized native date output is not yet
+SHA-256 fingerprint, validity dates, signing time and supported timestamp metadata;
+it is not a trust verdict. Verbose display prints `Authority`, `TeamIdentifier`,
+and `Timestamp` when a supported token is present, otherwise `Signed Time`. Time
+display uses a fixed English UTC format, so localized native date output is not yet
 reproduced. Unsupported or damaged CMS displays `Authority=(unavailable)`.
 
 ## Evidence and remaining parity work
@@ -162,5 +170,5 @@ Linux and Windows each export 27 signed Mach-O files, including eight PKCS#12,
 three chain cases and one timestamp replay, for a downstream Mac to verify
 (54 artifacts in total).
 The CLI also verifies the twelve committed Apple-created signatures on every OS.
-Configured CI is not evidence of a remote run; inspect its actual artifacts and
-logs before making a cross-platform execution claim.
+The [progress report](progress.md) links the actual three-OS workflow and its
+54-file native verification result. Future commits require their own checks.

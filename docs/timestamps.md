@@ -132,8 +132,8 @@ root trust is explicit and deliberately does not imply notarization acceptance.
 
 `spec/apple-timestamps.json` records two-target Clang AST extraction from pinned
 Apple timestamp declarations and the complete `verifyTSTInfo` body with named
-type/function/macro shims. Run `make research-timestamps` after fetching the two
-source files listed in that manifest. The same target runs an Objective-C AST
+type/function/macro shims. Run `make research-timestamps` after fetching the
+source files listed in both timestamp manifests. The same target runs an Objective-C AST
 extraction of verbatim `initWithURLString:` and `post:` methods, with Foundation
 SDK types and a minimal class interface. `spec/apple-timestamp-http.json` records
 the HTTP method, content type and 15-second timeout, and the default endpoint

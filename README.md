@@ -11,6 +11,11 @@ The CLI runs on Linux, macOS, and Windows without Apple frameworks, subprocess
 helpers, CGO, an Apple SDK, or Clang. Clang and Apple tools are used only for
 development research and independent macOS acceptance testing.
 
+The current implementation includes portable certificate chains and Team IDs,
+authenticated PKCS#12 import, and online RFC 3161 timestamps. The
+[progress report](docs/progress.md) records delivered milestones, the tested
+commit and actual CI evidence. Bundle/resource signing is the next planned phase.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:
@@ -50,6 +55,10 @@ macoscodesign --remove-signature ./hello
 # Portable certificate identity and trust inputs (unencrypted PEM):
 macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
 macoscodesign --verify --trust certificate.pem ./hello
+
+# PKCS#12 identity with an Apple timestamp and explicit verification trust:
+macoscodesign -fs identity.p12 --password-file password.txt --timestamp ./hello
+macoscodesign --verify --trust-root code-root.pem --timestamp-root apple ./hello
 ```
 
 Signing accepts the ad-hoc identity `-`, a PEM file, or a PKCS#12 file. A combined certificate
@@ -101,19 +110,25 @@ make lint
 Verification runs unit tests and the compiled CLI as a subprocess, merges their
 statement coverage, and requires **more than 95% in every production package**.
 It writes coverage, raw acceptance transcripts, fixture hashes, and source
-provenance under `artifacts/`. The current implementation has been checked against
+provenance under `artifacts/`. The recorded online-timestamp phase measures
+96.79–96.83% library coverage, 99.01–99.51% CLI coverage and 100% entry-point coverage
+across the three CI operating systems; see the [commit-specific results](docs/progress.md#recorded-validation).
+The current implementation has been checked against
 Apple `codesign` on macOS 27.0, build 26A428. See
 [the validation procedure](docs/testing.md) for the exact evidence boundary.
 
 CI runs tests on Linux, macOS 27, and Windows; builds all six targets with
 GoReleaser; checks race behavior and fuzzes parsers; and sends files signed on
-Linux/Windows to macOS for Apple verification. CI configuration is not evidence
-that a remote run has passed.
+Linux/Windows to macOS for Apple verification. The recorded run passed all 54
+foreign-file verifications. Go code linting uses golangci-lint only.
 
 ## Research and remaining work
 
+- [Project progress and validation evidence](docs/progress.md)
+- [Documentation index](docs/README.md)
 - [Clang AST research and source references](docs/research.md)
 - [Certificate signing and explicit trust](docs/certificates.md)
+- [Online timestamps and TSA trust](docs/timestamps.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
 - [Implementation stages and outstanding work](docs/implementation.md)
 - [Testing and release gates](docs/testing.md)

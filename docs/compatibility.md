@@ -8,12 +8,14 @@ tested independently. Native display output and defaults can change by OS versio
 The implementation is partial. No broad native feature is marked fully verified
 merely because a representative case passes. Coverage describes exercised Go
 statements, not the percentage of Apple's functionality implemented.
+The [progress report](progress.md) identifies the exact tested revision and CI run.
 
 | Area | Implemented and tested | Remaining requirements |
 | --- | --- | --- |
 | Mach-O parsing | Thin 32/64-bit, both byte orders; fat 32/64-bit; bounds and overlap checks | Host acceptance for legacy architectures and unusual load-command layouts |
 | Ad-hoc signing | SHA-256 CodeDirectory, signature allocation, all slices, replacement, identifiers, page size, selected flags, runtime version | Header expansion, alternate digests, scatter/pre-encrypt forms, full metadata preservation |
 | Certificate signing | RSA and ECDSA P-256/P-384/P-521 CMS, PEM/PKCS#12 identities, native allocation and hash agility, organization/Developer ID requirements, Team IDs, RFC 3161 provider callbacks and online HTTP timestamps | Broader identity formats, Apple-proper requirements, encrypted PEM, broader TSA transport policy, hybrid signatures |
+| Timestamps | RFC 3161 signature/imprint/ESS/nonce validation, historical validity, explicit TSA roots, Apple/custom HTTP acquisition, deadlines and cancellation | Complete Apple TSA policy, revocation, proxy/redirect/compression behavior, broader CMS/BER forms and localized dates |
 | Entitlements | XML and DER encoding, executable flags, extraction; typed plist values | Full malformed-input/error parity, constraints, macOS 27 hybrid signing interactions |
 | Requirements | Identifier, CDHash, certificate index/root hash, subject CN/O/OU, extension existence, generic Apple anchor, boolean expressions | Remaining predicates, Info.plist predicates, complete native grammar and diagnostic output |
 | Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain policy, Team ID consistency, RFC 3161 binding and separate TSA trust | Full PKIX/Apple policies, general CMS/BER forms, complete timestamp policy, revocation, platform strictness, notarization |
@@ -40,6 +42,12 @@ the arm64 ad-hoc fixture, compares rejection of binary-plist entitlement files,
 rejects a modified code page, and executes the host-architecture Go-signed fixture.
 These cases do not establish compatibility for other inputs or feature combinations.
 
+Timestamp replay reconstructs a recorded native RSA arm64 file byte for byte.
+Five native timestamp-option cases compare exit codes and ad-hoc file bytes.
+Fresh online timestamps are inherently different signing events: the opt-in live
+test checks authenticated timestamps and native strict verification on all three
+Mach-O forms, without claiming byte equality between independent TSA responses.
+
 ## Library extensions and limits
 
 `EncodeEntitlements` can convert a binary plist to XML/DER. Apple's CLI rejects
@@ -60,8 +68,14 @@ OpenSSL, with code/CMS tampering rejected by both Apple and Go. Their allocation
 and default designated requirements now have the additional native comparisons
 described in [certificate signing](certificates.md), including 64 layout cases,
 three organization-based chain cases, and 24 PKCS#12 signing cases. Display
-authority and Team ID lines match the tested native cases; localized date output
-and metadata for timestamped/unsupported CMS remain incomplete.
+authority and Team ID lines match the tested native cases. Supported timestamps
+produce descriptive metadata and `Timestamp=` display; dates use fixed English
+UTC formatting. Localized dates and metadata for unsupported CMS remain incomplete.
+
+Timestamp trust is separate from code-signer trust. Verification requires
+`--timestamp-root CA.pem` or the explicit bundled-root selector `apple`.
+Online signing defaults to bundled Apple TSA roots, with a custom CA file as an
+override. Transport and policy limits are listed in [timestamps](timestamps.md).
 
 The file writer constructs all slices before writing and preserves the target's
 inode, permissions, ownership, and attributes through in-place writes. It rejects

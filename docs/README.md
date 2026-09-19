@@ -1,9 +1,19 @@
 # Project documentation
 
-- [Compatibility](compatibility.md): current behavior, unsupported operations, and baseline.
-- [Research](research.md): Clang AST extraction and sources consulted.
-- [Additional reference implementations](reference-implementations.md): GitHub source review, priorities, and limitations.
-- [Implementation](implementation.md): completed components and remaining stages.
-- [Certificate signing](certificates.md): PEM identities, CMS verification, explicit trust, and limits.
-- [Timestamps](timestamps.md): RFC 3161 verification, signing callbacks, separate TSA trust, and native evidence.
-- [Testing](testing.md): reproducible checks, acceptance evidence, coverage, and CI.
+Start with [project progress](progress.md) for delivered milestones, measured
+coverage, native acceptance evidence and the next phase. The implementation is
+partial; the [capability matrix](compatibility.md) records the remaining gaps.
+
+| Guide | Contents |
+| --- | --- |
+| [Progress](progress.md) | Milestones, tested commit/workflow, coverage and maintenance checklist |
+| [CLI/build quick start](../README.md) | GoReleaser, common operations and library entry points |
+| [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
+| [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
+| [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
+| [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
+| [Testing](testing.md) | Local commands, native acceptance, CI artifacts and release gates |
+| [Research](research.md) | Clang AST extraction, source pins and provenance |
+| [Reference implementations](reference-implementations.md) | GitHub source comparisons and how they informed the work |
+| [Contributing](../CONTRIBUTING.md) | Development and PR requirements |
+| [Changelog](../CHANGELOG.md) | Unreleased implementation history |
