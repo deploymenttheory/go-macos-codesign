@@ -613,7 +613,11 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 	for i, a := range r.Architectures {
 		names[i] = a.Name
 	}
-	fmt.Fprintf(w, "Identifier=%s\nFormat=%s (%s)\nCodeDirectory v=%x size=%d flags=0x%x(%s) hashes=%d+%d location=embedded\n", d.Identifier, r.Format, strings.Join(names, " "), d.Version, len(d.Raw), d.Flags, flagNames(d.Flags), d.CodeSlots, d.SpecialSlots)
+	format := r.Format
+	if r.Format != "disk image" {
+		format += " (" + strings.Join(names, " ") + ")"
+	}
+	fmt.Fprintf(w, "Identifier=%s\nFormat=%s\nCodeDirectory v=%x size=%d flags=0x%x(%s) hashes=%d+%d location=embedded\n", d.Identifier, format, d.Version, len(d.Raw), d.Flags, flagNames(d.Flags), d.CodeSlots, d.SpecialSlots)
 	if o.verbose >= 4 && selected.VersionPlatform != 0 {
 		fmt.Fprintf(w, "VersionPlatform=%d\nVersionMin=%d\nVersionSDK=%d\n", selected.VersionPlatform, selected.VersionMin, selected.VersionSDK)
 	}
@@ -626,11 +630,15 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 	if o.verbose >= 3 {
 		fmt.Fprintf(w, "Hash choices=%s\nCMSDigest=%s\nCMSDigestType=%d\n", hashName(d.HashType), d.FullHash, d.HashType)
 	}
-	if o.verbose >= 4 {
+	if o.verbose >= 4 && d.ExecLimit > 0 {
 		fmt.Fprintf(w, "Executable Segment base=%d\nExecutable Segment limit=%d\nExecutable Segment flags=0x%x\n", d.ExecBase, d.ExecLimit, d.ExecFlags)
 	}
 	if o.verbose >= 4 {
-		fmt.Fprintf(w, "Page size=%d\n", uint64(1)<<d.PageExponent)
+		if d.PageExponent == 0 {
+			fmt.Fprintln(w, "Page size=none")
+		} else {
+			fmt.Fprintf(w, "Page size=%d\n", uint64(1)<<d.PageExponent)
+		}
 	}
 	if o.verbose >= 3 {
 		fmt.Fprintf(w, "CDHash=%s\n", d.CDHash)
@@ -667,6 +675,9 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 		team = "not set"
 	}
 	fmt.Fprintf(w, "TeamIdentifier=%s\n", team)
+	if d.Runtime != 0 {
+		fmt.Fprintf(w, "Runtime Version=%d.%d.%d\n", d.Runtime>>16, d.Runtime>>8&255, d.Runtime&255)
+	}
 	if r.Bundle == nil || r.Bundle.ResourceVersion == 0 {
 		fmt.Fprintln(w, "Sealed Resources=none")
 	} else {

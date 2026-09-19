@@ -41,7 +41,7 @@ jobs:
           name: evidence-${{ matrix.os }}
           path: artifacts/
           if-no-files-found: error
-      - name: Upload Mach-O files and app bundles signed on Linux and Windows
+      - name: Upload Mach-O files, app bundles and DMGs signed on Linux and Windows
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -126,6 +126,9 @@ jobs:
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzBundleResources$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzDMG$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
         env:
           CGO_ENABLED: '0'
       - run: go test ./...

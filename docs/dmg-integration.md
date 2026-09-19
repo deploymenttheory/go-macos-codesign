@@ -1,47 +1,105 @@
-# DMG integration with go-apfs-v2
+# DMG signing with go-apfs-v2
 
-DMG support will directly use `github.com/deploymenttheory/go-apfs-v2/pkg/disk`.
-The app-bundle phase does not yet sign disk images, but the existing APFS project
-provides the UDIF format implementation needed for that work. There is no reason
-to duplicate its DMG reader, writer or compression support in this repository.
+DMG signing directly uses `github.com/deploymenttheory/go-apfs-v2/pkg/disk`, pinned
+to `v0.3.1-0.20260916040812-a4b437d9dd8e`. Production reuses its exported
+`DMGFooter`, including the signature offset/length fields. This repository adds
+the signature adapter; it does not maintain another DMG reader, writer or codec.
 
-## Reviewed API
+## CLI and library
 
-The local checkout at revision
-`a4b437d9dd8e62e3781004edc44be462793c883e` exposes:
+```sh
+macoscodesign -s - -i org.example.image --timestamp=none ./Example.dmg
+macoscodesign --verify ./Example.dmg
+macoscodesign -dvvvv ./Example.dmg
 
-| API | Use in the signing integration |
-| --- | --- |
-| `disk.DMGFooter` | Existing 512-byte UDIF trailer model, including `CodeSignatureOffset` and `CodeSignatureLength` |
-| `disk.EncodeUDIF` and `disk.SourceBlock` | Deterministic image construction for portable test fixtures |
-| `disk.WrapRawImageDMGFrom` | Stream a raw image into a DMG without loading the whole filesystem into memory |
-| `disk.OpenDMG` | Read/decompress APFS image contents for independent content-preservation checks where applicable |
+macoscodesign -fs identity.p12 --password-file password.txt --timestamp ./Example.dmg
+macoscodesign --verify --trust-root code-root.pem --timestamp-root apple ./Example.dmg
+```
 
-The existing reader and writer decode/encode `DMGFooter` with `encoding/binary`
-in big-endian order. The reader's `readFooter` method and its footer instance are
-private, but the exported type is sufficient for a signature-specific adapter.
-`OpenDMG` locates an APFS partition, so it should not gate signing of an otherwise
-supported UDIF containing a different filesystem. Signing operates on the
-existing image bytes and its exported footer model.
+`Sign`, `Inspect`, `Verify` and their byte counterparts recognize the trailing
+UDIF footer. Inspection reports `Format="disk image"` and one signature entry
+named `dmg`; that is a format name, not a CPU architecture. Signing reuses the
+requirements, CMS, certificate-chain and timestamp implementations. Trust remains
+explicit; see [certificates](certificates.md) and [timestamps](timestamps.md).
 
-## Work in this repository
+Without an explicit identifier, path signing follows the tested native basename,
+extension and numeric-suffix rules. Ad-hoc identifiers without a dot also include
+the SHA-1 of the canonical footer. That is Apple's naming convention; signature
+hashes use SHA-256. The byte API still requires an explicit identifier.
 
-1. Pin the APFS dependency when the adapter lands and reuse `disk.DMGFooter`.
-   Add signature-specific bounds and overlap validation around the existing
-   format model. Preserve compressed payloads and metadata bytes.
-2. Establish Apple's DMG CodeDirectory coverage, trailer binding, signature
-   placement and replacement/removal behavior using pinned source/Clang
-   extraction and native fixtures. Reuse this project's SuperBlob, requirements,
-   CMS, certificate-chain and timestamp implementations for those signatures.
-3. Generate portable images using the existing APFS encoders, with native
-   `hdiutil` images as independent fixtures. Prove signing, verification,
-   tamper rejection, replacement and removal against host `codesign`; require
-   exact bytes for deterministic cases and explicit invariants otherwise.
-4. Run the dependency guard, per-package coverage gate and real three-OS CI.
-   Send Linux/Windows-signed DMGs to the Mac verifier, as for Mach-O/app outputs.
+## Signed representation
 
-The local `pkg/disk` dependency graph was checked with `CGO_ENABLED=0` for Linux,
-Darwin and Windows arm64. It contained no CGO files, `crypto/x509`, `crypto/tls`,
-`net/http`, `os/exec` or `purego` imports. This audit supports direct reuse;
-it does not establish DMG signature parity before implementation and acceptance.
-Recheck the resolved graph on the eventual integration commit.
+Compressed data and resource-plist bytes remain unchanged. Signing appends an
+embedded SuperBlob before the 512-byte footer and updates its signature fields.
+The CodeDirectory covers every byte before the signature. Special slot 6 binds
+the complete footer with signature length zeroed and signature offset set.
+Verification requires that binding, payload integrity and applicable trust.
+
+The default hash covers one unpaged payload block. Explicit power-of-two page
+sizes from 2 bytes to 1 GiB are supported. The writer selects the native minimum
+CodeDirectory version for Team ID/runtime fields and stores the actual CMS size
+without Mach-O allocation padding. Runtime metadata, supported requirements and
+forced library entitlements use the shared options. Entitlements are omitted by
+default for images, matching the tested native behavior.
+
+`--force` replaces an existing signature. Dry runs and construction failures,
+including timestamp errors, preserve input bytes. Writes retain the inode and
+are not atomic: I/O failures can leave partial output, and concurrent modification
+is unsupported. Apple rejects `--remove-signature` for signed and unsigned DMGs
+on the baseline. The Go CLI/removal APIs likewise return unsupported and preserve
+the image; removal is not claimed as a native DMG feature.
+
+## Evidence
+
+- `make research-dmg` extracts five complete Apple methods through Clang on both
+  architectures: trailer reading/setup, signing limit, writing and identifiers.
+  [The record](../spec/apple-dmg.json) pins sources/excerpts and identifies shims.
+  Wire representation comes from the APFS library, not the shim layout.
+- Forty native ad-hoc cases cover five input profiles and eight option
+  combinations, requiring complete byte equality, native strict verification
+  and all five display levels.
+- Fifteen portable ad-hoc/RSA/P-256 cases preserve payload bytes and pass both
+  native `codesign --verify --strict` and `hdiutil verify`. Five committed
+  [Apple fixtures](../testdata/dmg/README.md) run on every OS. Ad-hoc and
+  matched-time RSA outputs are byte-identical; ECDSA compares CodeDirectories
+  and verifies its randomized signatures.
+- An independent loopback TSA tests online signing and failure preservation.
+  A live run obtained an Apple timestamp on the APFS fixture at **2026-09-19
+  21:31:11 UTC**, followed by native strict verification.
+- CI exports fifteen DMGs per Linux/Windows producer. The downstream Mac
+  requires signature and image-checksum verification of all thirty within the
+  96-artifact matrix. [Progress](progress.md) distinguishes measured runs from
+  configured checks.
+
+Repeat the opt-in live check with:
+
+```sh
+MACOSCODESIGN_LIVE_TIMESTAMP=1 MACOSCODESIGN_REQUIRE_APPLE=1 \
+  MACOSCODESIGN_EVIDENCE_DIR="$PWD/artifacts/dmg-live" CGO_ENABLED=0 \
+  go test ./acceptance -run '^TestDMGLiveAppleTimestamp$' -count=1 -v
+```
+
+## Limits and encoder observation
+
+The profile is single-segment UDIF v4, with a 512-byte footer, flags equal to 1,
+a resource plist and non-overlapping data/resource/plist ranges. The in-memory
+limit is 1 GiB, including output. Encrypted/segmented representations, detached
+signatures, alternate digest writing, large-image streaming, stapled-ticket and
+notarization policy, and full option/diagnostic parity remain incomplete.
+External Info.plist/resource overrides are rejected. Production does not mount
+or decompress the image; a valid signature does not prove filesystem mountability.
+Native acceptance checks image checksums separately with `hdiutil`.
+
+The pinned APFS encoder produced a small synthetic LZMA image that failed
+`hdiutil` **before signing** on macOS 27 build 26A428: error 1000, calculated CRC32
+zero. Its existing native LZMA fixture passes and is used for interoperability.
+The unsigned reproducer is retained:
+
+```sh
+go run scripts/repro-apfs-lzma.go artifacts/unsigned-lzma-repro.dmg
+hdiutil verify artifacts/unsigned-lzma-repro.dmg
+```
+
+The generator refuses to overwrite output. This single case does not establish
+that every LZMA input fails. Further encoder investigation belongs in
+`go-apfs-v2`; no APFS source files were modified by this signing phase.

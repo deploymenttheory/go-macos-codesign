@@ -1,0 +1,28 @@
+{
+  "apfs_revision": "a4b437d9dd8e62e3781004edc44be462793c883e",
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "files": {
+    "APFS-LICENSE": "95648575c5eaf04f7ce2556b6731851baeb66bf6096037c192f328a66f11a19b",
+    "apfs-source-manifest.json": "e2da91990aa3491f2f6477e0f7dea43ce24911c93d4d752f5afc3008a8d1b5cd",
+    "apfs.dmg": "d7d1ad06e42097988eab31fd56f54391d0da36100129141f0d8d01c1517407d1",
+    "hfs-lzma.dmg": "63adfe7941ad1e0eac3ef8a96dba75c83c12e181ce8c5bb8d317b45baa488dc8",
+    "hfs-source-manifest.json": "4c47d2e0978b6cce0356d027d96fbd63ca969b5d0ba7b8fdd8a57cdd65c91ac9",
+    "native-adhoc-lzfse.dmg": "d506361fe3c6eafff4823742e7d5f6334499e875bcce12abf77fa2f40c307f4f",
+    "native-adhoc-raw.dmg": "7f1984ce2d52aff1d69bcfcb30246d9ae612a91d0a963af47536550bf315b6f2",
+    "native-adhoc-zlib.dmg": "3f247cacb5741ebe0ad5d5347c79eb9866e95edd98af445ade06367401bd28bd",
+    "native-p256-zlib.dmg": "22290e9e3d57225a69b4a4535a10045f0e3dafe0df302a06b1e149b2c6ca4bb9",
+    "native-rsa-zlib.dmg": "f20e2ea4885cfa54ffa57aaa4efbdea10c1511f804e98a38cf51b156daa13f58"
+  },
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "native_strict_verified": true,
+  "schema": 1,
+  "sign_arguments": [
+    "-s",
+    "\u003cpublic-test-identity-or-dash\u003e",
+    "-i",
+    "org.example.dmg",
+    "--timestamp=none",
+    "\u003cimage\u003e"
+  ],
+  "source": "acceptance/dmg_test.go: dmgFixture and TestRecordNativeDMGFixtures"
+}

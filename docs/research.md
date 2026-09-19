@@ -158,6 +158,24 @@ Info.plist/resource binding, display counts, and addition/removal/tamper behavio
 for the [supported app profile](bundles.md). Go code never invokes Clang or
 CoreFoundation to load or seal a bundle.
 
+## DMG research and direct library reuse
+
+`make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple
+`diskimagerep.cpp` and `diskrep.cpp`. It extracts complete trailer-reading/setup,
+signing-limit, signature-writing and canonical-identifier methods through Clang
+for both targets. [spec/apple-dmg.json](../spec/apple-dmg.json) records method
+ASTs, source/excerpt hashes and explicit header/interface shims. Those shims do
+not establish UDIF wire offsets; production uses go-apfs-v2's `disk.DMGFooter`.
+Download the two sources from the URLs in that record into `.research/apple`
+before reproducing the extraction.
+
+Native comparisons establish canonical trailer hashing with a blinded signature
+length, unpaged hashing, exact signature framing and unsupported image removal.
+Relic's pinned [DMG signer](https://github.com/sassoftware/relic/blob/02c54d584ca9eaa8f648763cd53bc77c4ff3d19c/lib/fruit/dmg/sign.go)
+is an independent signature-adapter reference. It is not a dependency or the
+source of another UDIF representation here. [DMG support](dmg-integration.md)
+records the APFS dependency and an isolated unsigned LZMA encoder observation.
+
 ## Local reference repositories
 
 The initial review covered `deploymenttheory/go-macos-pkg-1` and `sdk/go-apfs-v2`.
@@ -165,12 +183,12 @@ Their useful patterns included separation of CLI and SDK code, subprocess-based
 acceptance tests, fixture manifests, and explicit unsupported behavior. The package
 project's identity/CMS/timestamp components and the APFS project's UDIF signature
 offset/length fields informed the implemented certificate/timestamp work and
-remain useful for the disk-image phase. `go-apfs-v2` is the planned direct DMG
-dependency, not merely a source reference. Its `pkg/disk` already exposes
+remain useful for the disk-image phase. `go-apfs-v2` is now the direct DMG
+dependency. Its `pkg/disk` exposes
 `DMGFooter` with code-signature fields, `EncodeUDIF` and streaming raw-image
 wrapping. The reviewed local revision and dependency audit are recorded in the
-[DMG integration plan](dmg-integration.md). It is not imported by the current
-app-bundle phase, which operates on directories and Mach-O executables.
+[DMG support guide](dmg-integration.md). Production imports the format model;
+acceptance also uses its encoder and existing native APFS/HFS+ fixtures.
 
 ## Observations encoded in tests
 

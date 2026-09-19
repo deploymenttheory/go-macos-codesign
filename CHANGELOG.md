@@ -24,10 +24,13 @@ implemented development work, not published versioned releases. See
 - Contents-based APPL bundle signing, inspection, verification and removal;
   deterministic CodeResources, Info.plist binding, localization rules and
   resource tamper detection, with explicit layout/path/size limits.
+- UDIF DMG signing, inspection and verification through a direct go-apfs-v2
+  dependency, with native trailer binding, identifiers, CMS/timestamps and display.
+  Native-unsupported DMG removal preserves the input and returns an error.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
-- Linux/macOS/Windows CI, race checks, seven fuzz targets, and required native
-  verification of 66 Linux/Windows-produced files and app bundles.
+- Linux/macOS/Windows CI, race checks, eight fuzz targets, and required native
+  verification of 96 Linux/Windows-produced files, app bundles and DMGs.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed

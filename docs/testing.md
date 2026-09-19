@@ -97,6 +97,15 @@ Apple app fixtures on every OS. Tests also cover force/removal, dry runs and
 unchanged files after timestamp failure. Layout, path, XML and filesystem
 rejection cases run in unit tests. See [bundle scope](bundles.md).
 
+DMG acceptance adds forty exact signing comparisons and 200 display comparisons
+across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
+Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
+Five committed Apple DMGs are verified on every OS; ad-hoc and matched-time RSA
+outputs are byte-identical, while ECDSA compares CodeDirectories and integrity.
+Bounds/tampering, replacement, dry runs, native-unsupported removal and TSA
+failure preservation are covered. [DMG support](dmg-integration.md) records
+the separate live Apple timestamp check and its opt-in command.
+
 The `xcode-27` hosted runner is selected because its documented image uses macOS
 27. Every run records the actual host and `codesign` hash; that rolling preview
 image is not assumed identical to the local baseline. Output drift fails the
@@ -105,18 +114,19 @@ comparison and must be investigated without silently normalizing it away.
 ## CI
 
 The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
-and Windows jobs upload the actual Mach-O files and app bundles they signed,
+and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 66 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay and six app bundles per OS).
+all 96 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, six app bundles and fifteen DMGs per OS). The downstream
+job also requires `hdiutil verify` for every imported DMG.
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector and seven bounded fuzz targets:
+Separate jobs run the Go race detector and eight bounded fuzz targets:
 `FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
-`FuzzTimestampHTTP` and `FuzzBundleResources`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
+`FuzzTimestampHTTP`, `FuzzBundleResources` and `FuzzDMG`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
 snapshots for all six OS/architecture pairs. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
 

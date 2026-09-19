@@ -24,6 +24,7 @@ const (
 	SlotRequirements     uint32 = 2
 	SlotResources        uint32 = 3
 	SlotEntitlements     uint32 = 5
+	SlotRepSpecific      uint32 = 6
 	SlotDEREntitlements  uint32 = 7
 	SlotCMS              uint32 = 0x10000
 	FlagAdhoc            uint32 = 2
