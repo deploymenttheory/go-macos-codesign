@@ -1,0 +1,119 @@
+name: Test and compatibility
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+  schedule:
+    - cron: '23 4 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, xcode-27]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      CGO_ENABLED: '0'
+      MACOSCODESIGN_EXPORT_DIR: ${{ github.workspace }}/artifacts/export
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      - name: Enforce pure Go and fixture provenance
+        run: python3 scripts/guards.py
+      - name: Run unit and CLI acceptance tests; enforce coverage above 95%
+        run: python3 scripts/verify.py
+        env:
+          MACOSCODESIGN_REQUIRE_APPLE: ${{ runner.os == 'macOS' && '1' || '0' }}
+      - name: Static analysis
+        run: go vet ./...
+      - name: Upload coverage and acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: evidence-${{ matrix.os }}
+          path: artifacts/
+          if-no-files-found: error
+      - name: Upload Mach-O files signed on Linux and Windows
+        if: runner.os != 'macOS'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: signed-${{ matrix.os }}
+          path: artifacts/export/
+          if-no-files-found: error
+  verify-foreign-signatures:
+    needs: test
+    runs-on: xcode-27
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: signed-*
+          path: artifacts/import
+      - name: Apple verifies every imported signature
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImportedArtifacts$'
+        env:
+          CGO_ENABLED: '0'
+          MACOSCODESIGN_REQUIRE_APPLE: '1'
+          MACOSCODESIGN_IMPORT_DIR: ${{ github.workspace }}/artifacts/import
+          MACOSCODESIGN_EVIDENCE_DIR: ${{ github.workspace }}/artifacts/verification
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: apple-verification-of-foreign-signatures
+          path: artifacts/verification/
+          if-no-files-found: error
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      - name: Build and package all six targets with GoReleaser
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
+        with:
+          distribution: goreleaser
+          version: v2.18.1
+          args: release --snapshot --clean --parallelism 2
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: development-binaries
+          path: dist/
+          if-no-files-found: error
+  race-and-fuzz:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      # The Go race detector needs a C compiler; this is a test-only binary.
+      - run: go test -race -count=1 ./pkg/... ./internal/...
+        env:
+          CGO_ENABLED: '1'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzInspect$' -fuzztime=60s -parallel=2
+        env:
+          CGO_ENABLED: '0'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzIdentity$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzCMS$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'

@@ -1,0 +1,4 @@
+# actionlint 1.7.x predates this GitHub-hosted macOS 27 preview label.
+self-hosted-runner:
+  labels:
+    - xcode-27

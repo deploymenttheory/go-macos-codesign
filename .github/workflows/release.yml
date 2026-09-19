@@ -1,0 +1,37 @@
+name: GoReleaser
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      - run: python3 scripts/guards.py --require-complete
+  validation:
+    needs: parity
+    uses: ./.github/workflows/test.yml
+  release:
+    needs: validation
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version-file: go.mod
+      - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
+        with:
+          distribution: goreleaser
+          version: v2.18.1
+          args: release --clean --parallelism 2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+  "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "fixtures": {
+    "unsigned-arm64": {
+      "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+      "size": 16504
+    },
+    "adhoc-arm64": {
+      "sha256": "57480c4e147eb30f1cc9384eed9fb151d1c55310e5be554cbc98ff6e36765205",
+      "size": 16816,
+      "display": {
+        "argv": [
+          "/usr/bin/codesign",
+          "-d",
+          "--verbose=4",
+          "adhoc-arm64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Executable=<fixtures>/adhoc-arm64\nIdentifier=org.example.fixture\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=236 flags=0x2(adhoc) hashes=2+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=8c62acef95e780986548bb25128e7e030cf2b594\nCandidateCDHashFull sha256=8c62acef95e780986548bb25128e7e030cf2b59423a036e25a817f981a5a4138\nHash choices=sha256\nCMSDigest=8c62acef95e780986548bb25128e7e030cf2b59423a036e25a817f981a5a4138\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=16384\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=8c62acef95e780986548bb25128e7e030cf2b594\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "adhoc-arm64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/adhoc-arm64: valid on disk\n<fixtures>/adhoc-arm64: satisfies its Designated Requirement\n"
+      }
+    },
+    "unsigned-x86_64": {
+      "sha256": "404d28c8670db1f3b463b8a5293c888109e9a8bec4e4ba471d6af29a3fc9cb77",
+      "size": 4216
+    },
+    "adhoc-x86_64": {
+      "sha256": "a10e1a8f34f26cfe7a59b8e98818ebb618e749a4105737150037237ffd43a947",
+      "size": 4528,
+      "display": {
+        "argv": [
+          "/usr/bin/codesign",
+          "-d",
+          "--verbose=4",
+          "adhoc-x86_64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Executable=<fixtures>/adhoc-x86_64\nIdentifier=org.example.fixture\nFormat=Mach-O thin (x86_64)\nCodeDirectory v=20400 size=236 flags=0x2(adhoc) hashes=2+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=8488ca012c589eb0e1920804b0056f5164a6e6ed\nCandidateCDHashFull sha256=8488ca012c589eb0e1920804b0056f5164a6e6ed6e0552c9109f049150d278bf\nHash choices=sha256\nCMSDigest=8488ca012c589eb0e1920804b0056f5164a6e6ed6e0552c9109f049150d278bf\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=4096\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=8488ca012c589eb0e1920804b0056f5164a6e6ed\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "adhoc-x86_64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/adhoc-x86_64: valid on disk\n<fixtures>/adhoc-x86_64: satisfies its Designated Requirement\n"
+      }
+    },
+    "unsigned-universal": {
+      "sha256": "e71d97df5531094a7b4c460a10585fc1bb3685824a751e73f7b96894009ffc9a",
+      "size": 32888
+    },
+    "adhoc-universal": {
+      "sha256": "97ab48aef539e71edac7db4890ea72a868e94df74eeeed5a590c2bfa8b276adf",
+      "size": 49584,
+      "display": {
+        "argv": [
+          "/usr/bin/codesign",
+          "-d",
+          "--verbose=4",
+          "adhoc-universal"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Executable=<fixtures>/adhoc-universal\nIdentifier=org.example.fixture\nFormat=Mach-O universal (x86_64 arm64)\nCodeDirectory v=20400 size=236 flags=0x2(adhoc) hashes=2+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=8c62acef95e780986548bb25128e7e030cf2b594\nCandidateCDHashFull sha256=8c62acef95e780986548bb25128e7e030cf2b59423a036e25a817f981a5a4138\nHash choices=sha256\nCMSDigest=8c62acef95e780986548bb25128e7e030cf2b59423a036e25a817f981a5a4138\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=16384\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=8c62acef95e780986548bb25128e7e030cf2b594\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "adhoc-universal"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/adhoc-universal: valid on disk\n<fixtures>/adhoc-universal: satisfies its Designated Requirement\n"
+      }
+    },
+    "entitlements-arm64": {
+      "sha256": "f83caea4efb181fecd6a785d9db42d5b75f1952a12b8beebc9ae0c56233f2e3a",
+      "size": 17504,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "entitlements-arm64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/entitlements-arm64: valid on disk\n<fixtures>/entitlements-arm64: satisfies its Designated Requirement\n"
+      }
+    },
+    "runtime-arm64": {
+      "sha256": "c54ae2a731cfe174258632d07b21b24fdd588d9d092cc190293b0e25fc042846",
+      "size": 16816,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "runtime-arm64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/runtime-arm64: valid on disk\n<fixtures>/runtime-arm64: satisfies its Designated Requirement\n"
+      }
+    },
+    "requirement-arm64": {
+      "sha256": "ee810a8838dbafd79ba80de15347f15012b9179e667593c7c96d15204c29770e",
+      "size": 16864,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "requirement-arm64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/requirement-arm64: valid on disk\n<fixtures>/requirement-arm64: satisfies its Designated Requirement\n"
+      }
+    },
+    "entitlements-x86_64": {
+      "sha256": "10a385d7faf0bd74a9e6494cf1f195296a22e5b93ed7afcaee59cb9902c099b5",
+      "size": 5216,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "entitlements-x86_64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/entitlements-x86_64: valid on disk\n<fixtures>/entitlements-x86_64: satisfies its Designated Requirement\n"
+      }
+    },
+    "runtime-x86_64": {
+      "sha256": "ba8aab66aac42b228b41bf556dd34e30b9875b2bbeefa94aa22d98543f0d9557",
+      "size": 4528,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "runtime-x86_64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/runtime-x86_64: valid on disk\n<fixtures>/runtime-x86_64: satisfies its Designated Requirement\n"
+      }
+    },
+    "requirement-x86_64": {
+      "sha256": "0a1cf79a109c7abadb704e695c1ac502ebc37b6ab60e07b3eb3665150968eca5",
+      "size": 4576,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "requirement-x86_64"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/requirement-x86_64: valid on disk\n<fixtures>/requirement-x86_64: satisfies its Designated Requirement\n"
+      }
+    },
+    "entitlements-universal": {
+      "sha256": "c9c855577274a8989254bad4980490cabf7cff905b8f35f3f2170c1d88a12c5e",
+      "size": 50272,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "entitlements-universal"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/entitlements-universal: valid on disk\n<fixtures>/entitlements-universal: satisfies its Designated Requirement\n"
+      }
+    },
+    "runtime-universal": {
+      "sha256": "a4d6b579711c15e844e7ac0df3e3648bee4676751a3aea74c47567da2aa85b48",
+      "size": 49584,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "runtime-universal"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/runtime-universal: valid on disk\n<fixtures>/runtime-universal: satisfies its Designated Requirement\n"
+      }
+    },
+    "requirement-universal": {
+      "sha256": "5237ad82356b39941b1e6877b57d98af4b46b81c62dfe8cedae0a9618a88864d",
+      "size": 49632,
+      "verify": {
+        "argv": [
+          "/usr/bin/codesign",
+          "--verify",
+          "--strict",
+          "--verbose=4",
+          "requirement-universal"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "<fixtures>/requirement-universal: valid on disk\n<fixtures>/requirement-universal: satisfies its Designated Requirement\n"
+      }
+    }
+  }
+}

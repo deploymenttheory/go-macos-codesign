@@ -1,0 +1,21 @@
+go-macos-codesign
+
+The original Go implementation is licensed under the repository LICENSE.
+
+This repository includes an attributed subset of github.com/spf13/afero v1.15.0
+under third_party/afero. Its Apache License 2.0 is retained as LICENSE.txt.
+All retained source files are unmodified; their hashes and omitted files are
+listed in UPSTREAM.json. The unused HTTP filesystem adapter is omitted because
+its net/http dependency imports Apple's certificate trust bridge on Darwin.
+
+Other module dependencies retain their own licenses, including Cobra (Apache
+2.0), Viper (MIT), and howett.net/plist (BSD 2-Clause).
+
+Apple SDK declarations and open-source Security code were consulted for format
+facts and behavior. Clang-generated factual metadata is in spec/apple-sdk.json
+and spec/apple-cms.json.
+Apple implementation source and SDK headers are not included in release archives.
+The Mach-O test fixtures were compiled from testdata/src/hello.c in this repository.
+
+Research references and the limits of demonstrated compatibility are documented
+in docs/research.md and docs/compatibility.md.

@@ -5,3 +5,12 @@
 * text=auto
 
 *.json text eol=lf
+*.go text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+testdata/macho/* -text
+testdata/macho/*.json text eol=lf
+third_party/** -text
+NOTICE text eol=lf
+# Retain upstream dependency and license bytes exactly, including whitespace.
+third_party/** -whitespace

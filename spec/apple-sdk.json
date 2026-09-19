@@ -1,0 +1,677 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "header": "System/Library/Frameworks/Kernel.framework/Versions/A/Headers/kern/cs_blobs.h",
+  "header_sha256": "b3ecf166337427329bd9e8df90d08f1403e08191401ac0ad8b54b71052dd775d",
+  "schema": 1,
+  "sdk": "MacOSX.sdk",
+  "targets": {
+    "arm64-apple-macos27": {
+      "enums": {
+        "CSMAGIC_BLOBWRAPPER": 4208855809,
+        "CSMAGIC_CODEDIRECTORY": 4208856066,
+        "CSMAGIC_DETACHED_SIGNATURE": 4208856257,
+        "CSMAGIC_EMBEDDED_DER_ENTITLEMENTS": 4208882034,
+        "CSMAGIC_EMBEDDED_ENTITLEMENTS": 4208882033,
+        "CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT": 4208886145,
+        "CSMAGIC_EMBEDDED_SIGNATURE": 4208856256,
+        "CSMAGIC_EMBEDDED_SIGNATURE_OLD": 4208855810,
+        "CSMAGIC_REQUIREMENT": 4208856064,
+        "CSMAGIC_REQUIREMENTS": 4208856065,
+        "CSSLOT_ALTERNATE_CODEDIRECTORIES": 4096,
+        "CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT": 4101,
+        "CSSLOT_ALTERNATE_CODEDIRECTORY_MAX": 5,
+        "CSSLOT_APPLICATION": 4,
+        "CSSLOT_CODEDIRECTORY": 0,
+        "CSSLOT_DER_ENTITLEMENTS": 7,
+        "CSSLOT_ENTITLEMENTS": 5,
+        "CSSLOT_IDENTIFICATIONSLOT": 65537,
+        "CSSLOT_INFOSLOT": 1,
+        "CSSLOT_LAUNCH_CONSTRAINT_PARENT": 9,
+        "CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE": 10,
+        "CSSLOT_LAUNCH_CONSTRAINT_SELF": 8,
+        "CSSLOT_LIBRARY_CONSTRAINT": 11,
+        "CSSLOT_REQUIREMENTS": 2,
+        "CSSLOT_RESOURCEDIR": 3,
+        "CSSLOT_SIGNATURESLOT": 65536,
+        "CSSLOT_SIGNATURESLOT2": 65539,
+        "CSSLOT_TICKETSLOT": 65538,
+        "CSTYPE_INDEX_ENTITLEMENTS": 5,
+        "CSTYPE_INDEX_REQUIREMENTS": 2,
+        "CS_CDHASH_LEN": 20,
+        "CS_HASHTYPE_SHA1": 1,
+        "CS_HASHTYPE_SHA256": 2,
+        "CS_HASHTYPE_SHA256_TRUNCATED": 3,
+        "CS_HASHTYPE_SHA384": 4,
+        "CS_HASH_MAX_SIZE": 64,
+        "CS_HASH_MIN_SIZE": 20,
+        "CS_LAUNCH_TYPE_APPLICATION": 3,
+        "CS_LAUNCH_TYPE_NONE": 0,
+        "CS_LAUNCH_TYPE_SYSDIAGNOSE": 2,
+        "CS_LAUNCH_TYPE_SYSTEM_SERVICE": 1,
+        "CS_LINKAGE_APPLICATION_INVALID": 0,
+        "CS_LINKAGE_APPLICATION_OOPJIT": 2,
+        "CS_LINKAGE_APPLICATION_OOPJIT_INVALID": 0,
+        "CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER": 2,
+        "CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS": 1,
+        "CS_LINKAGE_APPLICATION_ROSETTA": 1,
+        "CS_LINKAGE_APPLICATION_ROSETTA_AOT": 0,
+        "CS_LINKAGE_APPLICATION_XOJIT": 2,
+        "CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS": 1,
+        "CS_SHA1_LEN": 20,
+        "CS_SHA256_LEN": 32,
+        "CS_SHA256_TRUNCATED_LEN": 20,
+        "CS_SHA384_LEN": 48,
+        "CS_SHA512_LEN": 64,
+        "CS_SIGNER_TYPE_LEGACYVPN": 5,
+        "CS_SIGNER_TYPE_MAC_APP_STORE": 6,
+        "CS_SIGNER_TYPE_OOPJIT": 9,
+        "CS_SIGNER_TYPE_UNKNOWN": 0,
+        "CS_SUPPL_SIGNER_TYPE_LOCAL": 8,
+        "CS_SUPPL_SIGNER_TYPE_TRUSTCACHE": 7,
+        "CS_SUPPL_SIGNER_TYPE_UNKNOWN": 0,
+        "CS_SUPPORTSCODELIMIT64": 131840,
+        "CS_SUPPORTSEXECSEG": 132096,
+        "CS_SUPPORTSLINKAGE": 132608,
+        "CS_SUPPORTSRUNTIME": 132352,
+        "CS_SUPPORTSSCATTER": 131328,
+        "CS_SUPPORTSTEAMID": 131584,
+        "CS_VALIDATION_CATEGORY_APP_STORE": 4,
+        "CS_VALIDATION_CATEGORY_DEVELOPER_ID": 6,
+        "CS_VALIDATION_CATEGORY_DEVELOPMENT": 3,
+        "CS_VALIDATION_CATEGORY_ENTERPRISE": 5,
+        "CS_VALIDATION_CATEGORY_INVALID": 0,
+        "CS_VALIDATION_CATEGORY_LOCAL_SIGNING": 7,
+        "CS_VALIDATION_CATEGORY_NONE": 10,
+        "CS_VALIDATION_CATEGORY_OOPJIT": 9,
+        "CS_VALIDATION_CATEGORY_PLATFORM": 1,
+        "CS_VALIDATION_CATEGORY_ROSETTA": 8,
+        "CS_VALIDATION_CATEGORY_TESTFLIGHT": 2
+      },
+      "layouts": [
+        "0 | struct __CodeDirectory\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   uint32_t version\n        12 |   uint32_t flags\n        16 |   uint32_t hashOffset\n        20 |   uint32_t identOffset\n        24 |   uint32_t nSpecialSlots\n        28 |   uint32_t nCodeSlots\n        32 |   uint32_t codeLimit\n        36 |   uint8_t hashSize\n        37 |   uint8_t hashType\n        38 |   uint8_t platform\n        39 |   uint8_t pageSize\n        40 |   uint32_t spare2\n        44 |   char[0] end_earliest\n        44 |   uint32_t scatterOffset\n        48 |   char[0] end_withScatter\n        48 |   uint32_t teamOffset\n        52 |   char[0] end_withTeam\n        52 |   uint32_t spare3\n        56 |   uint64_t codeLimit64\n        64 |   char[0] end_withCodeLimit64\n        64 |   uint64_t execSegBase\n        72 |   uint64_t execSegLimit\n        80 |   uint64_t execSegFlags\n        88 |   char[0] end_withExecSeg\n        88 |   uint32_t runtime\n        92 |   uint32_t preEncryptOffset\n        96 |   char[0] end_withPreEncryptOffset\n        96 |   uint8_t linkageHashType\n        97 |   uint8_t linkageApplicationType\n        98 |   uint16_t linkageApplicationSubType\n       100 |   uint32_t linkageOffset\n       104 |   uint32_t linkageSize\n       108 |   char[0] end_withLinkage\n           | [sizeof=112, align=8]",
+        "0 | struct __BlobIndex\n         0 |   uint32_t type\n         4 |   uint32_t offset\n           | [sizeof=8, align=4]",
+        "0 | struct __SC_SuperBlob\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   uint32_t count\n        12 |   CS_BlobIndex[] index\n           | [sizeof=12, align=4]",
+        "0 | struct __SC_GenericBlob\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   char[] data\n           | [sizeof=8, align=4]",
+        "0 | struct __SC_Scatter\n         0 |   uint32_t count\n         4 |   uint32_t base\n         8 |   uint64_t targetOffset\n        16 |   uint64_t spare\n           | [sizeof=24, align=8]"
+      ],
+      "macros": [
+        "#define CS_ADHOC 0x00000002",
+        "#define CS_ALLOWED_MACHO (CS_ADHOC | CS_HARD | CS_KILL | CS_CHECK_EXPIRATION | CS_RESTRICT | CS_ENFORCEMENT | CS_REQUIRE_LV | CS_RUNTIME | CS_LINKER_SIGNED)",
+        "#define CS_CHECK_EXPIRATION 0x00000400",
+        "#define CS_DATAVAULT_CONTROLLER 0x80000000",
+        "#define CS_DEBUGGED 0x10000000",
+        "#define CS_DEV_CODE 0x40000000",
+        "#define CS_DYLD_PLATFORM CS_NO_UNTRUSTED_HELPERS",
+        "#define CS_ENFORCEMENT 0x00001000",
+        "#define CS_ENTITLEMENTS_VALIDATED 0x00004000",
+        "#define CS_ENTITLEMENT_FLAGS (CS_GET_TASK_ALLOW | CS_INSTALLER | CS_DATAVAULT_CONTROLLER | CS_NVRAM_UNRESTRICTED)",
+        "#define CS_EXECSEG_ALLOW_UNSIGNED 0x10",
+        "#define CS_EXECSEG_CAN_EXEC_CDHASH 0x200",
+        "#define CS_EXECSEG_CAN_LOAD_CDHASH 0x100",
+        "#define CS_EXECSEG_DEBUGGER 0x20",
+        "#define CS_EXECSEG_JIT 0x40",
+        "#define CS_EXECSEG_MAIN_BINARY 0x1",
+        "#define CS_EXECSEG_SKIP_LV 0x80",
+        "#define CS_EXEC_INHERIT_SIP 0x00800000",
+        "#define CS_EXEC_SET_ENFORCEMENT 0x00400000",
+        "#define CS_EXEC_SET_HARD 0x00100000",
+        "#define CS_EXEC_SET_KILL 0x00200000",
+        "#define CS_FORCED_LV 0x00000010",
+        "#define CS_GET_TASK_ALLOW 0x00000004",
+        "#define CS_HARD 0x00000100",
+        "#define CS_INSTALLER 0x00000008",
+        "#define CS_INVALID_ALLOWED 0x00000020",
+        "#define CS_KILL 0x00000200",
+        "#define CS_KILLED 0x01000000",
+        "#define CS_LINKER_SIGNED 0x00020000",
+        "#define CS_NO_UNTRUSTED_HELPERS 0x02000000",
+        "#define CS_NVRAM_UNRESTRICTED 0x00008000",
+        "#define CS_PLATFORM_BINARY 0x04000000",
+        "#define CS_PLATFORM_PATH 0x08000000",
+        "#define CS_REQUIRE_LV 0x00002000",
+        "#define CS_RESTRICT 0x00000800",
+        "#define CS_RUNTIME 0x00010000",
+        "#define CS_SIGNED 0x20000000",
+        "#define CS_VALID 0x00000001"
+      ],
+      "records": {
+        "__BlobIndex": [
+          {
+            "name": "type",
+            "type": "uint32_t"
+          },
+          {
+            "name": "offset",
+            "type": "uint32_t"
+          }
+        ],
+        "__CodeDirectory": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "version",
+            "type": "uint32_t"
+          },
+          {
+            "name": "flags",
+            "type": "uint32_t"
+          },
+          {
+            "name": "hashOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "identOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "nSpecialSlots",
+            "type": "uint32_t"
+          },
+          {
+            "name": "nCodeSlots",
+            "type": "uint32_t"
+          },
+          {
+            "name": "codeLimit",
+            "type": "uint32_t"
+          },
+          {
+            "name": "hashSize",
+            "type": "uint8_t"
+          },
+          {
+            "name": "hashType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "platform",
+            "type": "uint8_t"
+          },
+          {
+            "name": "pageSize",
+            "type": "uint8_t"
+          },
+          {
+            "name": "spare2",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_earliest",
+            "type": "char[0]"
+          },
+          {
+            "name": "scatterOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withScatter",
+            "type": "char[0]"
+          },
+          {
+            "name": "teamOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withTeam",
+            "type": "char[0]"
+          },
+          {
+            "name": "spare3",
+            "type": "uint32_t"
+          },
+          {
+            "name": "codeLimit64",
+            "type": "uint64_t"
+          },
+          {
+            "name": "end_withCodeLimit64",
+            "type": "char[0]"
+          },
+          {
+            "name": "execSegBase",
+            "type": "uint64_t"
+          },
+          {
+            "name": "execSegLimit",
+            "type": "uint64_t"
+          },
+          {
+            "name": "execSegFlags",
+            "type": "uint64_t"
+          },
+          {
+            "name": "end_withExecSeg",
+            "type": "char[0]"
+          },
+          {
+            "name": "runtime",
+            "type": "uint32_t"
+          },
+          {
+            "name": "preEncryptOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withPreEncryptOffset",
+            "type": "char[0]"
+          },
+          {
+            "name": "linkageHashType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "linkageApplicationType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "linkageApplicationSubType",
+            "type": "uint16_t"
+          },
+          {
+            "name": "linkageOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "linkageSize",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withLinkage",
+            "type": "char[0]"
+          }
+        ],
+        "__SC_GenericBlob": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "data",
+            "type": "char[]"
+          }
+        ],
+        "__SC_Scatter": [
+          {
+            "name": "count",
+            "type": "uint32_t"
+          },
+          {
+            "name": "base",
+            "type": "uint32_t"
+          },
+          {
+            "name": "targetOffset",
+            "type": "uint64_t"
+          },
+          {
+            "name": "spare",
+            "type": "uint64_t"
+          }
+        ],
+        "__SC_SuperBlob": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "count",
+            "type": "uint32_t"
+          },
+          {
+            "name": "index",
+            "type": "CS_BlobIndex[]"
+          }
+        ]
+      }
+    },
+    "x86_64-apple-macos27": {
+      "enums": {
+        "CSMAGIC_BLOBWRAPPER": 4208855809,
+        "CSMAGIC_CODEDIRECTORY": 4208856066,
+        "CSMAGIC_DETACHED_SIGNATURE": 4208856257,
+        "CSMAGIC_EMBEDDED_DER_ENTITLEMENTS": 4208882034,
+        "CSMAGIC_EMBEDDED_ENTITLEMENTS": 4208882033,
+        "CSMAGIC_EMBEDDED_LAUNCH_CONSTRAINT": 4208886145,
+        "CSMAGIC_EMBEDDED_SIGNATURE": 4208856256,
+        "CSMAGIC_EMBEDDED_SIGNATURE_OLD": 4208855810,
+        "CSMAGIC_REQUIREMENT": 4208856064,
+        "CSMAGIC_REQUIREMENTS": 4208856065,
+        "CSSLOT_ALTERNATE_CODEDIRECTORIES": 4096,
+        "CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT": 4101,
+        "CSSLOT_ALTERNATE_CODEDIRECTORY_MAX": 5,
+        "CSSLOT_APPLICATION": 4,
+        "CSSLOT_CODEDIRECTORY": 0,
+        "CSSLOT_DER_ENTITLEMENTS": 7,
+        "CSSLOT_ENTITLEMENTS": 5,
+        "CSSLOT_IDENTIFICATIONSLOT": 65537,
+        "CSSLOT_INFOSLOT": 1,
+        "CSSLOT_LAUNCH_CONSTRAINT_PARENT": 9,
+        "CSSLOT_LAUNCH_CONSTRAINT_RESPONSIBLE": 10,
+        "CSSLOT_LAUNCH_CONSTRAINT_SELF": 8,
+        "CSSLOT_LIBRARY_CONSTRAINT": 11,
+        "CSSLOT_REQUIREMENTS": 2,
+        "CSSLOT_RESOURCEDIR": 3,
+        "CSSLOT_SIGNATURESLOT": 65536,
+        "CSSLOT_SIGNATURESLOT2": 65539,
+        "CSSLOT_TICKETSLOT": 65538,
+        "CSTYPE_INDEX_ENTITLEMENTS": 5,
+        "CSTYPE_INDEX_REQUIREMENTS": 2,
+        "CS_CDHASH_LEN": 20,
+        "CS_HASHTYPE_SHA1": 1,
+        "CS_HASHTYPE_SHA256": 2,
+        "CS_HASHTYPE_SHA256_TRUNCATED": 3,
+        "CS_HASHTYPE_SHA384": 4,
+        "CS_HASH_MAX_SIZE": 64,
+        "CS_HASH_MIN_SIZE": 20,
+        "CS_LAUNCH_TYPE_APPLICATION": 3,
+        "CS_LAUNCH_TYPE_NONE": 0,
+        "CS_LAUNCH_TYPE_SYSDIAGNOSE": 2,
+        "CS_LAUNCH_TYPE_SYSTEM_SERVICE": 1,
+        "CS_LINKAGE_APPLICATION_INVALID": 0,
+        "CS_LINKAGE_APPLICATION_OOPJIT": 2,
+        "CS_LINKAGE_APPLICATION_OOPJIT_INVALID": 0,
+        "CS_LINKAGE_APPLICATION_OOPJIT_MLCOMPILER": 2,
+        "CS_LINKAGE_APPLICATION_OOPJIT_PREVIEWS": 1,
+        "CS_LINKAGE_APPLICATION_ROSETTA": 1,
+        "CS_LINKAGE_APPLICATION_ROSETTA_AOT": 0,
+        "CS_LINKAGE_APPLICATION_XOJIT": 2,
+        "CS_LINKAGE_APPLICATION_XOJIT_PREVIEWS": 1,
+        "CS_SHA1_LEN": 20,
+        "CS_SHA256_LEN": 32,
+        "CS_SHA256_TRUNCATED_LEN": 20,
+        "CS_SHA384_LEN": 48,
+        "CS_SHA512_LEN": 64,
+        "CS_SIGNER_TYPE_LEGACYVPN": 5,
+        "CS_SIGNER_TYPE_MAC_APP_STORE": 6,
+        "CS_SIGNER_TYPE_OOPJIT": 9,
+        "CS_SIGNER_TYPE_UNKNOWN": 0,
+        "CS_SUPPL_SIGNER_TYPE_LOCAL": 8,
+        "CS_SUPPL_SIGNER_TYPE_TRUSTCACHE": 7,
+        "CS_SUPPL_SIGNER_TYPE_UNKNOWN": 0,
+        "CS_SUPPORTSCODELIMIT64": 131840,
+        "CS_SUPPORTSEXECSEG": 132096,
+        "CS_SUPPORTSLINKAGE": 132608,
+        "CS_SUPPORTSRUNTIME": 132352,
+        "CS_SUPPORTSSCATTER": 131328,
+        "CS_SUPPORTSTEAMID": 131584,
+        "CS_VALIDATION_CATEGORY_APP_STORE": 4,
+        "CS_VALIDATION_CATEGORY_DEVELOPER_ID": 6,
+        "CS_VALIDATION_CATEGORY_DEVELOPMENT": 3,
+        "CS_VALIDATION_CATEGORY_ENTERPRISE": 5,
+        "CS_VALIDATION_CATEGORY_INVALID": 0,
+        "CS_VALIDATION_CATEGORY_LOCAL_SIGNING": 7,
+        "CS_VALIDATION_CATEGORY_NONE": 10,
+        "CS_VALIDATION_CATEGORY_OOPJIT": 9,
+        "CS_VALIDATION_CATEGORY_PLATFORM": 1,
+        "CS_VALIDATION_CATEGORY_ROSETTA": 8,
+        "CS_VALIDATION_CATEGORY_TESTFLIGHT": 2
+      },
+      "layouts": [
+        "0 | struct __CodeDirectory\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   uint32_t version\n        12 |   uint32_t flags\n        16 |   uint32_t hashOffset\n        20 |   uint32_t identOffset\n        24 |   uint32_t nSpecialSlots\n        28 |   uint32_t nCodeSlots\n        32 |   uint32_t codeLimit\n        36 |   uint8_t hashSize\n        37 |   uint8_t hashType\n        38 |   uint8_t platform\n        39 |   uint8_t pageSize\n        40 |   uint32_t spare2\n        44 |   char[0] end_earliest\n        44 |   uint32_t scatterOffset\n        48 |   char[0] end_withScatter\n        48 |   uint32_t teamOffset\n        52 |   char[0] end_withTeam\n        52 |   uint32_t spare3\n        56 |   uint64_t codeLimit64\n        64 |   char[0] end_withCodeLimit64\n        64 |   uint64_t execSegBase\n        72 |   uint64_t execSegLimit\n        80 |   uint64_t execSegFlags\n        88 |   char[0] end_withExecSeg\n        88 |   uint32_t runtime\n        92 |   uint32_t preEncryptOffset\n        96 |   char[0] end_withPreEncryptOffset\n        96 |   uint8_t linkageHashType\n        97 |   uint8_t linkageApplicationType\n        98 |   uint16_t linkageApplicationSubType\n       100 |   uint32_t linkageOffset\n       104 |   uint32_t linkageSize\n       108 |   char[0] end_withLinkage\n           | [sizeof=112, align=8]",
+        "0 | struct __BlobIndex\n         0 |   uint32_t type\n         4 |   uint32_t offset\n           | [sizeof=8, align=4]",
+        "0 | struct __SC_SuperBlob\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   uint32_t count\n        12 |   CS_BlobIndex[] index\n           | [sizeof=12, align=4]",
+        "0 | struct __SC_GenericBlob\n         0 |   uint32_t magic\n         4 |   uint32_t length\n         8 |   char[] data\n           | [sizeof=8, align=4]",
+        "0 | struct __SC_Scatter\n         0 |   uint32_t count\n         4 |   uint32_t base\n         8 |   uint64_t targetOffset\n        16 |   uint64_t spare\n           | [sizeof=24, align=8]"
+      ],
+      "macros": [
+        "#define CS_ADHOC 0x00000002",
+        "#define CS_ALLOWED_MACHO (CS_ADHOC | CS_HARD | CS_KILL | CS_CHECK_EXPIRATION | CS_RESTRICT | CS_ENFORCEMENT | CS_REQUIRE_LV | CS_RUNTIME | CS_LINKER_SIGNED)",
+        "#define CS_CHECK_EXPIRATION 0x00000400",
+        "#define CS_DATAVAULT_CONTROLLER 0x80000000",
+        "#define CS_DEBUGGED 0x10000000",
+        "#define CS_DEV_CODE 0x40000000",
+        "#define CS_DYLD_PLATFORM CS_NO_UNTRUSTED_HELPERS",
+        "#define CS_ENFORCEMENT 0x00001000",
+        "#define CS_ENTITLEMENTS_VALIDATED 0x00004000",
+        "#define CS_ENTITLEMENT_FLAGS (CS_GET_TASK_ALLOW | CS_INSTALLER | CS_DATAVAULT_CONTROLLER | CS_NVRAM_UNRESTRICTED)",
+        "#define CS_EXECSEG_ALLOW_UNSIGNED 0x10",
+        "#define CS_EXECSEG_CAN_EXEC_CDHASH 0x200",
+        "#define CS_EXECSEG_CAN_LOAD_CDHASH 0x100",
+        "#define CS_EXECSEG_DEBUGGER 0x20",
+        "#define CS_EXECSEG_JIT 0x40",
+        "#define CS_EXECSEG_MAIN_BINARY 0x1",
+        "#define CS_EXECSEG_SKIP_LV 0x80",
+        "#define CS_EXEC_INHERIT_SIP 0x00800000",
+        "#define CS_EXEC_SET_ENFORCEMENT 0x00400000",
+        "#define CS_EXEC_SET_HARD 0x00100000",
+        "#define CS_EXEC_SET_KILL 0x00200000",
+        "#define CS_FORCED_LV 0x00000010",
+        "#define CS_GET_TASK_ALLOW 0x00000004",
+        "#define CS_HARD 0x00000100",
+        "#define CS_INSTALLER 0x00000008",
+        "#define CS_INVALID_ALLOWED 0x00000020",
+        "#define CS_KILL 0x00000200",
+        "#define CS_KILLED 0x01000000",
+        "#define CS_LINKER_SIGNED 0x00020000",
+        "#define CS_NO_UNTRUSTED_HELPERS 0x02000000",
+        "#define CS_NVRAM_UNRESTRICTED 0x00008000",
+        "#define CS_PLATFORM_BINARY 0x04000000",
+        "#define CS_PLATFORM_PATH 0x08000000",
+        "#define CS_REQUIRE_LV 0x00002000",
+        "#define CS_RESTRICT 0x00000800",
+        "#define CS_RUNTIME 0x00010000",
+        "#define CS_SIGNED 0x20000000",
+        "#define CS_VALID 0x00000001"
+      ],
+      "records": {
+        "__BlobIndex": [
+          {
+            "name": "type",
+            "type": "uint32_t"
+          },
+          {
+            "name": "offset",
+            "type": "uint32_t"
+          }
+        ],
+        "__CodeDirectory": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "version",
+            "type": "uint32_t"
+          },
+          {
+            "name": "flags",
+            "type": "uint32_t"
+          },
+          {
+            "name": "hashOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "identOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "nSpecialSlots",
+            "type": "uint32_t"
+          },
+          {
+            "name": "nCodeSlots",
+            "type": "uint32_t"
+          },
+          {
+            "name": "codeLimit",
+            "type": "uint32_t"
+          },
+          {
+            "name": "hashSize",
+            "type": "uint8_t"
+          },
+          {
+            "name": "hashType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "platform",
+            "type": "uint8_t"
+          },
+          {
+            "name": "pageSize",
+            "type": "uint8_t"
+          },
+          {
+            "name": "spare2",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_earliest",
+            "type": "char[0]"
+          },
+          {
+            "name": "scatterOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withScatter",
+            "type": "char[0]"
+          },
+          {
+            "name": "teamOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withTeam",
+            "type": "char[0]"
+          },
+          {
+            "name": "spare3",
+            "type": "uint32_t"
+          },
+          {
+            "name": "codeLimit64",
+            "type": "uint64_t"
+          },
+          {
+            "name": "end_withCodeLimit64",
+            "type": "char[0]"
+          },
+          {
+            "name": "execSegBase",
+            "type": "uint64_t"
+          },
+          {
+            "name": "execSegLimit",
+            "type": "uint64_t"
+          },
+          {
+            "name": "execSegFlags",
+            "type": "uint64_t"
+          },
+          {
+            "name": "end_withExecSeg",
+            "type": "char[0]"
+          },
+          {
+            "name": "runtime",
+            "type": "uint32_t"
+          },
+          {
+            "name": "preEncryptOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withPreEncryptOffset",
+            "type": "char[0]"
+          },
+          {
+            "name": "linkageHashType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "linkageApplicationType",
+            "type": "uint8_t"
+          },
+          {
+            "name": "linkageApplicationSubType",
+            "type": "uint16_t"
+          },
+          {
+            "name": "linkageOffset",
+            "type": "uint32_t"
+          },
+          {
+            "name": "linkageSize",
+            "type": "uint32_t"
+          },
+          {
+            "name": "end_withLinkage",
+            "type": "char[0]"
+          }
+        ],
+        "__SC_GenericBlob": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "data",
+            "type": "char[]"
+          }
+        ],
+        "__SC_Scatter": [
+          {
+            "name": "count",
+            "type": "uint32_t"
+          },
+          {
+            "name": "base",
+            "type": "uint32_t"
+          },
+          {
+            "name": "targetOffset",
+            "type": "uint64_t"
+          },
+          {
+            "name": "spare",
+            "type": "uint64_t"
+          }
+        ],
+        "__SC_SuperBlob": [
+          {
+            "name": "magic",
+            "type": "uint32_t"
+          },
+          {
+            "name": "length",
+            "type": "uint32_t"
+          },
+          {
+            "name": "count",
+            "type": "uint32_t"
+          },
+          {
+            "name": "index",
+            "type": "CS_BlobIndex[]"
+          }
+        ]
+      }
+    }
+  }
+}

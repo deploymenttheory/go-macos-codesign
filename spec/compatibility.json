@@ -1,0 +1,430 @@
+{
+  "schema": 1,
+  "baseline": {
+    "macos": "27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+    "manual_sha256": "fec462ff82f5e09e4f59422774a1099192430598368196bcd1a3d51ad0b872ed"
+  },
+  "full_parity": false,
+  "features": [
+    {
+      "id": "--all-architectures",
+      "status": "partial",
+      "manual": ".It Fl -all-architectures",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--architecture",
+      "status": "partial",
+      "manual": ".It Fl a, -architecture Ar architecture",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--bundle-version",
+      "status": "not-implemented",
+      "manual": ".It Fl -bundle-version Ar version-string",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--check-notarization",
+      "status": "not-implemented",
+      "manual": ".It Fl -check-notarization",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--display",
+      "status": "partial",
+      "manual": ".It Fl d, -display",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--detached",
+      "status": "not-implemented",
+      "manual": ".It Fl D, -detached Ar filename",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--deep",
+      "status": "not-implemented",
+      "manual": ".It Fl -deep",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--detached-database",
+      "status": "blocked",
+      "manual": ".It Fl -detached-database",
+      "evidence": [],
+      "notes": "Requires live macOS state; no native bridge permitted."
+    },
+    {
+      "id": "--input-detached-certificates",
+      "status": "not-implemented",
+      "manual": ".It Fl -input-detached-certificates Ar filename",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--output-detached-certificates",
+      "status": "not-implemented",
+      "manual": ".It Fl -output-detached-certificates Ar filename",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--keep-root-detached-certificates",
+      "status": "not-implemented",
+      "manual": ".It Fl -keep-root-detached-certificates",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--merge-detached-certificates",
+      "status": "not-implemented",
+      "manual": ".It Fl -merge-detached-certificates",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--use-software-signing-cert",
+      "status": "not-implemented",
+      "manual": ".It Fl -use-software-signing-cert",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--force",
+      "status": "partial",
+      "manual": ".It Fl f, -force",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--force-library-entitlements",
+      "status": "partial",
+      "manual": ".It Fl -force-library-entitlements",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--generate-entitlement-der",
+      "status": "partial",
+      "manual": ".It Fl -generate-entitlement-der",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--hosting",
+      "status": "blocked",
+      "manual": ".It Fl h, -hosting",
+      "evidence": [],
+      "notes": "Requires live macOS state; no native bridge permitted."
+    },
+    {
+      "id": "--identifier",
+      "status": "partial",
+      "manual": ".It Fl i, -identifier Ar identifier",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--options",
+      "status": "partial",
+      "manual": ".It Fl o, -options Ar flag,...",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--pagesize",
+      "status": "partial",
+      "manual": ".It Fl P, -pagesize Ar pagesize",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--remove-signature",
+      "status": "partial",
+      "manual": ".It Fl -remove-signature",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--requirements",
+      "status": "partial",
+      "manual": ".It Fl r, -requirements Ar requirements",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--test-requirement",
+      "status": "partial",
+      "manual": ".It Fl R, -test-requirement Ar requirement",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--sign",
+      "status": "partial",
+      "manual": ".It Fl s, -sign Ar identity",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--verbose",
+      "status": "partial",
+      "manual": ".It Fl v, -verbose",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--verify",
+      "status": "partial",
+      "manual": ".It Fl v, -verify",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--continue",
+      "status": "partial",
+      "manual": ".It Fl -continue",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--dryrun",
+      "status": "partial",
+      "manual": ".It Fl -dryrun",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--entitlements",
+      "status": "partial",
+      "manual": ".It Fl -entitlements Ar path",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--enforce-constraint-validity",
+      "status": "not-implemented",
+      "manual": ".It Fl -enforce-constraint-validity",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--extract-certificates",
+      "status": "not-implemented",
+      "manual": ".It Fl -extract-certificates Ar prefix",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--file-list",
+      "status": "not-implemented",
+      "manual": ".It Fl -file-list Ar path",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--ignore-resources",
+      "status": "not-implemented",
+      "manual": ".It Fl -ignore-resources",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--keychain",
+      "status": "blocked",
+      "manual": ".It Fl -keychain Ar filename",
+      "evidence": [],
+      "notes": "Requires live macOS state; no native bridge permitted."
+    },
+    {
+      "id": "--prefix",
+      "status": "not-implemented",
+      "manual": ".It Fl -prefix Ar string",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--preserve-metadata",
+      "status": "not-implemented",
+      "manual": ".It Fl -preserve-metadata=list",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--strict",
+      "status": "not-implemented",
+      "manual": ".It Fl -strict Ar options",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--timestamp",
+      "status": "partial",
+      "manual": ".It Fl -timestamp Ar [ =URL ]",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--runtime-version",
+      "status": "partial",
+      "manual": ".It Fl -runtime-version Ar version",
+      "evidence": [
+        "acceptance/parity_test.go"
+      ],
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+    },
+    {
+      "id": "--launch-constraint-self",
+      "status": "not-implemented",
+      "manual": ".It Fl -launch-constraint-self Ar path",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--launch-constraint-parent",
+      "status": "not-implemented",
+      "manual": ".It Fl -launch-constraint-parent Ar path",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--launch-constraint-responsible",
+      "status": "not-implemented",
+      "manual": ".It Fl -launch-constraint-responsible Ar path",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--library-constraint",
+      "status": "not-implemented",
+      "manual": ".It Fl -library-constraint Ar path",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--strip-disallowed-xattrs",
+      "status": "not-implemented",
+      "manual": ".It Fl -strip-disallowed-xattrs",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--single-threaded-signing",
+      "status": "not-implemented",
+      "manual": ".It Fl -single-threaded-signing",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--validate-constraint",
+      "status": "not-implemented",
+      "manual": ".It Fl -validate-constraint",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "--signature-slot",
+      "status": "not-implemented",
+      "manual": ".It Fl -signature-slot Ar slot",
+      "evidence": [],
+      "notes": "Must be implemented and independently verified before full-parity release."
+    },
+    {
+      "id": "certificate-signing",
+      "status": "partial",
+      "notes": "RSA/ECDSA PEM identities, SHA-256 CMS with Apple hash agility, leaf-hash requirements, and explicit leaf-pin verification pass host acceptance. Native allocation/default requirements, PKCS#12, Apple chain policy, timestamps, hybrid algorithms, and revocation remain incomplete.",
+      "evidence": ["acceptance/certificate_test.go", "pkg/codesign/cms_test.go", "pkg/codesign/identity_test.go", "spec/apple-cms.json", "docs/certificates.md"]
+    },
+    {
+      "id": "bundles",
+      "status": "not-implemented",
+      "notes": "Resource sealing and nested bundles remain incomplete.",
+      "evidence": []
+    },
+    {
+      "id": "dmg",
+      "status": "not-implemented",
+      "notes": "UDIF signature writing remains incomplete.",
+      "evidence": []
+    },
+    {
+      "id": "hybrid-pqc",
+      "status": "not-implemented",
+      "notes": "macOS 27 hybrid signatures and detached certificates remain incomplete.",
+      "evidence": []
+    },
+    {
+      "id": "generic-files",
+      "status": "not-implemented",
+      "notes": "Extended-attribute and non-Mach-O signed representations remain incomplete.",
+      "evidence": []
+    },
+    {
+      "id": "legacy-formats",
+      "status": "not-implemented",
+      "notes": "SHA-1 and alternate digest writing, scatter pages, and legacy architecture acceptance remain incomplete.",
+      "evidence": []
+    },
+    {
+      "id": "live-process-verification",
+      "status": "blocked",
+      "notes": "A running macOS process cannot be inspected without access to that OS state.",
+      "evidence": []
+    },
+    {
+      "id": "hardware-identities",
+      "status": "blocked",
+      "notes": "Non-exportable private keys cannot be reconstructed from public formats.",
+      "evidence": []
+    }
+  ]
+}

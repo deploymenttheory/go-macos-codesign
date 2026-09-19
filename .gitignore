@@ -24,9 +24,10 @@
 /vendor/
 /bin/
 /dist/
-/pkg/
 coverage.out
 coverage.html
+/artifacts/
+/.research/
 
 # Python virtual environments
 scripts/python/venv/
