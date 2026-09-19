@@ -63,7 +63,7 @@ func TestArgumentParser(t *testing.T) {
 			t.Fatalf("%q: %+v %v", tc.args, o, err)
 		}
 	}
-	for _, args := range [][]string{{"-d", "-s-"}, {"--sign", "-", "--verify"}, {"-i"}, {"--identifier"}, {"-z"}, {"--unknown"}, {"--timestamp"}, {"--timestamp=https://example.test"}, {"-h", "1"}, {"--pagesize=oops"}, {"-Pbad"}, {"--options=bad"}, {"-obad"}, {"--runtime-version=27.1.999"}, {"--verbose=bad"}} {
+	for _, args := range [][]string{{"-d", "-s-"}, {"--sign", "-", "--verify"}, {"-i"}, {"--identifier"}, {"-z"}, {"--unknown"}, {"--timestamp="}, {"--timestamp=https://example.test"}, {"-h", "1"}, {"--pagesize=oops"}, {"-Pbad"}, {"--options=bad"}, {"-obad"}, {"--runtime-version=27.1.999"}, {"--verbose=bad"}} {
 		if _, err := parse(args); err == nil {
 			t.Fatal("accepted", args)
 		}
@@ -246,6 +246,44 @@ func TestOutputErrorsAndHelpers(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	if code := Run(ctx, []string{"-d", signed}, nil, &stderr, &stderr); code != 1 {
+		t.Fatal(code)
+	}
+}
+
+func TestTimestampArguments(t *testing.T) {
+	for _, args := range [][]string{{"-s", "identity.pem", "--timestamp", "file"}, {"-s", "identity.pem", "--timestamp=http://127.0.0.1:1234", "--timestamp-root", "root.pem", "--timestamp-timeout", "2s", "file"}, {"-s", "-", "--timestamp", "file"}} {
+		o, err := parse(args)
+		if err != nil || o.timestamp == "" {
+			t.Fatal(args, o, err)
+		}
+	}
+	for _, args := range [][]string{{"--timestamp-timeout", "0s"}, {"--timestamp-timeout", "-1s"}, {"--timestamp-timeout", "invalid"}, {"--timestamp-timeout"}} {
+		if _, err := parse(args); err == nil {
+			t.Fatal(args)
+		}
+	}
+	path := file(t, "unsigned-arm64")
+	for _, args := range [][]string{{"-s", "-", "--timestamp-timeout", "1s", path}, {"-s", "-", "--timestamp-root", "apple", path}, {"-s", "missing.pem", "--timestamp=none", "--timestamp-root", "apple", path}, {"-d", "--timestamp-timeout", "1s", path}} {
+		if _, _, code := invoke(t, args...); code != 2 {
+			t.Fatal(args, code)
+		}
+	}
+	for _, option := range []string{"--timestamp=", "--timestamp=https://example.test"} {
+		if _, _, code := invoke(t, "-s", "-", option, path); code != 1 {
+			t.Fatal(option, code)
+		}
+	}
+	// Constructed options remain validated even when parse is bypassed.
+	var out, stderr bytes.Buffer
+	if code := execute(context.Background(), options{operation: "sign", identity: "identity.pem", timestamp: "https://example.test"}, &out, &stderr); code != 2 {
+		t.Fatal(code)
+	}
+	for _, root := range []string{"apple", "missing.pem", write(t, "invalid.pem", []byte("invalid"))} {
+		if _, _, code := invoke(t, "-s", "missing.pem", "--timestamp", "--timestamp-root", root, path); code != 1 {
+			t.Fatal(root, code)
+		}
+	}
+	if _, _, code := invoke(t, "-s", "missing.pem", "--timestamp", path); code != 1 {
 		t.Fatal(code)
 	}
 }

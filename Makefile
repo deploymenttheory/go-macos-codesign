@@ -33,6 +33,7 @@ research-certificates:
 
 research-timestamps:
 	go run scripts/extract-timestamps.go
+	go run scripts/extract-timestamp-http.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

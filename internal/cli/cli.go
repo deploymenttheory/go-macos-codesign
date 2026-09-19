@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
@@ -35,10 +36,16 @@ type options struct {
 	keyFile, trustFile                                                                   string
 	trustRootFile, passwordFile                                                          string
 	timestampRootFile                                                                    string
+	timestampTimeout                                                                     time.Duration
 	force, continueOnError, dryrun, json                                                 bool
 	verbose                                                                              int
 	flags, pageSize                                                                      uint32
 	paths                                                                                []string
+}
+
+type argumentError struct {
+	error
+	code int
 }
 
 // Run executes an isolated Cobra command. It is safe to call repeatedly in tests.
@@ -49,12 +56,16 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 			if len(argv) == 1 && argv[0] == "--help" {
 				fmt.Fprint(stdout, usage)
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
-				fmt.Fprintln(stdout, "Timestamp verification additionally requires --timestamp-root TSA-CA.pem. Online --timestamp acquisition remains unsupported.")
+				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				return nil
 			}
 			opts, err := parse(argv)
 			if err != nil {
 				code = 2
+				var argument *argumentError
+				if errors.As(err, &argument) {
+					code = argument.code
+				}
 				return err
 			}
 			if err = configure(&opts); err != nil {
@@ -138,7 +149,7 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
-			case "sign", "identifier", "architecture", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root":
+			case "sign", "identifier", "architecture", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout":
 				if has {
 					val = attached
 				} else {
@@ -183,6 +194,11 @@ func parse(args []string) (options, error) {
 					o.trustRootFile = val
 				case "timestamp-root":
 					o.timestampRootFile = val
+				case "timestamp-timeout":
+					o.timestampTimeout, err = time.ParseDuration(val)
+					if err == nil && o.timestampTimeout <= 0 {
+						err = fmt.Errorf("timestamp timeout must be positive")
+					}
 				case "password-file":
 					o.passwordFile = val
 				}
@@ -207,10 +223,15 @@ func parse(args []string) (options, error) {
 					o.verbose++
 				}
 			case "timestamp":
-				if !has || attached != "none" {
-					return o, fmt.Errorf("%w: timestamp authorities", codesign.ErrUnsupported)
-				}
 				o.timestamp = attached
+				if !has {
+					o.timestamp = codesign.AppleTimestampURL
+				}
+				if o.timestamp != "none" {
+					if _, err = codesign.NewHTTPTimestampExchange(o.timestamp, 0); err != nil {
+						return o, &argumentError{error: err, code: 1}
+					}
+				}
 			case "all-architectures":
 			case "generate-entitlement-der":
 			case "force-library-entitlements":
@@ -318,8 +339,13 @@ func parseFlags(s string) (uint32, error) {
 
 func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 	signOpts := codesign.SignOptions{Identifier: o.identifier, Force: o.force, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
-	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "" || o.timestampRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
-		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root/--timestamp-root require verification")
+	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
+		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
+		return 2
+	}
+	requestTimestamp := o.operation == "sign" && o.identity != "-" && o.timestamp != "" && o.timestamp != "none"
+	if o.timestampRootFile != "" && o.operation != "verify" && !requestTimestamp || o.timestampTimeout != 0 && !requestTimestamp {
+		fmt.Fprintln(stderr, "macoscodesign: --timestamp-root requires verification or timestamped certificate signing; --timestamp-timeout requires timestamped certificate signing")
 		return 2
 	}
 	var trusted [][]byte
@@ -345,7 +371,9 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		}
 	}
 	var timestampRoots [][]byte
-	if o.timestampRootFile != "" {
+	if o.timestampRootFile == "apple" || requestTimestamp && o.timestampRootFile == "" {
+		timestampRoots = codesign.AppleTimestampRoots()
+	} else if o.timestampRootFile != "" {
 		data, err := os.ReadFile(o.timestampRootFile)
 		if err == nil {
 			timestampRoots, err = codesign.ParseCertificatesPEM(data)
@@ -354,6 +382,16 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
+	}
+	if requestTimestamp {
+		exchange, err := codesign.NewHTTPTimestampExchange(o.timestamp, o.timestampTimeout)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+		signOpts.Timestamp = &codesign.TimestampOptions{TrustedRoots: timestampRoots, Provider: func(ctx context.Context, signature []byte) ([]byte, error) {
+			return codesign.AcquireTimestamp(ctx, signature, exchange, timestampRoots, time.Time{})
+		}}
 	}
 	if o.entitlements != "" && o.operation == "sign" {
 		var err error

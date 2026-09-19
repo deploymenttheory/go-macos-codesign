@@ -120,6 +120,14 @@ The declarations and full function body are verbatim excerpts; supporting
 types, function declarations and control-flow macros are explicit shims.
 This does not compile Apple's full Security library or execute its policy.
 
+The same Go research target extracts Objective-C AST facts for the complete
+`initWithURLString:` and `post:` methods in pinned `timestampclient.m` and reads
+the corresponding `OSX/lib/TimeStampingPrefs.plist`. The two-target result in
+`spec/apple-timestamp-http.json` records the 15-second timeout, POST method,
+request content type and default Apple endpoint. HTTP framing follows a bounded
+profile of [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112.html). Live acceptance
+uses the production Go CLI and native `codesign --verify --strict`; it is opt-in.
+
 The pinned [Relic timestamper](https://github.com/sassoftware/relic/blob/02c54d584ca9eaa8f648763cd53bc77c4ff3d19c/internal/signinit/timestamper.go)
 supplied a transport-interface comparison, while
 [ipsw AddTimestamps](https://github.com/blacktop/ipsw/blob/6c4348e321e74d70162d6ff139cb2c76ad2ba2ba/internal/codesign/cms/cms.go)

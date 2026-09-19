@@ -22,7 +22,7 @@ def main():
             if path.name.endswith("_test.go"):
                 continue
             source = path.read_text()
-            if re.search(r'"(?:C|os/exec|crypto/x509|github.com/ebitengine/purego)"', source):
+            if re.search(r'"(?:C|os/exec|crypto/x509|crypto/tls|net/http|github.com/ebitengine/purego)"', source):
                 errors.append(f"Forbidden production dependency: {path.relative_to(ROOT)}")
             if "go:linkname" in source or "go:cgo_" in source:
                 errors.append(f"Native binding directive: {path.relative_to(ROOT)}")
@@ -32,7 +32,7 @@ def main():
                                          cwd=ROOT, env=dict(env, GOOS=goos, GOARCH="arm64"), text=True)
         for line in output.splitlines():
             name, cgo = line.split("|", 1)
-            if cgo or name.startswith("crypto/x509/internal/macos") or name == "github.com/ebitengine/purego":
+            if cgo or name.startswith("crypto/x509/internal/macos") or name in ("crypto/x509", "crypto/tls", "net/http", "github.com/ebitengine/purego"):
                 errors.append(f"Native dependency for {goos}: {line}")
     fixtures = ROOT / "testdata/macho"
     manifest = json.loads((fixtures / "manifest.json").read_text())
@@ -57,7 +57,8 @@ def main():
     for directory, manifest_name in (("third_party/rc2", "UPSTREAM.json"),
                                      ("testdata/chains", "manifest.json"),
                                      ("testdata/pkcs12", "manifest.json"),
-                                     ("testdata/timestamps", "manifest.json")):
+                                     ("testdata/timestamps", "manifest.json"),
+                                     ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory
         record = json.loads((base / manifest_name).read_text())
         for name, expected in record["files"].items():

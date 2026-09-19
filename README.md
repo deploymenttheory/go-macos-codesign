@@ -60,9 +60,10 @@ and private-key PEM file can be passed directly to `-s`; separate files use
 certificate; it does not accept CA anchors or
 claim Apple trust-policy equivalence. See [certificate signing](docs/certificates.md)
 for supported formats and limits. Timestamped files additionally require
-`--timestamp-root tsa-root.pem`; [RFC 3161 support](docs/timestamps.md) includes
-portable verification and library signing callbacks. Online CLI timestamp
-acquisition remains unsupported. The CLI supports grouped short
+`--timestamp-root tsa-root.pem` or `--timestamp-root apple` for bundled Apple
+roots. [RFC 3161 support](docs/timestamps.md) includes online signing with
+`--timestamp` (Apple TSA) or `--timestamp=http://URL`, portable verification and
+library callbacks. The CLI supports grouped short
 options and Apple's overloaded `-v`. `-h` means native process hosting and reports
 unsupported; use `--help` for the portable help extension. Unsupported features
 return errors and are not counted as implemented.
