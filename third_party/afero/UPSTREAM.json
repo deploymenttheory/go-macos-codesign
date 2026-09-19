@@ -1,0 +1,41 @@
+{
+  "module": "github.com/spf13/afero",
+  "version": "v1.15.0",
+  "removed": [
+    "httpFs.go",
+    "upstream test files"
+  ],
+  "reason": "Unused HTTP adapter imports net/http and links Apple certificate frameworks via crypto/x509. All retained files are unmodified upstream source.",
+  "files": {
+    "symlink.go": "89a59080e3d0720c311e8de782d93cb65c74b86af0ac6eff701baa58b9003382",
+    "go.mod": "b9ecbcbeeccb9da252f2b75a7f05a10c21f874a448a5e1294f115e47ba893e22",
+    "lstater.go": "958ac23bd94a4a64deb24b963d1f2b1d99cae1a72840c1dda4ca9ac0538d19a6",
+    "regexpfs.go": "d61ef4fa962f7661cb706208eecc46500c7184235517ee6719ca230d0bfcb9d7",
+    "cacheOnReadFs.go": "9c5aae9b67d721684da74bf52f49c3fe8873da5d81a76b39cd4763eb0aa9f248",
+    "ioutil.go": "24ceb4d4fa512b63adb9cea4062bb1ea4ddb600e84cee3b0581d023f21d9149b",
+    "const_win_unix.go": "e4644bc0b1ce25a20e9eec4a5b78abfc5c6d9d0786f920c3201838e0b83eaae0",
+    "copyOnWriteFs.go": "ae307349d8a592ae1feaf4a6685935586fd77c7184b29a0736ff5b02dc3acd37",
+    "memmap.go": "51ea4dcd9eeccfc196cdd571cc6a3050e32e53c05b3c6704ae2d40d61d104d99",
+    "const_bsds.go": "5d5f78f1fe195ae91928c5ea80aa833ba7f2e1c10bf0e1d5deeb4efe9a6a9588",
+    "os.go": "2923b1d46c4f17259829e47484ad259e1bdb1427b74f4791cf0b7efba2df697d",
+    "readonlyfs.go": "ee330ffb8d6467a1e86f82cb9e111dce83be81d7729f816a9f09416ed3154fc0",
+    "go.sum": "c26b1b77c795d67c13ac13634bb9812b3e64c0b9afae5d60a9065227528d87dd",
+    "util.go": "45568913d2c775803c35d64f1b5653505b01ebce5739232d45573c9ec3cd8c1f",
+    "README.md": "63a8b494782344be56c4125b332378c5a7a80396d2e6189e75b9e3a91941e35e",
+    "basepath.go": "5e1fb8414aabcde5281b8dfc5af126ad5134980298ec2473be323fb8c1a77912",
+    "iofs.go": "4159a068b8e87fa3352b0c71557e8bc862ea23abc509ca90ce7e444c5c30ed64",
+    "match.go": "bc7d2f7352c33f49f1b9cb52259ac20f1819e24dead8f9b324f620f5e78115d6",
+    "LICENSE.txt": "5e3400b93bbb099e83e52bab885e7441750673c21f97988ca3f1240639b63283",
+    "path.go": "a1bcbc1333d5b6d3e0e64d5e984471998d820556bf9159a6e2118ee141ab5290",
+    "unionFile.go": "ca858d72502ff4b29fc73ba635caa63bfe34fff9757d9b8b1654fcee805e8b49",
+    "afero.go": "ca7d80bad2d46ea36146f885fcb20e7d1193be1bc0cf51f9e37cb0cda8ed5e05",
+    "zipfs/fs.go": "a5e89910be920a6863d5f00002c818d4e66f3ba8c14ba9fc9d164c0060d03cb3",
+    "zipfs/file.go": "b352778b9945f40883888144f87d4e8e450537778840dfc37b87d29ae46a9030",
+    "tarfs/fs.go": "fec87519828c1662af0a5daecb9ab06228d9e827769f1877761940a4f0eff4e4",
+    "tarfs/file.go": "15e1a3942ac2f94771ea6d85759711fa8282dab3861a4417551340ed22b573d6",
+    "mem/dir.go": "9f35956ff2c0370f0094366fa68350e9641bbf0c87f21b29d8dea41986bfcf71",
+    "mem/dirmap.go": "8660c3b431d49a670c57db4e3ea736fa6f35a188ad38bafe09078a533c1aa664",
+    "mem/file.go": "e5de497c230e689c2ea8922db2ab7d7c023d3b9d3c5a69b178c1daf1c279fb04",
+    "internal/common/adapters.go": "89a4c6f15768efbd3af288e0f8eed86e8fcec65256eb488bec12ffa2d4b1a3a7"
+  }
+}

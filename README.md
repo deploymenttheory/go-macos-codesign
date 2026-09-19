@@ -1,75 +1,118 @@
-# Template
+# go-macos-codesign
 
-This repository serves as a **Default Template Repository** according official [GitHub Contributing Guidelines][ProjectSetup] for healthy contributions. It brings you clean default Templates for several areas:
+A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementation
+currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
+certificate-backed Mach-O signatures**. Certificate verification uses explicit
+leaf-certificate pins. It is **not yet a complete replacement for Apple
+`codesign`**. Full certificate policy, bundle sealing, disk images, and other requirements remain open in the
+[compatibility inventory](spec/compatibility.json). Full-parity releases are blocked.
 
-- [Azure DevOps Pull Requests](.azuredevops/PULL_REQUEST_TEMPLATE.md) ([`.azuredevops\PULL_REQUEST_TEMPLATE.md`](`.azuredevops\PULL_REQUEST_TEMPLATE.md`))
-- [Azure Pipelines](.pipelines/pipeline.yml) ([`.pipelines/pipeline.yml`](`.pipelines/pipeline.yml`))
-- [GitHub Workflows](.github/workflows/)
-  - [Super Linter](.github/workflows/linter.yml) ([`.github/workflows/linter.yml`](`.github/workflows/linter.yml`))
-  - [Sample Workflows](.github/workflows/workflow.yml) ([`.github/workflows/workflow.yml`](`.github/workflows/workflow.yml`))
-- [GitHub Pull Requests](.github/PULL_REQUEST_TEMPLATE.md) ([`.github/PULL_REQUEST_TEMPLATE.md`](`.github/PULL_REQUEST_TEMPLATE.md`))
-- [GitHub Issues](.github/ISSUE_TEMPLATE/)
-  - [Feature Requests](.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md) ([`.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md`](`.github/ISSUE_TEMPLATE/FEATURE_REQUEST.md`))
-  - [Bug Reports](.github/ISSUE_TEMPLATE/BUG_REPORT.md) ([`.github/ISSUE_TEMPLATE/BUG_REPORT.md`](`.github/ISSUE_TEMPLATE/BUG_REPORT.md`))
-- [Codeowners](.github/CODEOWNERS) ([`.github/CODEOWNERS`](`.github/CODEOWNERS`)) _adjust usernames once cloned_
-- [Wiki and Documentation](docs/) ([`docs/`](`docs/`))
-- [gitignore](.gitignore) ([`.gitignore`](.gitignore))
-- [gitattributes](.gitattributes) ([`.gitattributes`](.gitattributes))
-- [Changelog](CHANGELOG.md) ([`CHANGELOG.md`](`CHANGELOG.md`))
-- [Code of Conduct](CODE_OF_CONDUCT.md) ([`CODE_OF_CONDUCT.md`](`CODE_OF_CONDUCT.md`))
-- [Contribution](CONTRIBUTING.md) ([`CONTRIBUTING.md`](`CONTRIBUTING.md`))
-- [License](LICENSE) ([`LICENSE`](`LICENSE`)) _adjust projectname once cloned_
-- [Readme](README.md) ([`README.md`](`README.md`))
-- [Security](SECURITY.md) ([`SECURITY.md`](`SECURITY.md`))
+The CLI runs on Linux, macOS, and Windows without Apple frameworks, subprocess
+helpers, CGO, an Apple SDK, or Clang. Clang and Apple tools are used only for
+development research and independent macOS acceptance testing.
 
+## Build
 
-## Status
+Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:
 
-[![Super Linter](<https://github.com/segraef/Template/actions/workflows/linter.yml/badge.svg>)](<https://github.com/segraef/Template/actions/workflows/linter.yml>)
+```sh
+goreleaser check
+goreleaser build --snapshot --clean --parallelism 2
+```
 
-[![Sample Workflow](<https://github.com/segraef/Template/actions/workflows/workflow.yml/badge.svg>)](<https://github.com/segraef/Template/actions/workflows/workflow.yml>)
+`make build` runs the same command. It builds `macoscodesign` for Linux, Darwin,
+and Windows on amd64 and arm64 with `CGO_ENABLED=0`. Outputs are under `dist/`.
+For archives and SHA-256 checksums:
 
-## Creating a repository from a template
+```sh
+goreleaser release --snapshot --clean --parallelism 2
+```
 
-You can [generate](https://github.com/segraef/Template/generate) a new repository with the same directory structure and files as an existing repository. More details can be found [here][CreateFromTemplate].
+`make snapshot` runs that command. Snapshot mode creates local artifacts without
+publishing. The [GoReleaser configuration](.goreleaser.yml) is shared by local builds
+and CI. Windows packages are ZIP files; the other targets use tar.gz.
 
-## Reporting Issues and Feedback
+Build from a checkout: the module uses a local dependency replacement described
+in [NOTICE](NOTICE), so `go install ...@version` is not supported for the CLI.
 
-### Issues and Bugs
+## CLI examples
 
-If you find any bugs, please file an issue in the [GitHub Issues][GitHubIssues] page. Please fill out the provided template with the appropriate information.
+With the built `macoscodesign` binary on your path:
 
-If you are taking the time to mention a problem, even a seemingly minor one, it is greatly appreciated, and a totally valid contribution to this project. **Thank you!**
+```sh
+macoscodesign -s - -i org.example.hello --timestamp=none ./hello
+macoscodesign -vv ./hello
+macoscodesign -dvvvv ./hello
+macoscodesign -fs - -i org.example.hello --entitlements entitlements.plist ./hello
+macoscodesign -v '-R=identifier "org.example.hello"' ./hello
+macoscodesign --remove-signature ./hello
 
-## Feedback
+# Portable certificate identity and trust inputs (unencrypted PEM):
+macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
+macoscodesign --verify --trust certificate.pem ./hello
+```
 
-If there is a feature you would like to see in here, please file an issue or feature request in the [GitHub Issues][GitHubIssues] page to provide direct feedback.
+Signing accepts the ad-hoc identity `-` or a PEM file path. A combined certificate
+and private-key PEM file can be passed directly to `-s`; separate files use
+`--key`. These are portable extensions, not native keychain-name lookup.
+`--trust` pins the complete leaf certificate; it does not accept CA anchors or
+claim Apple trust-policy equivalence. See [certificate signing](docs/certificates.md)
+for supported formats and limits. The CLI supports grouped short
+options and Apple's overloaded `-v`. `-h` means native process hosting and reports
+unsupported; use `--help` for the portable help extension. Unsupported features
+return errors and are not counted as implemented.
 
-## Contribution
+`--json` provides a structured inspection/verification report. `--config FILE`,
+or `MACOSCODESIGN_CONFIG`, loads an explicitly selected Viper configuration.
+Currently only the portable `json` presentation option is configurable; native
+signature defaults do not depend on ambient configuration.
 
-If you would like to become an active contributor to this repository or project, please follow the instructions provided in [`CONTRIBUTING.md`][Contributing].
+## Library
 
-## Learn More
+```go
+err := codesign.Sign(ctx, path, codesign.SignOptions{
+    Identifier: "org.example.hello",
+})
+if err != nil {
+    return err
+}
+report, err := codesign.Verify(ctx, path, codesign.VerifyOptions{})
+```
 
-* [GitHub Documentation][GitHubDocs]
-* [Azure DevOps Documentation][AzureDevOpsDocs]
-* [Microsoft Azure Documentation][MicrosoftAzureDocs]
+Import `github.com/deploymenttheory/go-macos-codesign/pkg/codesign`.
+`SignBytes`, `InspectBytes`, `VerifyBytes`, and `RemoveSignatureBytes` support
+in-memory use. Input bytes are not modified by signing or signature removal.
+File writes preserve the existing inode and are not atomic; sign a copy when
+rollback is required. File operations currently have a 1 GiB input/output limit.
 
-<!-- References -->
+## Verification
 
-<!-- Local -->
-[ProjectSetup]: <https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions>
-[CreateFromTemplate]: <https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/creating-a-repository-from-a-template>
-[GitHubDocs]: <https://docs.github.com/>
-[AzureDevOpsDocs]: <https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops>
-[GitHubIssues]: <https://github.com/segraef/Template/issues>
-[Contributing]: CONTRIBUTING.md
+```sh
+make verify
+make lint
+```
 
-<!-- External -->
-[Az]: <https://img.shields.io/powershellgallery/v/Az.svg?style=flat-square&label=Az>
-[AzGallery]: <https://www.powershellgallery.com/packages/Az/>
-[PowerShellCore]: <https://github.com/PowerShell/PowerShell/releases/latest>
+Verification runs unit tests and the compiled CLI as a subprocess, merges their
+statement coverage, and requires **more than 95% in every production package**.
+It writes coverage, raw acceptance transcripts, fixture hashes, and source
+provenance under `artifacts/`. The current implementation has been checked against
+Apple `codesign` on macOS 27.0, build 26A428. See
+[the validation procedure](docs/testing.md) for the exact evidence boundary.
 
-<!-- Docs -->
-[MicrosoftAzureDocs]: <https://docs.microsoft.com/en-us/azure/>
-[PowerShellDocs]: <https://docs.microsoft.com/en-us/powershell/>
+CI runs tests on Linux, macOS 27, and Windows; builds all six targets with
+GoReleaser; checks race behavior and fuzzes parsers; and sends files signed on
+Linux/Windows to macOS for Apple verification. CI configuration is not evidence
+that a remote run has passed.
+
+## Research and remaining work
+
+- [Clang AST research and source references](docs/research.md)
+- [Certificate signing and explicit trust](docs/certificates.md)
+- [Implemented behavior and compatibility gaps](docs/compatibility.md)
+- [Implementation stages and outstanding work](docs/implementation.md)
+- [Testing and release gates](docs/testing.md)
+
+This project retains the full-parity objective. Operations that depend on live
+macOS process state, system keychains, or non-exportable hardware keys cannot be
+reported equivalent without access to that state. They remain explicit blockers
+under the requirement that the implementation have no macOS dependency.

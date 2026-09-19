@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+      with:
+        go-version-file: go.mod
+    - name: Block release while any full-parity requirement is incomplete
+      run: python3 scripts/guards.py --require-complete
+
     - name: Harden Runner
       uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
       with:
@@ -52,5 +59,5 @@ jobs:
     - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
       with:
         # Set this to match the repo: go | simple | terraform-module | node | …
-        release-type: terraform-module
+        release-type: go
         token: ${{ steps.app-token.outputs.token || secrets.RELEASE_PLEASE_PAT }}

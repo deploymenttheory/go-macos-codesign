@@ -1,0 +1,47 @@
+version: 2
+project_name: macoscodesign
+
+builds:
+  - id: macoscodesign
+    main: ./cmd/macoscodesign
+    binary: macoscodesign
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - formats: [tar.gz]
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - NOTICE
+      - README.md
+      - src: third_party/licenses/*
+        dst: licenses
+        strip_parent: true
+      - src: third_party/afero/LICENSE.txt
+        dst: licenses/afero.txt
+        strip_parent: true
+
+checksum:
+  name_template: SHA256SUMS
+  algorithm: sha256
+
+changelog:
+  use: git
+
+release:
+  draft: true
