@@ -156,7 +156,8 @@ forms. Wrong-password, missing-MAC, fake-Apple, invalid-CA and tampering tests
 exercise rejection paths. Full PKIX/Apple trust equivalence remains unfinished.
 
 The three-OS CI runs portable certificate signing and verification on each OS.
-Linux and Windows export their signed Mach-O files for a downstream Mac to verify.
+Linux and Windows each export 26 signed Mach-O files, including eight PKCS#12 and
+three chain cases, for a downstream Mac to verify (52 artifacts in total).
 The CLI also verifies the twelve committed Apple-created signatures on every OS.
 Configured CI is not evidence of a remote run; inspect its actual artifacts and
 logs before making a cross-platform execution claim.

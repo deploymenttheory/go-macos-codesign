@@ -29,6 +29,7 @@ func TestPortablePKCS12(t *testing.T) {
 					t.Fatal(status, display)
 				}
 				attest(t, map[string]any{"algorithm": algorithm, "profile": profile, "portable_sign_and_verify": true})
+				exportChainArtifact(t, "signed-pfx-"+algorithm+"-"+profile, path)
 			})
 		}
 	}
@@ -68,7 +69,22 @@ func TestPortableCAChains(t *testing.T) {
 			if status != 0 || strings.Count(display, "Authority=") != 3 || !strings.Contains(display, "TeamIdentifier=not set") {
 				t.Fatal(status, display)
 			}
+			exportChainArtifact(t, "signed-chain-"+name, path)
 		})
+	}
+}
+
+func exportChainArtifact(t *testing.T, name, path string) {
+	t.Helper()
+	dir := os.Getenv("MACOSCODESIGN_EXPORT_DIR")
+	if dir == "" {
+		return
+	}
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, name), nativeRead(t, path), 0755); err != nil {
+		t.Fatal(err)
 	}
 }
 
