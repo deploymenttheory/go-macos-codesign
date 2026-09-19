@@ -15,6 +15,12 @@ testdata/macho/*.json text eol=lf
 testdata/certificate-layout/* -text
 testdata/certificate-layout/*.json text eol=lf
 testdata/certificate-layout/*.md text eol=lf
+testdata/chains/* -text
+testdata/chains/*.json text eol=lf
+testdata/chains/*.md text eol=lf
+testdata/pkcs12/* -text
+testdata/pkcs12/*.json text eol=lf
+testdata/pkcs12/*.md text eol=lf
 third_party/** -text
 NOTICE text eol=lf
 # Retain upstream dependency and license bytes exactly, including whitespace.

@@ -1,0 +1,12 @@
+{
+  "module": "golang.org/x/crypto",
+  "version": "v0.50.0",
+  "source": "https://github.com/golang/crypto/tree/v0.50.0/pkcs12/internal/rc2",
+  "reason": "Unmodified RC2 primitive and upstream tests only, for legacy PKCS#12 import. The upstream PKCS#12 package imports crypto/x509 and cannot satisfy the platform-independent runtime constraint. go.mod is a local packaging addition.",
+  "files": {
+    "rc2.go": "e761e317dffeed33e5fb443b7317c445d0cb171d1d0c5c96af2d96dda10676d6",
+    "rc2_test.go": "657b3b1e33817843ff81c22ceeaed1aeb0cc7c325df97db54fd4b30766537761",
+    "LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "go.mod": "20f7fdd5d53ac0b1ecfaaa8d9c35356cce63d943603c09afebea8e4d8793d490"
+  }
+}

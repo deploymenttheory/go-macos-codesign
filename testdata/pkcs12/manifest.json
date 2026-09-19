@@ -1,0 +1,17 @@
+{
+  "provenance": "Exported on macOS 27 build 26A428 with LibreSSL 3.3.6 (legacy) and OpenSSL 3.6.4 (modern/AES) using only testdata/identities public test keys. Password is public-codesign-test-only, except rsa-empty (empty) and rsa-unicode (café🔑).",
+  "files": {
+    "p256-legacy.p12": "a8ee47029be4d2272f2c0790b6e2b455107a002171283ec8da9fa68beafd8c55",
+    "p256-modern.p12": "992cd98781d38cf4300c2fe3a5575788912446d67f140a31fbef552102a1bfad",
+    "p384-legacy.p12": "22c8dd43d2084605ec98236695f1f910e4de8cbe0a12501074ef13a3af1c747c",
+    "p384-modern.p12": "14454289adc97808e663824916a53c4c62f5ab038f017b383076fb9e397b7e32",
+    "p521-legacy.p12": "b828e13bf88b4ffe194de94e48e628845eb543649aec3ae4dea403ccf9e2f7a7",
+    "p521-modern.p12": "bb622e40de8ba4d864c97b80574ec7ac2cf55e186d8d07de2a9273982ba8cd5f",
+    "rsa-aes128.p12": "f0af81418a9f2c42db6d658df40c5a4731501084217c2414bcf5903c51d5f943",
+    "rsa-aes192.p12": "8787597baedfc1b84bf5b1d7fc1185b9433e24ab0cf99d5ee09dc225c5ce46e1",
+    "rsa-empty.p12": "ebb137ad054d0fe21b3376d8a749942504407ec61862d1fdf406865f16bcc179",
+    "rsa-legacy.p12": "795013c28f6a7d209c959a4e1f35d09506e873842aec5f8cf84583bf1a813345",
+    "rsa-modern.p12": "18a4edb4cd429aa7a53352f2fe4ee3a107db05267294c3da702a34ae8c9d56e9",
+    "rsa-unicode.p12": "2ed18592d7852352a150f3c1c826c8851fe3e0bb133d04f972e505eef7621cf7"
+  }
+}

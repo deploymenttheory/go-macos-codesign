@@ -57,9 +57,10 @@ type certificateASN struct {
 }
 
 type certificate struct {
-	raw    []byte
-	tbs    certificateTBS
-	public crypto.PublicKey
+	raw       []byte
+	tbs       certificateTBS
+	public    crypto.PublicKey
+	signature []byte
 }
 
 func decodeDER(data []byte, out any) error {
@@ -151,50 +152,11 @@ func parseCertificate(data []byte) (*certificate, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &certificate{raw: bytes.Clone(data), tbs: tbs, public: pub}, nil
+	return &certificate{raw: bytes.Clone(data), tbs: tbs, public: pub, signature: value.Signature.Bytes}, nil
 }
 
 func checkCertificatePurpose(c *certificate, at time.Time) error {
-	if at.Before(c.tbs.Validity.NotBefore) || at.After(c.tbs.Validity.NotAfter) {
-		return invalid("signing certificate is not valid at verification time")
-	}
-	for _, ext := range c.tbs.Extensions {
-		switch ext.ID.String() {
-		case "2.5.29.15":
-			var usage asn1.BitString
-			if err := decodeDER(ext.Value, &usage); err != nil {
-				return err
-			}
-			if usage.At(0) == 0 {
-				return invalid("certificate does not permit digital signatures")
-			}
-		case "2.5.29.37":
-			var purposes []asn1.ObjectIdentifier
-			if err := decodeDER(ext.Value, &purposes); err != nil {
-				return err
-			}
-			allowed := false
-			for _, p := range purposes {
-				allowed = allowed || p.String() == "1.3.6.1.5.5.7.3.3" || p.String() == "2.5.29.37.0"
-			}
-			if !allowed {
-				return invalid("certificate does not permit code signing")
-			}
-		case "2.5.29.19":
-			var constraints struct {
-				CA      bool `asn1:"optional"`
-				PathLen int  `asn1:"optional,default:-1"`
-			}
-			if err := decodeDER(ext.Value, &constraints); err != nil {
-				return err
-			}
-		default:
-			if ext.Critical {
-				return unsupported("critical certificate extension " + ext.ID.String())
-			}
-		}
-	}
-	return nil
+	return certificatePolicy(c, at, false, 0)
 }
 
 func pemBlocks(data []byte) ([]*pem.Block, error) {

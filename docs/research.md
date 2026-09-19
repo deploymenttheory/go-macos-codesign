@@ -76,6 +76,26 @@ allocation alignment; the AST method itself is not an executed native oracle.
 
 ## Primary implementation references
 
+### Certificate chains, Team IDs and PKCS#12
+
+`make research-certificates` analyzes the complete verbatim macOS Team ID method
+from `CodeSigner.cpp`, the organization anchor method from `drmaker.cpp`, and
+developer requirement constants from `StaticCode.cpp`. Two-target Clang AST
+counts, extracted constants and source/excerpt hashes are in
+`spec/apple-certificates.json`. Type shims support parsing; they do not execute
+Apple trust services or establish private-framework behavior.
+
+Portable chain constraints follow the implemented subset of
+[RFC 5280](https://www.rfc-editor.org/rfc/rfc5280). PKCS#12 follows
+[RFC 7292](https://www.rfc-editor.org/rfc/rfc7292) and was compared with
+[SSLMate/go-pkcs12](https://github.com/SSLMate/go-pkcs12). That package was not
+added as a dependency because it imports `crypto/x509`; the parser here always
+requires authenticated PFX contents. Only the unmodified Go `x/crypto` RC2
+primitive is retained as an attributed dependency for legacy imports.
+[Apple's published roots](https://www.apple.com/certificateauthority/) pin
+developer recognition independently of caller trust. See fixture manifests for
+public certificate, OpenSSL version and password provenance.
+
 | Source | Use in this project |
 | --- | --- |
 | [Apple Security, pinned revision](https://github.com/apple-oss-distributions/Security/tree/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib) | CodeDirectory versions, allocation, requirement opcodes, entitlement flags, disk representations, and identification of native-service dependencies |

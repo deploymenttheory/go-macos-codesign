@@ -316,8 +316,8 @@ func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, er
 
 // VerifyCMS verifies cryptographic integrity and Apple CodeDirectory bindings.
 // It deliberately does not evaluate certificate trust, validity dates, a chain,
-// revocation, or timestamp policy. VerifyBytes adds explicit leaf-certificate
-// pinning and current-time purpose/validity checks before reporting Valid.
+// revocation, or timestamp policy. VerifyBytes adds explicit leaf pins or CA
+// paths and current-time purpose/validity checks before reporting Valid.
 func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	pl, agility, err := directoryHashes(directories)
 	if err != nil {

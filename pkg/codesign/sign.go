@@ -3,13 +3,10 @@ package codesign
 import (
 	"bytes"
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	"math/bits"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -76,13 +73,8 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 		if opts.SigningTime.IsZero() {
 			opts.SigningTime = time.Now()
 		}
-		if len(opts.Requirements) == 0 {
-			h := sha1.Sum(opts.Identity.Certificates[0])
-			var err error
-			opts.Requirements, err = CompileRequirements("identifier " + strconv.Quote(opts.Identifier) + ` and certificate leaf = H"` + hex.EncodeToString(h[:]) + `"`)
-			if err != nil {
-				return nil, err
-			}
+		if err := prepareIdentity(&opts); err != nil {
+			return nil, err
 		}
 	}
 	if opts.Flags & ^uint32(0x33f02) != 0 {
@@ -175,7 +167,11 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 			}
 		}
 	}
-	cdSize := header + len(opts.Identifier) + 1 + (int(special)+nPages)*32
+	teamSize := 0
+	if opts.teamID != "" {
+		teamSize = len(opts.teamID) + 1
+	}
+	cdSize := header + len(opts.Identifier) + 1 + teamSize + (int(special)+nPages)*32
 	sigLen := 12 + (len(blobs)+1)*8 + cdSize
 	for _, b := range blobs {
 		sigLen += len(b.Data)
@@ -218,7 +214,7 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		flags |= FlagAdhoc
 	}
 	be.PutUint32(cd[12:], flags)
-	hashOff := header + len(opts.Identifier) + 1 + int(special)*32
+	hashOff := header + len(opts.Identifier) + 1 + teamSize + int(special)*32
 	be.PutUint32(cd[16:], uint32(hashOff))
 	be.PutUint32(cd[20:], uint32(header))
 	be.PutUint32(cd[24:], special)
@@ -234,6 +230,11 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		be.PutUint32(cd[88:], opts.RuntimeVersion)
 	}
 	copy(cd[header:], opts.Identifier)
+	if teamSize > 0 {
+		offset := header + len(opts.Identifier) + 1
+		be.PutUint32(cd[48:], uint32(offset))
+		copy(cd[offset:], opts.teamID)
+	}
 	for _, b := range blobs {
 		if b.Slot < 0x1000 {
 			h, _ := digest(2, b.Data)

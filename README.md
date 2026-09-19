@@ -3,7 +3,7 @@
 A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementation
 currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
 certificate-backed Mach-O signatures**. Certificate verification uses explicit
-leaf-certificate pins. It is **not yet a complete replacement for Apple
+leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
 `codesign`**. Full certificate policy, bundle sealing, disk images, and other requirements remain open in the
 [compatibility inventory](spec/compatibility.json). Full-parity releases are blocked.
 
@@ -52,10 +52,12 @@ macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
 macoscodesign --verify --trust certificate.pem ./hello
 ```
 
-Signing accepts the ad-hoc identity `-` or a PEM file path. A combined certificate
+Signing accepts the ad-hoc identity `-`, a PEM file, or a PKCS#12 file. A combined certificate
 and private-key PEM file can be passed directly to `-s`; separate files use
 `--key`. These are portable extensions, not native keychain-name lookup.
-`--trust` pins the complete leaf certificate; it does not accept CA anchors or
+`--trust-root` enables portable CA chain verification. PKCS#12 identities use
+`-s identity.p12 --password-file password.txt`. `--trust` pins the complete leaf
+certificate; it does not accept CA anchors or
 claim Apple trust-policy equivalence. See [certificate signing](docs/certificates.md)
 for supported formats and limits. The CLI supports grouped short
 options and Apple's overloaded `-v`. `-h` means native process hosting and reports

@@ -367,7 +367,7 @@ func TestCertificateRequirementErrors(t *testing.T) {
 	for _, bad := range [][]byte{b[:16], bytes.Clone(b), bytes.Clone(b)} {
 		be.PutUint32(bad[4:], uint32(len(bad)))
 		if len(bad) > 16 {
-			be.PutUint32(bad[16:], 1)
+			be.PutUint32(bad[16:], 32)
 		}
 		if _, err := decodeRequirement(bad); err == nil {
 			t.Fatal("bad certificate opcode")

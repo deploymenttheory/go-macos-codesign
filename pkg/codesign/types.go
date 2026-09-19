@@ -45,6 +45,7 @@ type SignOptions struct {
 	// SigningTime is the CMS signing-time claim. Zero uses the current time.
 	// It is not an RFC 3161 timestamp.
 	SigningTime time.Time
+	teamID      string
 }
 
 // VerifyOptions selects an architecture and optional external special-slot data.
@@ -55,9 +56,12 @@ type VerifyOptions struct {
 	Resources    []byte
 	Requirement  string
 	// TrustedCertificates pins complete DER leaf certificates. It does not
-	// accept CA anchors or consult a system trust store. Certificate signatures
-	// require a matching pin; ad-hoc signatures do not use this field.
+	// accept CA anchors or consult a system trust store. A matching pin or
+	// a valid path to TrustedRoots is required; ad-hoc signatures do not use it.
 	TrustedCertificates [][]byte
+	// TrustedRoots enables portable CA path validation in addition to leaf pins.
+	// No system trust, revocation lookup or network issuer fetching is performed.
+	TrustedRoots [][]byte
 	// CurrentTime controls certificate validity checks. Zero uses time.Now.
 	CurrentTime time.Time
 }
@@ -91,12 +95,22 @@ type Directory struct {
 	FullHash     string
 	Raw          []byte `json:"-"`
 	certificate  []byte
+	chain        []*certificate
 }
 
 type Signature struct {
 	Length      uint32
 	Blobs       []Blob
 	Directories []Directory
+	// CertificateMetadata is descriptive; inspection never sets Report.Valid.
+	CertificateMetadata *CertificateMetadata `json:",omitempty"`
+}
+
+// CertificateMetadata describes CMS data whose cryptographic binding has been
+// checked, without asserting CA trust or a trusted signing timestamp.
+type CertificateMetadata struct {
+	Authorities []CertificateInfo
+	SigningTime time.Time
 }
 
 // Architecture contains the observed signature of one Mach-O slice.

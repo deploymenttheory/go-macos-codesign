@@ -2,10 +2,14 @@ module github.com/deploymenttheory/go-macos-codesign
 
 go 1.27.1
 
+// Retain only the legacy cipher; upstream PKCS#12 imports crypto/x509.
+replace github.com/deploymenttheory/go-macos-codesign/third_party/rc2 => ./third_party/rc2
+
 // Viper's unused HTTP filesystem adapter otherwise imports Apple's trust bridge.
 replace github.com/spf13/afero => ./third_party/afero
 
 require (
+	github.com/deploymenttheory/go-macos-codesign/third_party/rc2 v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	howett.net/plist v1.0.1

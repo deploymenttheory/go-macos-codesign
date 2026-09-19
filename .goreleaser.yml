@@ -35,6 +35,9 @@ archives:
       - src: third_party/afero/LICENSE.txt
         dst: licenses/afero.txt
         strip_parent: true
+      - src: third_party/rc2/LICENSE
+        dst: licenses/rc2.txt
+        strip_parent: true
 
 checksum:
   name_template: SHA256SUMS
