@@ -397,9 +397,9 @@
     },
     {
       "id": "bundles",
-      "status": "not-implemented",
-      "notes": "Resource sealing and nested bundles remain incomplete.",
-      "evidence": []
+      "status": "partial",
+      "notes": "Contents-based APPL bundles with XML Info.plist and plain resources support signing, inspection, verification and removal. Deterministic v1/v2 CodeResources and executable special slots bind metadata/resources; supported rules reject additions, alterations and missing required files. Native ad-hoc executable/envelope bytes and five display levels match for three architectures; eleven mutation cases and six ad-hoc/RSA apps have native acceptance. Portable native fixtures and Linux/Windows artifact export extend CI. Binary plists, nested code, frameworks, symlinks/xattrs, wider discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for conservative path, layout and size limits.",
+      "evidence": ["acceptance/bundle_test.go", "pkg/codesign/bundle_test.go", "testdata/bundles/manifest.json", "spec/apple-bundles.json", "docs/bundles.md"]
     },
     {
       "id": "dmg",

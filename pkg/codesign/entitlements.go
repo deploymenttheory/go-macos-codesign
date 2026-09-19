@@ -141,6 +141,10 @@ func entitlementXML(out *strings.Builder, v any, depth int) {
 	switch x := v.(type) {
 	case string:
 		element("string", x)
+	case []byte:
+		resourceDataXML(out, x, indent)
+	case float64:
+		element("real", strconv.FormatFloat(x, 'f', -1, 64))
 	case int64:
 		element("integer", strconv.FormatInt(x, 10))
 	case uint64:

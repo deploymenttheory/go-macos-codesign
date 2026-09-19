@@ -140,6 +140,24 @@ The [additional GitHub implementation review](reference-implementations.md)
 records pinned Go, Rust, Python, and C++ sources for CMS, bundles, DMGs, and
 further Clang AST research, including their known compatibility limits.
 
+## Bundle research
+
+`make research-bundles` runs `scripts/extract-bundles.go`, which parses the full
+verbatim `BundleDiskRep::defaultResourceRules` and `ResourceBuilder::hashName`
+methods and the resource-flag enum from pinned Apple Security sources through
+Clang on both target architectures. [spec/apple-bundles.json](../spec/apple-bundles.json)
+records source/excerpt/translation-unit hashes, string literals, enum values and
+AST node kinds. Interface/type/signing-flag shims are explicit; this is not a
+compilation or execution of Apple's full bundle loader.
+
+To reproduce, download `bundlediskrep.cpp`, `resources.cpp` and `resources.h`
+from the pinned URLs in that record into `.research/apple`, then run
+`make research-bundles`. The source records the rule weights and localization
+exceptions. Native comparisons independently establish exact XML formatting,
+Info.plist/resource binding, display counts, and addition/removal/tamper behavior
+for the [supported app profile](bundles.md). Go code never invokes Clang or
+CoreFoundation to load or seal a bundle.
+
 ## Local reference repositories
 
 The initial review covered `deploymenttheory/go-macos-pkg-1` and `sdk/go-apfs-v2`.

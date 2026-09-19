@@ -58,6 +58,7 @@ def main():
                                      ("testdata/chains", "manifest.json"),
                                      ("testdata/pkcs12", "manifest.json"),
                                      ("testdata/timestamps", "manifest.json"),
+                                     ("testdata/bundles", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory
         record = json.loads((base / manifest_name).read_text())

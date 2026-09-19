@@ -20,7 +20,7 @@ The [progress report](progress.md) identifies the exact tested revision and CI r
 | Requirements | Identifier, CDHash, certificate index/root hash, subject CN/O/OU, extension existence, generic Apple anchor, boolean expressions | Remaining predicates, Info.plist predicates, complete native grammar and diagnostic output |
 | Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain policy, Team ID consistency, RFC 3161 binding and separate TSA trust | Full PKIX/Apple policies, general CMS/BER forms, complete timestamp policy, revocation, platform strictness, notarization |
 | CLI | Cobra dispatch; native grouped short options; explicit Viper config; sign/verify/display/remove subset | Every native option and combination, complete diagnostics/exit behavior, detached signatures |
-| Formats | Embedded Mach-O signatures | App/framework/plugin bundles, resource envelopes, UDIF/DMG, generic-file/xattr representations |
+| Formats | Embedded Mach-O signatures; bounded Contents-based APPL bundles, Info.plist binding and deterministic resource envelopes | Binary bundle plists, wider bundle/framework/plugin layouts, nested code, symlink/xattr policy, UDIF/DMG and generic files |
 | Host state | Explicit unsupported errors | Hosting/PID verification, system detached database, keychain selection and non-exportable keys |
 
 ## Exact comparisons currently exercised
@@ -41,6 +41,12 @@ The suite compares stdout, stderr, and exit codes for five verbosity levels on
 the arm64 ad-hoc fixture, compares rejection of binary-plist entitlement files,
 rejects a modified code page, and executes the host-architecture Go-signed fixture.
 These cases do not establish compatibility for other inputs or feature combinations.
+
+The app-bundle matrix additionally compares the complete executable and resource
+envelope bytes for three ad-hoc apps, five display levels per architecture, and
+eleven resource/metadata/code mutations. Public-test RSA and ad-hoc app outputs
+pass native strict verification. The supported layout and conservative limits
+are listed in [app bundles](bundles.md); full bundle policy remains incomplete.
 
 Timestamp replay reconstructs a recorded native RSA arm64 file byte for byte.
 Five native timestamp-option cases compare exit codes and ad-hoc file bytes.

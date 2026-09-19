@@ -597,7 +597,11 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 		return codesign.ErrUnsigned
 	}
 	d := selected.Signature.Directories[0]
-	path, err := filepath.Abs(r.Path)
+	executable := r.Path
+	if r.Bundle != nil {
+		executable = r.Bundle.Executable
+	}
+	path, err := filepath.Abs(executable)
 	if err != nil {
 		return err
 	}
@@ -653,12 +657,21 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 			}
 		}
 	}
-	fmt.Fprintln(w, "Info.plist=not bound")
+	if r.Bundle == nil {
+		fmt.Fprintln(w, "Info.plist=not bound")
+	} else {
+		fmt.Fprintf(w, "Info.plist entries=%d\n", r.Bundle.InfoEntries)
+	}
 	team := d.TeamID
 	if team == "" {
 		team = "not set"
 	}
-	fmt.Fprintf(w, "TeamIdentifier=%s\nSealed Resources=none\n", team)
+	fmt.Fprintf(w, "TeamIdentifier=%s\n", team)
+	if r.Bundle == nil || r.Bundle.ResourceVersion == 0 {
+		fmt.Fprintln(w, "Sealed Resources=none")
+	} else {
+		fmt.Fprintf(w, "Sealed Resources version=%d rules=%d files=%d\n", r.Bundle.ResourceVersion, r.Bundle.ResourceRules, r.Bundle.ResourceFiles)
+	}
 	for _, b := range selected.Signature.Blobs {
 		if b.Slot == codesign.SlotRequirements && len(b.Data) >= 12 {
 			fmt.Fprintf(w, "Internal requirements count=%d size=%d\n", binary.BigEndian.Uint32(b.Data[8:]), len(b.Data))

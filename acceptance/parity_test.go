@@ -221,6 +221,12 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		if err != nil {
 			return err
 		}
+		if d.IsDir() && strings.HasPrefix(d.Name(), "signed-bundle-") {
+			mustRun(t, reference, "--verify", "--strict", path)
+			count++
+			seen[d.Name()]++
+			return filepath.SkipDir
+		}
 		if !d.IsDir() && strings.HasPrefix(d.Name(), "signed-") {
 			mustRun(t, reference, "--verify", "--strict", path)
 			count++
@@ -231,13 +237,18 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 54 {
-		t.Fatalf("expected 54 ad-hoc, PEM, PKCS#12, chain and timestamp artifacts from Linux and Windows, found %d", count)
+	if count != 66 {
+		t.Fatalf("expected 66 Mach-O and app bundle artifacts from Linux and Windows, found %d", count)
 	}
 	if seen["signed-timestamp-arm64"] != 2 {
 		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		for _, identity := range []string{"adhoc", "rsa"} {
+			if seen["signed-bundle-"+identity+"-"+arch+".app"] != 2 {
+				t.Fatalf("expected both OS bundles for %s/%s", identity, arch)
+			}
+		}
 		for _, prefix := range []string{"signed-", "signed-cert-rsa-", "signed-cert-p256-", "signed-cert-p384-", "signed-cert-p521-"} {
 			if seen[prefix+arch] != 2 {
 				t.Fatalf("expected both OS artifacts for %s%s", prefix, arch)
