@@ -15,6 +15,8 @@ The three synthetic identity bundles use the repository's public P-256 leaf,
 P-384 intermediate and RSA root keys. Their Organization fields select the root,
 intermediate or leaf for Apple's default designated requirement. Their OU is
 `FAKETEAM00`; native and Go signatures must leave TeamIdentifier unset.
+Each profile has distinct issuer names, serials and key identifiers to avoid
+cross-test ambiguity in Apple's process-independent certificate cache.
 
 To intentionally regenerate only the synthetic bundles:
 

@@ -2,6 +2,7 @@ package codesign
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/pem"
@@ -127,8 +128,14 @@ func TestExportChainFixtures(t *testing.T) {
 	if dir == "" {
 		t.Skip("fixture export is opt-in")
 	}
-	for _, name := range []string{"root", "intermediate", "leaf"} {
+	for profile, name := range []string{"root", "intermediate", "leaf"} {
 		id := makeChain(t, func(i int, c *x509.Certificate) {
+			// Native trust caches span disposable keychains. Give each issuer
+			// an unambiguous name, serial and key identifier across test cases.
+			c.Subject.CommonName += "-" + name
+			c.SerialNumber.SetInt64(int64(100*(profile+1) + i + 1))
+			keyID := sha256.Sum256([]byte("public-codesign-chain-" + c.Subject.CommonName))
+			c.SubjectKeyId = keyID[:20]
 			if name == "intermediate" && i == 2 || name == "leaf" && i > 0 {
 				c.Subject.Organization = []string{"Different"}
 			}

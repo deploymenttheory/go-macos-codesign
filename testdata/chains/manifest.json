@@ -5,11 +5,11 @@
     "developer-id-0": "ae48e0bf4bbb344d43696f4fba9fc64da7a2ad91d528dc47979f6e7ebdf51ae8",
     "developer-id-1": "7afc9d01a62f03a2de9637936d4afe68090d2de18d03f29c88cfb0b1ba63587f",
     "developer-id-2": "b0b1730ecbc7ff4505142c49f1295e6eda6bcaed7e2c68c5be91b5a11001f024",
-    "intermediate-identity.pem": "233ca5c697072ab294dde9ac135542b149baa113a1c848ccc3b1807ae3d25bcd",
-    "intermediate-root.pem": "74c9862a8c978ca6194ef28dea30e4f4fd134a46455f970df38234606d87315a",
-    "leaf-identity.pem": "c4bf3df1f7fdb00721d0cc3cb30f1246866b820719fdcfd0785c23955653563c",
-    "leaf-root.pem": "74c9862a8c978ca6194ef28dea30e4f4fd134a46455f970df38234606d87315a",
-    "root-identity.pem": "21f43fb66d5e6087963ceee3d33ce840c6e71c8f70c918d5a75fc03faa61c7f1",
-    "root-root.pem": "9355f06f053a9f65eb45fba7ca98b754937351c2ce6ab96e957d0fb9106486f2"
+    "intermediate-identity.pem": "c426e5249a1f24f4ef65150b1fd47e36394807880dfd3b105e80d512eedc13d4",
+    "intermediate-root.pem": "550687c8437b042f91b9cd247ac547766fd10e2c35142cb40f219dd5e9c88386",
+    "leaf-identity.pem": "fd1f5c1b6dd00eb67ea47c282437e9867ef6c752fb64594fd33f12cc7eb1eebc",
+    "leaf-root.pem": "ed3fe8c89f502f5a7554211c0bf5cb535fd4d57194d65bca98174017e64dd260",
+    "root-identity.pem": "42d92debecdb0b890cdc9b8759fab23a01e013346196d8938bdaa1c7da7649a1",
+    "root-root.pem": "908bb38e1a6781f27e185f04f40a3b751cc75d29ba4638b6a3e7b6a80c91555d"
   }
 }
