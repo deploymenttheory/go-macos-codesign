@@ -26,9 +26,19 @@ The resulting files under `artifacts/` include:
 | File | Evidence |
 | --- | --- |
 | `coverage.out`, `coverage.json`, `coverage.html` | Exact statement counts and source-level coverage |
+| `unit.jsonl` | Raw `go test -json` unit-test transcript, retained even when tests fail |
 | `acceptance.jsonl` | Raw `go test -json` subprocess acceptance transcript |
 | `acceptance.json` | Current-run byte comparisons, hashes, and execution attestations |
-| `provenance.json` | Host/tool versions, Apple executable hash on Mac, and tested source hashes |
+| `provenance.json` | Host/tool versions, Apple executable hash on Mac, source and fixture hashes, and `.gitattributes` hash |
+
+On failure, the verification script prints the failed tests' output and package
+diagnostics in the CI job log. Full transcripts and provenance remain available
+in the `evidence-<runner>` artifact uploaded even if a test fails. Apple fixture
+comparisons report both file lengths and SHA-256 hashes, the first differing
+offset, and nearby bytes. Entitlement cases also record the input XML hash and
+line-ending counts. The XML fixture is pinned to LF in `.gitattributes` because
+its bytes are embedded verbatim in the signature; automatic CRLF conversion
+would change the comparison input on Windows.
 
 The committed fixtures are small executables compiled from this repository's
 `testdata/src/hello.c`. `scripts/gen-fixtures.py` regenerates them on a development

@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
@@ -32,6 +33,8 @@ func TestExtendedAppleFixtures(t *testing.T) {
 				switch mode {
 				case "entitlements":
 					o.Entitlements = ent
+					t.Logf("testdata/entitlements.plist: length=%d sha256=%x LF=%d CRLF=%d",
+						len(ent), sha256.Sum256(ent), bytes.Count(ent, []byte("\n")), bytes.Count(ent, []byte("\r\n")))
 				case "runtime":
 					o.Flags = FlagRuntime
 				case "requirement":
@@ -42,9 +45,7 @@ func TestExtendedAppleFixtures(t *testing.T) {
 					t.Fatal(err)
 				}
 				want := fixture(t, mode+"-"+arch)
-				if !bytes.Equal(got, want) {
-					t.Fatal("does not match Apple bytes")
-				}
+				assertAppleBytes(t, got, want)
 				if _, err := VerifyBytes(context.Background(), got, VerifyOptions{}); err != nil {
 					t.Fatal(err)
 				}

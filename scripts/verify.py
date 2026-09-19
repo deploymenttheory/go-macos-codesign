@@ -18,12 +18,25 @@ def run(args, env, log=None):
     if log is None:
         subprocess.run(args, cwd=ROOT, env=env, check=True)
     else:
-        with log.open("w") as output:
+        with log.open("w", encoding="utf-8") as output:
             result = subprocess.run(args, cwd=ROOT, env=env, stdout=output, stderr=subprocess.STDOUT, text=True)
-        if result.returncode:
-            print(log.read_text())
-            result.check_returncode()
         print(f"  transcript: {log.relative_to(ROOT)}", flush=True)
+        if result.returncode:
+            # Keep every event in the artifact, but show the failed tests and
+            # package/compiler output directly in the CI job log.
+            events = []
+            for line in log.read_text(encoding="utf-8", errors="replace").splitlines():
+                try:
+                    events.append(json.loads(line))
+                except json.JSONDecodeError:
+                    print(line)
+            failed = {(event.get("Package"), event.get("Test")) for event in events
+                      if event.get("Action") == "fail"}
+            for event in events:
+                if "Output" in event and (not event.get("Test") or
+                                          (event.get("Package"), event.get("Test")) in failed):
+                    print(event["Output"], end="")
+            result.check_returncode()
 
 
 def merge(paths, output):
@@ -52,12 +65,12 @@ def main():
     dest = ROOT / "artifacts"
     dest.mkdir(exist_ok=True)
     env = dict(os.environ, CGO_ENABLED="0")
-    source_files = sorted(p for base in ("cmd", "internal", "pkg", "acceptance", "scripts", "spec", "third_party")
+    source_files = sorted(p for base in ("cmd", "internal", "pkg", "acceptance", "scripts", "spec", "testdata", "third_party")
                           for p in (ROOT / base).rglob("*") if p.is_file() and "__pycache__" not in p.parts)
-    source_files.extend([ROOT / "go.mod", ROOT / "go.sum"])
+    source_files.extend([ROOT / "go.mod", ROOT / "go.sum", ROOT / ".gitattributes"])
     provenance = {"platform": platform.platform(), "machine": platform.machine(),
                   "go": subprocess.check_output(["go", "version"], text=True).strip(),
-                  "source_sha256": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}}
+                  "source_sha256": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}}
     if platform.system() == "Darwin":
         provenance["macos"] = subprocess.check_output(["sw_vers"], text=True).strip()
         provenance["codesign_sha256"] = hashlib.sha256(pathlib.Path("/usr/bin/codesign").read_bytes()).hexdigest()
@@ -70,8 +83,8 @@ def main():
         env["MACOSCODESIGN_COVERAGE_DIR"] = str(cli_dir)
         evidence = tmp / "acceptance"
         env["MACOSCODESIGN_EVIDENCE_DIR"] = str(evidence)
-        run(["go", "test", "-count=1", "-covermode=atomic", "-coverpkg=./...",
-             "-coverprofile=" + str(tmp / "unit.out"), "./pkg/...", "./internal/..."], env)
+        run(["go", "test", "-count=1", "-json", "-covermode=atomic", "-coverpkg=./...",
+             "-coverprofile=" + str(tmp / "unit.out"), "./pkg/...", "./internal/..."], env, dest / "unit.jsonl")
         run(["go", "test", "-count=1", "-json", "./acceptance"], env, dest / "acceptance.jsonl")
         attestations = {p.stem: json.loads(p.read_text()) for p in sorted(evidence.glob("*.json"))}
         (dest / "acceptance.json").write_text(json.dumps(attestations, indent=2) + "\n")

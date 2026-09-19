@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"errors"
 	"os"
 	"path/filepath"
@@ -18,6 +19,23 @@ func fixture(t *testing.T, name string) []byte {
 	return b
 }
 
+func assertAppleBytes(t *testing.T, got, want []byte) {
+	t.Helper()
+	if bytes.Equal(got, want) {
+		return
+	}
+	t.Logf("Go: length=%d sha256=%x", len(got), sha256.Sum256(got))
+	t.Logf("Apple: length=%d sha256=%x", len(want), sha256.Sum256(want))
+	offset := 0
+	for offset < min(len(got), len(want)) && got[offset] == want[offset] {
+		offset++
+	}
+	start := max(0, offset-8)
+	gotEnd, wantEnd := min(len(got), offset+16), min(len(want), offset+16)
+	t.Fatalf("Apple byte parity mismatch at offset %#x (EOF if one input ends here)\nGo [%#x:%#x]: % x\nApple [%#x:%#x]: % x",
+		offset, start, gotEnd, got[start:gotEnd], start, wantEnd, want[start:wantEnd])
+}
+
 func TestAppleAdhocExact(t *testing.T) {
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		t.Run(arch, func(t *testing.T) {
@@ -28,14 +46,7 @@ func TestAppleAdhocExact(t *testing.T) {
 				t.Fatal(err)
 			}
 			want := fixture(t, "adhoc-"+arch)
-			if !bytes.Equal(out, want) {
-				for i := 0; i < min(len(out), len(want)); i++ {
-					if out[i] != want[i] {
-						t.Fatalf("first byte difference at %#x: got %02x want %02x; sizes %d/%d", i, out[i], want[i], len(out), len(want))
-					}
-				}
-				t.Fatalf("sizes %d/%d", len(out), len(want))
-			}
+			assertAppleBytes(t, out, want)
 			if !bytes.Equal(unsigned, original) {
 				t.Fatal("mutated input")
 			}
