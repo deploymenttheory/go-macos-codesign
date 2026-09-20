@@ -24,6 +24,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 | Direct framework directories | Physical-version and Current inputs, independent resource boundaries, native display paths and selector rejection | [Direct directory behavior](bundles.md#direct-version-directory-paths) |
 | Main-executable inputs | Contents/framework main paths and file aliases select the bundle; helpers and hard-link aliases remain standalone; native lifecycle and resource-tamper comparisons | [Executable discovery and limits](bundles.md#main-executable-paths) |
 | Standalone hard-link writes | Staged Mach-O replacement delegates metadata to go-apfs-v2; neighbours remain unchanged; DMGs retain in-place behavior | [Shared API, native comparisons and limits](file-writes.md) |
+| Standalone file aliases | Physical target selection for identifiers, display and writes; preserved aliases and lexical neighbours; native trailing-allocation bytes on re-signing | [Alias behavior and evidence](file-writes.md) |
 | Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
 | Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
@@ -61,6 +62,26 @@ SBOMs, checksums and a Sigstore signature bundle in
 [v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
 That release contains the supported subset through PR #18.
 
+### Standalone file alias phase
+
+Standalone Mach-O/UDIF aliases resolve before reads, default identifiers, display
+and writes. Relative, absolute and chained links retain their entries; `link/..`
+uses the physical parent. Mach-O replacement continues to use APFS v0.4.0 and
+preserves hard-link neighbours, while DMGs retain in-place writes. Re-signing
+also preserves existing trailing allocation bytes, matching native shorter-ID
+behavior found by the new comparisons.
+
+Local native acceptance passes 150 Mach-O alias cases, ten DMG alias cases,
+350 complete display comparisons and nine allocation-padding comparisons.
+Broken/looping aliases fail eight CLI operations without writes. Five complete
+Apple path functions have two-target Clang AST records. The full local suite
+passes with 3,930/4,098 library statements (95.90%), 423/425 CLI statements
+(99.53%) and 1/1 entry-point statement. golangci-lint and six GoReleaser builds
+pass. Each producer emits 169 output hashes for comparison with the independently
+native-checked macOS outputs. Final per-commit CI results and downloaded artifact
+audits are recorded in the phase's pull request; local checks do not establish
+Windows or Linux execution. [Writer limits](file-writes.md) remain explicit.
+
 ### Standalone writer and shared metadata phase
 
 The writer delegates filesystem metadata to the exported go-apfs-v2 API delivered
@@ -78,8 +99,10 @@ Cancellation after staging preserves both names and removes temporary files.
 Two complete Apple writer methods and real SDK metadata constants have two-target
 Clang AST evidence. The complete local suite passes with 3,919/4,087 library
 statements (95.89%), 423/425 CLI statements (99.53%) and 1/1 entry-point statement.
-The [producer jobs for `0e621696e80863cb7b883fe0a066f541a5bdd5ad`](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35523474283)
-passed on all three platforms. Downloaded evidence reports:
+The [final PR #24 workflow for `ce8f6b992e67313772a9fabb29fd867a3f696bde`](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35524062102)
+passed all three platforms, native imports, six-target packaging, race detection
+and nine fuzz targets. [golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35524062104).
+Downloaded evidence reports:
 
 | Runner | Library | CLI | Entry point |
 | --- | --- | --- | --- |
@@ -89,10 +112,11 @@ passed on all three platforms. Downloaded evidence reports:
 
 All 563 source/fixture hashes per OS matched that tested commit, allowing only seventeen
 expected Windows text line-ending conversions. Six archives and six SPDX SBOMs
-pass all twelve checksum checks. Build metadata in every binary confirms the
-pinned APFS commit and `CGO_ENABLED=0`. The v0.4.0 release's package sources are
-byte-identical to that dependency commit. Final release-pin workflow, native-import and
-race/fuzz results are recorded in [PR #24](https://github.com/deploymenttheory/go-macos-codesign/pull/24).
+pass all twelve checksum checks. Build metadata in every binary confirms
+APFS v0.4.0, no local APFS replacement and `CGO_ENABLED=0`. All 354 signed imports
+and 88 removal comparisons passed. Fifteen Linux and fifteen Windows hard-link
+output hashes matched the independently native-compared macOS outputs.
+The phase is merged in [PR #24](https://github.com/deploymenttheory/go-macos-codesign/pull/24).
 The [APFS dependency workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35522969833)
 passes its three OS test/acceptance jobs and six build targets.
 

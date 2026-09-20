@@ -179,6 +179,9 @@
         "pkg/codesign/remove_test.go",
         "spec/apple-removal.json",
         "acceptance/hardlinks_test.go",
+        "acceptance/symlinks_test.go",
+        "pkg/codesign/paths_test.go",
+        "spec/apple-paths.json",
         "spec/apple-writer.json",
         "docs/file-writes.md",
         "testdata/removal/manifest.json"
@@ -214,7 +217,7 @@
         "spec/apple-writer.json",
         "docs/file-writes.md"
       ],
-      "notes": "Standalone Mach-O signing stages replacement through go-apfs-v2's shared metadata API, preserving other hard-link names. DMG and bundle writes remain in place. Fifteen native Mach-O byte/inode comparisons and one DMG case establish the bounded writer behavior. Darwin requires clone support and rejects protected/compressed files; wider metadata, symlink and filesystem support remains incomplete. Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "Standalone Mach-O signing stages replacement through go-apfs-v2's shared metadata API, preserving other hard-link names. File aliases resolve physically before identifiers, display and writes, including link/..; alias entries remain unchanged. DMG and bundle writes remain in place. Fifteen hard-link cases, 150 Mach-O alias cases, ten DMG alias cases, 350 display comparisons and nine allocation-padding cases establish the bounded writer behavior alongside two-target Clang records. Re-signing preserves existing trailing allocation bytes. Darwin requires clone support and rejects protected/compressed files; wider metadata, bundle symlink and filesystem support remains incomplete. Native compatibility remains unproven outside the documented fixture matrix."
     },
     {
       "id": "--verbose",

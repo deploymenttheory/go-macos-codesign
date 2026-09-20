@@ -34,8 +34,20 @@ new signature. Bundle executable/envelope writes also remain in place; internal
 hard links are rejected by the bundle scan, but external links retain shared
 inode behavior. These writes can leave partial output on an I/O failure.
 
-Raw standalone symlink write targets remain unsupported. Preparation failures
-and cancellation before commit leave the selected file and its neighbours
+Standalone file symlinks resolve to the physical target before reading, deriving
+the default identifier, displaying the executable path or writing. Relative,
+absolute and chained aliases are preserved. Resolution precedes lexical path
+cleanup: `link/../tool` selects the physical parent, leaving the lexical neighbour
+unchanged. Mach-O writes replace that physical target and detach its hard links;
+DMG writes retain the target inode. `Report.Path` identifies the absolute resolved
+standalone file. Broken and looping links fail before writes. Bundle directory
+aliases and resource links retain the separate [bundle policy](bundles.md).
+
+Re-signing copies the original Mach-O slice before writing the new signature,
+matching Apple's allocation behavior. Existing bytes after the new SuperBlob
+remain within the new allocation; newly allocated bytes start at zero.
+
+Preparation failures and cancellation before commit leave the selected file and its neighbours
 unchanged. Concurrent filesystem mutation and crash-durable transactions are
 not supported; sign a copy if rollback is required.
 
@@ -53,6 +65,17 @@ signed outputs also pass Apple's strict verifier. These tests execute on every
 CI producer; Apple comparisons execute on macOS. A cancellation test proves
 that both original hard links and bytes survive cancellation after staging,
 with no temporary directory left behind.
+
+Standalone alias acceptance runs 150 Mach-O architecture/path/identifier/operation
+cases, ten signing/re-signing DMG cases and 350 complete display comparisons.
+It checks symlink text, physical-target inodes, modes, hard-link neighbours,
+lexical neighbours, dry runs and temporary-file cleanup. Nine additional native
+comparisons cover shorter/equal-allocation/longer identifiers with nonzero input
+padding. Broken and looping aliases fail all four CLI operations without writes;
+unit tests cover report paths, cancellation, already-signed and malformed inputs.
+These cases run on each producer; byte/display comparisons with Apple run on macOS.
+The [path AST record](../spec/apple-paths.json) covers five complete CLI and
+SingleDiskRep functions on both targets, including `realpath` before code creation.
 
 The dependency's tests check xattrs, ownership, modes, Darwin ACLs/flags/birth
 time, inherited directory ACLs, Linux POSIX ACLs, and Windows streams/security

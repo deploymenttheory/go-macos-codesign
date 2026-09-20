@@ -38,12 +38,12 @@ func readFile(path string) ([]byte, error) {
 // Sign constructs complete signatures before writing a Mach-O, supported app
 // bundle, or UDIF disk image to path.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
-	bundle, err := bundlePath(path)
+	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return err
 	}
-	if bundle != "" {
-		return signBundle(ctx, bundle, opts)
+	if bundle {
+		return signBundle(ctx, path, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {
@@ -209,7 +209,9 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		return nil, unsupported("output exceeds memory limit")
 	}
 	out := make([]byte, codeEnd+sigSize)
-	copy(out, im.data[:min(len(im.data), codeEnd)])
+	// Apple's allocator copies the existing slice before writing the new blob.
+	// Old signature bytes beyond a shorter blob remain within the new allocation.
+	copy(out, im.data)
 	pos := im.sigCommand
 	if pos < 0 {
 		pos = im.header + int(im.order.Uint32(out[20:]))
@@ -319,12 +321,12 @@ func RemoveSignature(ctx context.Context, path string) error {
 
 // RemoveSignatureWithOptions removes only the selected version's signature.
 func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) error {
-	bundle, err := bundlePath(path)
+	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return err
 	}
-	if bundle != "" {
-		return removeBundle(ctx, bundle, opts)
+	if bundle {
+		return removeBundle(ctx, path, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {

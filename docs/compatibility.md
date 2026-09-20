@@ -91,8 +91,11 @@ override. Transport and policy limits are listed in [timestamps](timestamps.md).
 
 Standalone Mach-O writes use go-apfs-v2's metadata-preserving staged replacement,
 detaching the selected hard-link name. DMG and bundle writes retain their in-place
-behavior and can leave partial data on I/O failure. Raw non-regular write targets
-are rejected. [Writer limits](file-writes.md) cover filesystem support, metadata
+behavior and can leave partial data on I/O failure. Standalone file aliases select
+their physical target for identifiers, display and all path operations, preserving
+the aliases and resolving `link/..` before lexical cleanup. Other non-regular
+standalone targets are rejected. Re-signing retains existing bytes after the new
+SuperBlob within its allocation. [Writer limits](file-writes.md) cover filesystem support, metadata
 and concurrency; this is not a crash-durable transaction.
 
 Parsing recognizes more legacy forms than signing has been proven to reproduce.

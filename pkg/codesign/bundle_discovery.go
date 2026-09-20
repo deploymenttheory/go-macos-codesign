@@ -7,26 +7,39 @@ import (
 	"strings"
 )
 
-// bundlePath identifies supported directories and main-executable inputs. A
-// helper in the same directory is still a standalone file: path identity, not
-// inode identity, selects the bundle. Empty means use a single-file format.
-func bundlePath(name string) (string, error) {
+// resolveCodePath selects a supported bundle or a physical standalone file.
+// The same resolved file supplies the identifier, display path and write target.
+func resolveCodePath(name string) (path string, bundle bool, err error) {
 	if framework, _ := frameworkVersionDirectory(name); framework != "" {
-		return name, nil // retain structural Current validation for directory inputs
+		return name, true, nil // retain structural Current validation for directory inputs
 	}
 	// Resolve before Clean/Abs: link/.. must select the physical parent on every
 	// OS. File aliases select the target's bundle, not the alias's neighbours.
 	resolved, err := filepath.EvalSymlinks(name)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	st, err := os.Stat(resolved)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	if st.IsDir() {
-		return name, nil
+		return name, true, nil
 	}
+	selected, err := executableBundle(resolved)
+	if err != nil {
+		return "", false, err
+	}
+	if selected != "" {
+		return selected, true, nil
+	}
+	path, err = filepath.Abs(resolved)
+	return path, false, err
+}
+
+// A helper in the same directory is still standalone: the resolved filename,
+// rather than inode identity, selects the bundle. Empty means a single file.
+func executableBundle(resolved string) (string, error) {
 	parent := filepath.Dir(resolved)
 	bundle, info := "", ""
 	if filepath.Base(parent) == "MacOS" && filepath.Base(filepath.Dir(parent)) == "Contents" {

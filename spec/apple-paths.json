@@ -1,0 +1,268 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "cleanPath": "abc00ae214602433b521d8e5ab85bc88c19101ff28a850cd223a8c9d280d38af",
+    "copyCanonicalPath": "281322c1f5832adcb66fa503b58d48f32e695889430b1d982702ffd91aba8094",
+    "mainExecutablePath": "d64654d1ff263618ef9e4470b3d7937ecbda8bf8ede920883e8a80675fd61e6d",
+    "recommendedIdentifier": "0cfd7d953f6b7d0d2426a3d3fb90910926791e5d7cf853898a50af1b58f7ef8d",
+    "staticCodePath": "e3fa395650c22f4ecb764f9c914b246ab215e00b6a27fca715fa42acfb251251"
+  },
+  "schema": 1,
+  "scope": "Five complete verbatim function bodies: CLI cleanPath/staticCodePath plus SingleDiskRep canonical path, executable path and identifier. Real SDK declarations supply realpath, PATH_MAX, CoreFoundation and public Security APIs/constants. Private error, Architecture, CFRef, CFTempURL, dictionary helper and SingleDiskRep interfaces are declaration-only shims. AST records realpath before static-code creation and common path storage for display and identifier; it does not execute Apple source or compile all Security. Native acceptance independently tests aliases and physical-parent resolution. Production uses pure Go filepath resolution and go-apfs-v2 metadata writes, with no Apple runtime or SDK dependency.",
+  "sdk": "MacOSX.sdk",
+  "sources": {
+    "cs_utils.cpp": {
+      "sha256": "a0ebc6f31fda06331fa336384d97c811c7af8390da47f7181c293d843bba0ebb",
+      "url": "https://github.com/apple-oss-distributions/security_systemkeychain/blob/2b4c65b1074521e9c1dd2c8dc7fbf45dd775ec70/src/cs_utils.cpp"
+    },
+    "singlediskrep.cpp": {
+      "sha256": "321835f049a1b0dfef3d74559142a43d79a3205cb7e2f81285b968f1bb29baf4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/singlediskrep.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "cleanPath": {
+        "ast_kinds": {
+          "CXXConstructExpr": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 10,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "answer": 1,
+          "path": 1,
+          "r": 2,
+          "realpath": 1,
+          "throwMe": 1
+        }
+      },
+      "copyCanonicalPath": {
+        "ast_kinds": {
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 1,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mPath": 1,
+          "makeCFURL": 1
+        }
+      },
+      "mainExecutablePath": {
+        "ast_kinds": {
+          "CXXConstructExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "ImplicitCastExpr": 1,
+          "MemberExpr": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mPath": 1
+        }
+      },
+      "recommendedIdentifier": {
+        "ast_kinds": {
+          "CXXBindTemporaryExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 1,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 1,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "canonicalIdentifier": 1,
+          "mPath": 1
+        }
+      },
+      "staticCodePath": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXConstructExpr": 2,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 8,
+          "CXXOperatorCallExpr": 1,
+          "CallExpr": 6,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 25,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "FunctionDecl": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 32,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 8,
+          "NullStmt": 1,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "SecStaticCodeCreateWithPathAndAttributes": 1,
+          "arch": 4,
+          "attributes": 4,
+          "cfadd": 2,
+          "check": 1,
+          "cleanPath": 1,
+          "code": 2,
+          "cpuSubtype": 1,
+          "cpuType": 1,
+          "kSecCSDefaultFlags": 1,
+          "kSecCodeAttributeArchitecture": 1,
+          "kSecCodeAttributeBundleVersion": 1,
+          "kSecCodeAttributeSubarchitecture": 1,
+          "makeCFMutableDictionary": 1,
+          "operator __CFDictionary *": 3,
+          "operator bool": 2,
+          "operator const __CFURL *": 1,
+          "operator=": 1,
+          "target": 1,
+          "version": 3
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "cleanPath": {
+        "ast_kinds": {
+          "CXXConstructExpr": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 10,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "answer": 1,
+          "path": 1,
+          "r": 2,
+          "realpath": 1,
+          "throwMe": 1
+        }
+      },
+      "copyCanonicalPath": {
+        "ast_kinds": {
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 1,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mPath": 1,
+          "makeCFURL": 1
+        }
+      },
+      "mainExecutablePath": {
+        "ast_kinds": {
+          "CXXConstructExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "ImplicitCastExpr": 1,
+          "MemberExpr": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mPath": 1
+        }
+      },
+      "recommendedIdentifier": {
+        "ast_kinds": {
+          "CXXBindTemporaryExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 1,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 1,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "canonicalIdentifier": 1,
+          "mPath": 1
+        }
+      },
+      "staticCodePath": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXConstructExpr": 2,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 8,
+          "CXXOperatorCallExpr": 1,
+          "CallExpr": 6,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 25,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "FunctionDecl": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 32,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 8,
+          "NullStmt": 1,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "SecStaticCodeCreateWithPathAndAttributes": 1,
+          "arch": 4,
+          "attributes": 4,
+          "cfadd": 2,
+          "check": 1,
+          "cleanPath": 1,
+          "code": 2,
+          "cpuSubtype": 1,
+          "cpuType": 1,
+          "kSecCSDefaultFlags": 1,
+          "kSecCodeAttributeArchitecture": 1,
+          "kSecCodeAttributeBundleVersion": 1,
+          "kSecCodeAttributeSubarchitecture": 1,
+          "makeCFMutableDictionary": 1,
+          "operator __CFDictionary *": 3,
+          "operator bool": 2,
+          "operator const __CFURL *": 1,
+          "operator=": 1,
+          "target": 1,
+          "version": 3
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "385692f15531d6dd93167e71090f3809cb57ea4aacfbf97589d2bd11ab9c82e2"
+}

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Resolve standalone file aliases before reading, deriving identifiers, displaying
+  paths or writing. Preserve relative/absolute/chained symlinks and use physical
+  parents for `link/..`; retain the shared APFS writer and in-place DMG behavior.
+- Preserve existing trailing signature-allocation bytes when re-signing, matching
+  Apple for shorter identifiers. Add native alias/byte/display/failure comparisons
+  and five complete path functions to two-target Clang AST research.
 - Use go-apfs-v2's shared host metadata API for standalone Mach-O replacement,
   preserving neighbouring hard-link names and supported metadata. Keep DMGs in
   place. Add native hard-link comparisons, cancellation cleanup tests and
