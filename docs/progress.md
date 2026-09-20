@@ -76,7 +76,22 @@ Cancellation after staging preserves both names and removes temporary files.
 Two complete Apple writer methods and real SDK metadata constants have two-target
 Clang AST evidence. The complete local suite passes with 3,919/4,087 library
 statements (95.89%), 423/425 CLI statements (99.53%) and 1/1 entry-point statement.
-Cross-platform workflow results are pending for this phase.
+The [producer jobs for `0e621696e80863cb7b883fe0a066f541a5bdd5ad`](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35523474283)
+passed on all three platforms. Downloaded evidence reports:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,912/4,087 — 95.72% | 417/425 — 98.12% | 1/1 — 100% |
+| Windows 2025 | 3,909/4,087 — 95.64% | 417/425 — 98.12% | 1/1 — 100% |
+| macOS 27 | 3,919/4,087 — 95.89% | 423/425 — 99.53% | 1/1 — 100% |
+
+All 563 source/fixture hashes per OS match the checkout, allowing only seventeen
+expected Windows text line-ending conversions. Six archives and six SPDX SBOMs
+pass all twelve checksum checks. Build metadata in every binary confirms the
+pinned APFS commit and `CGO_ENABLED=0`. Final workflow, native-import and
+race/fuzz results are recorded in [PR #24](https://github.com/deploymenttheory/go-macos-codesign/pull/24).
+The [APFS dependency workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35522969833)
+passes its three OS test/acceptance jobs and six build targets.
 
 ### Executable-path discovery phase
 
