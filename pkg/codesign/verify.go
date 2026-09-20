@@ -8,11 +8,16 @@ import (
 )
 
 func Inspect(ctx context.Context, path string) (*Report, error) {
+	return InspectWithOptions(ctx, path, PathOptions{})
+}
+
+// InspectWithOptions inspects a selected framework version without verifying it.
+func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Report, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 	if isBundle(path) {
-		return inspectBundle(ctx, path)
+		return inspectBundle(ctx, path, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {

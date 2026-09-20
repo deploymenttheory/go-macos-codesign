@@ -52,6 +52,8 @@ func walk(n node, f func(node)) {
 func main() {
 	bundle, code := read(".research/apple/bundlediskrep.cpp"), read(".research/apple/StaticCode.cpp")
 	excerpts := map[string][]byte{
+		"setup":                   regexp.MustCompile(`(?ms)^void BundleDiskRep::setup\(.*?\n}`).Find(bundle),
+		"validateOtherVersions":   regexp.MustCompile(`(?ms)^void SecStaticCode::validateOtherVersions\(.*?\n}`).Find(code),
 		"validateFrameworkRoot":   regexp.MustCompile(`(?ms)^void BundleDiskRep::validateFrameworkRoot\(.*?\n}`).Find(bundle),
 		"checkMoved":              regexp.MustCompile(`(?ms)^void BundleDiskRep::checkMoved\(.*?\n}`).Find(bundle),
 		"validateSymlinkResource": regexp.MustCompile(`(?ms)^void SecStaticCode::validateSymlinkResource\(.*?\n}`).Find(code),
@@ -67,8 +69,26 @@ func main() {
 #include <limits.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sstream>
 using std::string;
 using CFURLRef=const void*;using SecCSFlags=uint32_t;
+using CFBundleRef=const void*;using CFDictionaryRef=const void*;using CFTypeRef=const void*;using CFStringRef=const void*;
+using SecRequirementRef=const void*;
+template<class T> struct CFRef {CFRef();CFRef(T);operator T() const;CFRef& operator=(T);void take(T);};
+template<class T> using SecPointer=T*;
+#define CFSTR(s) (s)
+CFURLRef CFBundleCopyExecutableURL(CFBundleRef);CFURLRef _CFBundleCopyInfoPlistURL(CFBundleRef);
+CFURLRef CFBundleCopySupportFilesDirectoryURL(CFBundleRef);CFURLRef CFTempURL(string);
+CFBundleRef _CFBundleCreateUnique(const void*,CFURLRef);
+CFDictionaryRef CFBundleGetInfoDictionary(CFBundleRef);CFTypeRef CFDictionaryGetValue(CFDictionaryRef,CFTypeRef);
+bool CFEqual(CFTypeRef,CFTypeRef);int CFGetTypeID(CFTypeRef);int CFStringGetTypeID();
+string cfStringRelease(CFURLRef);CFURLRef makeCFURL(string,bool=false,CFURLRef=nullptr);
+string findDistFile(string);void checkPlainFile(int,string);
+struct Context{const char* version;bool skipFrameworkCheck;};
+struct DiskRep{static DiskRep* bestFileGuess(string,const Context*);static DiskRep* bestGuess(const char*);int fd();string format();CFURLRef copyCanonicalPath();};
+struct FileDiskRep:DiskRep{FileDiskRep(const char*);};
+struct SecRequirement{static const void* required(SecRequirementRef);};
+enum{errSecCSStaticCodeNotFound=10,errSecCSBadBundleFormat=11};
 string cfString(CFURLRef);string CFTempString(const string&);
 enum{errSecCSAmbiguousBundleFormat=1,errSecCSUnsealedFrameworkRoot=2,errSecCSBadResource=3,errSecCSInvalidSymlink=4,kSecCFErrorResourceAltered=5,errSecCSUnsealedAppRoot=6,kSecCSStrictValidate=1,kSecCSRestrictSymlinks=2};
 struct MacOSError{[[noreturn]] static void throwMe(int);int error;};
@@ -85,6 +105,8 @@ enum{cdSlotCount=16,cdSignatureSlot=65536};
 struct ExecWriter{void remove();};
 struct DirScanner{DirScanner(string);bool initialized();dirent* getNext();bool isRegularFile(dirent*);void unlink(dirent*,int);};
 struct BundleDiskRep {
+ bool mComponentsFromExecValid,mInstallerPackage,mAppLike;CFRef<CFBundleRef> mBundle;CFRef<CFURLRef> mMainExecutableURL;DiskRep* mExecRep;
+ string mFormat;CFURLRef copyCanonicalPath();string mainExecutablePath();string resourcesRootPath();void setup(const Context*);
  void recordStrictError(int);void checkMoved(CFURLRef,CFURLRef);void validateFrameworkRoot(string);
  string mMetaPath;
  struct Writer{BundleDiskRep* rep;ExecWriter* execWriter;std::set<string> mWrittenFiles;void remove();void remove(CodeDirectory::SpecialSlot);void purgeMetaDirectory();};
@@ -92,12 +114,14 @@ struct BundleDiskRep {
 struct ValidationContext{void reportProblem(int,int,string);};
 struct ResourceScope{string root() const;bool includes(const char*) const;};
 struct SecStaticCode{
+ SecStaticCode(DiskRep*);DiskRep* diskRep();void initializeFromParent(SecStaticCode&);void staticValidate(SecCSFlags,const void*);
+ void validateOtherVersions(CFURLRef,SecCSFlags,SecRequirementRef,SecStaticCode*);
  uint32_t mValidationFlags;std::set<int> mTolerateErrors;
  const SecStaticCode* mOuterScope;const ResourceScope* mResourceScope;
  void validateSymlinkResource(string,string,ValidationContext&,SecCSFlags);
 };
 `
-	for _, name := range []string{"checkMoved", "validateFrameworkRoot", "validateSymlinkResource", "remove", "purgeMetaDirectory"} {
+	for _, name := range []string{"setup", "checkMoved", "validateFrameworkRoot", "validateOtherVersions", "validateSymlinkResource", "remove", "purgeMetaDirectory"} {
 		if len(excerpts[name]) == 0 {
 			panic("missing complete body " + name)
 		}
@@ -148,7 +172,7 @@ struct SecStaticCode{
 	for name, data := range excerpts {
 		hashes[name] = hash(data)
 	}
-	result := map[string]any{"schema": 1, "scope": "Complete verbatim BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations and C++ blocks. CoreFoundation, validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. The Go profile deliberately rejects multiple framework versions and absolute/outer-scope resource links.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets}
+	result := map[string]any{"schema": 1, "scope": "Complete verbatim BundleDiskRep::setup, BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateOtherVersions, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations and C++ blocks. CoreFoundation, disk-representation/validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. Host acceptance separately establishes version selection and nested alternate-version checking. Absolute/outer-scope resource links remain outside the Go profile.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets}
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-bundle-layouts.json", append(b, '\n'), 0644))

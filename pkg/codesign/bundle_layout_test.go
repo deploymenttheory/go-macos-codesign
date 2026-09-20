@@ -82,7 +82,7 @@ func TestFrameworkLayoutsAndLinks(t *testing.T) {
 }
 
 func TestFrameworkInvalidRoots(t *testing.T) {
-	for _, change := range []string{"current-file", "current-missing", "current-absolute", "current-parent", "current-self", "current-dot", "current-bad", "multiple", "selected-link", "root-file", "root-alias", "missing-main-alias", "missing-resources-alias", "ambiguous", "wrong-type", "wrong-executable", "versions-file"} {
+	for _, change := range []string{"current-file", "current-missing", "current-absolute", "current-parent", "current-self", "current-dot", "current-bad", "version-file", "selected-link", "root-file", "root-alias", "missing-main-alias", "missing-resources-alias", "ambiguous", "wrong-type", "wrong-executable", "versions-file"} {
 		t.Run(change, func(t *testing.T) {
 			b := testFramework(t, true)
 			remove := func(name string) {
@@ -101,8 +101,8 @@ func TestFrameworkInvalidRoots(t *testing.T) {
 				remove("Versions/Current")
 				target := map[string]string{"current-absolute": "/A", "current-parent": "../A", "current-self": "Current", "current-dot": ".", "current-bad": "CON"}[change]
 				bundleLink(t, b, "Versions/Current", target)
-			case "multiple":
-				bundleFile(t, b, "Versions/B/extra", []byte("unsigned"))
+			case "version-file":
+				bundleFile(t, b, "Versions/B", []byte("unsigned"))
 			case "selected-link":
 				if err := os.Rename(filepath.Join(b, "Versions/A"), filepath.Join(b, "Versions/B")); err != nil {
 					t.Fatal(err)
@@ -297,7 +297,7 @@ func TestBundleLayoutAST(t *testing.T) {
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := record.Targets[target]
-		if len(methods) != 5 || methods["validateFrameworkRoot"].Kinds["BlockExpr"] != 1 || methods["validateSymlinkResource"].Members["reportProblem"] != 2 || methods["checkMoved"].Kinds["IfStmt"] != 2 || methods["purgeMetaDirectory"].Members["unlink"] != 1 {
+		if len(methods) != 7 || methods["validateFrameworkRoot"].Kinds["BlockExpr"] != 1 || methods["validateSymlinkResource"].Members["reportProblem"] != 2 || methods["checkMoved"].Kinds["IfStmt"] != 2 || methods["purgeMetaDirectory"].Members["unlink"] != 1 || methods["setup"].Members["version"] != 4 || methods["validateOtherVersions"].Members["staticValidate"] != 1 {
 			t.Fatal(target, methods)
 		}
 	}

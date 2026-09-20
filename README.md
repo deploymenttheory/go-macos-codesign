@@ -4,11 +4,11 @@ A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementat
 currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
 certificate-backed Mach-O signatures**, including a bounded macOS app-bundle
 profile with XML/binary metadata, resource sealing, nested Mach-O helpers/dylibs,
-apps, plug-ins, XPC services/extensions and unversioned or single-version frameworks.
+apps, plug-ins, XPC services/extensions and unversioned or multiple-version frameworks.
 It also signs, inspects and verifies UDIF DMGs using
 [`go-apfs-v2`](docs/dmg-integration.md) directly. Certificate verification uses explicit
 leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
-`codesign`**. Full certificate policy, multiple framework versions, broader symlink/xattr policy,
+`codesign`**. Full certificate policy, broader bundle discovery and symlink/xattr policy,
 additional disk-image forms, and other requirements remain open in the
 [compatibility inventory](spec/compatibility.json). Versioned releases document
 that supported subset; the full-parity audit remains incomplete.
@@ -25,6 +25,9 @@ and deterministic CodeResources, including child designated requirements and
 `--deep` signing/verification. UDIF signing reuses the APFS project's footer
 model; wider format and policy coverage remains open. Supported bundle resources
 include relative symlinks, sealed by their target text.
+`--bundle-version` selects a framework version for signing, display, verification
+or removal. Parent verification checks every physical framework version against
+the parent's sealed requirement; `--deep` adds their pages and resources.
 
 ## Build
 

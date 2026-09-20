@@ -14,9 +14,10 @@ Binary bundle metadata now extends the app profile with bounded object-graph
 decoding and independent native comparisons for two binary encodings.
 Nested Mach-O helpers/dylibs and Contents-based APPL .app trees add designated-
 requirement seals, staged recursive signing, shared limits and shallow/deep
-verification. Contents-based BNDL/XPC! layouts, unversioned and single-version
+verification. Contents-based BNDL/XPC! layouts, unversioned and multiple-version
 frameworks, and bounded relative resource symlinks now extend that profile.
-Multiple framework versions, wider discovery and symlink/xattr policy remain next.
+Explicit version selection and alternate-version requirement validation are
+implemented. Wider discovery and symlink/xattr policy remain next.
 See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 | Stage | Current result | Outstanding work |
@@ -26,17 +27,17 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Ad-hoc writer | Thin/fat signatures, replacement/removal, version and executable metadata, exact signing fixtures; native removal padding, virtual-size and alignment comparisons | Header expansion, legacy digest selection, detached formats, wider removal/preservation/error semantics |
 | Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence and hybrid algorithms |
 | Timestamps | RFC 3161 verification/providers, nonce-bound SHA-256 exchanges, direct HTTP CLI acquisition, pinned Apple roots, deadlines and cancellation; live native verification on three Mach-O forms | Broader TSA/Apple policy, revocation, proxy/redirect behavior and additional CMS/BER forms |
-| Bundles and resources | Contents-based APPL/BNDL/XPC! and unversioned/single-version FMWK discovery; XML/binary metadata; deterministic v1/v2 CodeResources; nested requirement and relative symlink seals; staged recursive signing, shared budgets and deep verification; native byte/mutation comparisons | Multiple framework versions and explicit selection, wider symlink/xattr policy, discovery and requirement/digest variants, full strict verification |
+| Bundles and resources | Contents-based APPL/BNDL/XPC! and unversioned/multiple-version FMWK discovery; explicit version selection; XML/binary metadata; deterministic v1/v2 CodeResources; nested and alternate-version requirements; relative symlink seals; staged recursive signing, shared budgets and deep verification; native byte/mutation comparisons | Wider symlink/xattr policy, direct version-directory discovery, requirement/digest variants, full strict verification |
 | Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2, native trailer binding, identifiers and byte comparisons | Large-image streaming, encrypted/segmented images, detached/generic/xattr files and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 300 signed artifacts and 88 removal byte comparisons from Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; golangci-lint, race and nine fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 318 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and nine fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
 
 ## Next implementation sequence
 
 1. **Extend bundle compatibility:** retain the tested resource, nested Mach-O
-   and recursive bundle/framework profiles while adding multiple framework
-   versions and explicit version selection, broader symlink/xattr policy and full strict
+   and recursive bundle/framework profiles while adding direct physical-version
+   path discovery, broader symlink/xattr policy and full strict
    verification. Expand the pinned source/Clang record and independent host
    comparisons for each added case.
 2. **Extend representations:** retain go-apfs-v2 as the DMG format dependency,

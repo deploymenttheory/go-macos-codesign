@@ -32,7 +32,9 @@ type appBundle struct {
 	children                     []*appBundle
 	base, infoPath, format       string
 	framework                    bool
-	version                      string
+	version, current, selection  string
+	versions                     []string
+	alternate                    bool // another view of a root whose layout was already counted
 	layoutEntries                []string
 }
 
@@ -60,6 +62,10 @@ func bundleRelativePath(name string) error {
 }
 
 func openAppBundle(path string) (*appBundle, error) {
+	return openAppBundleVersion(path, "")
+}
+
+func openAppBundleVersion(path, version string) (*appBundle, error) {
 	st, err := os.Lstat(path)
 	if err != nil {
 		return nil, err
@@ -71,12 +77,16 @@ func openAppBundle(path string) (*appBundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	return loadAppBundle(root, path)
+	return loadAppBundleVersion(root, path, version)
 }
 
 // root ownership transfers to the returned bundle, or is closed on failure.
 func loadAppBundle(root *os.Root, path string) (*appBundle, error) {
-	b := &appBundle{root: root, path: path}
+	return loadAppBundleVersion(root, path, "")
+}
+
+func loadAppBundleVersion(root *os.Root, path, version string) (*appBundle, error) {
+	b := &appBundle{root: root, path: path, selection: version}
 	fail := func(err error) (*appBundle, error) { root.Close(); return nil, err }
 	if err := b.discoverLayout(); err != nil {
 		return fail(err)
@@ -167,6 +177,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		return nil, nil, err
 	}
 	for _, name := range b.layoutEntries {
+		if b.alternate {
+			break
+		}
 		if err := scope.entry(prefix + name); err != nil {
 			return nil, nil, err
 		}
@@ -272,17 +285,14 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !st.Mode().IsRegular() {
 			return unsupported("non-regular bundle resource: " + rel)
 		}
-		for target, targetInfo := range scope.writable {
-			if prefix+name != target && os.SameFile(st, targetInfo) {
-				return unsupported("hard-linked bundle write target: " + target)
-			}
+		if err := scope.regularFile(prefix+name, st); err != nil {
+			return err
 		}
 		if nested && name != b.executable {
 			if err := scope.writeTarget(prefix+name, st); err != nil {
 				return err
 			}
 		}
-		scope.regular[prefix+name] = st
 		if name == b.executable || rel == "Info.plist" || name == b.resourcesPath() {
 			return nil
 		}
@@ -340,6 +350,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		}
 		return nil
 	})
+	if err == nil && !b.alternate && (!scope.verifyVersions || depth == 0) {
+		err = b.inventoryOtherVersions(ctx, scope, prefix)
+	}
 	return files, files2, err
 }
 
@@ -351,7 +364,7 @@ func (b *appBundle) annotate(r *Report, resources []byte) {
 	r.Format = b.format + r.Format
 	executable := b.executable
 	if b.version != "" {
-		executable = "Versions/Current/" + strings.TrimPrefix(executable, b.base)
+		executable = "Versions/" + b.selection + "/" + strings.TrimPrefix(executable, b.base)
 	}
 	r.Bundle = &BundleInfo{Executable: filepath.Join(b.path, filepath.FromSlash(executable)), InfoEntries: b.entries}
 	if m, err := decodeBundlePlist(resources); err == nil {
@@ -365,8 +378,8 @@ func (b *appBundle) annotate(r *Report, resources []byte) {
 	}
 }
 
-func inspectBundle(ctx context.Context, path string) (*Report, error) {
-	b, err := openAppBundle(path)
+func inspectBundle(ctx context.Context, path string, opts PathOptions) (*Report, error) {
+	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -388,13 +401,14 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return nil, unsupported("external special-slot overrides for bundles")
 	}
-	b, err := openAppBundle(path)
+	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return nil, err
 	}
 	defer b.close()
 	scope := newBundleScan()
 	scope.recurse = opts.Deep
+	scope.verifyVersions = true
 	_, actual, err := b.scanTree(ctx, scope, 0, "")
 	if err != nil {
 		return nil, err
@@ -441,7 +455,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return unsupported("external special-slot overrides for bundles")
 	}
-	b, err := openAppBundle(path)
+	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return err
 	}
@@ -516,8 +530,8 @@ func (b *appBundle) write(ctx context.Context, name string, data []byte, create 
 	return f.Close()
 }
 
-func removeBundle(ctx context.Context, path string) error {
-	b, err := openAppBundle(path)
+func removeBundle(ctx context.Context, path string, opts PathOptions) error {
+	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return err
 	}

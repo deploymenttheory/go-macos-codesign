@@ -1,0 +1,36 @@
+{
+  "archive": "deterministic POSIX tar preserving symlink targets",
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "files": {
+    "arm64.tar": "72f2e25e3004da31c5e1132351ea8d3623cdc91b355b62c01cae6532c8c785c8",
+    "universal.tar": "fafe31e05524c61db7653f834ecb1675ea4d938327303751d8583988097a1d80",
+    "x86_64.tar": "114c1edd6e219785d5a941e4adab85436ae2301ef8f77ba374b3e0b04f85e44e"
+  },
+  "framework_sign_arguments": [
+    "-s",
+    "-",
+    "--timestamp=none",
+    "--bundle-version=\u003cA|B\u003e",
+    "-r",
+    "=designated =\u003e identifier \"org.example.layout\"",
+    "\u003cframework\u003e"
+  ],
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "inputs": {
+    "testdata/macho/unsigned-arm64": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+    "testdata/macho/unsigned-universal": "e71d97df5531094a7b4c460a10585fc1bb3685824a751e73f7b96894009ffc9a",
+    "testdata/macho/unsigned-x86_64": "404d28c8670db1f3b463b8a5293c888109e9a8bec4e4ba471d6af29a3fc9cb77",
+    "testdata/nested/unsigned-arm64.dylib": "aa980c5c626c661c50921989be0ac7537e3c659b0bf1d2181e3af6709e14b0cd",
+    "testdata/nested/unsigned-universal.dylib": "0d46200e69910bc262791ece54ce309e5d1b50a5573a03e7087dc9130d2d1d5c",
+    "testdata/nested/unsigned-x86_64.dylib": "267392abb345a3f047f32156ee5093a78050c185e920592cd781a24f4a5de4b5"
+  },
+  "metadata": "binary framework Info.plist via pinned howett.net/plist; XML parent",
+  "native_strict_deep_verified": true,
+  "parent_sign_arguments": [
+    "-s",
+    "-",
+    "\u003capp\u003e"
+  ],
+  "schema": 1,
+  "source": "acceptance/framework_versions_test.go: TestRecordAppleFrameworkVersions"
+}

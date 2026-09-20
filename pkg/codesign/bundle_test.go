@@ -220,16 +220,16 @@ func TestBundleIOErrors(t *testing.T) {
 	}
 	b.annotate(nil, nil)
 	bundleFile(t, app, "Contents/MacOS/hello", []byte("not Mach-O"))
-	if _, err := inspectBundle(ctx, app); err == nil {
+	if _, err := inspectBundle(ctx, app, PathOptions{}); err == nil {
 		t.Fatal("inspect malformed")
 	}
-	if err := removeBundle(ctx, app); err == nil {
+	if err := removeBundle(ctx, app, PathOptions{}); err == nil {
 		t.Fatal("remove malformed")
 	}
 	if err := os.Remove(filepath.Join(app, b.executable)); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := inspectBundle(ctx, app); err == nil {
+	if _, err := inspectBundle(ctx, app, PathOptions{}); err == nil {
 		t.Fatal("inspect missing")
 	}
 	if _, err := verifyBundle(ctx, app, VerifyOptions{}); err == nil {
@@ -238,7 +238,7 @@ func TestBundleIOErrors(t *testing.T) {
 	if err := signBundle(ctx, app, SignOptions{}); err == nil {
 		t.Fatal("sign missing")
 	}
-	if err := removeBundle(ctx, app); err == nil {
+	if err := removeBundle(ctx, app, PathOptions{}); err == nil {
 		t.Fatal("remove missing")
 	}
 	if err := b.root.Close(); err != nil {

@@ -20,6 +20,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 | Nested Mach-O code | Helper/dylib requirement seals, staged deep signing, shallow/deep verification and explicit child trust | [Nested profile and native evidence](bundles.md#nested-mach-o-code-and-apps) |
 | Recursive APPL apps | Nested .app discovery, mixed XML/binary metadata, descendant-first signing, shared budgets and cross-bundle hard-link checks | [Recursive profile and native evidence](bundles.md) |
 | Plug-ins, XPC and frameworks | BNDL/XPC! Contents layouts, unversioned/single-version FMWK layouts, validated framework aliases and relative symlink seals | [Layout profiles and evidence](bundles.md#frameworks) |
+| Multiple framework versions | Explicit version selection, isolated writes/removal, alternate-version requirement checks, shared limits and native fixtures | [Framework version behavior and limits](bundles.md#frameworks) |
 | Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
 | Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
@@ -36,17 +37,46 @@ nine re-signing comparisons with strict native verification. The earlier
 eight-byte executable padding exception is removed. Four complete deallocator
 functions have two-target Clang AST records. Unit tests bound malformed symbol
 ranges and check endian/32-bit layouts, command relocation and failure preservation.
-Local verification measures 3,719/3,857 library statements (96.42%), 420/422 CLI
-statements (99.53%) and 1/1 entry-point statement (100%); golangci-lint passes.
-Remote CI must establish the additional 88 Linux/Windows removal comparisons
-alongside the existing 300 signed-artifact checks.
+The [completed PR #18 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35511644634)
+tested commit `0acb051e08dbd340dfd73fe214e3780bb0fe7d95`. Its Linux, Windows and
+macOS library coverage was 3,713/3,857 (96.27%), 3,710/3,857 (96.19%) and
+3,719/3,857 (96.42%) respectively. CLI coverage exceeded 98% and entry-point
+coverage was 100% on every OS. All 300 signed imports and 88 removal comparisons
+passed, together with packaging, race detection and nine fuzz targets.
+[golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35511644632).
+All 543 source/fixture hashes per OS were audited against that checkout; only
+seventeen expected Windows text line-ending conversions differed.
 
 Release workflows now follow the go-macos-pkg reference. `actionlint` and
 `goreleaser check` pass; an actual local GoReleaser snapshot produced six archives,
 six SPDX SBOMs and twelve validated checksums. Snapshot signing is explicitly
 skipped. The repository inherits `RP_APP_ID` and `RP_APP_PRIVATE_KEY` from the
-organization; actual App-token creation and keyless release signing await an
-authorized release run.
+organization. Release Please subsequently created the 0.1.0 release, and the
+[successful tagged workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35513404237)
+on `39b705e1660b3e7458f3baedcb7b2ae31b5c8b86` published six archives, six SPDX
+SBOMs, checksums and a Sigstore signature bundle in
+[v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
+That release contains the supported subset through PR #18.
+
+### Framework-version phase
+
+The new phase adds twelve selected-signing tree comparisons, ninety exact display
+comparisons, six selected-removal comparisons and six dry-run preservation cases.
+Twenty-one parent cases agree with Apple in shallow/deep modes, including unsigned
+alternates, incompatible CDHashes/requirements and page/resource/metadata changes.
+Nine identity/architecture combinations pass native strict deep verification.
+Three native app archives preserve both framework versions and are reproduced by
+the Go CLI. The two-target Clang layout record now includes complete selection and
+alternate-version validation methods, bringing it to seven methods.
+Local full-suite coverage is 3,803/3,949 library statements (96.30%), 423/425 CLI
+statements (99.53%) and 1/1 entry-point statement (100%). Lint, dependency and
+fixture guards, and six-target GoReleaser builds pass.
+
+CI requires 318 signed imports, including eighteen additional Linux/Windows
+framework-version trees, plus the existing 88 removal comparisons.
+[PR #20](https://github.com/deploymenttheory/go-macos-codesign/pull/20) tracks this
+phase's workflow results and downloaded coverage evidence. Prior merged evidence
+does not establish validation of a later implementation.
 
 ### Bundle-layout phase CI
 
@@ -209,9 +239,9 @@ attestation output format are documented in [timestamps](timestamps.md).
 ## What is still incomplete
 
 The bundle profile includes XML/binary metadata, nested Mach-O files, recursive
-APPL/BNDL/XPC! Contents layouts, unversioned/single-version FMWK frameworks and
-bounded relative symlink seals. Multiple framework versions, explicit version
-selection and broader symlink/xattr policy are the next format work.
+APPL/BNDL/XPC! Contents layouts, unversioned/multiple-version FMWK frameworks,
+explicit selection and bounded relative symlink seals. Direct physical-version
+path discovery and broader symlink/xattr policy are the next format work.
 UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes

@@ -29,6 +29,7 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 
 type options struct {
 	entitlements                                                                         string
+	bundleVersion                                                                        string
 	forceLibrary                                                                         bool
 	runtimeVersion                                                                       uint32
 	operation                                                                            string
@@ -58,7 +59,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprint(stdout, usage)
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
-				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts; versioned frameworks are limited to one version.")
+				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				return nil
 			}
 			opts, err := parse(argv)
@@ -151,7 +152,7 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
-			case "sign", "identifier", "architecture", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout":
+			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout":
 				if has {
 					val = attached
 				} else {
@@ -168,6 +169,11 @@ func parse(args []string) (options, error) {
 					o.identifier = val
 				case "architecture":
 					o.architecture = val
+				case "bundle-version":
+					if val == "" {
+						err = fmt.Errorf("--bundle-version requires a nonempty version")
+					}
+					o.bundleVersion = val
 				case "requirements":
 					o.requirements = val
 				case "test-requirement":
@@ -342,7 +348,7 @@ func parseFlags(s string) (uint32, error) {
 }
 
 func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
-	signOpts := codesign.SignOptions{Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
 		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
 		return 2
@@ -477,10 +483,10 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		case "sign":
 			err = codesign.Sign(ctx, path, signOpts)
 		case "remove":
-			err = codesign.RemoveSignature(ctx, path)
+			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{Deep: o.deep, Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
 			if o.json && report != nil {
 				if e := json.NewEncoder(stdout).Encode(report); e != nil {
 					err = e
@@ -491,7 +497,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			}
 		case "display":
 			var report *codesign.Report
-			report, err = codesign.Inspect(ctx, path)
+			report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 			if err == nil {
 				if o.entitlements != "" {
 					err = extractEntitlements(stdout, report, o)
