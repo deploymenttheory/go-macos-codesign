@@ -129,7 +129,9 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 	entries := 0
 	var total int64
 	seen := map[string]bool{}
-	// Writing either signature file must not also change another bundle member
+	regular := map[string]os.FileInfo{}
+	nestedCount := 0
+	// Writing any signature target must not also change another bundle member
 	// through a hard link, invalidating the envelope we just constructed.
 	writable := map[string]os.FileInfo{}
 	for _, name := range []string{b.executable, bundleResourcesPath} {
@@ -179,6 +181,7 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 			return unsupported("unsealed app root entry: " + name)
 		}
 		rel := strings.TrimPrefix(name, "Contents/")
+		nested, container := nestedCodePath(rel)
 		switch {
 		case name == b.executable, rel == "Info.plist", rel == "PkgInfo", rel == "version.plist", rel == "embedded.provisionprofile", name == bundleResourcesPath:
 			if d.IsDir() {
@@ -186,6 +189,18 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 			}
 		case strings.HasPrefix(rel, "Resources/"):
 			if d.IsDir() {
+				return nil
+			}
+		case container:
+			if !d.IsDir() {
+				return malformed("nested code container is not a directory: %s", rel)
+			}
+			return nil
+		case nested:
+			if d.IsDir() {
+				if strings.Contains(d.Name(), ".") {
+					return unsupported("nested bundle layout: " + rel)
+				}
 				return nil
 			}
 		default:
@@ -203,12 +218,39 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 				return unsupported("hard-linked bundle write target: " + target)
 			}
 		}
+		if nested && name != b.executable {
+			for target, targetInfo := range regular {
+				if os.SameFile(st, targetInfo) {
+					return unsupported("hard-linked nested code: " + target)
+				}
+			}
+			writable[name] = st
+		}
+		regular[name] = st
 		if name == b.executable || rel == "Info.plist" || name == bundleResourcesPath {
 			return nil
 		}
 		include1, optional1 := resourcePolicy(rel, true)
 		include2, optional2 := resourcePolicy(rel, false)
 		if !include1 && !include2 {
+			return nil
+		}
+		if nested {
+			nestedCount++
+			if nestedCount > maxNestedFiles {
+				return unsupported("nested code file count limit")
+			}
+			data, err := b.read(name, maxFileSize-total)
+			if err != nil {
+				return err
+			}
+			// Format validation applies even during inspection/removal; unsigned
+			// Mach-O files are permitted until a seal is actually requested.
+			if _, err := parseContainer(data); err != nil {
+				return err
+			}
+			total += int64(len(data))
+			files2[rel] = nestedResource{data}
 			return nil
 		}
 		f, err := b.root.Open(name)
@@ -321,7 +363,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 			}
 		}
 	}
-	if _, err := verifyBundleResources(resources, actual); err != nil {
+	if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
 		return r, err
 	}
 	r.Valid = true
@@ -341,6 +383,10 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
+	writes, err := prepareNested(ctx, files2, opts)
+	if err != nil {
+		return err
+	}
 	opts.InfoPlist, opts.Resources = b.info, encodeBundleResources(files, files2)
 	if len(opts.Resources) > maxBundlePlist {
 		return unsupported("bundle resource envelope size")
@@ -356,6 +402,13 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
+	outputSize := int64(len(out) + len(opts.Resources))
+	for _, write := range writes {
+		outputSize += int64(len(write.data))
+	}
+	if outputSize > maxFileSize {
+		return unsupported("bundle signature output exceeds 1 GiB")
+	}
 	if opts.DryRun {
 		return nil
 	}
@@ -366,7 +419,12 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	// All construction (including TSA requests) precedes mutation. As with file
-	// signing, I/O failures during these two writes can leave partial output.
+	// signing, I/O failures during the writes can leave partial output.
+	for _, write := range writes {
+		if err := b.write(ctx, write.name, write.data, false); err != nil {
+			return err
+		}
+	}
 	if err := b.write(ctx, bundleResourcesPath, opts.Resources, true); err != nil {
 		return err
 	}

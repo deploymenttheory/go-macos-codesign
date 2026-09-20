@@ -176,6 +176,28 @@ has no depth/value/byte budget. Native `plutil` fixtures and independent Go-enco
 inputs establish the implemented subset. Source research and these comparisons
 do not establish malformed-input acceptance parity outside the documented bounds.
 
+## Nested-code research
+
+The bundle target also runs `scripts/extract-nested.go`. The resulting
+[nested AST record](../spec/apple-nested.json) parses five complete verbatim
+methods: `signNested`, `SecCodeSigner::sign`, `validateNestedCode`,
+`identificationFor` and `uniqueName`. These establish source control flow for
+child signing, preserve/linker-signature behavior, requirement sealing, shallow
+versus deep validation, and UUID/hash identifier suffixes. Interface, flag,
+error and logging shims are explicit; their placeholder constants are not
+extracted native values. Download signer.cpp, CodeSigner.cpp, StaticCode.cpp
+and machorep.cpp from the recorded pinned Security URLs before reproducing it.
+
+The native requirement text follows pinned
+[reqdumper.cpp](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/reqdumper.cpp)
+and RequirementKeywords.h. Independent Apple dumper comparisons check the
+implemented subset. The pinned
+[sigtool resource builder](https://github.com/nix-community/sigtool/blob/25e0b75326d13708e9b744be3ecb984001905dfe/resources.cpp)
+provides a second reference for excluding nested code from legacy hashes and
+emitting CDHash/requirement seals; its ad-hoc logic does not replace Apple's
+certificate designated requirements or native architecture-selection evidence.
+Neither source becomes a production dependency.
+
 ## DMG research and direct library reuse
 
 `make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple

@@ -59,10 +59,10 @@
     },
     {
       "id": "--deep",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -deep",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "evidence": ["acceptance/nested_test.go", "pkg/codesign/bundle_nested_test.go", "spec/apple-nested.json", "testdata/nested/manifest.json", "docs/bundles.md"],
+      "notes": "Plain nested Mach-O helpers/dylibs in the bounded APPL profile support child-first signing, preserve/force behavior, native dry-run semantics and deep page/special-slot verification. Shallow verification still enforces child CMS/trust and the parent's requirement. Fifteen native byte comparisons, 75 display cases, nine native strict-deep apps and twelve mutation/depth outcomes supplement three committed native fixtures. Nested app/framework/plugin directory layouts, wider requirements/digest variants and complete deep option interactions remain incomplete. Universal selection follows the arm64 baseline on every OS."
     },
     {
       "id": "--detached-database",
@@ -398,8 +398,8 @@
     {
       "id": "bundles",
       "status": "partial",
-      "notes": "Contents-based APPL bundles with XML/binary Info.plist and plain resources support signing, inspection, verification and removal. Deterministic v1/v2 CodeResources and executable special slots bind original metadata/resource bytes; XML/binary envelope verification uses the supported rules. Binary graphs enforce offset, reference, depth, expansion, Unicode and duplicate/cycle checks. The XML matrix is supplemented by six binary native executable/envelope comparisons, thirty display comparisons, twelve ad-hoc/RSA apps across two encoders, four metadata mutations and binary-envelope acceptance. Three binary native fixtures and twelve exported apps per Linux/Windows producer extend CI. Nested code, frameworks, symlinks/xattrs, wider discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for conservative type, path, layout and size limits.",
-      "evidence": ["acceptance/bundle_test.go", "acceptance/bundle_plist_test.go", "pkg/codesign/bundle_test.go", "pkg/codesign/bundle_plist_test.go", "testdata/bundles/manifest.json", "testdata/bundle-plists/manifest.json", "spec/apple-bundles.json", "spec/apple-bundle-plists.json", "docs/bundles.md"]
+      "notes": "Contents-based APPL bundles with XML/binary Info.plist, plain resources and nested Mach-O helpers/dylibs support signing, inspection, verification and removal. Deterministic v1/v2 CodeResources and special slots bind metadata/resource bytes; nested entries use designated requirements and CDHash metadata. Binary graphs enforce bounds, Unicode and duplicate/cycle checks. Nested staging preserves files on construction failures, with explicit child trust and optional deep page verification. Native executable/envelope comparisons, mutation checks, Clang AST records and three fixture sets establish the bounded profile. CI exports 27 apps per Linux/Windows producer, including nine nested apps checked by native strict deep verification. Nested app/framework/plugin directories, symlinks/xattrs, wider discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for type, path, layout and size limits.",
+      "evidence": ["acceptance/bundle_test.go", "acceptance/bundle_plist_test.go", "acceptance/nested_test.go", "pkg/codesign/bundle_test.go", "pkg/codesign/bundle_plist_test.go", "pkg/codesign/bundle_nested_test.go", "testdata/bundles/manifest.json", "testdata/bundle-plists/manifest.json", "testdata/nested/manifest.json", "spec/apple-bundles.json", "spec/apple-bundle-plists.json", "spec/apple-nested.json", "docs/bundles.md"]
     },
     {
       "id": "dmg",

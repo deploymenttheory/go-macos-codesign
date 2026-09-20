@@ -16,6 +16,7 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | Basic app bundles | Contents-based APPL signing/removal, XML Info.plist binding, deterministic resource envelopes, metadata display and tamper checks | [Supported profile and native evidence](bundles.md) |
 | UDIF disk images | Direct go-apfs-v2 dependency; payload-preserving signatures, canonical trailer binding, native identifiers/display and timestamps | [DMG support and native evidence](dmg-integration.md) |
 | Binary bundle plists | Bounded metadata graphs, original-byte binding, XML/binary envelope verification and native byte/display comparisons for two encoders | [Bundle profile and evidence](bundles.md) |
+| Nested Mach-O code | Helper/dylib requirement seals, staged deep signing, shallow/deep verification and explicit child trust | [Nested profile and native evidence](bundles.md#nested-mach-o-code) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -24,14 +25,35 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The binary-plist phase passes local native comparisons on macOS 27 build 26A428:
-six exact signatures/envelopes, thirty display cases, twelve ad-hoc/RSA apps,
-four metadata mutations, three native fixtures and a binary-resource-envelope
-case. Local `make verify` passes with 3,246/3,369 library statements (96.35%),
-418/420 CLI statements (99.52%) and 1/1 entry-point statement (100%). The bounded
-binary reader has 100% unit statement coverage. Lint and a 30-second resource
-parser fuzz run (868,537 executions) pass. Remote CI must establish the expanded
-120-artifact matrix for this implementation.
+The nested-code phase passes local native comparisons on macOS 27 build 26A428:
+fifteen complete parent/envelope/child byte comparisons, 75 display cases, nine
+ad-hoc/RSA/P-256 apps accepted with strict deep verification, twelve mutation/depth
+outcomes, lifecycle and requirement-formatting checks. Three native fixtures
+include real dylibs. Seventeen standalone default-identifier/fallback comparisons
+also pass. A 30-second requirement-text fuzz run passed 374,409 executions.
+Local `make verify` and golangci-lint pass, with 3,472/3,604 library statements
+(96.34%), 420/422 CLI statements (99.53%) and 1/1 entry-point statement (100%). Remote CI
+must establish this phase's expanded 138-artifact matrix.
+
+### Binary-plist phase CI
+
+[PR #14 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/14).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35491318218)
+tested commit `5e737acee2fa35c4d86b7f8c82f88e734b1f03b7`. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,237/3,369 — 96.08% | 412/420 — 98.10% | 1/1 — 100% |
+| Windows 2025 | 3,234/3,369 — 95.99% | 412/420 — 98.10% | 1/1 — 100% |
+| macOS 27 | 3,246/3,369 — 96.35% | 418/420 — 99.52% | 1/1 — 100% |
+
+All three OS jobs, six-target GoReleaser packaging, race detection and eight fuzz
+targets passed. Apple verified all **120** Linux/Windows artifacts, including
+**24 binary-plist apps**; all **30 DMGs** also passed `hdiutil verify`.
+[golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35491318128).
+Six exact binary signatures/envelopes, thirty display cases, twelve native strict
+checks, four metadata mutations, three native fixtures and a binary-envelope case
+passed. The binary reader had 100% unit statement coverage.
 
 ### DMG phase CI
 
@@ -106,8 +128,8 @@ attestation output format are documented in [timestamps](timestamps.md).
 ## What is still incomplete
 
 The Contents-based app/resource profile includes XML and bounded binary bundle
-plists. Nested code, framework/plugin layouts and symlink/xattr policy are the
-next format work. UDIF signing is now implemented for a bounded profile;
+plists and plain nested Mach-O helpers/dylibs. Nested app/framework/plugin
+directories and symlink/xattr policy are the next format work. UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes
 requirement predicates, CodeDirectory variants, metadata preservation, certificate

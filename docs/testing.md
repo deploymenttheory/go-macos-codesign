@@ -104,6 +104,16 @@ output and run on every OS. Hand-built malformed graphs exercise offset/length
 overflow, references, cycles, duplicate keys, Unicode and expansion bounds.
 `FuzzBundleResources` includes binary seeds from Apple and malicious graphs.
 
+Nested-code acceptance adds fifteen exact parent/envelope/child comparisons,
+75 display cases and nine ad-hoc/RSA/P-256 apps accepted with native strict deep
+verification. Six mutations are checked with both shallow and deep verification.
+Three native fixtures include real dylibs; seventeen standalone comparisons cover
+canonical filenames, UUID suffixes and the UUID-less fallback. Requirement text
+is checked against Apple's dumper, including boolean precedence, subject fields,
+extension existence and non-ASCII values. Unit tests cover explicit child trust,
+hard links, limits, malformed seals, cancellation and preservation on failure.
+`FuzzRequirementText` exercises the expanded parser and canonical text stability.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -124,18 +134,21 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 120 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay, eighteen app bundles and fifteen DMGs per OS). Twelve of
+all 138 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, twenty-seven app bundles and fifteen DMGs per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
-identities. The downstream
+identities. Nine more apps per OS contain two nested helpers and a dylib, covering
+three architectures and ad-hoc/RSA/P-256 identities; these require native `--deep`.
+The downstream
 job also requires `hdiutil verify` for every imported DMG.
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector and eight bounded fuzz targets:
+Separate jobs run the Go race detector and nine bounded fuzz targets:
 `FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
-`FuzzTimestampHTTP`, `FuzzBundleResources` and `FuzzDMG`. Each CI fuzz target runs for 60 seconds. GoReleaser creates
+`FuzzTimestampHTTP`, `FuzzBundleResources`, `FuzzDMG` and `FuzzRequirementText`.
+Each CI fuzz target runs for 60 seconds. GoReleaser creates
 snapshots for all six OS/architecture pairs. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
 

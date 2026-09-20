@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/bits"
-	"path/filepath"
 	"strings"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/disk"
@@ -111,23 +110,7 @@ func dmgIdentifier(path string, data []byte, adhoc bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	name := filepath.Base(path)
-	if dot := strings.LastIndexByte(name, '.'); dot >= 0 && dot+1 < len(name) && !strings.ContainsRune("0123456789", rune(name[dot+1])) {
-		name = name[:dot]
-	}
-	if name != "" && !strings.ContainsRune("0123456789.", rune(name[0])) {
-		p := len(name)
-		for p > 0 && strings.ContainsRune("0123456789.", rune(name[p-1])) {
-			p--
-		}
-		if p < len(name) && name[p] == '.' {
-			p++
-		}
-		for p < len(name) && strings.ContainsRune("0123456789", rune(name[p])) {
-			p++
-		}
-		name = name[:p]
-	}
+	name := canonicalIdentifier(path)
 	if adhoc && !strings.Contains(name, ".") {
 		sum := sha1.Sum(m.trailer()) // Native identifier suffix, not signature trust.
 		name += "-" + hex.EncodeToString(sum[:])

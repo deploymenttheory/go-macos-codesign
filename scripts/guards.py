@@ -60,6 +60,7 @@ def main():
                                      ("testdata/timestamps", "manifest.json"),
                                      ("testdata/bundles", "manifest.json"),
                                      ("testdata/bundle-plists", "manifest.json"),
+                                     ("testdata/nested", "manifest.json"),
                                      ("testdata/dmg", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory

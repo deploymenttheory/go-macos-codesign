@@ -12,6 +12,8 @@ The [DMG phase](dmg-integration.md) now directly imports go-apfs-v2 for its UDIF
 model and adds signing, verification and inspection around that implementation.
 Binary bundle metadata now extends the app profile with bounded object-graph
 decoding and independent native comparisons for two binary encodings.
+Nested Mach-O helpers/dylibs now add designated-requirement seals, staged signing
+and shallow/deep verification; nested app/framework directories remain next.
 See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 | Stage | Current result | Outstanding work |
@@ -21,17 +23,17 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Ad-hoc writer | Thin/fat signatures, replacement/removal, version and executable metadata, exact fixture comparisons | Header expansion, legacy digest selection, detached formats, full preservation/error semantics |
 | Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence and hybrid algorithms |
 | Timestamps | RFC 3161 verification/providers, nonce-bound SHA-256 exchanges, direct HTTP CLI acquisition, pinned Apple roots, deadlines and cancellation; live native verification on three Mach-O forms | Broader TSA/Apple policy, revocation, proxy/redirect behavior and additional CMS/BER forms |
-| Bundles and resources | Contents-based APPL discovery; XML/binary Info.plist binding; bounded binary graph decoding; deterministic v1/v2 CodeResources; XML/binary envelope verification, plain resource sealing, display and removal; native byte/mutation comparisons | Wider bundle layouts, nested signing, frameworks, symlink/xattr policy, full strict verification |
+| Bundles and resources | Contents-based APPL discovery; XML/binary metadata; bounded graph decoding; deterministic v1/v2 CodeResources; plain resources and nested Mach-O requirement seals; staged deep signing and deep verification; native byte/mutation comparisons | Nested app/framework/plugin layouts, symlink/xattr policy, wider requirement/digest variants, full strict verification |
 | Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2, native trailer binding, identifiers and byte comparisons | Large-image streaming, encrypted/segmented images, detached/generic/xattr files and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; required Apple verification of 120 Linux/Windows artifacts; six-target GoReleaser builds; golangci-lint, race and eight fuzz targets | Validate each changed commit, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; required Apple verification of 138 Linux/Windows artifacts; six-target GoReleaser builds; golangci-lint, race and nine fuzz targets | Validate each changed commit, extend acceptance to every feature/input class, clear every full-parity blocker |
 
 ## Next implementation sequence
 
-1. **Extend bundle compatibility:** retain the tested basic app profile while
-   adding nested-code requirements and signing
-   order, framework/plugin layouts, symlink/xattr policy and full strict
+1. **Extend bundle compatibility:** retain the tested resource and nested Mach-O
+   profiles while adding nested app/framework/plugin discovery, recursive bundle
+   signing order, symlink/xattr policy and full strict
    verification. Expand the pinned source/Clang record and independent host
    comparisons for each added case.
 2. **Extend representations:** retain go-apfs-v2 as the DMG format dependency,

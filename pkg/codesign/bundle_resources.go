@@ -2,6 +2,7 @@ package codesign
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
@@ -193,6 +194,10 @@ func resourceSeal(sum []byte, optional, legacy bool) any {
 }
 
 func verifyBundleResources(data []byte, actual map[string]any) (int, error) {
+	return verifyBundleResourcesWithOptions(context.Background(), data, actual, VerifyOptions{})
+}
+
+func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual map[string]any, opts VerifyOptions) (int, error) {
 	m, err := decodeBundlePlist(data)
 	if err != nil {
 		return 0, err
@@ -203,10 +208,19 @@ func verifyBundleResources(data []byte, actual map[string]any) (int, error) {
 		return 0, unsupported("bundle resource envelope profile")
 	}
 	for name, v := range files {
+		if err := ctx.Err(); err != nil {
+			return 0, err
+		}
 		if err := bundleRelativePath(name); err != nil {
 			return 0, err
 		}
 		include, optional := resourcePolicy(name, false)
+		if child, ok := actual[name].(nestedResource); ok {
+			if err := verifyNestedResource(ctx, name, v, child, opts); err != nil {
+				return 0, err
+			}
+			continue
+		}
 		seal, ok := v.(map[string]any)
 		hash, hashOK := seal["hash2"].([]byte)
 		if !include || !ok || !hashOK || len(hash) != 32 || !reflect.DeepEqual(v, resourceSeal(hash, optional, false)) {

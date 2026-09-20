@@ -1,0 +1,481 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "identificationFor": "ae6ed95f010b715ab1d696eb07f81f0466b892d0c6f7ac61d5b8072ddfd0d5ca",
+    "sign": "a62a7cb97c8516069e7667e8c88173246d7ed893e0ef4cbcb9225a0f20d92b97",
+    "signNested": "d6d79278993d3274b19a75c78c9b7e540ca276adeefe19e10abc8c4b0456c637",
+    "uniqueName": "bf83ec89313cfac14159d3988da5fd0bc2564e33ad48a481f8b1a7084ed78ca3",
+    "validateNestedCode": "fe634abf47a488d3a4d3c2baa8352569c790b20951fd317089ef2c87fb6ec0a2"
+  },
+  "schema": 1,
+  "scope": "Five complete verbatim Apple method bodies parsed through Clang with explicit interface, error-code, flag and logging shims. Flag shim values are placeholders, not extracted constants. AST facts establish source control flow, not execution of Security services or full nested-code policy.",
+  "sources": {
+    "CodeSigner.cpp": {
+      "sha256": "3e795cead85abbc48aa665875b7540073212339222af1950b3631922ab425807",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/CodeSigner.cpp"
+    },
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
+    "machorep.cpp": {
+      "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
+    },
+    "signer.cpp": {
+      "sha256": "83c1cd525934c0b7d0c5f08322b02e347a5cbf9f521a67edd36023387a8559a2",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "identificationFor": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXReinterpretCastExpr": 1,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 29,
+          "DeclStmt": 5,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 37,
+          "IntegerLiteral": 2,
+          "MemberExpr": 9,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 2,
+          "StringLiteral": 1,
+          "UnaryExprOrTypeTraitExpr": 5,
+          "UnaryOperator": 1,
+          "VarDecl": 5
+        },
+        "literals": [
+          "\"UUID\""
+        ],
+        "members": {
+          "cmdsize": 1,
+          "commandLength": 1,
+          "findCommand": 1,
+          "finish": 1,
+          "flip": 1,
+          "header": 1,
+          "loadCommands": 1,
+          "uuid": 2
+        },
+        "operators": {
+          "!=": 1,
+          "\u0026": 1,
+          "+": 1
+        }
+      },
+      "sign": {
+        "ast_kinds": {
+          "BinaryOperator": 9,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 6,
+          "DeclRefExpr": 22,
+          "DeclStmt": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 25,
+          "IntegerLiteral": 3,
+          "MemberExpr": 11,
+          "ParenExpr": 7,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "UnaryOperator": 3,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "edit": 1,
+          "flag": 1,
+          "isSigned": 1,
+          "mOpFlags": 3,
+          "remove": 1,
+          "resetValidity": 1,
+          "setValidationFlags": 1,
+          "sign": 1,
+          "valid": 1
+        },
+        "operators": {
+          "!": 2,
+          "\u0026": 4,
+          "\u0026\u0026": 2,
+          "*": 1,
+          "|": 3
+        }
+      },
+      "signNested": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 2,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXThisExpr": 3,
+          "CXXTryStmt": 1,
+          "CallExpr": 7,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 22,
+          "DeclStmt": 3,
+          "ExprWithCleanups": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 21,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 10,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "StringLiteral": 1,
+          "VarDecl": 4
+        },
+        "literals": [
+          "\"{requirement=%s,cdhash=%O}\""
+        ],
+        "members": {
+          "c_str": 1,
+          "cdHash": 1,
+          "designatedRequirement": 2,
+          "operator SecStaticCode *": 1,
+          "osStatus": 1,
+          "sign": 1,
+          "signingFlags": 2,
+          "state": 1
+        },
+        "operators": {
+          "\u0026": 1
+        }
+      },
+      "uniqueName": {
+        "ast_kinds": {
+          "": 1,
+          "ArraySubscriptExpr": 1,
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 3,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 16,
+          "DeclStmt": 6,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 22,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 1,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 6
+        },
+        "literals": [
+          "\"%02x\""
+        ],
+        "members": {
+          "identification": 1,
+          "operator void *": 2,
+          "rep": 1
+        },
+        "operators": {
+          "++": 1,
+          "\u003c": 1
+        }
+      },
+      "validateNestedCode": {
+        "ast_kinds": {
+          "BinaryOperator": 8,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 4,
+          "CXXConstructExpr": 3,
+          "CXXDefaultArgExpr": 1,
+          "CXXMemberCallExpr": 11,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXNullPtrLiteralExpr": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 4,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 2,
+          "CallExpr": 8,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 51,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 58,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 16,
+          "ParenExpr": 4,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 2,
+          "UnaryOperator": 5,
+          "VarDecl": 6
+        },
+        "literals": [],
+        "members": {
+          "aref": 1,
+          "augment": 1,
+          "error": 3,
+          "initializeFromParent": 1,
+          "mResourcesValidContext": 2,
+          "operator SecStaticCode *": 1,
+          "operator void *": 2,
+          "reportProblem": 2,
+          "requirement": 1,
+          "staticValidate": 1,
+          "validateOtherVersions": 1
+        },
+        "operators": {
+          "!": 1,
+          "\u0026": 5,
+          "\u0026\u0026": 1,
+          "*": 1,
+          "==": 2,
+          "|": 1,
+          "|=": 1,
+          "~": 2
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "identificationFor": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXReinterpretCastExpr": 1,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 29,
+          "DeclStmt": 5,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 37,
+          "IntegerLiteral": 2,
+          "MemberExpr": 9,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 2,
+          "StringLiteral": 1,
+          "UnaryExprOrTypeTraitExpr": 5,
+          "UnaryOperator": 1,
+          "VarDecl": 5
+        },
+        "literals": [
+          "\"UUID\""
+        ],
+        "members": {
+          "cmdsize": 1,
+          "commandLength": 1,
+          "findCommand": 1,
+          "finish": 1,
+          "flip": 1,
+          "header": 1,
+          "loadCommands": 1,
+          "uuid": 2
+        },
+        "operators": {
+          "!=": 1,
+          "\u0026": 1,
+          "+": 1
+        }
+      },
+      "sign": {
+        "ast_kinds": {
+          "BinaryOperator": 9,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 6,
+          "DeclRefExpr": 22,
+          "DeclStmt": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 25,
+          "IntegerLiteral": 3,
+          "MemberExpr": 11,
+          "ParenExpr": 7,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "UnaryOperator": 3,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "edit": 1,
+          "flag": 1,
+          "isSigned": 1,
+          "mOpFlags": 3,
+          "remove": 1,
+          "resetValidity": 1,
+          "setValidationFlags": 1,
+          "sign": 1,
+          "valid": 1
+        },
+        "operators": {
+          "!": 2,
+          "\u0026": 4,
+          "\u0026\u0026": 2,
+          "*": 1,
+          "|": 3
+        }
+      },
+      "signNested": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 2,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXThisExpr": 3,
+          "CXXTryStmt": 1,
+          "CallExpr": 7,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 22,
+          "DeclStmt": 3,
+          "ExprWithCleanups": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 21,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 10,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "StringLiteral": 1,
+          "VarDecl": 4
+        },
+        "literals": [
+          "\"{requirement=%s,cdhash=%O}\""
+        ],
+        "members": {
+          "c_str": 1,
+          "cdHash": 1,
+          "designatedRequirement": 2,
+          "operator SecStaticCode *": 1,
+          "osStatus": 1,
+          "sign": 1,
+          "signingFlags": 2,
+          "state": 1
+        },
+        "operators": {
+          "\u0026": 1
+        }
+      },
+      "uniqueName": {
+        "ast_kinds": {
+          "": 1,
+          "ArraySubscriptExpr": 1,
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 3,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 16,
+          "DeclStmt": 6,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 22,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 1,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 6
+        },
+        "literals": [
+          "\"%02x\""
+        ],
+        "members": {
+          "identification": 1,
+          "operator void *": 2,
+          "rep": 1
+        },
+        "operators": {
+          "++": 1,
+          "\u003c": 1
+        }
+      },
+      "validateNestedCode": {
+        "ast_kinds": {
+          "BinaryOperator": 8,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 4,
+          "CXXConstructExpr": 3,
+          "CXXDefaultArgExpr": 1,
+          "CXXMemberCallExpr": 11,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXNullPtrLiteralExpr": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 4,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 2,
+          "CallExpr": 8,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 51,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 58,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 16,
+          "ParenExpr": 4,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 2,
+          "UnaryOperator": 5,
+          "VarDecl": 6
+        },
+        "literals": [],
+        "members": {
+          "aref": 1,
+          "augment": 1,
+          "error": 3,
+          "initializeFromParent": 1,
+          "mResourcesValidContext": 2,
+          "operator SecStaticCode *": 1,
+          "operator void *": 2,
+          "reportProblem": 2,
+          "requirement": 1,
+          "staticValidate": 1,
+          "validateOtherVersions": 1
+        },
+        "operators": {
+          "!": 1,
+          "\u0026": 5,
+          "\u0026\u0026": 1,
+          "*": 1,
+          "==": 2,
+          "|": 1,
+          "|=": 1,
+          "~": 2
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "59322746c45f427ae5b54bd57443d2f6792a8f427b31dd8691c113b1a5f59950"
+}
