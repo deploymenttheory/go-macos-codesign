@@ -1,10 +1,10 @@
-.PHONY: build snapshot check test verify lint research research-cms research-signature research-certificates research-timestamps research-bundles research-dmg release-check
+.PHONY: build snapshot check test verify lint research research-cms research-signature research-certificates research-timestamps research-bundles research-dmg research-removal release-check
 
 build:
 	goreleaser build --snapshot --clean --parallelism 2
 
 snapshot:
-	goreleaser release --snapshot --clean --parallelism 2
+	goreleaser release --snapshot --clean --parallelism 2 --skip=sign
 
 check:
 	goreleaser check
@@ -44,6 +44,9 @@ research-bundles:
 
 research-dmg:
 	go run scripts/extract-dmg.go
+
+research-removal:
+	go run scripts/extract-removal.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

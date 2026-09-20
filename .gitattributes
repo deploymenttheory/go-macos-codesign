@@ -41,6 +41,9 @@ testdata/nested-apps/*.md text eol=lf
 testdata/layouts/* -text
 testdata/layouts/*.json text eol=lf
 testdata/layouts/*.md text eol=lf
+testdata/removal/* -text
+testdata/removal/*.json text eol=lf
+testdata/removal/*.md text eol=lf
 testdata/dmg/* -text
 testdata/dmg/*.json text eol=lf
 testdata/dmg/*.md text eol=lf

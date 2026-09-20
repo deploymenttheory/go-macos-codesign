@@ -63,6 +63,7 @@ def main():
                                      ("testdata/nested", "manifest.json"),
                                      ("testdata/nested-apps", "manifest.json"),
                                      ("testdata/layouts", "manifest.json"),
+                                     ("testdata/removal", "manifest.json"),
                                      ("testdata/dmg", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory

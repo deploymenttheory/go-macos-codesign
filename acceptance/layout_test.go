@@ -3,7 +3,6 @@ package acceptance
 import (
 	"archive/tar"
 	"bytes"
-	"debug/macho"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,7 +15,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 	"howett.net/plist"
 )
 
@@ -302,48 +300,22 @@ func TestLayoutRemoval(t *testing.T) {
 func TestAppleLayoutRemoval(t *testing.T) {
 	reference := apple(t)
 	for _, kind := range bundleLayouts {
-		t.Run(kind, func(t *testing.T) {
-			native, portable := layoutFixture(t, t.TempDir(), kind, "arm64", "xml"), layoutFixture(t, t.TempDir(), kind, "arm64", "xml")
-			mustRun(t, reference, "-s", "-", "--deep", native)
-			mustRun(t, binaryPath, "-s", "-", "--deep", portable)
-			mustRun(t, reference, "--remove-signature", native)
-			mustRun(t, binaryPath, "--remove-signature", portable)
-			_, base, _, executable := layoutPaths(kind)
-			main := base + executable
-			goMain, nativeMain := nativeRead(t, filepath.Join(portable, main)), nativeRead(t, filepath.Join(native, main))
-			for _, data := range [][]byte{goMain, nativeMain} {
-				r, err := codesign.InspectBytes(data)
-				if err != nil || len(r.Architectures) != 1 || r.Architectures[0].Signature != nil {
-					t.Fatal("removal did not leave an unsigned Mach-O", r, err)
-				}
-			}
-			// The earlier Mach-O remover retains signature-alignment padding in
-			// these MH_EXECUTE fixtures. Keep that byte-parity gap explicit;
-			// compare every other file, directory and symlink unchanged.
-			paddingGap := !bytes.Equal(goMain, nativeMain) && (kind == "xpc" || kind == "appex")
-			if paddingGap {
-				if len(goMain) != len(nativeMain)+8 || !bytes.Equal(goMain[len(nativeMain):], make([]byte, 8)) {
-					t.Fatal("unexpected removal difference")
-				}
-				parsed, err := macho.NewFile(bytes.NewReader(goMain))
-				if err != nil {
-					t.Fatal(err)
-				}
-				adjusted := bytes.Clone(goMain[:len(nativeMain)])
-				offset := 32
-				for _, load := range parsed.Loads {
-					if seg, ok := load.(*macho.Segment); ok && seg.Name == "__LINKEDIT" {
-						parsed.ByteOrder.PutUint64(adjusted[offset+48:], seg.Filesz-8)
-					}
-					offset += len(load.Raw())
-				}
-				nativeEqual(t, "main apart from documented padding and LINKEDIT size", adjusted, nativeMain)
-			} else {
-				nativeEqual(t, "removed main", goMain, nativeMain)
-			}
-			nativeEqual(t, "removed resources and descendants", layoutArchive(t, portable, main), layoutArchive(t, native, main))
-			attest(t, map[string]any{"layout": kind, "native_removal_main_bytes_equal": bytes.Equal(goMain, nativeMain), "all_other_entries_byte_equal": true, "both_main_signatures_removed": true, "known_main_alignment_padding_gap": paddingGap})
-		})
+		for _, arch := range []string{"arm64", "x86_64", "universal"} {
+			t.Run(kind+"/"+arch, func(t *testing.T) {
+				native, portable := layoutFixture(t, t.TempDir(), kind, arch, "xml"), layoutFixture(t, t.TempDir(), kind, arch, "xml")
+				mustRun(t, reference, "-s", "-", "--deep", native)
+				mustRun(t, binaryPath, "-s", "-", "--deep", portable)
+				mustRun(t, reference, "--remove-signature", native)
+				mustRun(t, binaryPath, "--remove-signature", portable)
+				_, base, _, executable := layoutPaths(kind)
+				main := base + executable
+				goMain, nativeMain := nativeRead(t, filepath.Join(portable, main)), nativeRead(t, filepath.Join(native, main))
+				assertRemoved(t, goMain)
+				assertRemoved(t, nativeMain)
+				nativeEqual(t, "removed entire bundle", layoutArchive(t, portable), layoutArchive(t, native))
+				attest(t, map[string]any{"layout": kind, "architecture": arch, "native_removal_complete_tree_bytes_equal": true})
+			})
+		}
 	}
 }
 

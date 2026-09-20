@@ -136,10 +136,13 @@ plug-in inputs are real Clang-generated MH_BUNDLE files. Mixed trees include
 seven bundles and nine Mach-O files. An independent TSA exercises all eighteen
 architecture signatures, dry runs and late-failure preservation. Unit tests
 cover malformed framework roots, shared limits and cross-layout hard links.
-Native removal comparisons check all six layouts and empty signature-directory
-preservation. MH_EXECUTE removal retains eight signature-alignment zero bytes and
-a matching LINKEDIT size difference in the arm64 fixtures; this pre-existing
-Mach-O gap is recorded explicitly, with every remaining byte and entry compared.
+Native removal comparisons now require exact bytes for all six layouts on three
+architecture forms and three mixed trees, including the main executable and empty
+signature-directory preservation. The earlier eight-byte padding exception is
+removed. [Removal acceptance](removal.md) adds 44 independently recorded native
+outputs, 44 live host comparisons, and nine native re-signing comparisons. Unit
+tests cover malformed symbol ranges, command relocation, endian/32-bit forms and
+preservation after later-architecture failure.
 
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
@@ -175,7 +178,9 @@ each archive and verifies its outer bundle with native `--strict --deep`.
 Every native fixture test and producer exercises real filesystem symlinks,
 including on Windows; these cases are required rather than silently skipped.
 The downstream
-job also requires `hdiutil verify` for every imported DMG.
+job also requires `hdiutil verify` for every imported DMG. Each producer additionally
+exports 44 removed Mach-O files. The Mac independently performs native removal of
+the same inputs and checks all 88 foreign outputs byte for byte.
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
@@ -184,7 +189,8 @@ Separate jobs run the Go race detector and nine bounded fuzz targets:
 `FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
 `FuzzTimestampHTTP`, `FuzzBundleResources`, `FuzzDMG` and `FuzzRequirementText`.
 Each CI fuzz target runs for 60 seconds. GoReleaser creates
-snapshots for all six OS/architecture pairs. The race detector's compiler dependency is
+snapshots with SPDX SBOMs and checksums for all six OS/architecture pairs; PR
+snapshots explicitly skip Cosign signing. The race detector's compiler dependency is
 confined to test binaries. Every distributed binary uses `CGO_ENABLED=0`.
 
 Timestamp acceptance replays an Apple-issued token into a freshly signed RSA
@@ -218,14 +224,15 @@ does not replace deterministic CI. See [timestamp policy and transport limits](t
 `go-lint.yml` runs golangci-lint only and fails on reported issues. SuperLinter
 is removed. Lint failures are not suppressed or automatically fixed in CI.
 
-## Release gate
+## Release automation and full-parity audit
 
-`make release-check` currently fails by design because the full-parity inventory
-contains unresolved requirements. Both Release Please and the tagged GoReleaser
-workflow enforce that gate. The tagged workflow also reruns the validation
-workflow before creating a draft release. No release has been published by the
-implementation work.
+`make release-check` currently fails because the full-parity inventory contains
+unresolved requirements. This remains an explicit audit for a full-equivalence
+claim; it no longer blocks versioned releases of the documented subset.
+[Release Please](releases.md) owns tags, changelog and GitHub releases. The tagged
+GoReleaser workflow attaches archives, SBOMs and signed checksums to that release.
+It follows the reference project's App-token/PAT and append-release pattern.
 
-GoReleaser snapshots remain available for development. They are not labeled as
-a fully compatible release. Remote workflow success must be reported from an
-actual GitHub Actions run, not inferred from local tests or workflow validation.
+Local `actionlint`, `goreleaser check` and snapshot packaging validate configuration
+and builds. They do not establish publishing or keyless-signing success. Remote
+workflow success must be reported from an actual GitHub Actions run.

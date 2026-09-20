@@ -3,7 +3,8 @@
 Updated 2026-09-20. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
-release gate; the [roadmap](implementation.md) lists the remaining work.
+full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
+Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
 ## Delivered milestones
 
@@ -19,6 +20,8 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | Nested Mach-O code | Helper/dylib requirement seals, staged deep signing, shallow/deep verification and explicit child trust | [Nested profile and native evidence](bundles.md#nested-mach-o-code-and-apps) |
 | Recursive APPL apps | Nested .app discovery, mixed XML/binary metadata, descendant-first signing, shared budgets and cross-bundle hard-link checks | [Recursive profile and native evidence](bundles.md) |
 | Plug-ins, XPC and frameworks | BNDL/XPC! Contents layouts, unversioned/single-version FMWK layouts, validated framework aliases and relative symlink seals | [Layout profiles and evidence](bundles.md#frameworks) |
+| Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
+| Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -27,21 +30,50 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The bundle-layout phase passes local native comparisons on macOS 27 build 26A428:
-36 complete standalone byte comparisons, 180 display cases, twelve mixed-tree
-byte comparisons and 63 ad-hoc/RSA/P-256 native strict deep checks. Thirty-nine
-mutations are compared in both shallow and deep modes. Eighteen native archives
-preserve signed bytes and symlink targets; plug-ins use real MH_BUNDLE fixtures.
-Shared bounds, framework aliases, malformed layouts and cross-bundle hard links
-are tested. An independent local TSA covers all eighteen architecture signatures
-in a universal mixed tree, dry runs and preservation after a later request fails.
-Five complete Apple validation/removal methods have two-target Clang AST records.
-Native removal comparisons check all six layouts; empty signature directories
-now match Apple, while the pre-existing MH_EXECUTE alignment-padding difference
-is explicitly measured and remains open.
-Local verification measures 3,688/3,827 library statements (96.37%), 420/422 CLI
+The removal phase passes local native comparisons on macOS 27 build 26A428:
+44 standalone cases, eighteen complete bundle layouts, three mixed trees and
+nine re-signing comparisons with strict native verification. The earlier
+eight-byte executable padding exception is removed. Four complete deallocator
+functions have two-target Clang AST records. Unit tests bound malformed symbol
+ranges and check endian/32-bit layouts, command relocation and failure preservation.
+Local verification measures 3,719/3,857 library statements (96.42%), 420/422 CLI
 statements (99.53%) and 1/1 entry-point statement (100%); golangci-lint passes.
-Remote CI must establish this phase's expanded 300-artifact matrix.
+Remote CI must establish the additional 88 Linux/Windows removal comparisons
+alongside the existing 300 signed-artifact checks.
+
+Release workflows now follow the go-macos-pkg reference. `actionlint` and
+`goreleaser check` pass; an actual local GoReleaser snapshot produced six archives,
+six SPDX SBOMs and twelve validated checksums. Snapshot signing is explicitly
+skipped. The repository inherits `RP_APP_ID` and `RP_APP_PRIVATE_KEY` from the
+organization; actual App-token creation and keyless release signing await an
+authorized release run.
+
+### Bundle-layout phase CI
+
+[PR #17 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/17).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35504676803)
+tested commit `116e41de55c8c2f5b12dc8dffd68109f18981b65`. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,682/3,827 — 96.21% | 414/422 — 98.10% | 1/1 — 100% |
+| Windows 2025 | 3,679/3,827 — 96.13% | 414/422 — 98.10% | 1/1 — 100% |
+| macOS 27 | 3,688/3,827 — 96.37% | 420/422 — 99.53% | 1/1 — 100% |
+
+All three OS jobs, six-target GoReleaser packaging, race detection and nine fuzz
+targets passed. Apple verified all **300** Linux/Windows artifacts, including
+**126 layout archives**, **36 recursive app trees**, **18 plain-nested-code apps**,
+**24 binary-plist apps** and **30 DMGs**; every DMG passed `hdiutil verify`.
+[golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35504676779).
+All 492 recorded source/fixture hashes per OS were audited against that checkout;
+only seventeen expected Windows text line-ending conversions differed.
+
+The phase recorded 36 complete standalone signing byte comparisons, 180 display
+cases, twelve mixed-tree byte comparisons and 63 native strict deep checks.
+Thirty-nine mutations were checked in both modes. Eighteen native archives
+preserve signed bytes and symlink targets; five complete validation/removal
+methods have Clang records. The padding gap recorded in that phase is fixed by
+the current removal work rather than retroactively claimed as a PR #17 success.
 
 ### Recursive-app phase CI
 
