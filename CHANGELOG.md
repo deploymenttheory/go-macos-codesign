@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.1.0 (2026-09-20)
+
+
+### Features
+
+* add native CMS parity, certificate policy and PKCS12 identities ([d095e99](https://github.com/deploymenttheory/go-macos-codesign/commit/d095e994fdc8a9474cfec76ddf8ac91a2a1453fd))
+* add portable app bundle resource sealing ([b6f05a7](https://github.com/deploymenttheory/go-macos-codesign/commit/b6f05a7f0024ba12e9486c6693418af5d4c662a0))
+* add portable app bundle resource sealing ([1657c88](https://github.com/deploymenttheory/go-macos-codesign/commit/1657c88a8299b81d64e59789a4fffb4af1f50ba1))
+* add portable Mach-O signing and certificate CMS ([7ef598a](https://github.com/deploymenttheory/go-macos-codesign/commit/7ef598a072fdcc49b7d5617d8c1b6a2aca1fd6ae))
+* add portable RFC 3161 timestamp verification and signing callbacks ([3eaae1c](https://github.com/deploymenttheory/go-macos-codesign/commit/3eaae1c195151e1e7b35693ddfe0d1ab0267f2fc))
+* add pure Go online timestamp acquisition ([666ea7e](https://github.com/deploymenttheory/go-macos-codesign/commit/666ea7ef88c9341667d5d26892dbd03710fce3f2))
+* add pure Go online timestamp acquisition ([eb5cc31](https://github.com/deploymenttheory/go-macos-codesign/commit/eb5cc318def53a750a0736d42546b3751bec6266))
+* add RFC 3161 timestamp verification and signing callbacks ([368c19a](https://github.com/deploymenttheory/go-macos-codesign/commit/368c19a11ee9969a6f8a7ffc3e219d063730427c))
+* implement portable Mach-O code signing ([5058e89](https://github.com/deploymenttheory/go-macos-codesign/commit/5058e89e8b902fd3c782bfd7e8d4e21ea70ef7de))
+* match native certificate signature allocation and CMS encoding ([933c944](https://github.com/deploymenttheory/go-macos-codesign/commit/933c944924bc741faf1b614e615169822ad198a7))
+* recursively sign and verify nested APPL bundles ([cdd63de](https://github.com/deploymenttheory/go-macos-codesign/commit/cdd63defd65dc022cff206101476934b9536af1d))
+* recursively sign and verify nested APPL bundles ([603922b](https://github.com/deploymenttheory/go-macos-codesign/commit/603922b77ea11fe0637b4e99c68eb260c7c9ea26))
+* seal and deeply verify nested Mach-O code ([cb98a38](https://github.com/deploymenttheory/go-macos-codesign/commit/cb98a387ba1d1631bae103cc92dd267e98c2f795))
+* seal and deeply verify nested Mach-O helpers and dylibs ([3318948](https://github.com/deploymenttheory/go-macos-codesign/commit/33189485d0b563a017f53a39b21b83f4ec07de93))
+* sign UDIF disk images using go-apfs-v2 ([0768132](https://github.com/deploymenttheory/go-macos-codesign/commit/07681324f5f91c64fff776fb5edb5557070805f9))
+* sign UDIF disk images using go-apfs-v2 ([4d8a96f](https://github.com/deploymenttheory/go-macos-codesign/commit/4d8a96f02cf865dbb9df3f2ff5eb49c7a3debe29))
+* support bounded binary bundle plists ([8bed5a0](https://github.com/deploymenttheory/go-macos-codesign/commit/8bed5a097efedea624ee943f4cffd39b06edc7ba))
+* support bounded binary bundle plists ([5e737ac](https://github.com/deploymenttheory/go-macos-codesign/commit/5e737acee2fa35c4d86b7f8c82f88e734b1f03b7))
+* support plug-ins, XPC and framework bundle layouts ([63fd691](https://github.com/deploymenttheory/go-macos-codesign/commit/63fd691f22d65d92a8aae8825b10677224d40c1d))
+* support plug-ins, XPC and framework bundle layouts ([116e41d](https://github.com/deploymenttheory/go-macos-codesign/commit/116e41de55c8c2f5b12dc8dffd68109f18981b65))
+
+
+### Bug Fixes
+
+* match native removal and repair release automation ([0e2f03b](https://github.com/deploymenttheory/go-macos-codesign/commit/0e2f03b8c7b5b4fad95e085ae55fe51dde43fbc0))
+* match native removal and repair release automation ([0acb051](https://github.com/deploymenttheory/go-macos-codesign/commit/0acb051e08dbd340dfd73fe214e3780bb0fe7d95))
+* preserve entitlement fixture bytes on Windows ([4fd6abe](https://github.com/deploymenttheory/go-macos-codesign/commit/4fd6abe8eed380c9554133ec74774a9f03e5190a))
+* preserve native format detection precedence ([d51f6a8](https://github.com/deploymenttheory/go-macos-codesign/commit/d51f6a863c0c0d385094e94675d258cf4bfe2bdd))
+
+## Changelog
+
 ## Unreleased
 
 The implementation is under development. Full-parity claims remain blocked by
