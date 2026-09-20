@@ -215,6 +215,12 @@ func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual m
 			return 0, err
 		}
 		include, optional := resourcePolicy(name, false)
+		if child, ok := actual[name].(*nestedAppResource); ok {
+			if err := verifyNestedApp(ctx, name, v, child, opts); err != nil {
+				return 0, err
+			}
+			continue
+		}
 		if child, ok := actual[name].(nestedResource); ok {
 			if err := verifyNestedResource(ctx, name, v, child, opts); err != nil {
 				return 0, err

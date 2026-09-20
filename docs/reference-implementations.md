@@ -108,7 +108,9 @@ and C++ sigtool references inform nested-code sealing. The plain Mach-O helper
 and dylib phase now implements requirement/CDHash entries, child-first signing,
 and shallow/deep validation; Apple's source and host tests settle certificate
 requirements and architecture selection beyond sigtool's ad-hoc subset.
-Nested app/framework discovery remains next. Binary bundle metadata adds pinned CoreFoundation AST research and
+Recursive Contents-based APPL discovery and descendant-first signing now extend
+that work, with shared bounds and native shallow-metadata comparisons. Framework
+and plugin discovery remain next. Binary bundle metadata adds pinned CoreFoundation AST research and
 comparisons with the existing howett.net/plist dependency; a bounded reader
 enforces graph-expansion limits before constructing Go values. DMG support now
 directly uses go-apfs-v2's format model, with Apple and

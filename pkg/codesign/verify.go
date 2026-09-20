@@ -218,7 +218,12 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 					return r, invalid("%s: code page %d", a.Name, i)
 				}
 			}
-			for slot := uint32(1); !opts.directoryOnly && slot <= d.SpecialSlots; slot++ {
+			for slot := uint32(1); slot <= d.SpecialSlots; slot++ {
+				// Apple's shallow validation skips the resource envelope, but
+				// still binds Info.plist, requirements and other signed metadata.
+				if opts.directoryOnly && slot == SlotResources {
+					continue
+				}
 				p := uint64(d.HashOffset) - uint64(slot)*uint64(d.HashSize)
 				want := d.Raw[p : p+uint64(d.HashSize)]
 				payload := a.Signature.find(slot)

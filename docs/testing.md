@@ -114,6 +114,18 @@ extension existence and non-ASCII values. Unit tests cover explicit child trust,
 hard links, limits, malformed seals, cancellation and preservation on failure.
 `FuzzRequirementText` exercises the expanded parser and canonical text stability.
 
+Recursive APPL acceptance adds 24 complete tree byte comparisons, 90 display
+cases, eighteen ad-hoc/RSA/P-256 native strict deep checks and 26 mutation/depth
+outcomes. Three committed native trees combine XML parents/grandchildren, binary
+child metadata, two plain helpers and a dylib. Native lifecycle tests check
+preserved signed grandchildren, force, dry runs and outer-only removal. Altered
+immediate-child Info.plist, requirements and entitlements fail shallow validation;
+resource contents and deeper descendants require `--deep`. Unit tests enforce
+shared entry/byte/depth/node limits, cross-bundle hard-link rejection and complete
+tree preservation after later signing failures. An independent local TSA signs
+all twelve architecture signatures in a universal tree, checks child TSA trust,
+and proves dry-run and late-response-failure preservation without native trust setup.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -134,11 +146,13 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 138 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay, twenty-seven app bundles and fifteen DMGs per OS). Twelve of
+all 174 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, forty-five app bundles and fifteen DMGs per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
-three architectures and ad-hoc/RSA/P-256 identities; these require native `--deep`.
+three architectures and ad-hoc/RSA/P-256 identities. Another eighteen per OS
+contain recursive app trees under XML/mixed-metadata profiles. Both nested groups
+require native `--deep`.
 The downstream
 job also requires `hdiutil verify` for every imported DMG.
 Every algorithm/architecture combination must be present from both OS jobs.

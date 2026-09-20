@@ -29,6 +29,7 @@ type appBundle struct {
 	path, executable, identifier string
 	info                         []byte
 	entries                      int
+	children                     []*appBundle
 }
 
 func isBundle(path string) bool { st, err := os.Stat(path); return err == nil && st.IsDir() }
@@ -66,6 +67,11 @@ func openAppBundle(path string) (*appBundle, error) {
 	if err != nil {
 		return nil, err
 	}
+	return loadAppBundle(root, path)
+}
+
+// root ownership transfers to the returned bundle, or is closed on failure.
+func loadAppBundle(root *os.Root, path string) (*appBundle, error) {
 	b := &appBundle{root: root, path: path}
 	fail := func(err error) (*appBundle, error) { root.Close(); return nil, err }
 	info, err := b.read("Contents/Info.plist", maxBundlePlist)
@@ -99,6 +105,13 @@ func openAppBundle(path string) (*appBundle, error) {
 	return b, nil
 }
 
+func (b *appBundle) close() {
+	for _, child := range b.children {
+		child.close()
+	}
+	_ = b.root.Close()
+}
+
 func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 	st, err := b.root.Lstat(name)
 	if err != nil {
@@ -125,22 +138,22 @@ func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 // scan validates the entire supported tree, never follows symlinks and streams
 // hashes. os.Root keeps all reads and writes confined to the opened bundle.
 func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, error) {
+	return b.scanTree(ctx, newBundleScan(), 0, "")
+}
+
+func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, prefix string) (map[string]any, map[string]any, error) {
 	files, files2 := map[string]any{}, map[string]any{}
-	entries := 0
-	var total int64
-	seen := map[string]bool{}
-	regular := map[string]os.FileInfo{}
-	nestedCount := 0
 	// Writing any signature target must not also change another bundle member
 	// through a hard link, invalidating the envelope we just constructed.
-	writable := map[string]os.FileInfo{}
 	for _, name := range []string{b.executable, bundleResourcesPath} {
 		st, err := b.root.Lstat(name)
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return nil, nil, err
 		}
 		if err == nil {
-			writable[name] = st
+			if err := scope.writeTarget(prefix+name, st); err != nil {
+				return nil, nil, err
+			}
 		}
 	}
 	err := fs.WalkDir(b.root.FS(), ".", func(name string, d fs.DirEntry, walkErr error) error {
@@ -153,18 +166,18 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 		if name == "." {
 			return nil
 		}
-		entries++
-		if entries > maxBundleEntries {
+		scope.entries++
+		if scope.entries > maxBundleEntries {
 			return unsupported("bundle entry count limit")
 		}
-		if err := bundleRelativePath(name); err != nil {
+		if err := bundleRelativePath(prefix + name); err != nil {
 			return err
 		}
-		lower := strings.ToLower(name)
-		if seen[lower] {
+		lower := strings.ToLower(prefix + name)
+		if scope.seen[lower] {
 			return unsupported("case-colliding bundle paths")
 		}
-		seen[lower] = true
+		scope.seen[lower] = true
 		if d.Type()&os.ModeSymlink != 0 {
 			return unsupported("bundle symlinks")
 		}
@@ -199,7 +212,15 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 		case nested:
 			if d.IsDir() {
 				if strings.Contains(d.Name(), ".") {
-					return unsupported("nested bundle layout: " + rel)
+					if !strings.HasSuffix(strings.ToLower(d.Name()), ".app") {
+						return unsupported("nested bundle layout: " + rel)
+					}
+					child, err := b.scanChild(ctx, name, scope, depth+1, prefix)
+					if err != nil {
+						return fmt.Errorf("nested %s: %w", rel, err)
+					}
+					files2[rel] = child
+					return fs.SkipDir
 				}
 				return nil
 			}
@@ -213,20 +234,17 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 		if !st.Mode().IsRegular() {
 			return unsupported("non-regular bundle resource: " + rel)
 		}
-		for target, targetInfo := range writable {
-			if name != target && os.SameFile(st, targetInfo) {
+		for target, targetInfo := range scope.writable {
+			if prefix+name != target && os.SameFile(st, targetInfo) {
 				return unsupported("hard-linked bundle write target: " + target)
 			}
 		}
 		if nested && name != b.executable {
-			for target, targetInfo := range regular {
-				if os.SameFile(st, targetInfo) {
-					return unsupported("hard-linked nested code: " + target)
-				}
+			if err := scope.writeTarget(prefix+name, st); err != nil {
+				return err
 			}
-			writable[name] = st
 		}
-		regular[name] = st
+		scope.regular[prefix+name] = st
 		if name == b.executable || rel == "Info.plist" || name == bundleResourcesPath {
 			return nil
 		}
@@ -236,11 +254,10 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 			return nil
 		}
 		if nested {
-			nestedCount++
-			if nestedCount > maxNestedFiles {
-				return unsupported("nested code file count limit")
+			if err := scope.addChild(); err != nil {
+				return err
 			}
-			data, err := b.read(name, maxFileSize-total)
+			data, err := b.read(name, maxFileSize-scope.bytes)
 			if err != nil {
 				return err
 			}
@@ -249,7 +266,7 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 			if _, err := parseContainer(data); err != nil {
 				return err
 			}
-			total += int64(len(data))
+			scope.bytes += int64(len(data))
 			files2[rel] = nestedResource{data}
 			return nil
 		}
@@ -265,16 +282,16 @@ func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, e
 		if !os.SameFile(st, current) {
 			return invalid("resource changed: %s", rel)
 		}
-		if current.Size() > maxFileSize-total {
+		if current.Size() > maxFileSize-scope.bytes {
 			return unsupported("bundle resource data exceeds 1 GiB")
 		}
 		h1, h2 := sha1.New(), sha256.New()
-		n, err := io.Copy(io.MultiWriter(h1, h2), io.LimitReader(f, maxFileSize-total+1))
+		n, err := io.Copy(io.MultiWriter(h1, h2), io.LimitReader(f, maxFileSize-scope.bytes+1))
 		if err != nil {
 			return err
 		}
-		total += n
-		if total > maxFileSize {
+		scope.bytes += n
+		if scope.bytes > maxFileSize {
 			return unsupported("bundle resource data exceeds 1 GiB")
 		}
 		if include1 {
@@ -311,7 +328,7 @@ func inspectBundle(ctx context.Context, path string) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer b.root.Close()
+	defer b.close()
 	if _, _, err = b.scan(ctx); err != nil {
 		return nil, err
 	}
@@ -333,8 +350,10 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if err != nil {
 		return nil, err
 	}
-	defer b.root.Close()
-	_, actual, err := b.scan(ctx)
+	defer b.close()
+	scope := newBundleScan()
+	scope.recurse = opts.Deep
+	_, actual, err := b.scanTree(ctx, scope, 0, "")
 	if err != nil {
 		return nil, err
 	}
@@ -346,6 +365,10 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, err
 	}
+	return verifyBundleSnapshot(ctx, b, data, resources, actual, opts)
+}
+
+func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []byte, actual map[string]any, opts VerifyOptions) (*Report, error) {
 	opts.InfoPlist, opts.Resources = b.info, resources
 	r, err := VerifyBytes(ctx, data, opts)
 	b.annotate(r, resources)
@@ -363,8 +386,10 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 			}
 		}
 	}
-	if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
-		return r, err
+	if !opts.directoryOnly {
+		if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
+			return r, err
+		}
 	}
 	r.Valid = true
 	return r, nil
@@ -378,36 +403,18 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	defer b.root.Close()
+	defer b.close()
 	files, files2, err := b.scan(ctx)
 	if err != nil {
 		return err
-	}
-	writes, err := prepareNested(ctx, files2, opts)
-	if err != nil {
-		return err
-	}
-	opts.InfoPlist, opts.Resources = b.info, encodeBundleResources(files, files2)
-	if len(opts.Resources) > maxBundlePlist {
-		return unsupported("bundle resource envelope size")
-	}
-	if opts.Identifier == "" {
-		opts.Identifier = b.identifier
 	}
 	data, err := b.read(b.executable, maxFileSize)
 	if err != nil {
 		return err
 	}
-	out, err := SignBytes(ctx, data, opts)
+	_, writes, err := b.planSignature(ctx, data, files, files2, opts, opts.Force)
 	if err != nil {
 		return err
-	}
-	outputSize := int64(len(out) + len(opts.Resources))
-	for _, write := range writes {
-		outputSize += int64(len(write.data))
-	}
-	if outputSize > maxFileSize {
-		return unsupported("bundle signature output exceeds 1 GiB")
 	}
 	if opts.DryRun {
 		return nil
@@ -415,20 +422,19 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if err := b.root.Mkdir("Contents/_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
-		return err
-	}
 	// All construction (including TSA requests) precedes mutation. As with file
 	// signing, I/O failures during the writes can leave partial output.
 	for _, write := range writes {
-		if err := b.write(ctx, write.name, write.data, false); err != nil {
+		if write.create {
+			if err := write.bundle.root.Mkdir("Contents/_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
+				return err
+			}
+		}
+		if err := write.bundle.write(ctx, write.name, write.data, write.create); err != nil {
 			return err
 		}
 	}
-	if err := b.write(ctx, bundleResourcesPath, opts.Resources, true); err != nil {
-		return err
-	}
-	return b.write(ctx, b.executable, out, false)
+	return nil
 }
 
 func (b *appBundle) write(ctx context.Context, name string, data []byte, create bool) error {
@@ -473,7 +479,7 @@ func removeBundle(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	defer b.root.Close()
+	defer b.close()
 	if _, _, err = b.scan(ctx); err != nil {
 		return err
 	}

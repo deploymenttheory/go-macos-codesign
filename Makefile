@@ -39,6 +39,7 @@ research-bundles:
 	go run scripts/extract-bundles.go
 	go run scripts/extract-bundle-plists.go
 	go run scripts/extract-nested.go
+	go run scripts/extract-nested-apps.go
 
 research-dmg:
 	go run scripts/extract-dmg.go

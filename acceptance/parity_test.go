@@ -215,7 +215,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		return
 	}
 	reference := apple(t)
-	count, dmgs, binaryBundles, nestedBundles := 0, 0, 0, 0
+	count, dmgs, binaryBundles, nestedBundles, recursiveBundles := 0, 0, 0, 0, 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -225,6 +225,10 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			args := []string{"--verify", "--strict"}
 			if strings.HasPrefix(d.Name(), "signed-bundle-nested-") {
 				nestedBundles++
+				args = append(args, "--deep")
+			}
+			if strings.HasPrefix(d.Name(), "signed-bundle-recursive-") {
+				recursiveBundles++
 				args = append(args, "--deep")
 			}
 			mustRun(t, reference, append(args, path)...)
@@ -249,8 +253,8 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 138 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 {
-		t.Fatalf("expected 138 artifacts including 30 DMGs, 24 binary-plist bundles and 18 nested bundles from Linux and Windows, found %d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles)
+	if count != 174 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 {
+		t.Fatalf("expected 174 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles and 36 recursive app trees from Linux and Windows, found %d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles)
 	}
 	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
@@ -263,6 +267,13 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		for _, profile := range []string{"xml", "mixed"} {
+			for _, identity := range []string{"adhoc", "rsa", "p256"} {
+				if seen["signed-bundle-recursive-"+profile+"-"+identity+"-"+arch+".app"] != 2 {
+					t.Fatalf("expected both OS recursive app trees for %s/%s/%s", profile, identity, arch)
+				}
+			}
+		}
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
 			if seen["signed-bundle-nested-"+identity+"-"+arch+".app"] != 2 {
 				t.Fatalf("expected both OS nested bundles for %s/%s", identity, arch)
@@ -298,5 +309,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles})
 }
