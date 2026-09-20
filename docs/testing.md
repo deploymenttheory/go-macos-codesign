@@ -163,6 +163,12 @@ trees are produced through direct paths; ad-hoc trees reproduce the existing
 native archives. Unit tests reject malformed Current targets and retain the
 selected directory's hard-link protection. The AST layout record now includes
 eight complete methods, adding native directory/file representation discovery.
+Two additional path cases compare an intermediate symlink followed by `..` with
+Apple, require preservation of the lexical sibling, and verify the physical
+target even when that sibling is absent. Different Current targets catch early
+Windows path normalization.
+Six further direct-path trees include an unsigned Mach-O helper; deep signing
+reproduces Apple's complete tree and passes strict deep verification.
 
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.

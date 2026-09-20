@@ -32,7 +32,8 @@ func TestFrameworkDirectoryPaths(t *testing.T) {
 				t.Fatal(err)
 			}
 			r, err := Inspect(ctx, p)
-			if err != nil || r.Bundle.Executable != filepath.Join(framework, "Versions", physical, "F") {
+			want, resolveErr := filepath.EvalSymlinks(filepath.Join(framework, "Versions", physical, "F"))
+			if err != nil || resolveErr != nil || r.Bundle.Executable != want {
 				t.Fatal(r, err)
 			}
 			if err := Sign(ctx, p, SignOptions{Force: true, DryRun: true}); err != nil {
@@ -137,5 +138,11 @@ func TestFrameworkCurrentPathSafety(t *testing.T) {
 		if err := Sign(ctx, filepath.Join(b, "Versions/B")+suffix, SignOptions{}); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("followed version alias", suffix, err)
 		}
+	}
+	if err := os.RemoveAll(filepath.Join(b, "Versions")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Inspect(ctx, filepath.Join(b, "Versions/Current")); err == nil {
+		t.Fatal("missing Versions directory")
 	}
 }

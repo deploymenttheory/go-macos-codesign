@@ -67,12 +67,16 @@ dry runs, four boundary cases and 64 failed-selector preservation checks.
 Nine identity/architecture trees are produced through direct paths; the three
 ad-hoc trees reproduce the committed native archives. Clang records eight complete
 methods, including native directory/file representation discovery.
+Six additional trees prove native deep-signing byte equality with a Mach-O helper.
+Two parent-link cases match Apple's `link/..` resolution, preserve the lexical
+sibling and work when that sibling is absent.
 
-The full local suite passes with 3,838/3,984 library statements (96.34%),
+The full local suite passes with 3,854/4,000 library statements (96.35%),
 423/425 CLI statements (99.53%) and 1/1 entry-point statement (100%). Lint and
 dependency/fixture guards pass. CI adds eighteen Linux/Windows direct-path trees,
 requiring 336 signed imports and the existing 88 removal comparisons. Per-commit
-workflow and downloaded-artifact results are recorded with the phase's PR.
+workflow and downloaded-artifact results are recorded in
+[PR #22](https://github.com/deploymenttheory/go-macos-codesign/pull/22).
 
 ### Framework-version phase CI
 
@@ -82,8 +86,8 @@ Twenty-one parent cases agree with Apple in shallow/deep modes, including unsign
 alternates, incompatible CDHashes/requirements and page/resource/metadata changes.
 Nine identity/architecture combinations pass native strict deep verification.
 Three native app archives preserve both framework versions and are reproduced by
-the Go CLI. The two-target Clang layout record now includes complete selection and
-alternate-version validation methods, bringing it to seven methods.
+the Go CLI. That phase expanded the two-target Clang layout record to seven
+methods by adding complete selection and alternate-version validation bodies.
 Local full-suite coverage is 3,803/3,949 library statements (96.30%), 423/425 CLI
 statements (99.53%) and 1/1 entry-point statement (100%). Lint, dependency and
 fixture guards, and six-target GoReleaser builds pass.

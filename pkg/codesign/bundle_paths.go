@@ -36,19 +36,42 @@ func resolveFrameworkCurrent(name string) (string, error) {
 	if err := bundleRelativePath(version); err != nil {
 		return "", err
 	}
-	if version != "Current" {
-		return filepath.Clean(name), nil
+	// Strip only directory suffixes before checking the final component. Clean
+	// must not collapse an interior link/.. before the link has been resolved.
+	name = filepath.FromSlash(name)
+	for {
+		name = strings.TrimRight(name, string(filepath.Separator))
+		if !strings.HasSuffix(name, string(filepath.Separator)+".") {
+			break
+		}
+		name = strings.TrimSuffix(name, string(filepath.Separator)+".")
 	}
-	target, err := os.Readlink(filepath.Clean(name))
+	parent, leaf := filepath.Split(name)
+	parent, err := filepath.EvalSymlinks(parent)
 	if err != nil {
 		return "", err
 	}
-	target = strings.TrimPrefix(filepath.ToSlash(target), "./")
-	if target == "Current" || strings.Contains(target, "/") || target == "." {
-		return "", unsupported("framework Current must name one physical version")
+	name = filepath.Join(parent, leaf)
+	if _, version = frameworkVersionDirectory(name); version == "Current" {
+		target, err := os.Readlink(name)
+		if err != nil {
+			return "", err
+		}
+		target = strings.TrimPrefix(filepath.ToSlash(target), "./")
+		if target == "Current" || strings.Contains(target, "/") || target == "." {
+			return "", unsupported("framework Current must name one physical version")
+		}
+		if err := bundleRelativePath(target); err != nil {
+			return "", err
+		}
+		name = filepath.Join(filepath.Dir(name), target)
 	}
-	if err := bundleRelativePath(target); err != nil {
+	st, err := os.Lstat(name)
+	if err != nil {
 		return "", err
 	}
-	return filepath.Join(framework, "Versions", target), nil
+	if !st.IsDir() {
+		return "", unsupported("framework version root must be a physical directory")
+	}
+	return name, nil
 }

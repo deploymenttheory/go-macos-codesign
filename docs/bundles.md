@@ -122,6 +122,8 @@ fail root verification while a direct version remains valid.
 `Fixture.framework/Versions/Current` resolves its single-component, relative
 target to a physical sibling directory before opening it. Display uses that
 physical path, unlike root-based default selection, which displays Current.
+Parent symlinks are resolved before `..` components, preserving the physical
+target on all three operating systems rather than selecting a lexical sibling.
 Other version-root symlinks, absolute/escaping Current targets and Current links
 to regular files are rejected by the portable profile. `--bundle-version` is
 rejected on a direct version directory, including `--bundle-version=Current`.

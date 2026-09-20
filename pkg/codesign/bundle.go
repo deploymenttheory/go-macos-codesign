@@ -39,8 +39,8 @@ type appBundle struct {
 }
 
 func isBundle(path string) bool {
-	if framework, version := frameworkVersionDirectory(path); framework != "" && version == "Current" {
-		return true // malformed structural aliases must not fall back to raw file signing
+	if framework, _ := frameworkVersionDirectory(path); framework != "" {
+		return true // resolve structural version paths before OS-specific path normalization
 	}
 	st, err := os.Stat(path)
 	return err == nil && st.IsDir()
