@@ -16,8 +16,12 @@ func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Re
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if isBundle(path) {
-		return inspectBundle(ctx, path, opts)
+	bundle, err := bundlePath(path)
+	if err != nil {
+		return nil, err
+	}
+	if bundle != "" {
+		return inspectBundle(ctx, bundle, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {
@@ -98,8 +102,12 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 }
 
 func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
-	if isBundle(path) {
-		return verifyBundle(ctx, path, opts)
+	bundle, err := bundlePath(path)
+	if err != nil {
+		return nil, err
+	}
+	if bundle != "" {
+		return verifyBundle(ctx, bundle, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {

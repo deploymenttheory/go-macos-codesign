@@ -268,9 +268,23 @@ that a direct `Versions/A` remains valid despite malformed outer aliases or
 sibling metadata, and rejects an additional bundle-version selector. A direct
 Current directory input resolves to its physical target for display. Eighteen
 signing/removal comparisons, ninety display cases and 64 failed-selector checks
-exercise that behavior. The AST also exposes native executable-path promotion;
-that branch is recorded as future work, not claimed as implemented. CoreFoundation
-discovery remains shimmed; native acceptance supplies the behavior evidence.
+exercise that behavior. The AST also exposes native executable-path promotion.
+Its CoreFoundation call is expanded by `scripts/extract-bundle-discovery.go` and
+[the discovery AST record](../spec/apple-bundle-discovery.json): five complete
+functions from Apple's pinned CF revision
+`dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3`, parsed with actual SDK CoreFoundation
+declarations on both targets. Download `CFBundle.c` from the recorded URL into
+`.research/apple/CFBundle.c` before running `make research-bundles`.
+
+The functions derive a bundle URL, compare the executable path exactly and require
+metadata for flat candidates. Private helpers, executable lookup, effective
+layout version and buffer bounds remain explicit shims. This does not execute
+CoreFoundation or claim complete CFBundle discovery. Host probes and acceptance
+separately establish supported Contents/framework behavior, physical file-alias
+resolution, helper boundaries and option interactions. Hard links do not select
+a bundle merely by sharing its main executable's inode. A separate probe found
+that native standalone signing breaks such a link; that writer behavior remains
+outside the current implementation and is not claimed by discovery tests.
 
 ## DMG research and direct library reuse
 

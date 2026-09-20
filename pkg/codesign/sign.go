@@ -38,8 +38,12 @@ func readFile(path string) ([]byte, error) {
 // Sign constructs complete signatures before writing a Mach-O, supported app
 // bundle, or UDIF disk image to path.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
-	if isBundle(path) {
-		return signBundle(ctx, path, opts)
+	bundle, err := bundlePath(path)
+	if err != nil {
+		return err
+	}
+	if bundle != "" {
+		return signBundle(ctx, bundle, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {
@@ -315,8 +319,12 @@ func RemoveSignature(ctx context.Context, path string) error {
 
 // RemoveSignatureWithOptions removes only the selected version's signature.
 func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) error {
-	if isBundle(path) {
-		return removeBundle(ctx, path, opts)
+	bundle, err := bundlePath(path)
+	if err != nil {
+		return err
+	}
+	if bundle != "" {
+		return removeBundle(ctx, bundle, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {

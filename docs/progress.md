@@ -22,6 +22,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 | Plug-ins, XPC and frameworks | BNDL/XPC! Contents layouts, unversioned/single-version FMWK layouts, validated framework aliases and relative symlink seals | [Layout profiles and evidence](bundles.md#frameworks) |
 | Multiple framework versions | Explicit version selection, isolated writes/removal, alternate-version requirement checks, shared limits and native fixtures | [Framework version behavior and limits](bundles.md#frameworks) |
 | Direct framework directories | Physical-version and Current inputs, independent resource boundaries, native display paths and selector rejection | [Direct directory behavior](bundles.md#direct-version-directory-paths) |
+| Main-executable inputs | Contents/framework main paths and file aliases select the bundle; helpers and hard-link aliases remain standalone; native lifecycle and resource-tamper comparisons | [Executable discovery and limits](bundles.md#main-executable-paths) |
 | Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
 | Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
@@ -59,7 +60,33 @@ SBOMs, checksums and a Sigstore signature bundle in
 [v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
 That release contains the supported subset through PR #18.
 
-### Direct framework-directory phase
+### Executable-path discovery phase
+
+The phase adds supported main-executable discovery with exact filename matching,
+physical alias resolution and the existing bundle resource boundary. It preserves
+helper-file classification and rejects external special-slot overrides once a
+bundle is selected. Five complete CoreFoundation functions are extracted with
+Clang for arm64 and x86_64 using real SDK declarations and explicit private shims.
+
+Focused host acceptance passes 54 complete signing/removal comparisons, 270 display
+comparisons, 54 dry runs, four helper/alias resource-tamper cases, read-only
+hard-link display, a physical-parent regression and 32 selector-operation outcomes.
+Nine identity/architecture trees sign all six child layouts and the parent via
+executable inputs. Eighteen child archives reproduce existing native fixtures.
+CI requires eighteen additional Linux/Windows trees, taking the signed import
+total to 354 while retaining 88 removal comparisons. The complete local suite
+passes with 3,891/4,044 library statements (96.22%), 423/425 CLI statements
+(99.53%) and 1/1 entry-point statement (100%). Lint, dependency/fixture guards
+and all six GoReleaser build targets pass. Per-commit workflow and artifact
+results are recorded in [PR #23](https://github.com/deploymenttheory/go-macos-codesign/pull/23)
+after CI finishes.
+
+Native standalone signing replaces a hard-linked target while the current writer
+preserves the inode. This newly observed write-semantics gap remains separate
+from the proven read-only discovery behavior. Malformed/oversized/symlinked
+metadata also retains the stricter portable rejection profile.
+
+### Direct framework-directory phase CI
 
 Direct physical and Current version-directory inputs now pass eighteen complete
 native signing/removal comparisons, ninety exact display comparisons, eighteen
@@ -71,12 +98,23 @@ Six additional trees prove native deep-signing byte equality with a Mach-O helpe
 Two parent-link cases match Apple's `link/..` resolution, preserve the lexical
 sibling and work when that sibling is absent.
 
-The full local suite passes with 3,854/4,000 library statements (96.35%),
-423/425 CLI statements (99.53%) and 1/1 entry-point statement (100%). Lint and
-dependency/fixture guards pass. CI adds eighteen Linux/Windows direct-path trees,
-requiring 336 signed imports and the existing 88 removal comparisons. Per-commit
-workflow and downloaded-artifact results are recorded in
-[PR #22](https://github.com/deploymenttheory/go-macos-codesign/pull/22).
+[PR #22 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/22).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35518761734)
+tested `9902744e1eec3132f0738bc7defabe913d7d2dba`. Downloaded evidence reports:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,847/4,000 — 96.175% | 417/425 — 98.12% | 1/1 — 100% |
+| Windows 2025 | 3,844/4,000 — 96.10% | 417/425 — 98.12% | 1/1 — 100% |
+| macOS 27 | 3,854/4,000 — 96.35% | 423/425 — 99.53% | 1/1 — 100% |
+
+All OS jobs, native verification, six-target packaging, race detection and nine
+fuzz targets passed; [golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35518761729).
+Apple accepted all **336** signed imports and matched all **88** removals byte for
+byte. All **554** source/fixture hashes per OS match the tested checkout, allowing
+seventeen expected Windows CRLF conversions. Six archives and six SPDX 2.3 SBOMs
+passed all twelve SHA-256 checksums. Windows passed both parent-link regressions;
+macOS also confirmed native byte equality and all six nested-helper cases.
 
 ### Framework-version phase CI
 
@@ -273,13 +311,14 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 The bundle profile includes XML/binary metadata, nested Mach-O files, recursive
 APPL/BNDL/XPC! Contents layouts, unversioned/multiple-version FMWK frameworks,
-explicit selection, direct version directories and bounded relative symlink seals.
-Executable-path bundle promotion and broader symlink/xattr policy are the next
+explicit selection, direct version directories, main-executable discovery and
+bounded relative symlink seals. Wider discovery and broader symlink/xattr policy are the next
 format work.
 UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes
-requirement predicates, CodeDirectory variants, metadata preservation, certificate
+requirement predicates, CodeDirectory variants, standalone hard-link write semantics,
+metadata preservation, certificate
 and timestamp policy, revocation, and exact CLI diagnostics/localization.
 
 Developer ID recognition is tested with a real public certificate chain; no

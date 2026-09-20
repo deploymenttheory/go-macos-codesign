@@ -30,6 +30,9 @@ or removal. Parent verification checks every physical framework version against
 the parent's sealed requirement; `--deep` adds their pages and resources.
 Direct directory paths such as `Fixture.framework/Versions/A` and
 `Fixture.framework/Versions/Current` operate on that version as a standalone bundle.
+Main-executable paths such as `Example.app/Contents/MacOS/hello` select the
+enclosing bundle, including its resource seal. Framework executable aliases
+select the resolved physical version. Helpers remain standalone files.
 
 ## Build
 

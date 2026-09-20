@@ -139,9 +139,45 @@ The same paths work with the existing library APIs. Budgets and internal hard-li
 checks cover the selected directory and its nested code. Sibling versions lie
 outside a direct version's containment boundary; use the framework root and
 `--bundle-version` when structural checks must cover those siblings too.
-Automatic promotion of a main-executable file path to its enclosing bundle is
-not implemented; callers must pass a supported bundle directory for resource
-validation. Arbitrary shallow directories remain outside the discovery profile.
+Arbitrary shallow directories remain outside the discovery profile.
+
+### Main-executable paths
+
+Signing, inspection, verification and removal accept the main executable of a
+supported bundle. `Example.app/Contents/MacOS/hello` selects the enclosing app
+when `CFBundleExecutable` names `hello`; resource sealing and nested-code policy
+then apply exactly as for the directory input. Contents discovery uses the layout
+and metadata, without requiring a particular outer filename extension.
+
+Framework inputs such as `Fixture.framework/Fixture`,
+`Fixture.framework/Versions/Current/Fixture` and
+`Fixture.framework/Versions/A/Fixture` resolve to the physical executable's
+version directory. They use that directory's independent boundary, as above;
+they do not arbitrate versions from the enclosing framework. Additional
+`--bundle-version` selection is therefore rejected. Contents bundles continue
+to ignore that selector. Inspection reports the resolved bundle and executable.
+
+File-input symbolic links, including an alias outside the bundle, select the
+resolved target. Intermediate symlinks are resolved before `..` on every OS.
+The exact executable filename must match the metadata: another helper, resource
+or hard-link alias remains a standalone file. Inode equality does not promote a
+helper to the bundle. This input discovery does not relax the scanner's existing
+constraints on links, metadata, hard links or nested code inside a bundle.
+
+```sh
+macoscodesign -s - --deep ./Example.app/Contents/MacOS/hello
+macoscodesign --verify --deep ./Example.app/Contents/MacOS/hello
+macoscodesign -dvvvv ./Fixture.framework/Versions/Current/Fixture
+macoscodesign --remove-signature ./Fixture.framework/Fixture
+```
+
+Metadata must remain within the existing portable profile. Oversized, malformed
+or symlinked Info.plist files in a candidate layout fail before writes, including
+cases where Apple's heuristic would instead fall back to a standalone file.
+Missing metadata or a different executable name leaves a file standalone;
+legacy executable-name fallback and unsupported package types are not expanded
+by this phase. External Info.plist/resource overrides are rejected once a bundle
+is selected. Byte APIs remain standalone format APIs.
 
 ### Resource symlinks
 
@@ -280,9 +316,9 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 
 ## Limits
 
-- Only the displayed Contents and framework layouts and plain nested Mach-O files
-  under the listed code directories are supported. Executable-path bundle
-  promotion, flat/iOS/installer bundles, receipts, extra signature
+- Only the displayed Contents and framework layouts, their main-executable inputs,
+  and plain nested Mach-O files under the listed code directories are supported.
+  Flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to
@@ -311,7 +347,10 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   any file that signing can write, including across app and version boundaries, are rejected
   by the structural signing/deep scan. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
-  links retain their usual shared-file behavior.
+  links retain their usual shared-file behavior. Native standalone signing can
+  replace a hard-linked target without changing its other names; the current
+  standalone writer does not reproduce that behavior. Read-only hard-link
+  discovery is tested separately from this remaining write-semantics gap.
 - Writes to children, executable and envelope are not a transaction. Write, sync,
   close or truncation failures can leave partial output. Concurrent filesystem
   mutation is unsupported; sign a copy when rollback is required.
