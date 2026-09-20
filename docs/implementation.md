@@ -4,6 +4,12 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
+The [detailed implementation plan](implementation_plan.md) expands this overview
+into a complete post-PR #25 backlog, with all 55 inventory entries mapped to
+24 work packages, dependencies, native acceptance criteria and proposed PR slices.
+It is the execution plan for remaining work; feature implementation is paused
+while that plan is reviewed.
+
 The certificate-chain/Team ID/PKCS#12 phase and RFC 3161 core are merged. Online
 HTTP timestamp acquisition is merged in [PR #10](https://github.com/deploymenttheory/go-macos-codesign/pull/10).
 The first [app-bundle phase](bundles.md) adds deterministic resource envelopes

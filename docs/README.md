@@ -3,6 +3,8 @@
 Start with [project progress](progress.md) for delivered milestones, measured
 coverage, native acceptance evidence and the next phase. The implementation is
 partial; the [capability matrix](compatibility.md) records the remaining gaps.
+The [detailed implementation plan](implementation_plan.md) maps those gaps to
+work packages, dependencies, native acceptance criteria and proposed PR slices.
 
 | Guide | Contents |
 | --- | --- |
@@ -15,6 +17,7 @@ partial; the [capability matrix](compatibility.md) records the remaining gaps.
 | [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
 | [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
+| [Detailed implementation plan](implementation_plan.md) | Complete remaining-feature backlog, 24 work packages, acceptance matrices, blockers and delivery order |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |
