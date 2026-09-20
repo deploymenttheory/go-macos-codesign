@@ -124,7 +124,7 @@ func TestSigningPreconditions(t *testing.T) {
 	if _, err := SignBytes(context.Background(), trailing, SignOptions{Identifier: "x", Force: true}); err == nil {
 		t.Fatal("nonterminal signature overwritten")
 	}
-	if _, err := RemoveSignatureBytes(context.Background(), trailing); err == nil {
+	if _, err := RemoveSignatureBytes(context.Background(), append(trailing, make([]byte, 7)...)); err == nil {
 		t.Fatal("nonterminal signature removed")
 	}
 	for _, force := range []bool{false, true} {

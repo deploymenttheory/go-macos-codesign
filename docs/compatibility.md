@@ -95,15 +95,20 @@ non-regular write targets. A write, sync, or truncation failure can leave partia
 data; concurrent modification is not a supported transactional operation.
 
 Parsing recognizes more legacy forms than signing has been proven to reproduce.
-Large files, a signature located before the end of a slice, and insufficient
+Large files, a signature with more than seven following bytes, and insufficient
 load-command space can return explicit unsupported errors.
+Removal now follows the tested native symbol-table padding, virtual-size and
+universal-alignment rules. [Removal evidence](removal.md) describes its exact
+comparisons and the remaining legacy/malformed-layout limits.
 
 ## Full-parity gate
 
 `spec/compatibility.json` inventories the native manual options plus format and
 host-state requirements. The statuses `partial`, `not-implemented`, and `blocked`
-all prevent release. `python3 scripts/guards.py --require-complete` deliberately
-fails while any remain. An unsupported error is not a successful implementation.
+all prevent a full-parity declaration. `python3 scripts/guards.py --require-complete`
+deliberately fails while any remain. Versioned releases of the documented subset
+use [Release Please and GoReleaser](releases.md) independently of this audit.
+An unsupported error is not a successful implementation.
 
 Clang can expose declarations and source-level structure. It cannot reconstruct
 the current contents of another machine's kernel, retrieve a non-exportable key,

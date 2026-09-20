@@ -15,13 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-    - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
-      with:
-        go-version-file: go.mod
-    - name: Block release while any full-parity requirement is incomplete
-      run: python3 scripts/guards.py --require-complete
-
     - name: Harden Runner
       uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
       with:
@@ -32,15 +25,15 @@ jobs:
     # org rather than to whoever created the PAT — a PAT dies with its
     # owner's access and takes every repo's releases with it.
     #
-    # actions:write is the load-bearing permission. Tags pushed with the
-    # default GITHUB_TOKEN deliberately do not trigger workflows, which
-    # would leave every release tagged and unbuilt; the App can.
+    # Tags created using the default GITHUB_TOKEN do not trigger the tag
+    # workflow. An App installation token or PAT allows the release build
+    # to run when Release Please creates the tag.
     #
     # continue-on-error keeps releases working where the App is not yet
     # installed or its key is not provisioned: the next step falls back to
     # the PAT and says so, because a silent fallback is how a repo ends up
     # believing it uses the App when it never has.
-    - uses: actions/create-github-app-token@v2
+    - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
       id: app-token
       if: ${{ vars.RP_APP_ID != '' }}
       continue-on-error: true
@@ -49,15 +42,22 @@ jobs:
         private-key: ${{ secrets.RP_APP_PRIVATE_KEY }}
 
     - name: Which credential
+      env:
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        FALLBACK_TOKEN: ${{ secrets.RELEASE_PLEASE_PAT }}
       run: |
-        if [ -n "${{ steps.app-token.outputs.token }}" ]; then
+        if [ -n "$APP_TOKEN" ]; then
           echo "release-please is using the org's release-please App"
-        else
+        elif [ -n "$FALLBACK_TOKEN" ]; then
           echo "::warning::App token unavailable (RP_APP_ID/RP_APP_PRIVATE_KEY unset, or the App is not installed here) — falling back to the repo PAT"
+        else
+          echo "::error::Configure RP_APP_ID and RP_APP_PRIVATE_KEY with the App installed on this repository, or provide RELEASE_PLEASE_PAT. The default GITHUB_TOKEN cannot trigger the tag build."
+          exit 1
         fi
 
     - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
       with:
-        # Set this to match the repo: go | simple | terraform-module | node | …
-        release-type: go
+        # This strategy writes changelog
+        # entries and version tags without changing the module import path.
+        release-type: terraform-module
         token: ${{ steps.app-token.outputs.token || secrets.RELEASE_PLEASE_PAT }}

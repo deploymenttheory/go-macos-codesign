@@ -337,27 +337,13 @@ func RemoveSignatureBytes(ctx context.Context, data []byte) ([]byte, error) {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		im := s.image
-		if im.sigCommand < 0 {
-			parts[i] = bytes.Clone(im.data)
-			continue
+		parts[i], err = removeImageSignature(s.image)
+		if err != nil {
+			return nil, err
 		}
-		if uint64(im.sigOffset)+uint64(im.sigSize) != uint64(len(im.data)) || im.linkedit < 0 {
-			return nil, unsupported("nonterminal signature or missing LINKEDIT")
+		if c.fat {
+			c.slices[i].alignment = 14
 		}
-		out := bytes.Clone(im.data[:im.sigOffset])
-		end := im.header + int(im.order.Uint32(out[20:]))
-		copy(out[im.sigCommand:], out[im.sigCommand+16:end])
-		clear(out[end-16 : end])
-		im.order.PutUint32(out[16:], im.order.Uint32(out[16:])-1)
-		im.order.PutUint32(out[20:], im.order.Uint32(out[20:])-16)
-		// Account for a LINKEDIT command located after the signature command.
-		copyImage := *im
-		if copyImage.linkedit > im.sigCommand {
-			copyImage.linkedit -= 16
-		}
-		updateLinkedit(out, &copyImage, len(out))
-		parts[i] = out
 	}
 	return c.assemble(parts)
 }

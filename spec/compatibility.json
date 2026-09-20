@@ -174,9 +174,13 @@
       "evidence": [
         "acceptance/parity_test.go",
         "acceptance/layout_test.go",
-        "spec/apple-bundle-layouts.json"
+        "spec/apple-bundle-layouts.json",
+        "acceptance/removal_test.go",
+        "pkg/codesign/remove_test.go",
+        "spec/apple-removal.json",
+        "testdata/removal/manifest.json"
       ],
-      "notes": "Bundle removal preserves empty signature directories as Apple does. Six native layout comparisons check unsigned main files and exact resource/descendant/alias preservation. The earlier Mach-O remover retains eight signature-alignment zero bytes and a corresponding LINKEDIT size difference in the arm64 MH_EXECUTE fixtures; these differences are explicitly measured, not claimed as byte parity. Broader removal semantics remain incomplete."
+      "notes": "Native byte comparisons now cover 44 recorded/live standalone removal cases, eighteen complete bundle layouts and three mixed trees, without the earlier eight-byte padding exception. Symbol-table padding, LINKEDIT virtual-size preservation, universal alignment and up to seven trailing bytes match the tested native behavior. Nine re-signing cases require native byte equality and strict verification. Linux/Windows each export 44 removed outputs for native comparison. Malformed symbol ranges are rejected safely rather than reproducing native corruption. Legacy/FAT64/swapped forms, unusual layouts/unindexed padding, generic/detached representations and full diagnostic parity remain incomplete; see docs/removal.md."
     },
     {
       "id": "--requirements",

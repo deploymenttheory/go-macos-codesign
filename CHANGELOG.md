@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-The implementation is under development. Full-parity releases remain blocked by
-the [compatibility inventory](spec/compatibility.json). The entries below describe
+The implementation is under development. Full-parity claims remain blocked by
+the [compatibility inventory](spec/compatibility.json); versioned releases describe
+the supported subset. The entries below describe
 implemented development work, not published versioned releases. See
 [project progress](docs/progress.md) for milestones and measured validation.
 
@@ -48,18 +49,27 @@ implemented development work, not published versioned releases. See
   including strict deep verification of eighteen apps with plain Mach-O children
   and 36 recursive app trees, plus 126 archives preserving bundle-layout symlinks.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
+- Forty-four native removal fixtures, two-target deallocator Clang AST evidence,
+  complete bundle-removal byte comparisons and 88 foreign-output CI comparisons.
+- SPDX SBOMs per archive and keyless Cosign signatures over release checksums.
 
 ### Changed
 
 - Use golangci-lint as the sole code-linting workflow; remove SuperLinter.
+- Follow the go-macos-pkg release pattern: Release Please uses the organization
+  App with explicit PAT fallback and owns tags/changelog/releases; GoReleaser
+  appends artifacts. Keep the full-parity audit separate from publishing the
+  documented subset, and exercise snapshot SBOMs in CI.
 - Keep production dependency graphs free of Apple trust bridges, including
   indirect `crypto/x509`, TLS and HTTP imports. Retain attributed, pinned Afero
   and RC2 subsets for portable configuration and legacy PKCS#12 decoding.
 
 ### Fixed
 
-- Preserve empty signature directories during bundle removal, matching Apple.
-  The existing embedded Mach-O removal alignment-padding gap remains documented.
+- Match native symbol-table padding removal, preserve LINKEDIT virtual sizes,
+  normalize universal alignment and accept up to seven post-signature bytes.
+  Reject malformed table ranges without mutation. Bundle removal preserves empty
+  signature directories and now matches complete native bytes in the tested corpus.
 - Shallow nested verification now checks Info.plist and signed non-resource
   metadata, including requirement and entitlement hashes, matching native policy.
 - Match native canonical Mach-O default identifiers, including ad-hoc UUID and

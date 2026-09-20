@@ -14,7 +14,8 @@ partial; the [capability matrix](compatibility.md) records the remaining gaps.
 | [DMG signing](dmg-integration.md) | Direct go-apfs-v2 dependency, native signatures, evidence and limits |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
 | [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
-| [Testing](testing.md) | Local commands, native acceptance, CI artifacts and release gates |
+| [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
+| [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |
 | [Reference implementations](reference-implementations.md) | GitHub source comparisons and how they informed the work |
 | [Contributing](../CONTRIBUTING.md) | Development and PR requirements |

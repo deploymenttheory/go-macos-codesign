@@ -147,10 +147,9 @@ signature without creating signature directories or writing outputs.
 Construction errors, including timestamp-provider failures, precede mutation.
 Successful removal strips the main signature and deletes CodeResources, leaving
 the empty signature directory as Apple does; it also accepts an already unsigned
-supported bundle. The existing Mach-O remover retains signature-alignment padding
-in some inputs: the arm64 MH_EXECUTE fixtures retain eight zero bytes and the
-corresponding LINKEDIT size difference. Removal byte parity is therefore incomplete;
-the layout tests measure this difference explicitly and compare all other entries.
+supported bundle. The [Mach-O removal fix](removal.md) trims symbol-table alignment
+padding and preserves virtual sizes. The layout tests now require complete native
+byte equality, including the executable, without the earlier eight-byte exception.
 
 ## Nested Mach-O code and apps
 
@@ -312,5 +311,5 @@ missing, cyclic and dangling links and altered framework aliases. An independent
 TSA covers all eighteen architecture signatures in a universal mixed tree, dry
 runs and late-failure preservation. [Clang AST evidence](../spec/apple-bundle-layouts.json)
 records five complete Apple validation/removal methods on both architecture targets.
-Native removal comparisons cover all six layouts, with the explicitly recorded
-MH_EXECUTE padding difference described above.
+Native removal comparisons cover all six layouts on three architecture forms
+and three mixed trees, with complete native byte equality.

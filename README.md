@@ -10,7 +10,8 @@ It also signs, inspects and verifies UDIF DMGs using
 leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
 `codesign`**. Full certificate policy, multiple framework versions, broader symlink/xattr policy,
 additional disk-image forms, and other requirements remain open in the
-[compatibility inventory](spec/compatibility.json). Full-parity releases are blocked.
+[compatibility inventory](spec/compatibility.json). Versioned releases document
+that supported subset; the full-parity audit remains incomplete.
 
 The CLI runs on Linux, macOS, and Windows without Apple frameworks, subprocess
 helpers, CGO, an Apple SDK, or Clang. Clang and Apple tools are used only for
@@ -36,15 +37,18 @@ goreleaser build --snapshot --clean --parallelism 2
 
 `make build` runs the same command. It builds `macoscodesign` for Linux, Darwin,
 and Windows on amd64 and arm64 with `CGO_ENABLED=0`. Outputs are under `dist/`.
-For archives and SHA-256 checksums:
+For archives, SPDX SBOMs and SHA-256 checksums, install Syft and run:
 
 ```sh
-goreleaser release --snapshot --clean --parallelism 2
+goreleaser release --snapshot --clean --parallelism 2 --skip=sign
 ```
 
 `make snapshot` runs that command. Snapshot mode creates local artifacts without
 publishing. The [GoReleaser configuration](.goreleaser.yml) is shared by local builds
 and CI. Windows packages are ZIP files; the other targets use tar.gz.
+Tagged releases add keyless Cosign signatures to the checksum file. Release
+Please owns version tags and release notes; [release setup](docs/releases.md)
+documents the App/PAT credentials and artifact verification.
 
 Build from a checkout: the module uses a local dependency replacement described
 in [NOTICE](NOTICE), so `go install ...@version` is not supported for the CLI.
@@ -160,7 +164,8 @@ progress page for completed runs. Go code linting uses golangci-lint only.
 - [DMG signing using go-apfs-v2](docs/dmg-integration.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
 - [Implementation stages and outstanding work](docs/implementation.md)
-- [Testing and release gates](docs/testing.md)
+- [Testing and native evidence](docs/testing.md)
+- [Release automation](docs/releases.md)
 
 This project retains the full-parity objective. Operations that depend on live
 macOS process state, system keychains, or non-exportable hardware keys cannot be

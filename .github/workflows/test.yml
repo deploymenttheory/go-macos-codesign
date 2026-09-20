@@ -41,7 +41,7 @@ jobs:
           name: evidence-${{ matrix.os }}
           path: artifacts/
           if-no-files-found: error
-      - name: Upload Mach-O files, app bundles and DMGs signed on Linux and Windows
+      - name: Upload signed artifacts and removal results from Linux and Windows
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -62,8 +62,8 @@ jobs:
         with:
           pattern: signed-*
           path: artifacts/import
-      - name: Apple verifies every imported signature
-        run: go test -count=1 -v ./acceptance -run '^TestVerifyImportedArtifacts$'
+      - name: Apple verifies imported signatures and compares removal bytes
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal)$'
         env:
           CGO_ENABLED: '0'
           MACOSCODESIGN_REQUIRE_APPLE: '1'
@@ -84,12 +84,14 @@ jobs:
       - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
         with:
           go-version-file: go.mod
+      - name: Install Syft for snapshot SBOMs
+        uses: anchore/sbom-action/download-syft@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
       - name: Build and package all six targets with GoReleaser
         uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
         with:
           distribution: goreleaser
           version: v2.18.1
-          args: release --snapshot --clean --parallelism 2
+          args: release --snapshot --clean --parallelism 2 --skip=sign
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: development-binaries

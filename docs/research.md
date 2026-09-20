@@ -76,6 +76,25 @@ allocation alignment; the AST method itself is not an executed native oracle.
 
 ## Primary implementation references
 
+### Mach-O deallocation
+
+`make research-removal` runs the Go driver `scripts/extract-removal.go`. It parses
+the complete verbatim `get32`, `get64`, `remove_signature_space` and
+`code_sign_deallocate` bodies from pinned Apple Security
+[codesign_alloc.cpp](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp).
+Download that file to `.research/apple/codesign_alloc.cpp` before reproduction.
+The [AST record](../spec/apple-removal.json) pins both targets, source/excerpt/SDK
+header hashes and the translation unit. SDK Mach-O, endian and overflow declarations
+are real; logging, file I/O and VM wrapper interfaces are declaration-only shims.
+The full source requires a private `os/cleanup.h`; the driver does not claim a
+complete Security build or execute Apple code.
+
+Independent native probes confirm the 12-byte symbol-table padding bound,
+7-byte trailing allowance, unchanged LINKEDIT virtual size and 16 KiB universal
+alignment. The [native corpus and acceptance](removal.md) establish exact bytes
+for the tested profile. Observed malformed-table and reordered-command native
+corruption is not reproduced by the portable implementation.
+
 ### Certificate chains, Team IDs and PKCS#12
 
 `make research-certificates` analyzes the complete verbatim macOS Team ID method

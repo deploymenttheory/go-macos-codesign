@@ -75,6 +75,24 @@ func TestPortableMixedLayouts(t *testing.T) {
 	}
 }
 
+func TestAppleMixedLayoutRemoval(t *testing.T) {
+	reference := apple(t)
+	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		t.Run(arch, func(t *testing.T) {
+			native, portable := mixedLayoutFixture(t, arch), mixedLayoutFixture(t, arch)
+			for _, tool := range []struct{ program, app string }{{reference, native}, {binaryPath, portable}} {
+				mustRun(t, tool.program, "-s", "-", "--deep", "--timestamp=none", tool.app)
+				before := layoutArchive(t, tool.app, "Contents/MacOS/hello", "Contents/_CodeSignature/CodeResources")
+				mustRun(t, tool.program, "--remove-signature", tool.app)
+				nativeEqual(t, "outer removal preserves descendants and resources", layoutArchive(t, tool.app, "Contents/MacOS/hello", "Contents/_CodeSignature/CodeResources"), before)
+				assertRemoved(t, nativeRead(t, filepath.Join(tool.app, "Contents/MacOS/hello")))
+			}
+			nativeEqual(t, "removed mixed tree", layoutArchive(t, portable), layoutArchive(t, native))
+			attest(t, map[string]any{"architecture": arch, "native_removal_complete_tree_bytes_equal": true, "descendants_unchanged": true})
+		})
+	}
+}
+
 func TestLayoutMutationParity(t *testing.T) {
 	reference := apple(t)
 	for _, kind := range []string{"bundle", "xpc", "framework", "versioned"} {
