@@ -77,7 +77,11 @@ func TestDMGNativeParity(t *testing.T) {
 							t.Fatal(err)
 						}
 						want = strings.ReplaceAll(want, resolved, "<image>")
-						got = strings.ReplaceAll(got, portable, "<image>")
+						resolvedGo, err := filepath.EvalSymlinks(portable)
+						if err != nil {
+							t.Fatal(err)
+						}
+						got = strings.ReplaceAll(got, resolvedGo, "<image>")
 						if wantCode != gotCode || want != got {
 							t.Fatalf("display %s: Go %d:\n%s\nApple %d:\n%s", option, gotCode, got, wantCode, want)
 						}

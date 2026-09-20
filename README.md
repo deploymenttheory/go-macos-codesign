@@ -131,8 +131,10 @@ report, err := codesign.Verify(ctx, path, codesign.VerifyOptions{})
 Import `github.com/deploymenttheory/go-macos-codesign/pkg/codesign`.
 `SignBytes`, `InspectBytes`, `VerifyBytes`, and `RemoveSignatureBytes` support
 in-memory use. Input bytes are not modified by signing or signature removal.
-Standalone Mach-O writes stage a replacement through go-apfs-v2, preserving other
-hard-link names. DMG and bundle writes retain existing inodes and can leave partial
+Standalone file aliases resolve to their physical target for signing, removal,
+identifiers and display; the symlink remains intact. `Report.Path` is the absolute
+resolved standalone path. Mach-O writes stage a replacement through go-apfs-v2,
+preserving other hard-link names. DMG and bundle writes retain existing inodes and can leave partial
 output on I/O failure. See [writer behavior and limits](docs/file-writes.md).
 File operations currently have a 1 GiB input/output limit.
 The path APIs also accept supported app bundles; byte APIs accept Mach-O and UDIF.

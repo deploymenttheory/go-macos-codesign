@@ -320,6 +320,29 @@ acceptance also uses its encoder and existing native APFS/HFS+ fixtures.
 
 ## Observations encoded in tests
 
+### Standalone path resolution
+
+`make research-paths` extracts five complete functions into
+[spec/apple-paths.json](../spec/apple-paths.json). Apple's CLI
+[`cleanPath` and `staticCodePath`](https://github.com/apple-oss-distributions/security_systemkeychain/blob/2b4c65b1074521e9c1dd2c8dc7fbf45dd775ec70/src/cs_utils.cpp)
+call `realpath` before creating the static code object. Three
+[`SingleDiskRep` methods](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/singlediskrep.cpp)
+use its stored path for canonical/executable paths and the recommended identifier.
+Download the pinned `cs_utils.cpp` and `singlediskrep.cpp` to `.research/apple`
+before reproduction. The driver uses real SDK CoreFoundation/Security and libc
+declarations, with explicit private interface shims. It records complete excerpt
+and source hashes and both target ASTs; it does not execute Apple source.
+
+Independent host tests establish physical-path selection, default identifiers,
+unchanged aliases, `link/..` behavior and exact display output. They also exposed
+retained old signature bytes after a shorter replacement SuperBlob. The pinned
+[`codesign_alloc.cpp`](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp)
+copies input slices before resizing, and `MachOEditor::write` writes only the new
+blob. This allocation observation is source inspection plus nine native byte
+comparisons; the path AST record does not claim to analyze the allocator.
+
+### Signature encoding
+
 Native signing reserves space based on a longer current CodeDirectory header
 even when it emits a shorter version. That reserved space changes the Mach-O load
 commands and therefore the page hashes. Universal slice alignment also changes

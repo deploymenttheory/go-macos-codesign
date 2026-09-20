@@ -18,7 +18,9 @@ verification. Contents-based BNDL/XPC! layouts, unversioned and multiple-version
 frameworks, and bounded relative resource symlinks now extend that profile.
 Explicit version selection, alternate-version requirement validation and direct
 physical/Current version-directory inputs are implemented. Supported main-executable
-paths now select their bundles. Wider discovery and symlink/xattr policy remain next.
+paths now select their bundles. Standalone file aliases select the physical target
+for signing/removal, default identifiers and display; Mach-O replacement reuses
+go-apfs-v2's metadata API. Wider discovery and bundle symlink/xattr policy remain next.
 See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 | Stage | Current result | Outstanding work |

@@ -183,6 +183,19 @@ the parent; eighteen child archives reproduce existing native fixtures. Native
 CI checks nine executable paths and the parent of each exported tree. Five
 complete CoreFoundation discovery functions have two-target Clang AST evidence.
 
+Standalone aliases add 150 Mach-O cases spanning three architectures, five path
+forms, default/explicit identifiers and signing/re-signing/removal/unsigned-removal/
+dry-run operations. Ten DMG cases check signing and re-signing in place. All check
+preserved alias text and physical target behavior; Mach-O cases also check detached
+hard-link neighbours and cleanup. A lexical neighbour catches premature `Clean`
+or `Abs` on `link/..`. macOS compares all final file bytes and 350 complete display
+outputs with Apple. Nine allocation cases seed nonzero padding before re-signing
+with shorter, same-allocation and longer identifiers. Broken/looping links fail
+eight CLI operations without writes. These tests emit deterministic output hashes
+on every OS for comparison against the native-checked macOS outputs.
+Five complete path functions have two-target Clang AST evidence. See
+[file-write behavior](file-writes.md) for the supported metadata contract.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.

@@ -179,7 +179,7 @@ func TestExecutableDiscoveryAliasesAndHelpers(t *testing.T) {
 func TestExecutableHardlinkDiscovery(t *testing.T) {
 	b, p := executableFixture(t, "app", "arm64", "xml")
 	// Start with a signed standalone file. This compares read-only discovery;
-	// native hard-link replacement during signing is a separate writer gap.
+	// Native hard-link replacement during signing is covered by writer tests.
 	bundleWrite(t, b, "Contents/MacOS/hello", nativeRead(t, filepath.Join(root, "testdata/macho/adhoc-arm64")))
 	alias := filepath.Join(b, "Contents/MacOS/alias")
 	if err := os.Link(p, alias); err != nil {
@@ -192,11 +192,7 @@ func TestExecutableHardlinkDiscovery(t *testing.T) {
 	mustRun(t, binaryPath, "--verify", alias)
 	if runtime.GOOS == "darwin" {
 		_, want, native := run(t, apple(t), "-dvv", alias)
-		physical, err := filepath.EvalSymlinks(b)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if code != native || strings.ReplaceAll(got, b, "<bundle>") != strings.ReplaceAll(want, physical, "<bundle>") {
+		if code != native || got != want {
 			t.Fatal("native hard-link discovery", got, want)
 		}
 	}
