@@ -58,7 +58,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprint(stdout, usage)
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
-				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies plain nested Mach-O helpers/dylibs; nested app/framework directories remain unsupported.")
+				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies nested Mach-O helpers/dylibs and Contents-based APPL .app children; framework/plugin layouts remain unsupported.")
 				return nil
 			}
 			opts, err := parse(argv)

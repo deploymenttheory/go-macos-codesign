@@ -20,7 +20,7 @@ The [progress report](progress.md) identifies the exact tested revision and CI r
 | Requirements | Identifier, CDHash, certificate index/root hash, subject CN/O/OU, extension existence, generic Apple anchor, boolean expressions | Remaining predicates, Info.plist predicates, complete native grammar and diagnostic output |
 | Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain policy, Team ID consistency, RFC 3161 binding and separate TSA trust | Full PKIX/Apple policies, general CMS/BER forms, complete timestamp policy, revocation, platform strictness, notarization |
 | CLI | Cobra dispatch; native grouped short options; explicit Viper config; sign/verify/display/remove subset | Every native option and combination, complete diagnostics/exit behavior, detached signatures |
-| Formats | Embedded Mach-O signatures; bounded APPL bundles with XML/binary metadata and resource envelopes; nested Mach-O helper/dylib requirement seals and `--deep`; single-segment UDIF DMGs via go-apfs-v2 | Nested app/framework/plugin layouts, symlink/xattr policy, encrypted/segmented images, streaming large images, detached and generic files |
+| Formats | Embedded Mach-O signatures; bounded APPL bundles with XML/binary metadata; recursive APPL .app and Mach-O helper/dylib seals with `--deep`; single-segment UDIF DMGs via go-apfs-v2 | Framework/plugin/XPC bundle layouts, symlink/xattr policy, encrypted/segmented images, streaming large images, detached and generic files |
 | Host state | Explicit unsupported errors | Hosting/PID verification, system detached database, keychain selection and non-exportable keys |
 
 ## Exact comparisons currently exercised

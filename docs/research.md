@@ -198,6 +198,19 @@ emitting CDHash/requirement seals; its ad-hoc logic does not replace Apple's
 certificate designated requirements or native architecture-selection evidence.
 Neither source becomes a production dependency.
 
+The same target runs `scripts/extract-nested-apps.go`, recording complete native
+`ResourceBuilder::scan(Scanner, Scanner)`, `findStringEndingNoCase` and
+`SecStaticCode::validateNonResourceComponents` bodies on both architectures in
+[spec/apple-nested-apps.json](../spec/apple-nested-apps.json). The scanner stops
+ordinary resource traversal at nested directory boundaries; shallow verification
+loads and checks signed non-resource metadata, including Info.plist. SDK FTS
+declarations support parsing; interface/error/slot/logging shims remain explicit.
+Download resources.cpp, resources.h and StaticCode.cpp from the pinned record
+before reproducing it. Native probes and acceptance independently establish
+recursive ordering, preservation, mixed metadata and mutation behavior. This
+phase narrows directory discovery to Contents-based APPL `.app` children under
+the supported code roots; it does not claim every native bundle representation.
+
 ## DMG research and direct library reuse
 
 `make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple

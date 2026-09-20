@@ -1,0 +1,316 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "findStringEndingNoCase": "d18701dd1fc578216d747276fd6fd675825001878d9b106a83dc31cc9824520f",
+    "resource_flags": "ac1b86e03cb13603dcb89662b18112305362a63592b529edb058b0bd43313baa",
+    "scan": "7c6f23b64431e6a2da0f50bcbde50b5fdd3a9ad6d90cb4993db32d5efa5f44bf",
+    "validateNonResourceComponents": "8a9f9254378ae8ae08fefa362cf2567090381a80aa2d6a03d38e4abcfc3b5550"
+  },
+  "schema": 1,
+  "scope": "Complete verbatim ResourceBuilder::scan(Scanner,Scanner), findStringEndingNoCase and SecStaticCode::validateNonResourceComponents bodies, plus resource flag declarations, parsed with SDK FTS declarations. Interface, error-code, resource-slot and logging shims are explicit. Error/slot shim values are not extracted constants. AST facts establish source control flow, not execution or full native bundle policy.",
+  "sources": {
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
+    "resources.cpp": {
+      "sha256": "1a911c38fd9aaa4ddda0e041d5711317e92b312fe62d9b99674f7eca8c5b85c4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/resources.cpp"
+    },
+    "resources.h": {
+      "sha256": "aca0aab49382761c5802f1cc2627e6b80b473b272409ee78eba11c93103214e6",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/resources.h"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "findStringEndingNoCase": {
+        "ast_kinds": {
+          "BinaryOperator": 4,
+          "CXXBoolLiteralExpr": 1,
+          "CallExpr": 3,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 11,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 11,
+          "IntegerLiteral": 1,
+          "ParenExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 2,
+          "VarDecl": 2
+        },
+        "literals": [],
+        "members": {},
+        "operators": {
+          "+": 1,
+          "-": 1,
+          "==": 1,
+          "\u003e=": 1
+        }
+      },
+      "scan": {
+        "ast_kinds": {
+          "BinaryOperator": 28,
+          "BreakStmt": 6,
+          "CStyleCastExpr": 9,
+          "CXXBindTemporaryExpr": 13,
+          "CXXBoolLiteralExpr": 8,
+          "CXXConstructExpr": 11,
+          "CXXDefaultArgExpr": 1,
+          "CXXFunctionalCastExpr": 6,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 9,
+          "CXXThisExpr": 13,
+          "CallExpr": 20,
+          "CaseStmt": 5,
+          "CharacterLiteral": 1,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 26,
+          "ConditionalOperator": 3,
+          "ConstantExpr": 5,
+          "DeclRefExpr": 125,
+          "DeclStmt": 11,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 12,
+          "GNUNullExpr": 2,
+          "IfStmt": 22,
+          "ImplicitCastExpr": 174,
+          "IntegerLiteral": 28,
+          "MaterializeTemporaryExpr": 8,
+          "MemberExpr": 34,
+          "ParenExpr": 15,
+          "ParmVarDecl": 2,
+          "PredefinedExpr": 1,
+          "StringLiteral": 9,
+          "SwitchStmt": 1,
+          "UnaryOperator": 16,
+          "VarDecl": 11,
+          "WhileStmt": 1
+        },
+        "literals": [
+          "\".DS_Store\"",
+          "\"/Contents\"",
+          "\"scan\"",
+          "\"\u003cstdin\u003e\"",
+          "\"mRelBase == mRoot + \\\"/Contents\\\"\"",
+          "\"../\"",
+          "\"../Contents/\"",
+          "\"._\"",
+          "\".lproj\""
+        ],
+        "members": {
+          "c_str": 1,
+          "clear": 1,
+          "findRule": 3,
+          "flags": 9,
+          "fts_info": 1,
+          "fts_name": 5,
+          "fts_path": 1,
+          "mCheckUnknownType": 1,
+          "mCheckUnreadable": 1,
+          "mFTS": 3,
+          "mRelBase": 2,
+          "mRoot": 3,
+          "size": 1,
+          "substr": 2
+        },
+        "operators": {
+          "!": 9,
+          "!=": 1,
+          "\u0026": 5,
+          "\u0026\u0026": 6,
+          "+": 1,
+          "++": 6,
+          "+=": 1,
+          "=": 9,
+          "==": 3,
+          "\u003e": 1,
+          "|": 2,
+          "~": 1
+        }
+      },
+      "validateNonResourceComponents": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 1,
+          "BreakStmt": 2,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CaseStmt": 1,
+          "CompoundStmt": 2,
+          "ConstantExpr": 1,
+          "DeclRefExpr": 5,
+          "DeclStmt": 1,
+          "DefaultStmt": 1,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "SwitchStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "codeDirectory": 1,
+          "component": 1,
+          "maxSpecialSlot": 1,
+          "validateDirectory": 1
+        },
+        "operators": {
+          "--": 1,
+          "\u003e=": 1
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "findStringEndingNoCase": {
+        "ast_kinds": {
+          "BinaryOperator": 4,
+          "CXXBoolLiteralExpr": 1,
+          "CallExpr": 3,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 11,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 11,
+          "IntegerLiteral": 1,
+          "ParenExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 2,
+          "VarDecl": 2
+        },
+        "literals": [],
+        "members": {},
+        "operators": {
+          "+": 1,
+          "-": 1,
+          "==": 1,
+          "\u003e=": 1
+        }
+      },
+      "scan": {
+        "ast_kinds": {
+          "BinaryOperator": 28,
+          "BreakStmt": 6,
+          "CStyleCastExpr": 9,
+          "CXXBindTemporaryExpr": 13,
+          "CXXBoolLiteralExpr": 8,
+          "CXXConstructExpr": 11,
+          "CXXDefaultArgExpr": 1,
+          "CXXFunctionalCastExpr": 6,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 9,
+          "CXXThisExpr": 13,
+          "CallExpr": 20,
+          "CaseStmt": 5,
+          "CharacterLiteral": 1,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 26,
+          "ConditionalOperator": 3,
+          "ConstantExpr": 5,
+          "DeclRefExpr": 125,
+          "DeclStmt": 11,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 12,
+          "GNUNullExpr": 2,
+          "IfStmt": 22,
+          "ImplicitCastExpr": 174,
+          "IntegerLiteral": 28,
+          "MaterializeTemporaryExpr": 8,
+          "MemberExpr": 34,
+          "ParenExpr": 15,
+          "ParmVarDecl": 2,
+          "PredefinedExpr": 1,
+          "StringLiteral": 9,
+          "SwitchStmt": 1,
+          "UnaryOperator": 16,
+          "VarDecl": 11,
+          "WhileStmt": 1
+        },
+        "literals": [
+          "\".DS_Store\"",
+          "\"/Contents\"",
+          "\"scan\"",
+          "\"\u003cstdin\u003e\"",
+          "\"mRelBase == mRoot + \\\"/Contents\\\"\"",
+          "\"../\"",
+          "\"../Contents/\"",
+          "\"._\"",
+          "\".lproj\""
+        ],
+        "members": {
+          "c_str": 1,
+          "clear": 1,
+          "findRule": 3,
+          "flags": 9,
+          "fts_info": 1,
+          "fts_name": 5,
+          "fts_path": 1,
+          "mCheckUnknownType": 1,
+          "mCheckUnreadable": 1,
+          "mFTS": 3,
+          "mRelBase": 2,
+          "mRoot": 3,
+          "size": 1,
+          "substr": 2
+        },
+        "operators": {
+          "!": 9,
+          "!=": 1,
+          "\u0026": 5,
+          "\u0026\u0026": 6,
+          "+": 1,
+          "++": 6,
+          "+=": 1,
+          "=": 9,
+          "==": 3,
+          "\u003e": 1,
+          "|": 2,
+          "~": 1
+        }
+      },
+      "validateNonResourceComponents": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 1,
+          "BreakStmt": 2,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CaseStmt": 1,
+          "CompoundStmt": 2,
+          "ConstantExpr": 1,
+          "DeclRefExpr": 5,
+          "DeclStmt": 1,
+          "DefaultStmt": 1,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "SwitchStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "codeDirectory": 1,
+          "component": 1,
+          "maxSpecialSlot": 1,
+          "validateDirectory": 1
+        },
+        "operators": {
+          "--": 1,
+          "\u003e=": 1
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "b04df942a9a69569f7ab7b3255debe680ee2516d38ab88631d581c1f748f186c"
+}

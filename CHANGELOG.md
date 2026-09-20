@@ -31,14 +31,18 @@ implemented development work, not published versioned releases. See
   native preserve/force/dry-run behavior, explicit child trust and staged writes.
   Includes real native dylib fixtures, five-method Clang AST research and exact
   ad-hoc executable/envelope comparisons on all supported architectures.
+- Recursive Contents-based APPL .app children with mixed XML/binary metadata,
+  staged descendant-first signing, shared traversal/output budgets, cross-bundle
+  hard-link checks and native shallow/deep verification semantics.
 - UDIF DMG signing, inspection and verification through a direct go-apfs-v2
   dependency, with native trailer binding, identifiers, CMS/timestamps and display.
   Native-unsupported DMG removal preserves the input and returns an error.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
 - Linux/macOS/Windows CI, race checks, nine fuzz targets, and required native
-  verification of 138 Linux/Windows-produced files, app bundles and DMGs,
-  including strict deep verification of eighteen nested apps.
+  verification of 174 Linux/Windows-produced files, app bundles and DMGs,
+  including strict deep verification of eighteen apps with plain Mach-O children
+  and 36 recursive app trees.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed
@@ -50,6 +54,8 @@ implemented development work, not published versioned releases. See
 
 ### Fixed
 
+- Shallow nested verification now checks Info.plist and signed non-resource
+  metadata, including requirement and entitlement hashes, matching native policy.
 - Match native canonical Mach-O default identifiers, including ad-hoc UUID and
   UUID-less load-command hash suffixes, against the arm64 baseline.
 - Preserve LF/binary fixture bytes across Windows checkouts and retain detailed

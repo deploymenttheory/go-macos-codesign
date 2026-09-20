@@ -3,8 +3,9 @@
 The path APIs and CLI can sign, inspect, verify and remove signatures from a
 bounded `Contents`-based macOS app layout. Production uses Go filesystem and
 cryptographic code on Linux, macOS and Windows. Apple tools and Clang are used
-only for research and acceptance testing. Plain nested Mach-O files are supported;
-nested app/framework layouts and full native bundle policy remain incomplete.
+only for research and acceptance testing. Plain nested Mach-O files and recursive
+Contents-based APPL apps are supported; framework/plugin layouts and full native
+bundle policy remain incomplete.
 
 ## Supported layout
 
@@ -16,6 +17,11 @@ Example.app/
     MacOS/helper               # optional signed Mach-O child
     Helpers/group/tool         # optional signed Mach-O child
     Frameworks/libexample.dylib # optional signed Mach-O child
+    Library/LoginItems/Helper.app/ # optional Contents-based APPL child
+      Contents/
+        Info.plist
+        MacOS/helper
+        Helpers/Worker.app/    # another supported APPL child
     Resources/                 # optional; plain files and directories
     PkgInfo                    # optional
     version.plist              # optional
@@ -77,18 +83,21 @@ The legacy dictionary still includes Resources/.DS_Store; modern verification
 uses `files2`, so changing that omitted file does not invalidate the bundle.
 
 `--force` is required to replace a signed executable. `--dryrun` constructs the
-signature without creating a signature directory or writing either output.
+signature without creating signature directories or writing outputs.
 Construction errors, including timestamp-provider failures, precede mutation.
 Successful removal strips the main signature and deletes CodeResources and the
 empty signature directory; it also accepts an already unsigned supported app.
 
-## Nested Mach-O code
+## Nested Mach-O code and apps
 
 Plain Mach-O executables, dylibs and bundles may appear under `MacOS`, `Helpers`,
 `Frameworks`, `SharedFrameworks`, `PlugIns`, `Plug-ins`, `XPCServices`, or
 `Library/Automator`, `Library/Spotlight`, `Library/LoginItems`. Grouping directories
-without dots are allowed. A directory such as `Foo.framework` or `Helper.app`
-requires separate bundle discovery and is rejected by this phase.
+without dots are allowed. A `.app` directory under these roots opens a separate
+Contents-based APPL bundle boundary; the same rules apply recursively within it.
+Each app has its own Info.plist, executable and CodeResources. XML and binary
+metadata may be mixed within a tree. Framework/plugin/XPC bundle formats remain
+unsupported even when located under one of these code directories.
 
 Nested entries appear in `files2` as a designated requirement and CDHash metadata;
 they are excluded from legacy file hashes. An explicit child requirement is
@@ -100,30 +109,44 @@ OS. Native selection can differ on an Intel host.
 
 Without `--deep`, children must already be signed. With `--deep`, unsigned or
 linker-signed children are signed first; existing signatures are preserved unless
-`--force` is supplied. Signing options apply to children as well as the parent,
+`--force` is supplied. Preserving an already signed app preserves its descendants
+as well; signing an unsigned app does not force replacement of a signed grandchild.
+Signing options apply to children as well as the parent,
 including an explicit identifier, requirements, entitlements and timestamps.
 Absent an override, helpers use the canonical filename and the native ad-hoc UUID
 suffix (or load-command hash fallback). Embedded Mach-O Info.plist identifier
-discovery remains outside this profile.
+discovery remains outside this profile. Nested apps default to their own
+CFBundleIdentifier. An explicit identifier override applies throughout the tree.
 
 All child and parent outputs are constructed before writing any file. A dry run
 still seals the child bytes on disk, matching native behavior: `--deep --dryrun`
 fails for an unsigned on-disk child and preserves every input. Removal affects
 only the outer executable and envelope, even with `--deep`.
 
-Verification always checks child signature metadata, CMS/trust and the parent's
-requirement. `--verify --deep` additionally checks child code pages, special slots
-and self requirements. A child page modification can pass shallow verification,
-as on the native baseline. Use deep verification when child content integrity is
-required. Caller-supplied certificate and TSA roots apply to every child; an
-ad-hoc parent does not bypass a certificate child's trust policy.
+Verification always checks immediate child signature metadata, CMS/trust,
+Info.plist, requirements/entitlement hashes and the parent's requirement.
+`--verify --deep` additionally checks child code pages, resource envelopes,
+resource contents and descendants. A child page/resource modification can pass
+shallow verification, as on the native baseline; altered immediate-child
+Info.plist or signed non-resource metadata fails both modes. Shallow verification
+does not inspect grandchildren. Use deep verification when the complete tree's
+content integrity is required. Caller-supplied certificate and TSA roots apply
+to each checked child; an ad-hoc parent does not bypass certificate trust.
+
+Each child root is opened through its parent's `os.Root`. The complete signing
+plan is built before any write, ordered from the deepest descendants to the
+outermost app. One traversal budget and inode registry cover the tree, including
+hard links between separate bundles. Signing, inspection and removal scan the
+supported tree structurally; they can reject malformed descendant layouts even
+when native shallow verification does not inspect them.
 
 The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 
 ## Limits
 
-- Only the displayed layout and plain nested Mach-O files are supported. Framework,
-  plugin, XPC and nested app directories, flat/iOS/installer bundles, receipts, extra signature
+- Only the displayed layout, plain nested Mach-O files and Contents-based APPL
+  `.app` children under the listed code directories are supported. Framework,
+  plugin/XPC bundle formats, flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to
@@ -136,15 +159,19 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 - Paths use portable ASCII names: no traversal, Windows-reserved names,
   case collisions, trailing dots/spaces or platform-specific punctuation.
   Path limits are 1,024 bytes, 255 bytes per component and 32 separators.
-  There are at most 10,000 tree entries, 64 nested files and 1 GiB of combined
-  resource/child input data. Staged child, parent and envelope outputs together
-  are limited to 1 GiB; the existing per-Mach-O bound also applies.
+  Signing/deep traversal permits at most eight nested app levels, 10,000 total
+  tree entries and 64 nested code objects (apps and plain files combined).
+  Budgets do not reset at app boundaries. Combined resource/child input data is
+  limited to 1 GiB, including child metadata, executables and envelopes. Staged
+  outputs together are limited to 1 GiB; the outer executable retains its separate
+  1 GiB input bound. Shallow verification applies limits to the portion it visits.
 - Nested signatures require one SHA-256 CodeDirectory per architecture. Child
   requirements must use the implemented predicate/text subset; native quoted
   literal control whitespace is rejected before writing. Additional directory
   variants, requirement predicates and full implicit certificate synthesis remain open.
 - Symlinks and non-regular files are rejected. Hard links within Contents to
-  any file that signing can write are rejected. Filesystem operations use
+  any file that signing can write, including across app boundaries, are rejected
+  by the structural signing/deep scan. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
   links retain their usual shared-file behavior.
 - Writes to children, executable and envelope are not a transaction. Write, sync,
@@ -192,3 +219,16 @@ include real dylibs and are verified and reproduced on every OS. CI exports nine
 nested apps per Linux/Windows producer for native strict deep verification.
 [The nested AST record](../spec/apple-nested.json) covers five complete Apple
 method bodies on both architecture targets with explicit interface shims.
+
+[Recursive-app acceptance](../acceptance/nested_app_test.go) adds 24 complete
+byte comparisons, 90 display comparisons, eighteen ad-hoc/RSA/P-256 native strict
+deep checks, and 26 mutation/depth outcomes. Each tree contains three apps and
+six Mach-O files. Three additional [native fixtures](../testdata/nested-apps/README.md)
+with mixed XML/binary metadata are verified and reproduced on every OS. Native
+lifecycle checks cover preservation, force, dry runs and outer-only removal;
+three metadata mutations establish shallow requirement/entitlement checking.
+CI exports eighteen recursive trees per Linux/Windows producer.
+[The recursive AST record](../spec/apple-nested-apps.json) adds complete native
+directory-boundary scanning and non-resource metadata validation bodies.
+An independent local TSA also timestamps every architecture in a universal tree,
+checks child TSA trust, and exercises dry runs and a later child's request failure.

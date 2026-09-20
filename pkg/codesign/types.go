@@ -31,7 +31,8 @@ type Identity struct {
 type SignOptions struct {
 	Identifier string
 	Force      bool
-	// Deep signs supported nested Mach-O files before sealing their parent.
+	// Deep signs supported nested Mach-O files and APPL apps before sealing
+	// their parent, from the deepest children outwards.
 	// Existing child signatures, except linker signatures, are retained unless
 	// Force is also set.
 	Deep bool
@@ -59,8 +60,9 @@ type SignOptions struct {
 // VerifyOptions selects an architecture and optional external special-slot data.
 // Certificate-backed signatures are not reported valid until CMS verification succeeds.
 type VerifyOptions struct {
-	// Deep checks nested code pages and special slots. Without it, nested
-	// signatures and the parent's requirements are checked, matching Apple.
+	// Deep checks nested code pages, resource envelopes and descendants.
+	// Without it, immediate child signatures, signed non-resource metadata and
+	// the parent's requirements are checked, matching Apple.
 	Deep         bool
 	Architecture string
 	InfoPlist    []byte

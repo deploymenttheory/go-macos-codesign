@@ -10,8 +10,8 @@ import (
 
 const maxNestedFiles = 64
 
-// Only plain Mach-O children are supported in this phase. Dotted directories
-// denote native bundle boundaries and must not be traversed as ordinary folders.
+// Dotted directories denote native bundle boundaries and must not be traversed
+// as ordinary folders. The scanner supports Contents-based APPL .app children.
 var nestedCodeRoots = []string{"MacOS", "Helpers", "Frameworks", "SharedFrameworks", "PlugIns", "Plug-ins", "XPCServices", "Library/Automator", "Library/Spotlight", "Library/LoginItems"}
 
 func nestedCodePath(name string) (inside, container bool) {
@@ -28,8 +28,10 @@ func nestedCodePath(name string) (inside, container bool) {
 
 type nestedResource struct{ data []byte }
 type bundleWrite struct {
-	name string
-	data []byte
+	name   string
+	data   []byte
+	bundle *appBundle
+	create bool
 }
 
 func nestedSignature(data []byte) (*Report, int, error) {
@@ -98,7 +100,8 @@ func nestedSeal(data []byte) (map[string]any, error) {
 func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) ([]bundleWrite, error) {
 	names := []string{}
 	for name, value := range files {
-		if _, ok := value.(nestedResource); ok {
+		switch value.(type) {
+		case nestedResource, *nestedAppResource:
 			names = append(names, name)
 		}
 	}
@@ -109,8 +112,16 @@ func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) 
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		original := files[name].(nestedResource).data
+		var original []byte
+		var app *nestedAppResource
+		switch v := files[name].(type) {
+		case nestedResource:
+			original = v.data
+		case *nestedAppResource:
+			original, app = v.data, v
+		}
 		data := original
+		var staged []bundleWrite
 		if opts.Deep {
 			r, err := InspectBytes(data)
 			if err != nil {
@@ -123,22 +134,29 @@ func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) 
 			if !signed || opts.Force {
 				child := opts
 				child.InfoPlist, child.Resources = nil, nil
-				child.Force = true
-				if child.Identifier == "" {
-					child.Identifier, err = machoIdentifier(name, data, child.Identity == nil)
-					if err != nil {
-						return nil, err
+				if app != nil {
+					data, staged, err = app.bundle.planSignature(ctx, data, app.files, app.files2, child, true)
+				} else {
+					child.Force = true
+					if child.Identifier == "" {
+						child.Identifier, err = machoIdentifier(name, data, child.Identity == nil)
+						if err != nil {
+							return nil, err
+						}
 					}
+					data, err = SignBytes(ctx, data, child)
+					staged = []bundleWrite{{name: "Contents/" + name, data: data}}
 				}
-				data, err = SignBytes(ctx, data, child)
 				if err != nil {
 					return nil, fmt.Errorf("nested %s: %w", name, err)
 				}
-				total += int64(len(data))
+				for _, w := range staged {
+					total += int64(len(w.data))
+				}
 				if total > maxFileSize {
 					return nil, unsupported("nested signature output exceeds 1 GiB")
 				}
-				writes = append(writes, bundleWrite{"Contents/" + name, data})
+				writes = append(writes, staged...)
 			}
 		}
 		if opts.DryRun {
@@ -155,19 +173,27 @@ func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) 
 	return writes, nil
 }
 
-func verifyNestedResource(ctx context.Context, name string, value any, resource nestedResource, opts VerifyOptions) error {
+func nestedRequirement(name string, value any) (string, error) {
 	seal, ok := value.(map[string]any)
 	requirement, reqOK := seal["requirement"].(string)
 	if !ok || !reqOK || requirement == "" || len(seal) > 2 {
-		return invalid("nested resource seal: %s", name)
+		return "", invalid("nested resource seal: %s", name)
 	}
 	if hash, present := seal["cdhash"]; present {
 		h, ok := hash.([]byte)
 		if !ok || len(h) != 20 {
-			return invalid("nested CDHash metadata: %s", name)
+			return "", invalid("nested CDHash metadata: %s", name)
 		}
 	} else if len(seal) != 1 {
-		return invalid("nested resource fields: %s", name)
+		return "", invalid("nested resource fields: %s", name)
+	}
+	return requirement, nil
+}
+
+func verifyNestedResource(ctx context.Context, name string, value any, resource nestedResource, opts VerifyOptions) error {
+	requirement, err := nestedRequirement(name, value)
+	if err != nil {
+		return err
 	}
 	if _, _, err := nestedSignature(resource.data); err != nil {
 		return err
