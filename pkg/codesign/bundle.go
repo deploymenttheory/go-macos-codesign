@@ -38,14 +38,6 @@ type appBundle struct {
 	layoutEntries                []string
 }
 
-func isBundle(path string) bool {
-	if framework, _ := frameworkVersionDirectory(path); framework != "" {
-		return true // resolve structural version paths before OS-specific path normalization
-	}
-	st, err := os.Stat(path)
-	return err == nil && st.IsDir()
-}
-
 func bundleRelativePath(name string) error {
 	if !fs.ValidPath(name) || len(name) > 1024 || strings.Count(name, "/") > 32 {
 		return unsupported("bundle path length or structure")

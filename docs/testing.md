@@ -170,6 +170,19 @@ Windows path normalization.
 Six further direct-path trees include an unsigned Mach-O helper; deep signing
 reproduces Apple's complete tree and passes strict deep verification.
 
+Executable-path acceptance adds 54 complete native signing/removal comparisons,
+270 exact display comparisons and 54 dry runs across nine input profiles,
+XML/binary metadata and three architectures. Four main/helper/file-alias cases
+compare complete trees and resource-tampering outcomes. Read-only hard-link
+discovery matches native display; native hard-link write replacement remains a
+separate documented gap. A parent-link test signs the physical target while
+preserving the lexical neighbour, including when that neighbour is absent.
+Thirty-two option-operation outcomes compare executable-input version selection.
+Nine ad-hoc/RSA/P-256 mixed trees sign every child through its executable before
+the parent; eighteen child archives reproduce existing native fixtures. Native
+CI checks nine executable paths and the parent of each exported tree. Five
+complete CoreFoundation discovery functions have two-target Clang AST evidence.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -190,9 +203,9 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 336 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+all 354 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
 one timestamp replay, forty-five app bundles, 63 layout archives, nine multi-version
-framework trees, nine direct-path framework trees and fifteen DMGs
+framework trees, nine direct-path framework trees, nine executable-path trees and fifteen DMGs
 per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
@@ -206,6 +219,8 @@ The nine framework-version archives per producer cover three identities and
 three architectures; Apple verifies both the parent and explicit A/B selections.
 The nine direct-path archives add signing through physical A and Current inputs;
 Apple checks their parents, root selections and all three directory input paths.
+The nine executable-path archives per OS contain seven bundles signed through
+their executable paths; Apple checks the parent and nine executable/alias inputs.
 Every native fixture test and producer exercises real filesystem symlinks,
 including on Windows; these cases are required rather than silently skipped.
 The downstream

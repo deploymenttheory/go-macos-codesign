@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Discover supported bundles from their main-executable paths, including file
+  aliases and physical framework versions; preserve helper-file boundaries.
+- Add five complete CoreFoundation discovery functions to two-target Clang AST
+  research, native lifecycle/display/tamper comparisons, and eighteen additional
+  Linux/Windows trees for native verification. Record completed PR #22 CI audits.
 - Accept direct physical framework-version directories and the structural Current
   alias, with independent resource boundaries and native signing/display/removal
   comparisons. Reject version selectors on an already selected directory.
