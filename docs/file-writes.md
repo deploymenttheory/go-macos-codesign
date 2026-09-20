@@ -1,14 +1,17 @@
 # File replacement and metadata
 
-Standalone Mach-O signing, re-signing and signature removal prepare a new file,
+Standalone and bundle Mach-O signing, re-signing and signature removal prepare a new file,
 restore its metadata, sync and close it, and rename it over the selected name.
 Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.4.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.4.0/pkg/hostmeta).
-Codesign calls its `PrepareReplacement` and `RestoreMetadata` APIs and owns the
-signing-specific decision to rename. It has no copied platform metadata writer.
+[`go-apfs-v2/pkg/hostmeta` in v0.5.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.5.0/pkg/hostmeta).
+Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
+Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
+[APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
+in v0.5.0, which this module pins. Codesign owns the signing-specific decision
+to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
 On macOS the new replacement path uses the supported x/sys libSystem wrappers
@@ -23,16 +26,37 @@ Linux restores ownership, mode and readable xattrs, including POSIX ACLs, with
 8 MiB bounds for attribute names and values. Linux inode flags and creation time
 are outside the current preservation contract. Windows copies alternate streams
 and attributes, then restores owner/group and DACL; SACL preservation is not
-claimed. A Windows read-only destination may reject the final rename.
+claimed. The root-relative Windows API limits extended attributes/streams to
+8 MiB and rejects compressed, encrypted, sparse and reparse files. A Windows
+read-only destination may reject the final rename.
 
 The shared library's older compression-aware attribute reader retains its
 existing raw-syscall/fallback implementation. The new replacement API does not
 call it. Codesign's own production-source guard rejects direct syscalls.
 
 DMGs retain Apple's in-place write behavior: both hard-link names observe the
-new signature. Bundle executable/envelope writes also remain in place; internal
-hard links are rejected by the bundle scan, but external links retain shared
-inode behavior. These writes can leave partial output on an I/O failure.
+new signature. Existing bundle CodeResources files also update in place on
+sign/re-sign and are unlinked on removal; their external links retain the
+updated or removed file's bytes respectively. New envelopes are created beneath
+the opened bundle root. Internal hard links to writable bundle files remain
+rejected by the structural scan.
+
+Bundle signing stages every executable replacement before any bundle write.
+Preparation and cancellation failures before commit preserve the original tree
+and clean staging directories. Commits proceed descendant-first, with each
+resource envelope preceding its main executable. Each executable rename checks
+the original file identity again. A later I/O or cancellation failure can leave
+earlier commits in place; this is not whole-tree rollback. Removal replaces only
+the selected main executable and unlinks its envelope, retaining the empty
+signature directory, as in the tested native profile.
+
+The first bundle slice does not reproduce every native metadata side effect.
+Native probes show Apple can add inherited executable-directory ACL entries and
+change creation time; our replacement preserves the original ACL and birth time.
+Mode, owner/group, the tested xattr and supported flags survive both writers.
+Apple source also copies security metadata when creating the signature directory
+and purges stale signature files; those behaviors remain unimplemented here.
+Compressed/protected files, wider permissions and failure order remain open.
 
 Standalone file symlinks resolve to the physical target before reading, deriving
 the default identifier, displaying the executable path or writing. Relative,
@@ -53,11 +77,21 @@ not supported; sign a copy if rollback is required.
 
 ## Evidence
 
-`make research-writer` extracts complete Apple `MachOEditor::commit` and destructor
-bodies with Clang for arm64 and x86_64. The [record](../spec/apple-writer.json)
+`make research-writer` extracts nine complete Apple methods: `MachOEditor::commit`,
+its destructor, and seven BundleDiskRep metadata/component/removal/flush methods,
+with Clang for arm64 and x86_64. The [record](../spec/apple-writer.json)
 pins the Apple source, SDK headers and complete excerpts, and names every private
 interface shim. It records metadata copying before rename and temporary-file
 cleanup. This is source analysis, not execution of Apple's source.
+
+Bundle acceptance adds 126 comparisons across seven layouts, three architectures
+and six operations, including nested helpers/apps, external executable/envelope
+links, new envelopes, unsigned removal and dry runs. macOS compares complete
+trees with Apple and performs strict deep verification. Each foreign producer
+exports 84 signed archives for independent native verification. Fifteen native
+metadata profiles retain raw stat observations and ACL/xattr/flag results,
+including the differences above. Failure tests cover preparation before envelope
+creation, cancellation, changed target identity, partial commits and cleanup.
 
 Host acceptance compares all output bytes and inode outcomes for fifteen
 architecture/operation combinations, plus one in-place DMG case. Six newly
@@ -80,5 +114,6 @@ SingleDiskRep functions on both targets, including `realpath` before code creati
 The dependency's tests check xattrs, ownership, modes, Darwin ACLs/flags/birth
 time, inherited directory ACLs, Linux POSIX ACLs, and Windows streams/security
 descriptors. The shared API's cross-platform evidence is recorded in
-[merged APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100);
+[merged APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100) and
+[root-relative PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102);
 a local compile is not treated as Windows or Linux execution evidence.

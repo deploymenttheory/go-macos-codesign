@@ -62,6 +62,35 @@ SBOMs, checksums and a Sigstore signature bundle in
 [v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
 That release contains the supported subset through PR #18.
 
+### Bundle executable writer and native inventory
+
+This branch implements the first D04 slice. Bundle main/nested Mach-O writes
+stage replacements under their existing `os.Root`; external hard-link neighbours
+retain their original bytes and inode. CodeResources retains its in-place update
+and unlink-on-removal behavior. All executables stage before any bundle commit;
+late commit failures can leave earlier writes in place. Native ACL inheritance,
+creation-time behavior, new signature-directory security and stale-file cleanup
+remain explicit gaps in [file writes](file-writes.md).
+
+The APFS prerequisite shipped in [PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102)
+and [v0.5.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.5.0).
+This module pins that release; it needs no development workspace or APFS replace. Local native
+acceptance passes 126 complete tree/inode comparisons. Fifteen metadata profiles
+also record the remaining native differences. Local full verification
+passes with 3,979/4,161 library statements (95.63%), 423/425 CLI statements (99.53%)
+and 1/1 entry-point statement. golangci-lint and all six GoReleaser builds pass.
+APFS [three-OS tests and six builds](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35531568090)
+passed at `5ffe196cad831ba35916cec46f30f1d0ce419591`. Per-commit codesign CI results and
+downloaded artifact audits are recorded in the implementation pull request; local
+checks alone do not establish Linux/Windows execution.
+The configured import gate grows from 354 to 522 signed artifacts.
+
+D01 expands the checklist from 55 to 88 entries without upgrading statuses:
+25 partial, 55 not implemented, eight blocked, zero fully verified. The
+[native inventory](native-inventory.md) has 79 parser-recognized switches with
+seven operation cells each, raw transcripts and explicit unavailable contexts.
+D02 writer research expands from two to nine complete methods on both targets.
+
 ### Standalone file alias phase
 
 Standalone Mach-O/UDIF aliases resolve before reads, default identifiers, display

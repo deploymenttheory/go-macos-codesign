@@ -89,9 +89,10 @@ Timestamp trust is separate from code-signer trust. Verification requires
 Online signing defaults to bundled Apple TSA roots, with a custom CA file as an
 override. Transport and policy limits are listed in [timestamps](timestamps.md).
 
-Standalone Mach-O writes use go-apfs-v2's metadata-preserving staged replacement,
-detaching the selected hard-link name. DMG and bundle writes retain their in-place
-behavior and can leave partial data on I/O failure. Standalone file aliases select
+Standalone and bundle Mach-O writes use go-apfs-v2's metadata-preserving staged
+replacement, detaching the selected hard-link name. DMGs and existing bundle
+resource envelopes retain in-place writes. Bundle commits can leave partial
+output on I/O failure. Standalone file aliases select
 their physical target for identifiers, display and all path operations, preserving
 the aliases and resolving `link/..` before lexical cleanup. Other non-regular
 standalone targets are rejected. Re-signing retains existing bytes after the new
@@ -107,8 +108,10 @@ comparisons and the remaining legacy/malformed-layout limits.
 
 ## Full-parity gate
 
-`spec/compatibility.json` inventories the native manual options plus format and
-host-state requirements. The statuses `partial`, `not-implemented`, and `blocked`
+`spec/compatibility.json` retains the original 55 obligations and adds 32 native
+parser-recognized switches and the allocator environment hook: 88 entries, with
+no status upgrades from recognition alone. The [native inventory](native-inventory.md)
+records operation probes and unavailable contexts. The statuses `partial`, `not-implemented`, and `blocked`
 all prevent a full-parity declaration. `python3 scripts/guards.py --require-complete`
 deliberately fails while any remain. Versioned releases of the documented subset
 use [Release Please and GoReleaser](releases.md) independently of this audit.

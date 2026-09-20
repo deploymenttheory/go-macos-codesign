@@ -196,6 +196,22 @@ on every OS for comparison against the native-checked macOS outputs.
 Five complete path functions have two-target Clang AST evidence. See
 [file-write behavior](file-writes.md) for the supported metadata contract.
 
+Bundle writer acceptance adds 126 layout/architecture/operation cases for main,
+nested helper and nested bundle executables. Each checks external hard-link
+neighbours, replacement identity, modes, existing/new CodeResources, unsigned
+removal and dry runs. macOS compares complete trees against Apple and performs
+strict deep verification; each foreign producer exports 84 signed archives.
+Fifteen additional native metadata profiles record raw stat timestamps/inodes,
+xattrs, ACLs and flags for signing, read-only executables, re-signing, removal and
+dry runs. They explicitly preserve evidence of native ACL-inheritance and
+creation-time differences. Unit tests cover staging failures before envelope
+creation, cancellation, changed targets and cleanup after partial commits.
+
+`make research-inventory` is an opt-in native research driver, outside production
+and deterministic CI. Its committed binary/manual hashes and operation records
+are checked by the guards. [Inventory boundaries](native-inventory.md) distinguish
+parser recognition, executed probes and unavailable live-state contexts.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -216,10 +232,10 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 354 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+all 522 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
 one timestamp replay, forty-five app bundles, 63 layout archives, nine multi-version
-framework trees, nine direct-path framework trees, nine executable-path trees and fifteen DMGs
-per OS). Twelve of
+framework trees, nine direct-path framework trees, nine executable-path trees,
+84 bundle-writer archives and fifteen DMGs per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
 three architectures and ad-hoc/RSA/P-256 identities. Another eighteen per OS

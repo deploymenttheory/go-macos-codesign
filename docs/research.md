@@ -286,6 +286,26 @@ a bundle merely by sharing its main executable's inode. Independent
 [writer research and native tests](file-writes.md) establish standalone hard-link
 replacement separately from these discovery tests.
 
+## Writer and native-option research
+
+`make research-writer` now extracts nine complete methods on both targets: the
+MachOEditor commit/destructor and BundleDiskRep metadata-path, directory-creation,
+component-write, remove overloads, flush and stale-file purge methods. The
+[record](../spec/apple-writer.json) pins verbatim excerpts and SDK headers. Real
+SDK open/copyfile constants establish in-place envelope writes and metadata copy;
+private interface/slot/error shims do not establish wire values. Native tests
+independently establish bundle executable replacement, envelope inode retention
+and unlink-on-removal. Native directory security copying and stale signature-file
+purging remain recorded gaps in this first implementation slice.
+
+`make research-inventory` records the installed binary/manual identity and probes
+79 recognized switches, including 32 absent from the manual. It also retains ten
+rejected binary-string candidates. Each option has seven operation cells with
+raw command/status/output and before/after hashes or an explicit unavailable
+context. The pinned open-source revision does not supply the current parser;
+[the inventory guide](native-inventory.md) explains provenance and why recognition
+does not establish feature semantics or full equivalence.
+
 ## DMG research and direct library reuse
 
 `make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple

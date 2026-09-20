@@ -28,11 +28,19 @@ func nestedCodePath(name string) (inside, container bool) {
 }
 
 type nestedResource struct{ data []byte }
+
+type bundleWriteKind uint8
+
+const (
+	bundleMachOWrite bundleWriteKind = iota
+	bundleResourceWrite
+)
+
 type bundleWrite struct {
 	name   string
 	data   []byte
 	bundle *appBundle
-	create bool
+	kind   bundleWriteKind
 }
 
 func nestedSignature(data []byte) (*Report, int, error) {

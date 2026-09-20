@@ -1,14 +1,24 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: planning backlog, prepared 2026-09-20 after PR #25 merged. Feature
-implementation is paused. Creating this document does not start the work below,
-change compatibility statuses, or authorize a release.
+Status: baseline backlog prepared 2026-09-20 after PR #25 merged. Implementation
+has resumed through the first D04 writer slice on `fix/bundle-macho-replacement`.
+The historical baseline below remains unchanged. Releases still require approval.
+
+D01 now retains 88 obligations, with installed-parser probes and explicit access
+constraints in [native inventory](native-inventory.md). D02 extends the writer AST
+to nine methods and adds 126 native byte/inode cases plus 15 metadata profiles.
+D03 shipped in [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102)
+and v0.5.0, now pinned by this module. D04 stages root-relative
+bundle Mach-O replacements and retains in-place envelope updates. Native ACL
+inheritance, creation-time behavior, signature-directory security/purging and
+wider layouts remain open; this does not close WP-01 or WP-02. See
+[file writes](file-writes.md) and [progress](progress.md) for current evidence.
 
 This is the detailed execution companion to [implementation stages](implementation.md).
 It includes missing features, unfinished behavior within existing features,
 unproven compatibility, deliberate limits, and dependencies on unavailable state.
-All work packages are outstanding unless their baseline explicitly describes
-already delivered behavior. Proposed APIs, tests and artifacts are proposals,
+Work packages remain outstanding except for the bounded progress recorded above
+and already delivered baseline behavior. Proposed APIs, tests and artifacts are proposals,
 not existing capabilities.
 
 ## 1. Objective, baseline and meaning of completion

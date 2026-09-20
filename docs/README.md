@@ -15,6 +15,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
 | [DMG signing](dmg-integration.md) | Direct go-apfs-v2 dependency, native signatures, evidence and limits |
 | [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
+| [Native inventory](native-inventory.md) | Expanded parser/operation evidence, source gaps and live-state access constraints |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
 | [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
 | [Detailed implementation plan](implementation_plan.md) | Complete remaining-feature backlog, 24 work packages, acceptance matrices, blockers and delivery order |
