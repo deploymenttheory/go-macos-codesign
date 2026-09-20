@@ -50,6 +50,12 @@ func TestBundleSignatureCleanup(t *testing.T) {
 								if err != nil {
 									t.Fatal(err)
 								}
+								// SameFile loads Windows IDs lazily. Capture both while
+								// the name that cleanup will unlink still exists.
+								other, err := os.Stat(neighbour)
+								if err != nil || !os.SameFile(info, other) {
+									t.Fatalf("initial stale hard link: %v", err)
+								}
 								links = append(links, staleLink{path, neighbour, info, data})
 							}
 						}
@@ -139,6 +145,10 @@ func TestBundleSignatureCleanupNonRegular(t *testing.T) {
 					original, err := os.Stat(main)
 					if err != nil {
 						t.Fatal(err)
+					}
+					// Force lazy Windows identity capture before the operation.
+					if !os.SameFile(original, original) {
+						t.Fatal("cannot capture original executable identity")
 					}
 					args := []string{"-fs", "-", "--timestamp=none"}
 					switch operation {
