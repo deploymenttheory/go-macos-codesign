@@ -20,7 +20,7 @@ The [progress report](progress.md) identifies the exact tested revision and CI r
 | Requirements | Identifier, CDHash, certificate index/root hash, subject CN/O/OU, extension existence, generic Apple anchor, boolean expressions | Remaining predicates, Info.plist predicates, complete native grammar and diagnostic output |
 | Verification | Code pages, special slots, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain policy, Team ID consistency, RFC 3161 binding and separate TSA trust | Full PKIX/Apple policies, general CMS/BER forms, complete timestamp policy, revocation, platform strictness, notarization |
 | CLI | Cobra dispatch; native grouped short options; explicit Viper config; sign/verify/display/remove subset | Every native option and combination, complete diagnostics/exit behavior, detached signatures |
-| Formats | Embedded Mach-O signatures; bounded APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks; main-executable inputs, explicit selection, direct version directories and alternate-version requirement checks; recursive bundle/Mach-O seals and relative resource symlinks; single-segment UDIF DMGs via go-apfs-v2 | Wider discovery and symlink/xattr policy, standalone hard-link write semantics, encrypted/segmented images, streaming large images, detached and generic files |
+| Formats | Embedded Mach-O signatures; bounded APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks; main-executable inputs, explicit selection, direct version directories and alternate-version requirement checks; recursive bundle/Mach-O seals and relative resource symlinks; single-segment UDIF DMGs via go-apfs-v2 | Wider discovery and symlink/xattr policy, wider replacement metadata, encrypted/segmented images, streaming large images, detached and generic files |
 | Host state | Explicit unsupported errors | Hosting/PID verification, system detached database, keychain selection and non-exportable keys |
 
 ## Exact comparisons currently exercised
@@ -89,10 +89,11 @@ Timestamp trust is separate from code-signer trust. Verification requires
 Online signing defaults to bundled Apple TSA roots, with a custom CA file as an
 override. Transport and policy limits are listed in [timestamps](timestamps.md).
 
-The file writer constructs all slices before writing and preserves the target's
-inode, permissions, ownership, and attributes through in-place writes. It rejects
-non-regular write targets. A write, sync, or truncation failure can leave partial
-data; concurrent modification is not a supported transactional operation.
+Standalone Mach-O writes use go-apfs-v2's metadata-preserving staged replacement,
+detaching the selected hard-link name. DMG and bundle writes retain their in-place
+behavior and can leave partial data on I/O failure. Raw non-regular write targets
+are rejected. [Writer limits](file-writes.md) cover filesystem support, metadata
+and concurrency; this is not a crash-durable transaction.
 
 Parsing recognizes more legacy forms than signing has been proven to reproduce.
 Large files, a signature with more than seven following bytes, and insufficient

@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
 )
 
 func readBounded(r io.Reader, limit int64) ([]byte, error) {
@@ -20,6 +22,11 @@ func readBounded(r io.Reader, limit int64) ([]byte, error) {
 }
 
 func replaceFile(ctx context.Context, path string, data []byte) error {
+	// Apple's UDIF writer updates the image in place; MachOEditor replaces its
+	// selected directory entry with a prepared copy, detaching every hard link.
+	if isDMG(data) {
+		return overwriteFile(ctx, path, data)
+	}
 	st, err := os.Lstat(path)
 	if err != nil {
 		return err
@@ -27,9 +34,68 @@ func replaceFile(ctx context.Context, path string, data []byte) error {
 	if !st.Mode().IsRegular() {
 		return unsupported("replacing non-regular file")
 	}
-	// In-place writes retain ownership, xattrs and hard-link semantics. Parsing and
-	// construction complete before this function; I/O failure can leave partial data,
-	// as with Apple's signing tool. Callers needing atomicity must sign a copy.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	source, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+	current, err := source.Stat()
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("target changed during signing")
+	}
+	replacement, err := hostmeta.PrepareReplacement(source, filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+	defer replacement.Close()
+	f := replacement.File
+	if _, err := f.WriteAt(data, 0); err != nil {
+		return err
+	}
+	if err := f.Truncate(int64(len(data))); err != nil {
+		return err
+	}
+	if err := replacement.RestoreMetadata(); err != nil {
+		return err
+	}
+	if err := f.Sync(); err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+	if err := source.Close(); err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	current, err = os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("target changed during signing")
+	}
+	return os.Rename(f.Name(), path)
+}
+
+func overwriteFile(ctx context.Context, path string, data []byte) error {
+	st, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	if !st.Mode().IsRegular() {
+		return unsupported("replacing non-regular file")
+	}
+	// UDIF updates retain ownership, attributes and the inode shared by hard links.
+	// Construction completes first, but an I/O failure can leave partial data.
 	if err := ctx.Err(); err != nil {
 		return err
 	}

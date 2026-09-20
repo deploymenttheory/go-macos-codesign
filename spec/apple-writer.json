@@ -1,0 +1,238 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "commit": "cd38270eb44ea1adf21e033169404c10bb7cf65f800533163152546d405f761d",
+    "~MachOEditor": "0d70cbae2b34e437c7c2e4af40f4be2f095717f12ca8c6db033d22cdd004c218"
+  },
+  "schema": 1,
+  "scope": "Complete verbatim MachOEditor::commit and destructor bodies. Stat, rename, remove, copyfile flags, filesystem layouts and CoreFoundation declarations come from the real SDK. Private Copyfile/UidGuard/FD/Writer/Universal/compression interfaces, logging and the internal error constant are declaration-only research shims. AST analysis records metadata-copy-before-rename and cleanup control flow, not execution or full Security compilation. Native tests independently establish hard-link outcomes. Production delegates metadata to go-apfs-v2; no SDK or Apple tool is a runtime/build requirement. The clone-based Darwin implementation has narrower filesystem/compression support than native copyfile.",
+  "sdk": "MacOSX.sdk",
+  "sdk_headers": {
+    "copyfile.h": "56f4a00b83f21ac98c818876eb1b3a3eb246d0a7a31e95fddbd1fd21f7c79ff9",
+    "sys/acl.h": "9511f84f0abe1e108e10979900d4fea8567534aef78f0984f7050c49f6c29ff7",
+    "sys/attr.h": "5118b9245bc932bc32dcc60084b1e40d70bb5479a360b31cdbf188ef866deefe",
+    "sys/clonefile.h": "1efe4ef4241c360905ecc40092245334725a9f1b208be8886ce87e2538b89cbd",
+    "sys/kauth.h": "9c8808c918bb6fb8c4f9854f7c34d7d51b2017de8e19f4bfc67cf82b7553d0b4"
+  },
+  "sources": {
+    "signerutils.cpp": {
+      "sha256": "2f352abf90941bca654b31bee3a44a75499abc22da4362601920c0ff6301c699",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signerutils.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "metadata_constants": {
+        "AttrReferenceSize": "8",
+        "CloneACL": "4",
+        "FileSecMagic": "19710317",
+        "FileSecSize": "44",
+        "NoACL": "4294967295"
+      },
+      "methods": {
+        "commit": {
+          "ast_kinds": {
+            "BinaryOperator": 16,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 3,
+            "CXXConstructExpr": 4,
+            "CXXMemberCallExpr": 15,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 1,
+            "CXXThisExpr": 14,
+            "CallExpr": 16,
+            "CompoundStmt": 6,
+            "DeclRefExpr": 47,
+            "DeclStmt": 10,
+            "GNUNullExpr": 9,
+            "IfStmt": 6,
+            "ImplicitCastExpr": 70,
+            "IntegerLiteral": 18,
+            "MemberExpr": 32,
+            "ParenExpr": 11,
+            "StringLiteral": 3,
+            "UnaryExprOrTypeTraitExpr": 2,
+            "UnaryOperator": 9,
+            "VarDecl": 10
+          },
+          "references": {
+            "CFDictionaryCreateMutable": 1,
+            "CFDictionarySetValue": 1,
+            "CFRelease": 2,
+            "CFStringCreateWithFormat": 1,
+            "CompressFile": 1,
+            "CreateCompressionQueue": 1,
+            "FinishCompressionAndCleanUp": 1,
+            "__builtin___CFStringMakeConstantString": 1,
+            "buf": 4,
+            "cInfo": 4,
+            "c_str": 7,
+            "check": 2,
+            "compressedSize": 1,
+            "compressionQueue": 3,
+            "compressionType": 2,
+            "conductCompression": 2,
+            "copy": 2,
+            "errSecCSInternalError": 1,
+            "fd": 1,
+            "flush": 1,
+            "getPreserveAFSC": 1,
+            "guard": 2,
+            "kAFSCCompressionTypes": 1,
+            "kCFAllocatorDefault": 1,
+            "kCFTypeDictionaryKeyCallBacks": 1,
+            "kCFTypeDictionaryValueCallBacks": 1,
+            "mFd": 3,
+            "mTempMayExist": 1,
+            "operator int": 1,
+            "operator()": 1,
+            "options": 3,
+            "queryCompressionInfo": 1,
+            "read": 1,
+            "rename": 1,
+            "secinfo": 1,
+            "set": 1,
+            "seteuid": 2,
+            "sourcePath": 6,
+            "st": 2,
+            "st_uid": 1,
+            "stat": 1,
+            "tempPath": 1,
+            "throwMe": 1,
+            "val": 2,
+            "write": 1,
+            "writer": 2
+          }
+        },
+        "~MachOEditor": {
+          "ast_kinds": {
+            "CXXDeleteExpr": 1,
+            "CXXDestructorDecl": 1,
+            "CXXMemberCallExpr": 1,
+            "CXXThisExpr": 3,
+            "CallExpr": 1,
+            "CompoundStmt": 2,
+            "DeclRefExpr": 1,
+            "IfStmt": 1,
+            "ImplicitCastExpr": 4,
+            "MemberExpr": 4
+          },
+          "references": {
+            "c_str": 1,
+            "mNewCode": 1,
+            "mTempMayExist": 1,
+            "remove": 1,
+            "tempPath": 1
+          }
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "metadata_constants": {
+        "AttrReferenceSize": "8",
+        "CloneACL": "4",
+        "FileSecMagic": "19710317",
+        "FileSecSize": "44",
+        "NoACL": "4294967295"
+      },
+      "methods": {
+        "commit": {
+          "ast_kinds": {
+            "BinaryOperator": 16,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 3,
+            "CXXConstructExpr": 4,
+            "CXXMemberCallExpr": 15,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 1,
+            "CXXThisExpr": 14,
+            "CallExpr": 16,
+            "CompoundStmt": 6,
+            "DeclRefExpr": 47,
+            "DeclStmt": 10,
+            "GNUNullExpr": 9,
+            "IfStmt": 6,
+            "ImplicitCastExpr": 70,
+            "IntegerLiteral": 18,
+            "MemberExpr": 32,
+            "ParenExpr": 11,
+            "StringLiteral": 3,
+            "UnaryExprOrTypeTraitExpr": 2,
+            "UnaryOperator": 9,
+            "VarDecl": 10
+          },
+          "references": {
+            "CFDictionaryCreateMutable": 1,
+            "CFDictionarySetValue": 1,
+            "CFRelease": 2,
+            "CFStringCreateWithFormat": 1,
+            "CompressFile": 1,
+            "CreateCompressionQueue": 1,
+            "FinishCompressionAndCleanUp": 1,
+            "__builtin___CFStringMakeConstantString": 1,
+            "buf": 4,
+            "cInfo": 4,
+            "c_str": 7,
+            "check": 2,
+            "compressedSize": 1,
+            "compressionQueue": 3,
+            "compressionType": 2,
+            "conductCompression": 2,
+            "copy": 2,
+            "errSecCSInternalError": 1,
+            "fd": 1,
+            "flush": 1,
+            "getPreserveAFSC": 1,
+            "guard": 2,
+            "kAFSCCompressionTypes": 1,
+            "kCFAllocatorDefault": 1,
+            "kCFTypeDictionaryKeyCallBacks": 1,
+            "kCFTypeDictionaryValueCallBacks": 1,
+            "mFd": 3,
+            "mTempMayExist": 1,
+            "operator int": 1,
+            "operator()": 1,
+            "options": 3,
+            "queryCompressionInfo": 1,
+            "read": 1,
+            "rename": 1,
+            "secinfo": 1,
+            "set": 1,
+            "seteuid": 2,
+            "sourcePath": 6,
+            "st": 2,
+            "st_uid": 1,
+            "stat": 1,
+            "tempPath": 1,
+            "throwMe": 1,
+            "val": 2,
+            "write": 1,
+            "writer": 2
+          }
+        },
+        "~MachOEditor": {
+          "ast_kinds": {
+            "CXXDeleteExpr": 1,
+            "CXXDestructorDecl": 1,
+            "CXXMemberCallExpr": 1,
+            "CXXThisExpr": 3,
+            "CallExpr": 1,
+            "CompoundStmt": 2,
+            "DeclRefExpr": 1,
+            "IfStmt": 1,
+            "ImplicitCastExpr": 4,
+            "MemberExpr": 4
+          },
+          "references": {
+            "c_str": 1,
+            "mNewCode": 1,
+            "mTempMayExist": 1,
+            "remove": 1,
+            "tempPath": 1
+          }
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "a0c979c5f62f08163b64de54a6099933050451d853c7487c767decf4abdf6f53"
+}

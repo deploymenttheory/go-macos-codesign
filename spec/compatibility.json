@@ -178,6 +178,9 @@
         "acceptance/removal_test.go",
         "pkg/codesign/remove_test.go",
         "spec/apple-removal.json",
+        "acceptance/hardlinks_test.go",
+        "spec/apple-writer.json",
+        "docs/file-writes.md",
         "testdata/removal/manifest.json"
       ],
       "notes": "Native byte comparisons now cover 44 recorded/live standalone removal cases, eighteen complete bundle layouts and three mixed trees, without the earlier eight-byte padding exception. Symbol-table padding, LINKEDIT virtual-size preservation, universal alignment and up to seven trailing bytes match the tested native behavior. Nine re-signing cases require native byte equality and strict verification. Linux/Windows each export 44 removed outputs for native comparison. Malformed symbol ranges are rejected safely rather than reproducing native corruption. Legacy/FAT64/swapped forms, unusual layouts/unindexed padding, generic/detached representations and full diagnostic parity remain incomplete; see docs/removal.md."
@@ -205,9 +208,13 @@
       "status": "partial",
       "manual": ".It Fl s, -sign Ar identity",
       "evidence": [
-        "acceptance/parity_test.go"
+        "acceptance/parity_test.go",
+        "acceptance/hardlinks_test.go",
+        "pkg/codesign/io_test.go",
+        "spec/apple-writer.json",
+        "docs/file-writes.md"
       ],
-      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "Standalone Mach-O signing stages replacement through go-apfs-v2's shared metadata API, preserving other hard-link names. DMG and bundle writes remain in place. Fifteen native Mach-O byte/inode comparisons and one DMG case establish the bounded writer behavior. Darwin requires clone support and rejects protected/compressed files; wider metadata, symlink and filesystem support remains incomplete. Native compatibility remains unproven outside the documented fixture matrix."
     },
     {
       "id": "--verbose",
@@ -404,7 +411,7 @@
     {
       "id": "bundles",
       "status": "partial",
-      "notes": "APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks support XML/binary metadata, resources, nested code, signing, inspection, verification and outer-only removal. Explicit selection preserves other versions; nested verification applies the parent's requirement to every physical version. Direct physical/Current directories use independent resource boundaries and canonical display paths. Main-executable paths and file aliases select supported bundles by resolved filename; helpers and hard-link aliases remain standalone. Framework executable aliases select the physical version and reject further selection. Malformed/oversized/symlinked metadata retains stricter rejection, and standalone hard-link write replacement remains incomplete. Relative existing resource links use symlink text seals. Staged signing constructs the complete tree before writes, with shared bounds and cross-bundle/version hard-link checks within the selected boundary. Native comparisons, mutations, Clang AST records and six fixture sets establish the bounded profile. Each Linux/Windows producer exports 45 prior app artifacts plus 63 layout archives, nine multi-version trees, nine direct-path trees and nine executable-path trees for native strict deep verification. Broader symlink/xattr policy, discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for limits.",
+      "notes": "APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks support XML/binary metadata, resources, nested code, signing, inspection, verification and outer-only removal. Explicit selection preserves other versions; nested verification applies the parent's requirement to every physical version. Direct physical/Current directories use independent resource boundaries and canonical display paths. Main-executable paths and file aliases select supported bundles by resolved filename; helpers and hard-link aliases remain standalone. Framework executable aliases select the physical version and reject further selection. Malformed/oversized/symlinked metadata retains stricter rejection, and broader replacement metadata remains incomplete. Relative existing resource links use symlink text seals. Staged signing constructs the complete tree before writes, with shared bounds and cross-bundle/version hard-link checks within the selected boundary. Native comparisons, mutations, Clang AST records and six fixture sets establish the bounded profile. Each Linux/Windows producer exports 45 prior app artifacts plus 63 layout archives, nine multi-version trees, nine direct-path trees and nine executable-path trees for native strict deep verification. Broader symlink/xattr policy, discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for limits.",
       "evidence": ["acceptance/bundle_test.go", "acceptance/bundle_plist_test.go", "acceptance/nested_test.go", "acceptance/nested_app_test.go", "acceptance/layout_test.go", "acceptance/layout_nested_test.go", "acceptance/framework_versions_test.go", "acceptance/framework_paths_test.go", "acceptance/bundle_discovery_test.go", "pkg/codesign/bundle_test.go", "pkg/codesign/bundle_plist_test.go", "pkg/codesign/bundle_nested_test.go", "pkg/codesign/bundle_tree_test.go", "pkg/codesign/bundle_layout_test.go", "pkg/codesign/bundle_paths_test.go", "pkg/codesign/bundle_discovery_test.go", "testdata/bundles/manifest.json", "testdata/bundle-plists/manifest.json", "testdata/nested/manifest.json", "testdata/nested-apps/manifest.json", "testdata/layouts/manifest.json", "testdata/framework-versions/manifest.json", "spec/apple-bundles.json", "spec/apple-bundle-plists.json", "spec/apple-nested.json", "spec/apple-nested-apps.json", "spec/apple-bundle-layouts.json", "spec/apple-bundle-discovery.json", "docs/bundles.md"]
     },
     {

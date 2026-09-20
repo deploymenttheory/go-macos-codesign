@@ -12,6 +12,7 @@ partial; the [capability matrix](compatibility.md) records the remaining gaps.
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
 | [DMG signing](dmg-integration.md) | Direct go-apfs-v2 dependency, native signatures, evidence and limits |
+| [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
 | [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |

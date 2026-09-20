@@ -282,9 +282,9 @@ layout version and buffer bounds remain explicit shims. This does not execute
 CoreFoundation or claim complete CFBundle discovery. Host probes and acceptance
 separately establish supported Contents/framework behavior, physical file-alias
 resolution, helper boundaries and option interactions. Hard links do not select
-a bundle merely by sharing its main executable's inode. A separate probe found
-that native standalone signing breaks such a link; that writer behavior remains
-outside the current implementation and is not claimed by discovery tests.
+a bundle merely by sharing its main executable's inode. Independent
+[writer research and native tests](file-writes.md) establish standalone hard-link
+replacement separately from these discovery tests.
 
 ## DMG research and direct library reuse
 

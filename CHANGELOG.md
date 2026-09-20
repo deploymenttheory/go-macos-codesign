@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Use go-apfs-v2's shared host metadata API for standalone Mach-O replacement,
+  preserving neighbouring hard-link names and supported metadata. Keep DMGs in
+  place. Add native hard-link comparisons, cancellation cleanup tests and
+  two-target writer AST evidence. Document filesystem/metadata limits.
 - Discover supported bundles from their main-executable paths, including file
   aliases and physical framework versions; preserve helper-file boundaries.
 - Add five complete CoreFoundation discovery functions to two-target Clang AST

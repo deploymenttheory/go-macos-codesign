@@ -23,6 +23,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 | Multiple framework versions | Explicit version selection, isolated writes/removal, alternate-version requirement checks, shared limits and native fixtures | [Framework version behavior and limits](bundles.md#frameworks) |
 | Direct framework directories | Physical-version and Current inputs, independent resource boundaries, native display paths and selector rejection | [Direct directory behavior](bundles.md#direct-version-directory-paths) |
 | Main-executable inputs | Contents/framework main paths and file aliases select the bundle; helpers and hard-link aliases remain standalone; native lifecycle and resource-tamper comparisons | [Executable discovery and limits](bundles.md#main-executable-paths) |
+| Standalone hard-link writes | Staged Mach-O replacement delegates metadata to go-apfs-v2; neighbours remain unchanged; DMGs retain in-place behavior | [Shared API, native comparisons and limits](file-writes.md) |
 | Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
 | Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
@@ -60,6 +61,23 @@ SBOMs, checksums and a Sigstore signature bundle in
 [v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
 That release contains the supported subset through PR #18.
 
+### Standalone writer and shared metadata phase
+
+The writer delegates filesystem metadata to the exported go-apfs-v2 API proposed
+in [APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100).
+Codesign contains no platform metadata copier. The Darwin replacement path uses
+supported libSystem wrappers; the dependency's separate legacy compression
+reader is unchanged. [Writer limits](file-writes.md) document clone support,
+unsupported compression/protection, and remaining platform metadata gaps.
+
+Local acceptance passes fifteen complete native Mach-O byte/inode comparisons
+and one in-place DMG comparison, including dry runs and unsigned removal.
+Cancellation after staging preserves both names and removes temporary files.
+Two complete Apple writer methods and real SDK metadata constants have two-target
+Clang AST evidence. The complete local suite passes with 3,919/4,087 library
+statements (95.89%), 423/425 CLI statements (99.53%) and 1/1 entry-point statement.
+Cross-platform workflow results are pending for this phase.
+
 ### Executable-path discovery phase
 
 The phase adds supported main-executable discovery with exact filename matching,
@@ -78,13 +96,24 @@ total to 354 while retaining 88 removal comparisons. The complete local suite
 passes with 3,891/4,044 library statements (96.22%), 423/425 CLI statements
 (99.53%) and 1/1 entry-point statement (100%). Lint, dependency/fixture guards
 and all six GoReleaser build targets pass. Per-commit workflow and artifact
-results are recorded in [PR #23](https://github.com/deploymenttheory/go-macos-codesign/pull/23)
-after CI finishes.
+results are recorded in [merged PR #23](https://github.com/deploymenttheory/go-macos-codesign/pull/23).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35520425295)
+tested code commit `62f2b0478cc5992568331071604599b622265a90`; the final documentation
+commit is `d9875722d1c9fe65dd19ed958dcc560b4a1be326`.
 
-Native standalone signing replaces a hard-linked target while the current writer
-preserves the inode. This newly observed write-semantics gap remains separate
-from the proven read-only discovery behavior. Malformed/oversized/symlinked
-metadata also retains the stricter portable rejection profile.
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,884/4,044 — 96.04% | 417/425 — 98.12% | 1/1 — 100% |
+| Windows 2025 | 3,881/4,044 — 95.97% | 417/425 — 98.12% | 1/1 — 100% |
+| macOS 27 | 3,891/4,044 — 96.22% | 423/425 — 99.53% | 1/1 — 100% |
+
+All 354 signed imports and 88 removal comparisons passed, as did packaging,
+race detection and nine fuzz targets.
+[Lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35520425262).
+All 559 source/fixture hashes per OS were audited against the final checkout;
+only seventeen expected Windows text line-ending conversions differed. The six
+archives and six SPDX SBOMs passed all twelve checksum comparisons.
+Malformed/oversized/symlinked metadata retains the stricter rejection profile.
 
 ### Direct framework-directory phase CI
 
@@ -317,7 +346,7 @@ format work.
 UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes
-requirement predicates, CodeDirectory variants, standalone hard-link write semantics,
+requirement predicates, CodeDirectory variants, wider file replacement and
 metadata preservation, certificate
 and timestamp policy, revocation, and exact CLI diagnostics/localization.
 
