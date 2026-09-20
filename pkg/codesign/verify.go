@@ -26,6 +26,9 @@ func Inspect(ctx context.Context, path string) (*Report, error) {
 }
 
 func InspectBytes(data []byte) (*Report, error) {
+	if isDMG(data) {
+		return inspectDMG(data)
+	}
 	c, err := parseContainer(data)
 	if err != nil {
 		return nil, err
@@ -112,6 +115,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 	if err != nil {
 		return nil, err
 	}
+	if len(r.repSpecific) > 0 && (len(opts.InfoPlist) > 0 || len(opts.Resources) > 0) {
+		return r, unsupported("external special-slot overrides for disk images")
+	}
 	found := false
 	for _, a := range r.Architectures {
 		if opts.Architecture != "" && opts.Architecture != a.Name {
@@ -186,6 +192,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 		}
 		for _, d := range a.Signature.Directories {
 			d.certificate = signer
+			if len(r.repSpecific) > 0 && d.SpecialSlots < SlotRepSpecific {
+				return r, invalid("disk image signature lacks trailer binding")
+			}
 			if d.CodeLimit != a.SignatureOffset {
 				return r, invalid("code limit does not cover complete image")
 			}
@@ -218,6 +227,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 				}
 				if slot == SlotResources {
 					payload = opts.Resources
+				}
+				if slot == SlotRepSpecific && len(r.repSpecific) > 0 {
+					payload = r.repSpecific
 				}
 				zero := bytes.Equal(want, make([]byte, d.HashSize))
 				if len(payload) == 0 {

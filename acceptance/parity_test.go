@@ -215,7 +215,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		return
 	}
 	reference := apple(t)
-	count := 0
+	count, dmgs := 0, 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -229,6 +229,10 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		}
 		if !d.IsDir() && strings.HasPrefix(d.Name(), "signed-") {
 			mustRun(t, reference, "--verify", "--strict", path)
+			if strings.HasPrefix(d.Name(), "signed-dmg-") {
+				mustRun(t, "/usr/bin/hdiutil", "verify", path)
+				dmgs++
+			}
 			count++
 			seen[d.Name()]++
 		}
@@ -237,8 +241,15 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 66 {
-		t.Fatalf("expected 66 Mach-O and app bundle artifacts from Linux and Windows, found %d", count)
+	if count != 96 || dmgs != 30 {
+		t.Fatalf("expected 96 artifacts including 30 DMGs from Linux and Windows, found %d/%d", count, dmgs)
+	}
+	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
+		for _, identity := range []string{"adhoc", "rsa", "p256"} {
+			if seen["signed-dmg-"+profile+"-"+identity+".dmg"] != 2 {
+				t.Fatalf("expected both OS DMGs for %s/%s", profile, identity)
+			}
+		}
 	}
 	if seen["signed-timestamp-arm64"] != 2 {
 		t.Fatal("expected both OS timestamp artifacts")
@@ -267,5 +278,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs})
 }

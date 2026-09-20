@@ -105,7 +105,8 @@ and remaining limits are in [certificates](certificates.md),
 The first bundle phase now follows Apple's pinned resource rules and compares
 native executable/envelope bytes and mutation behavior. The Rust resource-envelope
 and C++ sigtool references remain useful for the next nested-code/framework
-phase; UDIF references follow for DMGs. Compare native verification and signature
+phase. DMG support now directly uses go-apfs-v2's format model, with Apple and
+Relic informing the signature adapter. Compare native verification and signature
 structure; acceptance alone does not prove byte equality or complete CLI parity.
 
 Use sigtool and LLVM as additional C++ inputs for Clang AST research. Keep Apple

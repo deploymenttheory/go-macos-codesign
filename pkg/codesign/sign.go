@@ -36,17 +36,24 @@ func readFile(path string) ([]byte, error) {
 	return readBounded(f, maxFileSize)
 }
 
-// Sign constructs all architectures before writing the result to path.
+// Sign constructs complete signatures before writing a Mach-O, supported app
+// bundle, or UDIF disk image to path.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if isBundle(path) {
 		return signBundle(ctx, path, opts)
 	}
-	if opts.Identifier == "" {
-		opts.Identifier = filepath.Base(path)
-	}
 	data, err := readFile(path)
 	if err != nil {
 		return err
+	}
+	if opts.Identifier == "" {
+		opts.Identifier = filepath.Base(path)
+		if isDMG(data) {
+			opts.Identifier, err = dmgIdentifier(path, data, opts.Identity == nil)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	out, err := SignBytes(ctx, data, opts)
 	if err != nil {
@@ -58,7 +65,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	return replaceFile(ctx, path, out)
 }
 
-// SignBytes returns a new signed file; input bytes are never mutated.
+// SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.
 func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -85,6 +92,9 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 	}
 	if opts.Flags & ^uint32(0x33f02) != 0 {
 		return nil, unsupported("code signing flags")
+	}
+	if isDMG(data) {
+		return signDMG(ctx, data, opts)
 	}
 	c, err := parseContainer(data)
 	if err != nil {
@@ -297,7 +307,8 @@ func updateLinkedit(out []byte, im *image, end int) {
 	}
 }
 
-// RemoveSignature removes embedded signatures from every architecture.
+// RemoveSignature removes embedded Mach-O and supported app-bundle signatures.
+// Native codesign does not support removing a UDIF signature; that returns ErrUnsupported.
 func RemoveSignature(ctx context.Context, path string) error {
 	if isBundle(path) {
 		return removeBundle(ctx, path)
@@ -314,6 +325,9 @@ func RemoveSignature(ctx context.Context, path string) error {
 }
 
 func RemoveSignatureBytes(ctx context.Context, data []byte) ([]byte, error) {
+	if isDMG(data) {
+		return nil, unsupported("signature removal for disk images")
+	}
 	c, err := parseContainer(data)
 	if err != nil {
 		return nil, err

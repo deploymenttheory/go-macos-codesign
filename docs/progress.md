@@ -14,6 +14,7 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | RFC 3161 core | Token verification, explicit TSA trust, historical certificate validation, signing callbacks and nonce-bound request/response processing | [PR #9, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/9) |
 | Online timestamps | Pure-Go HTTP transport, Apple/custom TSA CLI options, pinned Apple roots, deadlines, cancellation and failure preservation | [PR #10, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/10) |
 | Basic app bundles | Contents-based APPL signing/removal, XML Info.plist binding, deterministic resource envelopes, metadata display and tamper checks | [Supported profile and native evidence](bundles.md) |
+| UDIF disk images | Direct go-apfs-v2 dependency; payload-preserving signatures, canonical trailer binding, native identifiers/display and timestamps | [DMG support and native evidence](dmg-integration.md) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -22,13 +23,30 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The bundle phase passes local `make verify` on the same macOS 27 build, with
-2,926/3,041 library statements (96.22%), 411/413 CLI statements (99.52%) and
-1/1 entry-point statement covered. Native comparisons cover all three app
-executable forms, identical CodeResources, fifteen display cases and eleven
-mutations. golangci-lint and a 30-second resource-parser fuzz run also pass.
-These are local results; this phase's remote checks must establish the expanded
-66-artifact matrix on Linux, Windows and macOS before it is ready to merge.
+The DMG phase passes local `make verify` on macOS 27 build 26A428 with 3,093/3,216
+library statements (96.18%), 418/420 CLI statements (99.52%) and 1/1 entry-point
+statement covered. Forty native byte comparisons, 200 display comparisons,
+fifteen signature/image-checksum cases, five committed native fixtures, local TSA
+tests, lint and a 30-second DMG fuzz run pass. A live Apple timestamp on the APFS
+fixture also passes native strict verification. These are local results; remote
+CI must establish the expanded 96-artifact matrix for this implementation.
+
+### App-bundle phase CI
+
+[PR #12 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/12).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35469486771)
+tested commit `8410d21faf443c3471634fd3525c8153cae31223`. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 2,926/3,041 — 96.22% | 406/413 — 98.31% | 1/1 — 100% |
+| Windows 2025 | 2,923/3,041 — 96.12% | 406/413 — 98.31% | 1/1 — 100% |
+| macOS 27 | 2,926/3,041 — 96.22% | 411/413 — 99.52% | 1/1 — 100% |
+
+All three OS jobs, native strict verification of all **66** foreign artifacts,
+six-target GoReleaser packaging, the race detector and all seven fuzz targets
+passed. [golangci-lint also passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35469486829).
+Native bundle bytes, fifteen display cases and eleven mutation cases matched.
 
 ### Online-timestamp phase CI
 
@@ -66,7 +84,9 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 The initial Contents-based app/resource profile is implemented. Binary bundle
 plists, nested code, framework/plugin layouts and symlink/xattr policy are the
-next format work. UDIF/DMG, generic-file and detached signatures follow. Further work includes
+next format work. UDIF signing is now implemented for a bounded profile;
+large-image streaming, encrypted/segmented images, generic-file and detached
+signatures remain open. Further work includes
 requirement predicates, CodeDirectory variants, metadata preservation, certificate
 and timestamp policy, revocation, and exact CLI diagnostics/localization.
 

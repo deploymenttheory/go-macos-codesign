@@ -170,6 +170,7 @@ Linux and Windows each export 27 signed Mach-O files, including eight PKCS#12,
 three chain cases and one timestamp replay, for a downstream Mac to verify
 (54 Mach-O files in total). The bundle phase additionally exports six apps per
 OS, bringing the required native verification count to 66 artifacts.
+The DMG phase adds another fifteen images per OS, for 96 artifacts overall.
 The CLI also verifies the twelve committed Apple-created signatures on every OS.
 The [progress report](progress.md) links the actual three-OS workflow and its
 54-file native verification result. Future commits require their own checks.

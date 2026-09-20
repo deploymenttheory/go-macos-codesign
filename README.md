@@ -3,9 +3,10 @@
 A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementation
 currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
 certificate-backed Mach-O signatures**, including a bounded macOS app-bundle
-layout with resource sealing. Certificate verification uses explicit
+layout with resource sealing. It also signs, inspects and verifies UDIF DMGs using
+[`go-apfs-v2`](docs/dmg-integration.md) directly. Certificate verification uses explicit
 leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
-`codesign`**. Full certificate policy, nested bundles/frameworks, disk images, and other requirements remain open in the
+`codesign`**. Full certificate policy, nested bundles/frameworks, additional disk-image forms, and other requirements remain open in the
 [compatibility inventory](spec/compatibility.json). Full-parity releases are blocked.
 
 The CLI runs on Linux, macOS, and Windows without Apple frameworks, subprocess
@@ -16,7 +17,8 @@ The current implementation includes portable certificate chains and Team IDs,
 authenticated PKCS#12 import, and online RFC 3161 timestamps. The
 [progress report](docs/progress.md) records delivered milestones, the tested
 commit and actual CI evidence. [App bundles](docs/bundles.md) now bind Info.plist
-and deterministic CodeResources; nested code and framework layouts are next.
+and deterministic CodeResources. UDIF signing reuses the APFS project's footer
+model; nested code, framework layouts and wider format/policy coverage remain open.
 
 ## Build
 
@@ -58,6 +60,10 @@ macoscodesign --remove-signature ./hello
 macoscodesign -s - --timestamp=none ./Example.app
 macoscodesign --verify ./Example.app
 macoscodesign -dvvvv ./Example.app
+
+# A single-segment UDIF disk image:
+macoscodesign -s - -i org.example.image --timestamp=none ./Example.dmg
+macoscodesign --verify ./Example.dmg
 
 # Portable certificate identity and trust inputs (unencrypted PEM):
 macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
@@ -106,7 +112,7 @@ Import `github.com/deploymenttheory/go-macos-codesign/pkg/codesign`.
 in-memory use. Input bytes are not modified by signing or signature removal.
 File writes preserve the existing inode and are not atomic; sign a copy when
 rollback is required. File operations currently have a 1 GiB input/output limit.
-The path APIs also accept supported app bundles; byte APIs remain Mach-O-only.
+The path APIs also accept supported app bundles; byte APIs accept Mach-O and UDIF.
 See [bundle layouts and limits](docs/bundles.md).
 
 ## Verification
@@ -129,8 +135,9 @@ Apple `codesign` on macOS 27.0, build 26A428. See
 CI runs tests on Linux, macOS 27, and Windows; builds all six targets with
 GoReleaser; checks race behavior and fuzzes parsers; and sends files signed on
 Linux/Windows to macOS for Apple verification. The recorded run passed all 54
-foreign-file verifications. The bundle phase expands the required matrix to 66
-artifacts, including 12 app bundles. Go code linting uses golangci-lint only.
+foreign-file verifications; the bundle phase subsequently passed all 66 artifacts.
+The DMG phase expands the required matrix to 96, including 30 disk images verified
+with both native signing and image-checksum tools. Go code linting uses golangci-lint only.
 
 ## Research and remaining work
 
@@ -140,6 +147,7 @@ artifacts, including 12 app bundles. Go code linting uses golangci-lint only.
 - [Certificate signing and explicit trust](docs/certificates.md)
 - [Online timestamps and TSA trust](docs/timestamps.md)
 - [App bundles and resource sealing](docs/bundles.md)
+- [DMG signing using go-apfs-v2](docs/dmg-integration.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
 - [Implementation stages and outstanding work](docs/implementation.md)
 - [Testing and release gates](docs/testing.md)

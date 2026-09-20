@@ -45,7 +45,8 @@ type SignOptions struct {
 	// SigningTime is the CMS signing-time claim. Zero uses the current time.
 	// It is not an RFC 3161 timestamp.
 	SigningTime time.Time
-	// Timestamp obtains and validates an RFC 3161 token for each architecture.
+	// Timestamp obtains and validates an RFC 3161 token for each Mach-O
+	// architecture or for the single UDIF signature.
 	// DryRun still calls the provider because it constructs complete signatures.
 	Timestamp *TimestampOptions
 	teamID    string
@@ -123,7 +124,8 @@ type CertificateMetadata struct {
 	Timestamp   *TimestampInfo `json:",omitempty"`
 }
 
-// Architecture contains the observed signature of one Mach-O slice.
+// Architecture contains one observed signature. For Mach-O it represents a
+// slice; for UDIF the architecture-independent image is named "dmg".
 type Architecture struct {
 	VersionPlatform uint32
 	VersionMin      uint32
@@ -144,6 +146,7 @@ type Report struct {
 	Bundle        *BundleInfo `json:",omitempty"`
 	Architectures []Architecture
 	Valid         bool
+	repSpecific   []byte
 }
 
 func invalid(format string, args ...any) error {

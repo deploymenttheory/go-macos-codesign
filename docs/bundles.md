@@ -45,7 +45,7 @@ combinations of these options. Certificate and TSA trust remain explicit;
 see [certificates](certificates.md) and [timestamps](timestamps.md).
 
 `Sign`, `Inspect`, `Verify` and `RemoveSignature` accept the bundle path. The
-byte APIs continue to operate on Mach-O data. Bundle signing and verification
+byte APIs operate on Mach-O and UDIF data. Bundle signing and verification
 read their own Info.plist and resource envelope, rejecting external special-slot
 overrides. `Report.Bundle` describes the main executable, Info.plist entry count,
 and envelope version/rule/file counts. Inspection metadata does not establish
