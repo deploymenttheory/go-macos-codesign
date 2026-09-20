@@ -216,6 +216,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	}
 	reference := apple(t)
 	count, dmgs, binaryBundles, nestedBundles, recursiveBundles := 0, 0, 0, 0, 0
+	layoutArchives := 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -240,7 +241,12 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			return filepath.SkipDir
 		}
 		if !d.IsDir() && strings.HasPrefix(d.Name(), "signed-") {
-			mustRun(t, reference, "--verify", "--strict", path)
+			if strings.HasPrefix(d.Name(), "signed-layout-") {
+				verifyLayoutArchive(t, reference, path)
+				layoutArchives++
+			} else {
+				mustRun(t, reference, "--verify", "--strict", path)
+			}
 			if strings.HasPrefix(d.Name(), "signed-dmg-") {
 				mustRun(t, "/usr/bin/hdiutil", "verify", path)
 				dmgs++
@@ -253,8 +259,8 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 174 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 {
-		t.Fatalf("expected 174 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles and 36 recursive app trees from Linux and Windows, found %d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles)
+	if count != 300 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 || layoutArchives != 126 {
+		t.Fatalf("expected 300 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles, 36 recursive app trees and 126 layout archives from Linux and Windows, found %d/%d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles, layoutArchives)
 	}
 	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
@@ -267,6 +273,13 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		for _, kind := range append(append([]string{}, bundleLayouts...), "mixed") {
+			for _, identity := range []string{"adhoc", "rsa", "p256"} {
+				if seen["signed-layout-"+kind+"-"+identity+"-"+arch+".tar"] != 2 {
+					t.Fatalf("expected both OS layout archives for %s/%s/%s", kind, identity, arch)
+				}
+			}
+		}
 		for _, profile := range []string{"xml", "mixed"} {
 			for _, identity := range []string{"adhoc", "rsa", "p256"} {
 				if seen["signed-bundle-recursive-"+profile+"-"+identity+"-"+arch+".app"] != 2 {
@@ -309,5 +322,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles, "imported_layout_archives_deep_verified": layoutArchives})
 }

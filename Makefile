@@ -40,6 +40,7 @@ research-bundles:
 	go run scripts/extract-bundle-plists.go
 	go run scripts/extract-nested.go
 	go run scripts/extract-nested-apps.go
+	go run scripts/extract-bundle-layouts.go
 
 research-dmg:
 	go run scripts/extract-dmg.go

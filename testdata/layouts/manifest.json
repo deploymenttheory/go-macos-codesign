@@ -1,0 +1,62 @@
+{
+  "archive": "deterministic POSIX tar preserving symlink targets",
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "compile_arguments": [
+    "-isysroot",
+    "\u003csdk\u003e",
+    "-arch",
+    "\u003carchitecture\u003e",
+    "-bundle",
+    "-Wl,-no_adhoc_codesign",
+    "-Wl,-headerpad,0x1000",
+    "-o",
+    "\u003coutput\u003e",
+    "testdata/nested/library.c"
+  ],
+  "compile_source": "testdata/nested/library.c",
+  "compile_source_sha256": "741161e08a04db7ceb9eb4d1d6dd5d5c00df1b097e8d3d837f913053cf6de757",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "compiler_sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9",
+  "files": {
+    "appex-arm64.tar": "dfa6cda08d29274cac862eef24338ad45a916efb02c753fdbb14a2b7dce2966c",
+    "appex-universal.tar": "809d8a1f14a2e1d61bb1d08566d4b786a5ba0b2178b952183e24deb7547c4bdc",
+    "appex-x86_64.tar": "59056a400829df99a17d45b949befedcb08353ea119e2dfdbc1eb8f3364a566b",
+    "bundle-arm64.tar": "a1abfddf2322a20faafbc0ef523a51d9def512b6526215365a2bab2b49d91650",
+    "bundle-universal.tar": "e47a17fb1b31d5d64e7f718d18eb9528c3c8f6c644742a154ce82e92541974eb",
+    "bundle-x86_64.tar": "70198b2aff494436b16edcea712c9e66de14ea9a8cf0e4345b37e5186c960d83",
+    "framework-arm64.tar": "8042b704aa62bfed3ae62b553342ae7aba069ad046e7dd5409a89fd6d7072a8a",
+    "framework-universal.tar": "49676e48167a5414b21faa8e1e84d69d752a4638f2fb338fbb454063c112de74",
+    "framework-x86_64.tar": "83cf6fa2f85db2d8c2d8884f696c0746ac48d35c17f57c884b14ee32c253ad26",
+    "plugin-arm64.tar": "a1abfddf2322a20faafbc0ef523a51d9def512b6526215365a2bab2b49d91650",
+    "plugin-universal.tar": "e47a17fb1b31d5d64e7f718d18eb9528c3c8f6c644742a154ce82e92541974eb",
+    "plugin-x86_64.tar": "70198b2aff494436b16edcea712c9e66de14ea9a8cf0e4345b37e5186c960d83",
+    "unsigned-arm64.bundle": "334e01075d72d559e1438ae5cfd344bc7b0c3114df2dbe7a4c3bc5b0cd26d9af",
+    "unsigned-universal.bundle": "99d689b781302a403462c7db8668fd8c3240a1b29bdc2353bccc2e9258aa4cc6",
+    "unsigned-x86_64.bundle": "80ed8850ed7f75927f337e51f9fa800089472eaf3c17a9977d963a91b1fe4896",
+    "versioned-arm64.tar": "c2131ffe989a09352e525948bb9c2e65939f9927a009a55fb36fcc753bfa7e7e",
+    "versioned-universal.tar": "a8ab526afb5fe76cc4ba1cc13989e643596deb24ae840b531e05c6ca68fc3f1e",
+    "versioned-x86_64.tar": "7075b6a6530a5ee7add7af6aaa53ded582e362412fdff834e2bb410c5786b146",
+    "xpc-arm64.tar": "dfa6cda08d29274cac862eef24338ad45a916efb02c753fdbb14a2b7dce2966c",
+    "xpc-universal.tar": "809d8a1f14a2e1d61bb1d08566d4b786a5ba0b2178b952183e24deb7547c4bdc",
+    "xpc-x86_64.tar": "59056a400829df99a17d45b949befedcb08353ea119e2dfdbc1eb8f3364a566b"
+  },
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "metadata": "binary Info.plist via pinned howett.net/plist",
+  "native_strict_deep_verified": true,
+  "schema": 1,
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "sign_arguments": [
+    "-s",
+    "-",
+    "--deep",
+    "--timestamp=none",
+    "\u003cbundle\u003e"
+  ],
+  "source": "acceptance/layout_test.go: TestRecordAppleLayoutFixtures",
+  "verify_arguments": [
+    "--verify",
+    "--strict",
+    "--deep",
+    "\u003cbundle\u003e"
+  ]
+}

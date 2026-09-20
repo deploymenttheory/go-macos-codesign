@@ -3,12 +3,13 @@
 A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementation
 currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
 certificate-backed Mach-O signatures**, including a bounded macOS app-bundle
-layout with XML/binary metadata, resource sealing, nested Mach-O helpers/dylibs
-and recursive Contents-based APPL apps.
+profile with XML/binary metadata, resource sealing, nested Mach-O helpers/dylibs,
+apps, plug-ins, XPC services/extensions and unversioned or single-version frameworks.
 It also signs, inspects and verifies UDIF DMGs using
 [`go-apfs-v2`](docs/dmg-integration.md) directly. Certificate verification uses explicit
 leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
-`codesign`**. Full certificate policy, framework/plugin layouts, additional disk-image forms, and other requirements remain open in the
+`codesign`**. Full certificate policy, multiple framework versions, broader symlink/xattr policy,
+additional disk-image forms, and other requirements remain open in the
 [compatibility inventory](spec/compatibility.json). Full-parity releases are blocked.
 
 The CLI runs on Linux, macOS, and Windows without Apple frameworks, subprocess
@@ -21,7 +22,8 @@ authenticated PKCS#12 import, and online RFC 3161 timestamps. The
 commit and actual CI evidence. [App bundles](docs/bundles.md) now bind Info.plist
 and deterministic CodeResources, including child designated requirements and
 `--deep` signing/verification. UDIF signing reuses the APFS project's footer
-model; framework/plugin layouts and wider format/policy coverage remain open.
+model; wider format and policy coverage remains open. Supported bundle resources
+include relative symlinks, sealed by their target text.
 
 ## Build
 
@@ -64,7 +66,7 @@ macoscodesign -s - --timestamp=none ./Example.app
 macoscodesign --verify ./Example.app
 macoscodesign -dvvvv ./Example.app
 
-# A supported app containing helpers, dylibs or nested APPL .app children:
+# A supported app containing helpers, apps, plug-ins, XPC services or frameworks:
 macoscodesign -s - --deep --timestamp=none ./Example.app
 macoscodesign --verify --deep ./Example.app
 
@@ -132,8 +134,8 @@ make lint
 Verification runs unit tests and the compiled CLI as a subprocess, merges their
 statement coverage, and requires **more than 95% in every production package**.
 It writes coverage, raw acceptance transcripts, fixture hashes, and source
-provenance under `artifacts/`. The merged nested-Mach-O phase measures
-96.09–96.34% library coverage, 98.10–99.53% CLI coverage and 100% entry-point coverage
+provenance under `artifacts/`. The merged recursive-app phase measures
+96.20–96.44% library coverage, 98.10–99.53% CLI coverage and 100% entry-point coverage
 across the three CI operating systems; see the [commit-specific results](docs/progress.md#recorded-validation).
 The current implementation has been checked against
 Apple `codesign` on macOS 27.0, build 26A428. See
@@ -141,10 +143,10 @@ Apple `codesign` on macOS 27.0, build 26A428. See
 
 CI runs tests on Linux, macOS 27, and Windows; builds all six targets with
 GoReleaser; checks race behavior and fuzzes parsers; and sends files signed on
-Linux/Windows to macOS for Apple verification. The merged nested-Mach-O phase
-passed all 138 artifacts, including 18 apps checked with native strict deep
-verification. Recursive apps expand the required matrix to 174, adding 36 app
-trees containing login-item and worker apps with XML/binary metadata. See the
+Linux/Windows to macOS for Apple verification. The merged recursive-app phase
+passed all 174 artifacts, including 36 recursive app trees. Bundle layouts expand
+the required matrix to 300, adding 126 tar archives that retain framework and
+resource symlinks for native strict deep verification. See the
 progress page for completed runs. Go code linting uses golangci-lint only.
 
 ## Research and remaining work

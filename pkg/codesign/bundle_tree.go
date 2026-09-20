@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const maxBundleDepth = 8
@@ -21,6 +22,22 @@ type bundleScan struct {
 
 func newBundleScan() *bundleScan {
 	return &bundleScan{recurse: true, seen: map[string]bool{}, regular: map[string]os.FileInfo{}, writable: map[string]os.FileInfo{}}
+}
+
+func (s *bundleScan) entry(name string) error {
+	s.entries++
+	if s.entries > maxBundleEntries {
+		return unsupported("bundle entry count limit")
+	}
+	if err := bundleRelativePath(name); err != nil {
+		return err
+	}
+	lower := strings.ToLower(name)
+	if s.seen[lower] {
+		return unsupported("case-colliding bundle paths")
+	}
+	s.seen[lower] = true
+	return nil
 }
 
 func (s *bundleScan) addChild() error {
@@ -73,6 +90,12 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		for _, entry := range child.layoutEntries {
+			if err := scope.entry(prefix + name + "/" + entry); err != nil {
+				return nil, err
+			}
+		}
 	}
 	data, err := child.read(child.executable, maxFileSize-scope.bytes)
 	if err != nil {
@@ -84,7 +107,7 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 	scope.bytes += int64(len(data))
 	var resources []byte
 	if scope.recurse {
-		resources, err = child.read(bundleResourcesPath, min(maxBundlePlist, maxFileSize-scope.bytes))
+		resources, err = child.read(child.resourcesPath(), min(maxBundlePlist, maxFileSize-scope.bytes))
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return nil, err
 		}
@@ -96,7 +119,7 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 // forceMain replaces this executable without changing whether already signed
 // descendants are preserved. Native deep signing distinguishes these choices.
 func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files2 map[string]any, opts SignOptions, forceMain bool) ([]byte, []bundleWrite, error) {
-	writes, err := prepareNested(ctx, files2, opts)
+	writes, err := prepareNestedAt(ctx, files2, opts, b.base)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -112,7 +135,7 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 	if err != nil {
 		return nil, nil, err
 	}
-	writes = append(writes, bundleWrite{name: bundleResourcesPath, data: opts.Resources, bundle: b, create: true}, bundleWrite{name: b.executable, data: out, bundle: b})
+	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, create: true}, bundleWrite{name: b.executable, data: out, bundle: b})
 	var total int64
 	for i := range writes {
 		if writes[i].bundle == nil {

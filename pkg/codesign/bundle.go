@@ -15,7 +15,7 @@ import (
 
 const bundleResourcesPath = "Contents/_CodeSignature/CodeResources"
 
-// BundleInfo describes the supported app representation. Inspection is not trust.
+// BundleInfo describes the supported bundle representation. Inspection is not trust.
 type BundleInfo struct {
 	Executable      string
 	InfoEntries     int
@@ -30,6 +30,10 @@ type appBundle struct {
 	info                         []byte
 	entries                      int
 	children                     []*appBundle
+	base, infoPath, format       string
+	framework                    bool
+	version                      string
+	layoutEntries                []string
 }
 
 func isBundle(path string) bool { st, err := os.Stat(path); return err == nil && st.IsDir() }
@@ -74,7 +78,10 @@ func openAppBundle(path string) (*appBundle, error) {
 func loadAppBundle(root *os.Root, path string) (*appBundle, error) {
 	b := &appBundle{root: root, path: path}
 	fail := func(err error) (*appBundle, error) { root.Close(); return nil, err }
-	info, err := b.read("Contents/Info.plist", maxBundlePlist)
+	if err := b.discoverLayout(); err != nil {
+		return fail(err)
+	}
+	info, err := b.read(b.infoPath, maxBundlePlist)
 	if err != nil {
 		return fail(err)
 	}
@@ -93,15 +100,28 @@ func loadAppBundle(root *os.Root, path string) (*appBundle, error) {
 	if !ok || identifier == "" || strings.ContainsRune(identifier, 0) {
 		return fail(malformed("CFBundleIdentifier must be a nonempty string"))
 	}
-	if values["CFBundlePackageType"] != "APPL" {
-		return fail(unsupported("only Contents-based APPL bundles are supported"))
+	if b.framework {
+		if values["CFBundlePackageType"] != "FMWK" || executable != strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)) {
+			return fail(unsupported("framework metadata must name its FMWK executable"))
+		}
+	} else {
+		switch values["CFBundlePackageType"] {
+		case "APPL":
+		case "BNDL", "XPC!":
+			b.format = "bundle with "
+		default:
+			return fail(unsupported("Contents bundle package type"))
+		}
 	}
 	for _, key := range []string{"CFBundleResourceSpecification", "MainHTML", "IFMajorVersion"} {
 		if _, exists := values[key]; exists {
 			return fail(unsupported("bundle metadata: " + key))
 		}
 	}
-	b.info, b.entries, b.identifier, b.executable = info, len(values), identifier, "Contents/MacOS/"+executable
+	b.info, b.entries, b.identifier, b.executable = info, len(values), identifier, b.base+"MacOS/"+executable
+	if b.framework {
+		b.executable = b.base + executable
+	}
 	return b, nil
 }
 
@@ -135,17 +155,25 @@ func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 	return readBounded(f, limit)
 }
 
-// scan validates the entire supported tree, never follows symlinks and streams
-// hashes. os.Root keeps all reads and writes confined to the opened bundle.
+// scan validates the supported tree, seals resource symlinks without following
+// them, and streams hashes. os.Root confines all reads and writes to the bundle.
 func (b *appBundle) scan(ctx context.Context) (map[string]any, map[string]any, error) {
 	return b.scanTree(ctx, newBundleScan(), 0, "")
 }
 
 func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, prefix string) (map[string]any, map[string]any, error) {
 	files, files2 := map[string]any{}, map[string]any{}
+	if err := b.validateFrameworkRoot(); err != nil {
+		return nil, nil, err
+	}
+	for _, name := range b.layoutEntries {
+		if err := scope.entry(prefix + name); err != nil {
+			return nil, nil, err
+		}
+	}
 	// Writing any signature target must not also change another bundle member
 	// through a hard link, invalidating the envelope we just constructed.
-	for _, name := range []string{b.executable, bundleResourcesPath} {
+	for _, name := range []string{b.executable, b.resourcesPath()} {
 		st, err := b.root.Lstat(name)
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return nil, nil, err
@@ -156,32 +184,25 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 		}
 	}
-	err := fs.WalkDir(b.root.FS(), ".", func(name string, d fs.DirEntry, walkErr error) error {
+	start := "."
+	if b.version != "" {
+		start = strings.TrimSuffix(b.base, "/")
+	}
+	err := fs.WalkDir(b.root.FS(), start, func(name string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if name == "." {
+		if name == start {
 			return nil
 		}
-		scope.entries++
-		if scope.entries > maxBundleEntries {
-			return unsupported("bundle entry count limit")
-		}
-		if err := bundleRelativePath(prefix + name); err != nil {
+		if err := scope.entry(prefix + name); err != nil {
 			return err
 		}
-		lower := strings.ToLower(prefix + name)
-		if scope.seen[lower] {
-			return unsupported("case-colliding bundle paths")
-		}
-		scope.seen[lower] = true
-		if d.Type()&os.ModeSymlink != 0 {
-			return unsupported("bundle symlinks")
-		}
-		if name == "Contents" || name == "Contents/MacOS" || name == "Contents/Resources" || name == "Contents/_CodeSignature" {
+		rel := strings.TrimPrefix(name, b.base)
+		if name == strings.TrimSuffix(b.base, "/") || rel == "MacOS" || rel == "Resources" || rel == "_CodeSignature" {
 			if !d.IsDir() {
 				return malformed("bundle directory: %s", name)
 			}
@@ -190,17 +211,21 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if name == ".DS_Store" && d.Type().IsRegular() {
 			return nil
 		}
-		if !strings.HasPrefix(name, "Contents/") {
+		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
-		rel := strings.TrimPrefix(name, "Contents/")
 		nested, container := nestedCodePath(rel)
+		if b.framework && !strings.Contains(rel, "/") && !d.IsDir() {
+			nested = true // additional top-level Mach-O files are nested code
+		}
+		link := d.Type()&os.ModeSymlink != 0
 		switch {
-		case name == b.executable, rel == "Info.plist", rel == "PkgInfo", rel == "version.plist", rel == "embedded.provisionprofile", name == bundleResourcesPath:
-			if d.IsDir() {
-				return malformed("bundle file is a directory: %s", name)
+		case name == b.executable, name == b.infoPath, rel == "Info.plist", rel == "PkgInfo", rel == "version.plist", rel == "embedded.provisionprofile", name == b.resourcesPath():
+			nested = false
+			if d.IsDir() || link {
+				return malformed("bundle file is not regular: %s", name)
 			}
-		case strings.HasPrefix(rel, "Resources/"):
+		case strings.HasPrefix(rel, "Resources/"), b.framework && frameworkResourcePath(rel):
 			if d.IsDir() {
 				return nil
 			}
@@ -212,7 +237,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		case nested:
 			if d.IsDir() {
 				if strings.Contains(d.Name(), ".") {
-					if !strings.HasSuffix(strings.ToLower(d.Name()), ".app") {
+					if !nestedBundleSuffix(d.Name()) {
 						return unsupported("nested bundle layout: " + rel)
 					}
 					child, err := b.scanChild(ctx, name, scope, depth+1, prefix)
@@ -226,6 +251,19 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 		default:
 			return unsupported("bundle layout or nested code: " + rel)
+		}
+		if link {
+			if strings.EqualFold(d.Name(), ".DS_Store") {
+				return unsupported("DS_Store symlink")
+			}
+			target, err := b.resourceLink(name, rel, scope)
+			if err != nil {
+				return err
+			}
+			if include, optional := resourcePolicy(rel, false); include {
+				files2[rel] = symlinkSeal(target, optional)
+			}
+			return nil // legacy envelopes omit every symlink
 		}
 		st, err := d.Info()
 		if err != nil {
@@ -245,7 +283,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 		}
 		scope.regular[prefix+name] = st
-		if name == b.executable || rel == "Info.plist" || name == bundleResourcesPath {
+		if name == b.executable || rel == "Info.plist" || name == b.resourcesPath() {
 			return nil
 		}
 		include1, optional1 := resourcePolicy(rel, true)
@@ -310,8 +348,12 @@ func (b *appBundle) annotate(r *Report, resources []byte) {
 		return
 	}
 	r.Path = b.path
-	r.Format = "app bundle with " + r.Format
-	r.Bundle = &BundleInfo{Executable: filepath.Join(b.path, filepath.FromSlash(b.executable)), InfoEntries: b.entries}
+	r.Format = b.format + r.Format
+	executable := b.executable
+	if b.version != "" {
+		executable = "Versions/Current/" + strings.TrimPrefix(executable, b.base)
+	}
+	r.Bundle = &BundleInfo{Executable: filepath.Join(b.path, filepath.FromSlash(executable)), InfoEntries: b.entries}
 	if m, err := decodeBundlePlist(resources); err == nil {
 		if files, ok := m["files2"].(map[string]any); ok {
 			r.Bundle.ResourceVersion = 2
@@ -337,7 +379,7 @@ func inspectBundle(ctx context.Context, path string) (*Report, error) {
 		return nil, err
 	}
 	r, err := InspectBytes(data)
-	resources, _ := b.read(bundleResourcesPath, maxBundlePlist)
+	resources, _ := b.read(b.resourcesPath(), maxBundlePlist)
 	b.annotate(r, resources)
 	return r, err
 }
@@ -361,7 +403,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if err != nil {
 		return nil, err
 	}
-	resources, err := b.read(bundleResourcesPath, maxBundlePlist)
+	resources, err := b.read(b.resourcesPath(), maxBundlePlist)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, err
 	}
@@ -426,7 +468,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	// signing, I/O failures during the writes can leave partial output.
 	for _, write := range writes {
 		if write.create {
-			if err := write.bundle.root.Mkdir("Contents/_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
+			if err := write.bundle.root.Mkdir(write.bundle.base+"_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
 				return err
 			}
 		}
@@ -494,11 +536,9 @@ func removeBundle(ctx context.Context, path string) error {
 	if err := b.write(ctx, b.executable, out, false); err != nil {
 		return err
 	}
-	if err := b.root.Remove(bundleResourcesPath); err != nil && !errors.Is(err, os.ErrNotExist) {
+	if err := b.root.Remove(b.resourcesPath()); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	if err := b.root.Remove("Contents/_CodeSignature"); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
+	// Apple's bundle writer unlinks signature files but retains the directory.
 	return nil
 }

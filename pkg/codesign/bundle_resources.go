@@ -228,6 +228,19 @@ func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual m
 			continue
 		}
 		seal, ok := v.(map[string]any)
+		if target, linked := seal["symlink"].(string); linked {
+			if !include || target == "" || !reflect.DeepEqual(v, symlinkSeal(target, optional)) {
+				return 0, invalid("symlink resource seal: %s", name)
+			}
+			if got, present := actual[name]; present {
+				if !reflect.DeepEqual(got, v) {
+					return 0, invalid("altered symlink resource: %s", name)
+				}
+			} else if !optional {
+				return 0, invalid("missing symlink resource: %s", name)
+			}
+			continue
+		}
 		hash, hashOK := seal["hash2"].([]byte)
 		if !include || !ok || !hashOK || len(hash) != 32 || !reflect.DeepEqual(v, resourceSeal(hash, optional, false)) {
 			return 0, invalid("resource seal for %s", name)

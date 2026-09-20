@@ -34,15 +34,19 @@ implemented development work, not published versioned releases. See
 - Recursive Contents-based APPL .app children with mixed XML/binary metadata,
   staged descendant-first signing, shared traversal/output budgets, cross-bundle
   hard-link checks and native shallow/deep verification semantics.
+- Contents-based BNDL plug-ins and XPC! services/extensions, unversioned and
+  single-version FMWK frameworks, canonical framework aliases and bounded relative
+  resource symlink sealing. Includes real MH_BUNDLE fixtures, eighteen native
+  archives, five-method Clang AST research and mixed-layout acceptance.
 - UDIF DMG signing, inspection and verification through a direct go-apfs-v2
   dependency, with native trailer binding, identifiers, CMS/timestamps and display.
   Native-unsupported DMG removal preserves the input and returns an error.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
 - Linux/macOS/Windows CI, race checks, nine fuzz targets, and required native
-  verification of 174 Linux/Windows-produced files, app bundles and DMGs,
+  verification of 300 Linux/Windows-produced files, bundles and DMGs,
   including strict deep verification of eighteen apps with plain Mach-O children
-  and 36 recursive app trees.
+  and 36 recursive app trees, plus 126 archives preserving bundle-layout symlinks.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed
@@ -54,6 +58,8 @@ implemented development work, not published versioned releases. See
 
 ### Fixed
 
+- Preserve empty signature directories during bundle removal, matching Apple.
+  The existing embedded Mach-O removal alignment-padding gap remains documented.
 - Shallow nested verification now checks Info.plist and signed non-resource
   metadata, including requirement and entitlement hashes, matching native policy.
 - Match native canonical Mach-O default identifiers, including ad-hoc UUID and

@@ -208,8 +208,28 @@ declarations support parsing; interface/error/slot/logging shims remain explicit
 Download resources.cpp, resources.h and StaticCode.cpp from the pinned record
 before reproducing it. Native probes and acceptance independently establish
 recursive ordering, preservation, mixed metadata and mutation behavior. This
-phase narrows directory discovery to Contents-based APPL `.app` children under
+phase narrowed directory discovery to Contents-based APPL `.app` children under
 the supported code roots; it does not claim every native bundle representation.
+
+The layout phase adds `scripts/extract-bundle-layouts.go` and
+[spec/apple-bundle-layouts.json](../spec/apple-bundle-layouts.json). It parses complete
+verbatim `BundleDiskRep::checkMoved`, `BundleDiskRep::validateFrameworkRoot`,
+`SecStaticCode::validateSymlinkResource`, `BundleDiskRep::Writer::remove()` and
+`BundleDiskRep::Writer::purgeMetaDirectory` bodies for arm64 and x86_64, including
+the framework validator's C++ block. SDK filesystem declarations are real;
+CoreFoundation/validation/writer interfaces and error/flag/slot constants are explicit shims.
+The record pins sources, excerpts, compiler and translation unit. Download
+bundlediskrep.cpp and StaticCode.cpp from its pinned URLs before reproducing it.
+
+Apple's [framework anatomy](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPFrameworks/Concepts/FrameworkAnatomy.html)
+and [bundle placement guidance](https://developer.apple.com/documentation/bundleresources/placing-content-in-a-bundle)
+explain the version and alias structure. The pinned sigtool resource builder is
+an independent reference for paths, nested binaries and symlink text seals.
+Native probes settle the actual Info.plist location, duplicated framework metadata
+sealing, display paths and relative-link behavior. Eighteen native tar fixtures
+and standalone/mixed-tree acceptance independently check the Go implementation.
+Multiple framework versions and absolute/outer-scope resource links are explicitly
+rejected by this phase's bounded profile; the source supports broader policies.
 
 ## DMG research and direct library reuse
 

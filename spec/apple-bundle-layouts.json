@@ -1,0 +1,513 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "checkMoved": "0fd788c8650f930b62d33f2c75881e80a66c12b7e4b256f42047750e1ffb7d6f",
+    "purgeMetaDirectory": "792fb7483726cf146f7900b44c7d981e6cc83e252850435cb8cdc296a2a65820",
+    "remove": "62325dd1d80e67a608048e54ebea84a934cfdfc78ac1e8217f430f89669b9028",
+    "validateFrameworkRoot": "345bd6ac9e68a8438cfd5e3c1923592f04c9820af60bb4eefe4865ff1d737677",
+    "validateSymlinkResource": "f00e7e28340917d0cd113d5d01c626984904ddbb4ad33335228c85f3ecbfe9d5"
+  },
+  "schema": 1,
+  "scope": "Complete verbatim BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations and C++ blocks. CoreFoundation, validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. The Go profile deliberately rejects multiple framework versions and absolute/outer-scope resource links.",
+  "sources": {
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
+    "bundlediskrep.cpp": {
+      "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "checkMoved": {
+        "ast_kinds": {
+          "BinaryOperator": 4,
+          "CXXBindTemporaryExpr": 2,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 6,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 14,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 20,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 3,
+          "ParmVarDecl": 2,
+          "VarDecl": 2
+        },
+        "literals": [],
+        "members": {
+          "c_str": 2,
+          "recordStrictError": 1
+        },
+        "operators": {
+          "!=": 1,
+          "==": 2,
+          "||": 1
+        }
+      },
+      "purgeMetaDirectory": {
+        "ast_kinds": {
+          "CXXBindTemporaryExpr": 2,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 4,
+          "DeclRefExpr": 11,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 2,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 3,
+          "MemberExpr": 11,
+          "UnaryOperator": 1,
+          "VarDecl": 2,
+          "WhileStmt": 1
+        },
+        "literals": [],
+        "members": {
+          "d_name": 1,
+          "end": 1,
+          "find": 1,
+          "getNext": 1,
+          "initialized": 1,
+          "isRegularFile": 1,
+          "mMetaPath": 1,
+          "mWrittenFiles": 2,
+          "rep": 1,
+          "unlink": 1
+        },
+        "operators": {
+          "!": 1
+        }
+      },
+      "remove": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 5,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "execWriter": 1,
+          "remove": 3
+        },
+        "operators": {
+          "++": 1,
+          "\u003c": 1
+        }
+      },
+      "validateFrameworkRoot": {
+        "ast_kinds": {
+          "ArraySubscriptExpr": 1,
+          "BinaryOperator": 7,
+          "BlockDecl": 1,
+          "BlockExpr": 1,
+          "CXXBindTemporaryExpr": 24,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 16,
+          "CXXFunctionalCastExpr": 3,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 10,
+          "CXXThisExpr": 1,
+          "CXXTryStmt": 1,
+          "CallExpr": 3,
+          "Capture": 1,
+          "CharacterLiteral": 1,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 45,
+          "DeclStmt": 4,
+          "ExprWithCleanups": 10,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 63,
+          "IntegerLiteral": 2,
+          "MaterializeTemporaryExpr": 12,
+          "MemberExpr": 10,
+          "ParenExpr": 2,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 16,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 5
+        },
+        "literals": [
+          "\"Current\"",
+          "\"/Versions/Current\"",
+          "\"(Current|\"",
+          "\")\"",
+          "\"^Versions$\"",
+          "\"^Versions/[^/]+$\"",
+          "\"^Versions/Current$\"",
+          "\"^(\\\\./)?(\\\\.\\\\.[^/]+|\\\\.?[^\\\\./][^/]*)$\"",
+          "\"^(Versions/)?\\\\.DS_Store$\"",
+          "\"^[^/]+$\"",
+          "\"^(\\\\./)?Versions/\"",
+          "\"/\"",
+          "\"$\"",
+          "\"^module\\\\.map$\"",
+          "\"^(\\\\./)?Versions/\"",
+          "\"/module\\\\.map$\""
+        ],
+        "members": {
+          "allow": 3,
+          "c_str": 1,
+          "error": 1,
+          "recordStrictError": 1,
+          "require": 3,
+          "validate": 1
+        },
+        "operators": {
+          "-": 1,
+          "=": 1,
+          "\u003e": 1,
+          "|": 4
+        }
+      },
+      "validateSymlinkResource": {
+        "ast_kinds": {
+          "": 2,
+          "ArraySubscriptExpr": 4,
+          "BinaryOperator": 17,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 1,
+          "CXXBindTemporaryExpr": 6,
+          "CXXConstructExpr": 1,
+          "CXXDefaultArgExpr": 1,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 5,
+          "CXXThisExpr": 4,
+          "CallExpr": 11,
+          "CharacterLiteral": 6,
+          "CompoundStmt": 10,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 69,
+          "DeclStmt": 11,
+          "ExprWithCleanups": 5,
+          "ForStmt": 2,
+          "GNUNullExpr": 1,
+          "IfStmt": 10,
+          "ImplicitCastExpr": 107,
+          "InitListExpr": 1,
+          "IntegerLiteral": 13,
+          "MaterializeTemporaryExpr": 6,
+          "MemberExpr": 19,
+          "ParenExpr": 6,
+          "ParmVarDecl": 4,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 5,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "UnaryOperator": 6,
+          "VarDecl": 11
+        },
+        "literals": [
+          "\"/System/\"",
+          "\"/Library/\"",
+          "\"validateSymlinkResource\"",
+          "\"\u003cstdin\u003e\"",
+          "\"resolved[0] == '/'\""
+        ],
+        "members": {
+          "c_str": 3,
+          "end": 1,
+          "find": 1,
+          "includes": 1,
+          "length": 1,
+          "mOuterScope": 1,
+          "mResourceScope": 2,
+          "mTolerateErrors": 2,
+          "mValidationFlags": 1,
+          "reportProblem": 2,
+          "rfind": 1,
+          "root": 1,
+          "size": 1,
+          "substr": 1
+        },
+        "operators": {
+          "!": 1,
+          "!=": 1,
+          "\u0026": 1,
+          "\u0026\u0026": 1,
+          "*": 3,
+          "+": 2,
+          "++": 1,
+          "-": 2,
+          "\u003c": 1,
+          "=": 2,
+          "==": 5,
+          "\u003e": 1,
+          "|": 2
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "checkMoved": {
+        "ast_kinds": {
+          "BinaryOperator": 4,
+          "CXXBindTemporaryExpr": 2,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 6,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 14,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 20,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 3,
+          "ParmVarDecl": 2,
+          "VarDecl": 2
+        },
+        "literals": [],
+        "members": {
+          "c_str": 2,
+          "recordStrictError": 1
+        },
+        "operators": {
+          "!=": 1,
+          "==": 2,
+          "||": 1
+        }
+      },
+      "purgeMetaDirectory": {
+        "ast_kinds": {
+          "CXXBindTemporaryExpr": 2,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 4,
+          "DeclRefExpr": 11,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 2,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 3,
+          "MemberExpr": 11,
+          "UnaryOperator": 1,
+          "VarDecl": 2,
+          "WhileStmt": 1
+        },
+        "literals": [],
+        "members": {
+          "d_name": 1,
+          "end": 1,
+          "find": 1,
+          "getNext": 1,
+          "initialized": 1,
+          "isRegularFile": 1,
+          "mMetaPath": 1,
+          "mWrittenFiles": 2,
+          "rep": 1,
+          "unlink": 1
+        },
+        "operators": {
+          "!": 1
+        }
+      },
+      "remove": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 5,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 1,
+          "MemberExpr": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "literals": [],
+        "members": {
+          "execWriter": 1,
+          "remove": 3
+        },
+        "operators": {
+          "++": 1,
+          "\u003c": 1
+        }
+      },
+      "validateFrameworkRoot": {
+        "ast_kinds": {
+          "ArraySubscriptExpr": 1,
+          "BinaryOperator": 7,
+          "BlockDecl": 1,
+          "BlockExpr": 1,
+          "CXXBindTemporaryExpr": 24,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 16,
+          "CXXFunctionalCastExpr": 3,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 10,
+          "CXXThisExpr": 1,
+          "CXXTryStmt": 1,
+          "CallExpr": 3,
+          "Capture": 1,
+          "CharacterLiteral": 1,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 45,
+          "DeclStmt": 4,
+          "ExprWithCleanups": 10,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 63,
+          "IntegerLiteral": 2,
+          "MaterializeTemporaryExpr": 12,
+          "MemberExpr": 10,
+          "ParenExpr": 2,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 16,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 5
+        },
+        "literals": [
+          "\"Current\"",
+          "\"/Versions/Current\"",
+          "\"(Current|\"",
+          "\")\"",
+          "\"^Versions$\"",
+          "\"^Versions/[^/]+$\"",
+          "\"^Versions/Current$\"",
+          "\"^(\\\\./)?(\\\\.\\\\.[^/]+|\\\\.?[^\\\\./][^/]*)$\"",
+          "\"^(Versions/)?\\\\.DS_Store$\"",
+          "\"^[^/]+$\"",
+          "\"^(\\\\./)?Versions/\"",
+          "\"/\"",
+          "\"$\"",
+          "\"^module\\\\.map$\"",
+          "\"^(\\\\./)?Versions/\"",
+          "\"/module\\\\.map$\""
+        ],
+        "members": {
+          "allow": 3,
+          "c_str": 1,
+          "error": 1,
+          "recordStrictError": 1,
+          "require": 3,
+          "validate": 1
+        },
+        "operators": {
+          "-": 1,
+          "=": 1,
+          "\u003e": 1,
+          "|": 4
+        }
+      },
+      "validateSymlinkResource": {
+        "ast_kinds": {
+          "": 2,
+          "ArraySubscriptExpr": 4,
+          "BinaryOperator": 17,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 1,
+          "CXXBindTemporaryExpr": 6,
+          "CXXConstructExpr": 1,
+          "CXXDefaultArgExpr": 1,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 5,
+          "CXXThisExpr": 4,
+          "CallExpr": 11,
+          "CharacterLiteral": 6,
+          "CompoundStmt": 10,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 69,
+          "DeclStmt": 11,
+          "ExprWithCleanups": 5,
+          "ForStmt": 2,
+          "GNUNullExpr": 1,
+          "IfStmt": 10,
+          "ImplicitCastExpr": 107,
+          "InitListExpr": 1,
+          "IntegerLiteral": 13,
+          "MaterializeTemporaryExpr": 6,
+          "MemberExpr": 19,
+          "ParenExpr": 6,
+          "ParmVarDecl": 4,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 5,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "UnaryOperator": 6,
+          "VarDecl": 11
+        },
+        "literals": [
+          "\"/System/\"",
+          "\"/Library/\"",
+          "\"validateSymlinkResource\"",
+          "\"\u003cstdin\u003e\"",
+          "\"resolved[0] == '/'\""
+        ],
+        "members": {
+          "c_str": 3,
+          "end": 1,
+          "find": 1,
+          "includes": 1,
+          "length": 1,
+          "mOuterScope": 1,
+          "mResourceScope": 2,
+          "mTolerateErrors": 2,
+          "mValidationFlags": 1,
+          "reportProblem": 2,
+          "rfind": 1,
+          "root": 1,
+          "size": 1,
+          "substr": 1
+        },
+        "operators": {
+          "!": 1,
+          "!=": 1,
+          "\u0026": 1,
+          "\u0026\u0026": 1,
+          "*": 3,
+          "+": 2,
+          "++": 1,
+          "-": 2,
+          "\u003c": 1,
+          "=": 2,
+          "==": 5,
+          "\u003e": 1,
+          "|": 2
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "159453729965d672ebcf3a4fa9f5bf78a8aeafff07d423b0368fada613defaae"
+}

@@ -38,6 +38,9 @@ testdata/nested/*.c text eol=lf
 testdata/nested-apps/** -text
 testdata/nested-apps/*.json text eol=lf
 testdata/nested-apps/*.md text eol=lf
+testdata/layouts/* -text
+testdata/layouts/*.json text eol=lf
+testdata/layouts/*.md text eol=lf
 testdata/dmg/* -text
 testdata/dmg/*.json text eol=lf
 testdata/dmg/*.md text eol=lf

@@ -11,7 +11,8 @@ import (
 const maxNestedFiles = 64
 
 // Dotted directories denote native bundle boundaries and must not be traversed
-// as ordinary folders. The scanner supports Contents-based APPL .app children.
+// as ordinary folders. The scanner supports the documented app, plug-in, XPC
+// and framework profiles.
 var nestedCodeRoots = []string{"MacOS", "Helpers", "Frameworks", "SharedFrameworks", "PlugIns", "Plug-ins", "XPCServices", "Library/Automator", "Library/Spotlight", "Library/LoginItems"}
 
 func nestedCodePath(name string) (inside, container bool) {
@@ -98,6 +99,10 @@ func nestedSeal(data []byte) (map[string]any, error) {
 // Construct every child signature before modifying any file. The parent seal
 // references these final bytes. The write phase can still fail partway through.
 func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) ([]bundleWrite, error) {
+	return prepareNestedAt(ctx, files, opts, "Contents/")
+}
+
+func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions, base string) ([]bundleWrite, error) {
 	names := []string{}
 	for name, value := range files {
 		switch value.(type) {
@@ -145,7 +150,7 @@ func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) 
 						}
 					}
 					data, err = SignBytes(ctx, data, child)
-					staged = []bundleWrite{{name: "Contents/" + name, data: data}}
+					staged = []bundleWrite{{name: base + name, data: data}}
 				}
 				if err != nil {
 					return nil, fmt.Errorf("nested %s: %w", name, err)
