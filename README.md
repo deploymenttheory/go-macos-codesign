@@ -28,6 +28,8 @@ include relative symlinks, sealed by their target text.
 `--bundle-version` selects a framework version for signing, display, verification
 or removal. Parent verification checks every physical framework version against
 the parent's sealed requirement; `--deep` adds their pages and resources.
+Direct directory paths such as `Fixture.framework/Versions/A` and
+`Fixture.framework/Versions/Current` operate on that version as a standalone bundle.
 
 ## Build
 

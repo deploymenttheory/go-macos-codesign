@@ -110,6 +110,37 @@ Each unselected version is inventoried without following links, so signing or
 removal cannot change it through an internal hard link. Its signature and metadata
 are not parsed unless that version is selected or checked as a nested framework.
 
+#### Direct version-directory paths
+
+`Fixture.framework/Versions/A` is also accepted as an input bundle. Its resource
+boundary is that physical version directory: signing, inspection, verification
+and removal do not inspect the outer framework's aliases, root files or sibling
+versions. This follows native directory discovery. The usual FMWK metadata and
+executable-name constraints still apply. A malformed outer framework can therefore
+fail root verification while a direct version remains valid.
+
+`Fixture.framework/Versions/Current` resolves its single-component, relative
+target to a physical sibling directory before opening it. Display uses that
+physical path, unlike root-based default selection, which displays Current.
+Other version-root symlinks, absolute/escaping Current targets and Current links
+to regular files are rejected by the portable profile. `--bundle-version` is
+rejected on a direct version directory, including `--bundle-version=Current`.
+
+```sh
+macoscodesign -s - ./Fixture.framework/Versions/A
+macoscodesign --verify --deep ./Fixture.framework/Versions/A
+macoscodesign -dvvvv ./Fixture.framework/Versions/Current
+macoscodesign --remove-signature ./Fixture.framework/Versions/A
+```
+
+The same paths work with the existing library APIs. Budgets and internal hard-link
+checks cover the selected directory and its nested code. Sibling versions lie
+outside a direct version's containment boundary; use the framework root and
+`--bundle-version` when structural checks must cover those siblings too.
+Automatic promotion of a main-executable file path to its enclosing bundle is
+not implemented; callers must pass a supported bundle directory for resource
+validation. Arbitrary shallow directories remain outside the discovery profile.
+
 ### Resource symlinks
 
 Resources may contain relative symlinks to existing targets within their resource
@@ -248,8 +279,8 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 ## Limits
 
 - Only the displayed Contents and framework layouts and plain nested Mach-O files
-  under the listed code directories are supported. Direct paths into
-  `Versions/A`, flat/iOS/installer bundles, receipts, extra signature
+  under the listed code directories are supported. Executable-path bundle
+  promotion, flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to

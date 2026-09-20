@@ -216,7 +216,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	}
 	reference := apple(t)
 	count, dmgs, binaryBundles, nestedBundles, recursiveBundles := 0, 0, 0, 0, 0
-	layoutArchives, versionArchives := 0, 0
+	layoutArchives, versionArchives, pathArchives := 0, 0, 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -241,7 +241,10 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			return filepath.SkipDir
 		}
 		if !d.IsDir() && strings.HasPrefix(d.Name(), "signed-") {
-			if strings.HasPrefix(d.Name(), "signed-versions-") {
+			if strings.HasPrefix(d.Name(), "signed-paths-") {
+				verifyFrameworkVersionsArchive(t, reference, path)
+				pathArchives++
+			} else if strings.HasPrefix(d.Name(), "signed-versions-") {
 				verifyFrameworkVersionsArchive(t, reference, path)
 				versionArchives++
 			} else if strings.HasPrefix(d.Name(), "signed-layout-") {
@@ -262,8 +265,8 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 318 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 || layoutArchives != 126 || versionArchives != 18 {
-		t.Fatalf("expected 318 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles, 36 recursive app trees, 126 layout archives and 18 multi-version framework trees from Linux and Windows, found %d/%d/%d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles, layoutArchives, versionArchives)
+	if count != 336 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 || layoutArchives != 126 || versionArchives != 18 || pathArchives != 18 {
+		t.Fatalf("expected 336 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles, 36 recursive app trees, 126 layout archives, 18 multi-version trees and 18 direct-path trees from Linux and Windows, found %d/%d/%d/%d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles, layoutArchives, versionArchives, pathArchives)
 	}
 	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
@@ -277,6 +280,9 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
+			if seen["signed-paths-"+identity+"-"+arch+".tar"] != 2 {
+				t.Fatalf("expected both OS direct-path archives for %s/%s", identity, arch)
+			}
 			if seen["signed-versions-"+identity+"-"+arch+".tar"] != 2 {
 				t.Fatalf("expected both OS multi-version archives for %s/%s", identity, arch)
 			}
@@ -330,5 +336,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles, "imported_layout_archives_deep_verified": layoutArchives, "imported_framework_version_trees_deep_verified": versionArchives})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles, "imported_layout_archives_deep_verified": layoutArchives, "imported_framework_version_trees_deep_verified": versionArchives, "imported_framework_path_trees_deep_verified": pathArchives})
 }

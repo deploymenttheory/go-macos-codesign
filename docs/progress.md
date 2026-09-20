@@ -21,6 +21,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 | Recursive APPL apps | Nested .app discovery, mixed XML/binary metadata, descendant-first signing, shared budgets and cross-bundle hard-link checks | [Recursive profile and native evidence](bundles.md) |
 | Plug-ins, XPC and frameworks | BNDL/XPC! Contents layouts, unversioned/single-version FMWK layouts, validated framework aliases and relative symlink seals | [Layout profiles and evidence](bundles.md#frameworks) |
 | Multiple framework versions | Explicit version selection, isolated writes/removal, alternate-version requirement checks, shared limits and native fixtures | [Framework version behavior and limits](bundles.md#frameworks) |
+| Direct framework directories | Physical-version and Current inputs, independent resource boundaries, native display paths and selector rejection | [Direct directory behavior](bundles.md#direct-version-directory-paths) |
 | Native removal bytes | Symbol-table padding, virtual-size preservation and universal alignment; safe malformed-input rejection | [Removal evidence and remaining limits](removal.md) |
 | Release automation | App-token/PAT Release Please flow and GoReleaser append releases, SPDX SBOMs and signed checksums | [Workflow and configuration](releases.md) |
 
@@ -58,9 +59,24 @@ SBOMs, checksums and a Sigstore signature bundle in
 [v0.1.0](https://github.com/deploymenttheory/go-macos-codesign/releases/tag/v0.1.0).
 That release contains the supported subset through PR #18.
 
-### Framework-version phase
+### Direct framework-directory phase
 
-The new phase adds twelve selected-signing tree comparisons, ninety exact display
+Direct physical and Current version-directory inputs now pass eighteen complete
+native signing/removal comparisons, ninety exact display comparisons, eighteen
+dry runs, four boundary cases and 64 failed-selector preservation checks.
+Nine identity/architecture trees are produced through direct paths; the three
+ad-hoc trees reproduce the committed native archives. Clang records eight complete
+methods, including native directory/file representation discovery.
+
+The full local suite passes with 3,838/3,984 library statements (96.34%),
+423/425 CLI statements (99.53%) and 1/1 entry-point statement (100%). Lint and
+dependency/fixture guards pass. CI adds eighteen Linux/Windows direct-path trees,
+requiring 336 signed imports and the existing 88 removal comparisons. Per-commit
+workflow and downloaded-artifact results are recorded with the phase's PR.
+
+### Framework-version phase CI
+
+The phase added twelve selected-signing tree comparisons, ninety exact display
 comparisons, six selected-removal comparisons and six dry-run preservation cases.
 Twenty-one parent cases agree with Apple in shallow/deep modes, including unsigned
 alternates, incompatible CDHashes/requirements and page/resource/metadata changes.
@@ -72,11 +88,24 @@ Local full-suite coverage is 3,803/3,949 library statements (96.30%), 423/425 CL
 statements (99.53%) and 1/1 entry-point statement (100%). Lint, dependency and
 fixture guards, and six-target GoReleaser builds pass.
 
-CI requires 318 signed imports, including eighteen additional Linux/Windows
-framework-version trees, plus the existing 88 removal comparisons.
-[PR #20](https://github.com/deploymenttheory/go-macos-codesign/pull/20) tracks this
-phase's workflow results and downloaded coverage evidence. Prior merged evidence
-does not establish validation of a later implementation.
+[PR #20 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/20).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35516832486)
+tested `d0af1256eaacc322bbd0ac540d4803f1b5ebb2af`. Downloaded evidence reports:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,796/3,949 — 96.13% | 417/425 — 98.12% | 1/1 — 100% |
+| Windows 2025 | 3,793/3,949 — 96.05% | 417/425 — 98.12% | 1/1 — 100% |
+| macOS 27 | 3,803/3,949 — 96.30% | 423/425 — 99.53% | 1/1 — 100% |
+
+All OS jobs, packaging, race detection and nine fuzz targets passed;
+[golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35516832475).
+Apple accepted all **318** signed imports, including eighteen multi-version
+framework trees, and matched all **88** removal outputs byte for byte. All 551
+recorded source/fixture hashes per OS were audited against that checkout; only
+seventeen expected Windows text line-ending conversions differed. The six archives
+and six SPDX SBOMs passed all twelve checksum checks. Prior merged evidence does
+not establish validation of a later implementation.
 
 ### Bundle-layout phase CI
 
@@ -240,8 +269,9 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 The bundle profile includes XML/binary metadata, nested Mach-O files, recursive
 APPL/BNDL/XPC! Contents layouts, unversioned/multiple-version FMWK frameworks,
-explicit selection and bounded relative symlink seals. Direct physical-version
-path discovery and broader symlink/xattr policy are the next format work.
+explicit selection, direct version directories and bounded relative symlink seals.
+Executable-path bundle promotion and broader symlink/xattr policy are the next
+format work.
 UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes

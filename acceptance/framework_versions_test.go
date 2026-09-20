@@ -256,4 +256,9 @@ func verifyFrameworkVersionsArchive(t *testing.T, reference, archive string) {
 	for _, version := range []string{"A", "B"} {
 		mustRun(t, reference, "--verify", "--strict", "--deep", "--bundle-version="+version, filepath.Join(app, "Contents/Frameworks/Fixture.framework"))
 	}
+	if strings.HasPrefix(filepath.Base(archive), "signed-paths-") {
+		for _, version := range []string{"A", "B", "Current"} {
+			mustRun(t, reference, "--verify", "--strict", "--deep", filepath.Join(app, "Contents/Frameworks/Fixture.framework/Versions", version))
+		}
+	}
 }

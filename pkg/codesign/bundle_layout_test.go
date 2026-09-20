@@ -297,7 +297,7 @@ func TestBundleLayoutAST(t *testing.T) {
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := record.Targets[target]
-		if len(methods) != 7 || methods["validateFrameworkRoot"].Kinds["BlockExpr"] != 1 || methods["validateSymlinkResource"].Members["reportProblem"] != 2 || methods["checkMoved"].Kinds["IfStmt"] != 2 || methods["purgeMetaDirectory"].Members["unlink"] != 1 || methods["setup"].Members["version"] != 4 || methods["validateOtherVersions"].Members["staticValidate"] != 1 {
+		if len(methods) != 8 || methods["bestGuess"].Kinds["CXXNewExpr"] != 7 || methods["validateFrameworkRoot"].Kinds["BlockExpr"] != 1 || methods["validateSymlinkResource"].Members["reportProblem"] != 2 || methods["checkMoved"].Kinds["IfStmt"] != 2 || methods["purgeMetaDirectory"].Members["unlink"] != 1 || methods["setup"].Members["version"] != 4 || methods["validateOtherVersions"].Members["staticValidate"] != 1 {
 			t.Fatal(target, methods)
 		}
 	}

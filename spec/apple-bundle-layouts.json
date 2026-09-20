@@ -1,6 +1,7 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
   "excerpt_sha256": {
+    "bestGuess": "a7f30edd5d531c63f3e0dd614873f23d332f3aaef165a2a114786fb079bd2dca",
     "checkMoved": "0fd788c8650f930b62d33f2c75881e80a66c12b7e4b256f42047750e1ffb7d6f",
     "purgeMetaDirectory": "792fb7483726cf146f7900b44c7d981e6cc83e252850435cb8cdc296a2a65820",
     "remove": "62325dd1d80e67a608048e54ebea84a934cfdfc78ac1e8217f430f89669b9028",
@@ -10,7 +11,7 @@
     "validateSymlinkResource": "f00e7e28340917d0cd113d5d01c626984904ddbb4ad33335228c85f3ecbfe9d5"
   },
   "schema": 1,
-  "scope": "Complete verbatim BundleDiskRep::setup, BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateOtherVersions, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations and C++ blocks. CoreFoundation, disk-representation/validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. Host acceptance separately establishes version selection and nested alternate-version checking. Absolute/outer-scope resource links remain outside the Go profile.",
+  "scope": "Complete verbatim DiskRep::bestGuess(const char*,const Context*), BundleDiskRep::setup, BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateOtherVersions, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations, TargetConditionals and C++ blocks. CoreFoundation, disk-representation/validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. Host acceptance separately establishes direct version-directory boundaries, Current resolution, version selection and nested alternate-version checking. Executable-path promotion and absolute/outer-scope resource links remain outside the Go profile.",
   "sources": {
     "StaticCode.cpp": {
       "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
@@ -19,10 +20,62 @@
     "bundlediskrep.cpp": {
       "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "diskrep.cpp": {
+      "sha256": "b09b8e6eaff18664910185e3fe10b1cc07bded1c98fd5038a2fdd0ad8a5a461f",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/diskrep.cpp"
     }
   },
   "targets": {
     "arm64-apple-macos27": {
+      "bestGuess": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXBindTemporaryExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 12,
+          "CXXDefaultArgExpr": 2,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 7,
+          "CXXNullPtrLiteralExpr": 2,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CallExpr": 9,
+          "CaseStmt": 1,
+          "CompoundStmt": 13,
+          "ConstantExpr": 1,
+          "DeclRefExpr": 35,
+          "DeclStmt": 4,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 9,
+          "ImplicitCastExpr": 52,
+          "IntegerLiteral": 4,
+          "MemberExpr": 7,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 7,
+          "SwitchStmt": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 5
+        },
+        "literals": [],
+        "members": {
+          "fileOnly": 1,
+          "operator const void *": 4,
+          "st_mode": 1,
+          "unixError": 1
+        },
+        "operators": {
+          "!": 1,
+          "\u0026": 2,
+          "\u0026\u0026": 1,
+          "==": 1
+        }
+      },
       "checkMoved": {
         "ast_kinds": {
           "BinaryOperator": 4,
@@ -290,9 +343,11 @@
           "CXXBindTemporaryExpr": 5,
           "CXXBoolLiteralExpr": 2,
           "CXXConstructExpr": 4,
+          "CXXDefaultArgExpr": 1,
           "CXXMemberCallExpr": 11,
           "CXXMethodDecl": 1,
           "CXXNewExpr": 1,
+          "CXXNullPtrLiteralExpr": 1,
           "CXXOperatorCallExpr": 4,
           "CXXThisExpr": 1,
           "CallExpr": 9,
@@ -303,7 +358,7 @@
           "ExprWithCleanups": 5,
           "GNUNullExpr": 4,
           "IfStmt": 5,
-          "ImplicitCastExpr": 53,
+          "ImplicitCastExpr": 54,
           "IntegerLiteral": 4,
           "MaterializeTemporaryExpr": 3,
           "MemberExpr": 14,
@@ -419,6 +474,54 @@
       }
     },
     "x86_64-apple-macos27": {
+      "bestGuess": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXBindTemporaryExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 12,
+          "CXXDefaultArgExpr": 2,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 7,
+          "CXXNullPtrLiteralExpr": 2,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CallExpr": 9,
+          "CaseStmt": 1,
+          "CompoundStmt": 13,
+          "ConstantExpr": 1,
+          "DeclRefExpr": 35,
+          "DeclStmt": 4,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 9,
+          "ImplicitCastExpr": 52,
+          "IntegerLiteral": 4,
+          "MemberExpr": 7,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 7,
+          "SwitchStmt": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 5
+        },
+        "literals": [],
+        "members": {
+          "fileOnly": 1,
+          "operator const void *": 4,
+          "st_mode": 1,
+          "unixError": 1
+        },
+        "operators": {
+          "!": 1,
+          "\u0026": 2,
+          "\u0026\u0026": 1,
+          "==": 1
+        }
+      },
       "checkMoved": {
         "ast_kinds": {
           "BinaryOperator": 4,
@@ -686,9 +789,11 @@
           "CXXBindTemporaryExpr": 5,
           "CXXBoolLiteralExpr": 2,
           "CXXConstructExpr": 4,
+          "CXXDefaultArgExpr": 1,
           "CXXMemberCallExpr": 11,
           "CXXMethodDecl": 1,
           "CXXNewExpr": 1,
+          "CXXNullPtrLiteralExpr": 1,
           "CXXOperatorCallExpr": 4,
           "CXXThisExpr": 1,
           "CallExpr": 9,
@@ -699,7 +804,7 @@
           "ExprWithCleanups": 5,
           "GNUNullExpr": 4,
           "IfStmt": 5,
-          "ImplicitCastExpr": 53,
+          "ImplicitCastExpr": 54,
           "IntegerLiteral": 4,
           "MaterializeTemporaryExpr": 3,
           "MemberExpr": 14,
@@ -815,5 +920,5 @@
       }
     }
   },
-  "translation_unit_sha256": "c9419511bf2ccc54a2e4b5e2d0a71ea1b0252970f7d95ff04d5b04282f4eab3f"
+  "translation_unit_sha256": "3ec01fbce6f2f4ee0dc6e62775e8c0871a300d9a2ef6fd0120aa5e368ce1d6c2"
 }

@@ -29,8 +29,9 @@ type Identity struct {
 
 // PathOptions selects the physical version of a versioned framework. Empty or
 // "Current" follows Versions/Current. Contents bundles and non-bundle inputs
-// ignore BundleVersion; unversioned frameworks reject explicit selection. The
-// selection applies only to the input bundle, never to its nested frameworks.
+// ignore BundleVersion; unversioned frameworks and direct version directories
+// reject explicit selection. Selection applies only to the input bundle, never
+// to its nested frameworks.
 type PathOptions struct {
 	BundleVersion string
 }

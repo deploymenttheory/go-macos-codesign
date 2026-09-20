@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Accept direct physical framework-version directories and the structural Current
+  alias, with independent resource boundaries and native signing/display/removal
+  comparisons. Reject version selectors on an already selected directory.
+- Add eighteen direct-path Linux/Windows trees to native CI verification and
+  record the completed PR #20 coverage, source and packaging audits.
 - Support multiple physical framework versions and `--bundle-version` selection
   for signing, inspection, verification and removal, with matching path APIs.
 - Validate every nested framework version against the parent's requirement,
