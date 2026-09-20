@@ -32,6 +32,27 @@
   three native fixtures, two complete Apple methods in the Clang AST record,
   and eighteen additional Linux/Windows trees for native CI verification.
 
+## [0.2.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.1.0...v0.2.0) (2026-09-20)
+
+
+### Features
+
+* discover bundles from main executable paths ([8dcf1aa](https://github.com/deploymenttheory/go-macos-codesign/commit/8dcf1aa2a13d12179a5815e4837492903c2c5e31))
+* discover bundles from main executable paths ([62f2b04](https://github.com/deploymenttheory/go-macos-codesign/commit/62f2b0478cc5992568331071604599b622265a90))
+* support direct framework version directories ([fddaa17](https://github.com/deploymenttheory/go-macos-codesign/commit/fddaa17ecf69eeb3995866428876bb557b69b92b))
+* support direct framework version directories ([46384e7](https://github.com/deploymenttheory/go-macos-codesign/commit/46384e714b366fc6517ac1a5caf1e9e6be351aac))
+* support multiple framework versions and explicit selection ([abb9df2](https://github.com/deploymenttheory/go-macos-codesign/commit/abb9df22c59e53cf4aa2128aea4bfaa65a862f2e))
+* support multiple framework versions and explicit selection ([d032994](https://github.com/deploymenttheory/go-macos-codesign/commit/d032994cb04fdaa2556fa8220968a44344955d0a))
+
+
+### Bug Fixes
+
+* preserve standalone hard links through shared APFS metadata API ([da8073f](https://github.com/deploymenttheory/go-macos-codesign/commit/da8073fbfdbd1d2abe5fd78d08ad71873e6a8e42))
+* preserve standalone hard links through shared APFS metadata API ([b53ce5c](https://github.com/deploymenttheory/go-macos-codesign/commit/b53ce5ceb264e9801751c27b8e60f598cfccb710))
+* resolve framework parent links before path normalization ([9902744](https://github.com/deploymenttheory/go-macos-codesign/commit/9902744e1eec3132f0738bc7defabe913d7d2dba))
+* resolve standalone symlinks for native path and write behavior ([4145fd2](https://github.com/deploymenttheory/go-macos-codesign/commit/4145fd27e7079e6e22ecea9279ecb1b4a6f1aaac))
+* resolve standalone symlinks for native path and write behavior ([e3de6c4](https://github.com/deploymenttheory/go-macos-codesign/commit/e3de6c447101e469211ded2d85fca11066391e20))
+
 ## 0.1.0 (2026-09-20)
 
 
