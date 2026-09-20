@@ -34,6 +34,7 @@ type bundleWriteKind uint8
 const (
 	bundleMachOWrite bundleWriteKind = iota
 	bundleResourceWrite
+	bundleSignatureCleanup
 )
 
 type bundleWrite struct {

@@ -17,6 +17,7 @@ type bundleScan struct {
 	bytes             int64
 	recurse           bool
 	verifyVersions    bool
+	signatureCleanup  bool // permit stale regular signature files during writes
 	seen              map[string]bool
 	regular, writable map[string]os.FileInfo
 }
@@ -181,7 +182,7 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 	if err != nil {
 		return nil, nil, err
 	}
-	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite})
+	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite}, bundleWrite{bundle: b, kind: bundleSignatureCleanup})
 	var total int64
 	for i := range writes {
 		if writes[i].bundle == nil {

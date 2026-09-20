@@ -4,6 +4,8 @@ Status: updated 2026-09-20 after [PR #27 merged](https://github.com/deploymentth
 D01/D02's first evidence profiles and the first D04 bundle Mach-O writer slice
 are now on `main`; D03's shared API shipped in APFS v0.5.0. The next production
 work is the remaining D04 metadata/signature-directory behavior, followed by D05.
+The current follow-up implements regular stale signature-file cleanup; it is
+separate from the merged PR #27 milestone and still requires its own review/CI.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
@@ -368,6 +370,18 @@ signature directory. Internal write-target hard links remain rejected.
   preparation failure, changed targets and cleanup after partial commits; document
   descendant-first commits with each envelope preceding its main executable.
 
+**Current D04 follow-up, pending review:**
+
+- [x] Purge stale regular signature files after each rewritten main executable;
+  preserve the new CodeResources on signing and empty the selected directory on
+  removal. Retain external hard-link neighbours, descendant signatures on outer
+  removal, dry-run contents and rejection of unexpected files during verification.
+- [x] Add 105 native cleanup tree cases across seven layouts, three architectures
+  and five operations, eight non-regular rejection profiles, and unit checks for
+  cancellation, partial commits, root containment and internal write aliases.
+  Export another 42 cleaned archives per foreign producer for native verification.
+  See [file-write evidence and limits](file-writes.md).
+
 **Implementation tasks:**
 
 - [ ] Probe native first signing, re-signing, removal and dry runs separately for
@@ -388,9 +402,11 @@ signature directory. Internal write-target hard links remain rejected.
   versus metadata restoration for existing files. Do not clone metadata from an
   unrelated bundle file merely to populate a new envelope. Apple source's new
   signature-directory security copying remains unimplemented.
-- [ ] Establish and implement stale signature-file cleanup, including native flush
-  ordering, unexpected directory entries and partial-failure effects, using the
-  merged `purgeMetaDirectory` source evidence and new independent native cases.
+- [ ] Complete signature-file cleanup beyond the current regular-file profile.
+  Native sign/removal can replace the executable before rejecting directories or
+  symlinks; native dry runs can succeed. Go retains early rejection for these
+  unsupported entries. Broader permissions and failure-diagnostic parity remain
+  open; the merged `purgeMetaDirectory` evidence and new native cases guide them.
 - [ ] Investigate safe non-cloning filesystem support on Darwin, including HFS+,
   and compressed/protected inputs. Measure native behavior and leave unsupported
   cases explicit until the APFS replacement contract can preserve their metadata.
@@ -1662,7 +1678,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
 | D02 | Initial corpus merged; wider metadata/failures open | Native bundle writer/metadata probe corpus, including hard links and failure states | D01; isolate existing behavior before changing it |
 | D03 | Root-relative API released in APFS v0.5.0 | Any missing APFS root-relative replacement/metadata primitive with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
-| D04 | Mach-O replacement merged; metadata/directory follow-up open | One bundle write class at a time uses the proven replacement contract | D02/D03; compare bytes, aliases, ACLs and inodes on all OSes |
+| D04 | Mach-O replacement merged; regular stale-file cleanup in current review; wider metadata open | One bundle write class at a time uses the proven replacement contract | D02/D03; compare bytes, aliases, ACLs and inodes on all OSes |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -1702,13 +1718,14 @@ upstream release. Do not accumulate unrelated feature packages in one long branc
    to D05's first additional path/layout profile, then D06 resource/xattr policy.
    Continue D01 applicability/source research and WP-22 access investigations;
    no unavailable context counts as a passing test.
-4. Preserve the 88-entry inventory and current 522-import/88-removal gate, expanding
-   them with each added profile. Keep the remaining native metadata differences
+4. Preserve the 88-entry inventory and expand the merged 522-import/88-removal
+   gate: the current cleanup profile requires 606 imports and retains all 88
+   removal comparisons. Keep the remaining native metadata differences
    explicit until their individual implementation and acceptance are complete.
 
-The next implementation branch must start from the merged `main` containing
-`c246135`. This plan update records completed work and priorities; it does not
-itself begin another production slice, merge a PR or authorize a release.
+The current cleanup branch started from merged `main` containing `c246135` and
+then fast-forwarded to `f0dcdca`, the merge of documentation PR #29. Subsequent
+slices must start from their merged `main`; merge and release gates still apply.
 
 ## 7. Common differential acceptance matrix
 
