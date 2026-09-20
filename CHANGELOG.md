@@ -27,13 +27,18 @@ implemented development work, not published versioned releases. See
 - Binary Info.plist support with original-byte preservation, bounded object
   graphs, duplicate/cycle rejection, native fixtures and two-encoder acceptance;
   verification of binary CodeResources under the existing resource rules.
+- Nested Mach-O helper/dylib requirement seals, `--deep` signing/verification,
+  native preserve/force/dry-run behavior, explicit child trust and staged writes.
+  Includes real native dylib fixtures, five-method Clang AST research and exact
+  ad-hoc executable/envelope comparisons on all supported architectures.
 - UDIF DMG signing, inspection and verification through a direct go-apfs-v2
   dependency, with native trailer binding, identifiers, CMS/timestamps and display.
   Native-unsupported DMG removal preserves the input and returns an error.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
-- Linux/macOS/Windows CI, race checks, eight fuzz targets, and required native
-  verification of 120 Linux/Windows-produced files, app bundles and DMGs.
+- Linux/macOS/Windows CI, race checks, nine fuzz targets, and required native
+  verification of 138 Linux/Windows-produced files, app bundles and DMGs,
+  including strict deep verification of eighteen nested apps.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed
@@ -45,6 +50,8 @@ implemented development work, not published versioned releases. See
 
 ### Fixed
 
+- Match native canonical Mach-O default identifiers, including ad-hoc UUID and
+  UUID-less load-command hash suffixes, against the arm64 baseline.
 - Preserve LF/binary fixture bytes across Windows checkouts and retain detailed
   failure transcripts, byte-difference diagnostics and source provenance in CI.
 - Match tested native timestamp option exit codes and ad-hoc behavior; preserve

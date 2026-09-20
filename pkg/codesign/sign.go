@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/bits"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -47,12 +46,13 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	if opts.Identifier == "" {
-		opts.Identifier = filepath.Base(path)
 		if isDMG(data) {
 			opts.Identifier, err = dmgIdentifier(path, data, opts.Identity == nil)
-			if err != nil {
-				return err
-			}
+		} else {
+			opts.Identifier, err = machoIdentifier(path, data, opts.Identity == nil)
+		}
+		if err != nil {
+			return err
 		}
 	}
 	out, err := SignBytes(ctx, data, opts)

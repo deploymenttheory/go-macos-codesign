@@ -38,6 +38,7 @@ type options struct {
 	timestampRootFile                                                                    string
 	timestampTimeout                                                                     time.Duration
 	force, continueOnError, dryrun, json                                                 bool
+	deep                                                                                 bool
 	verbose                                                                              int
 	flags, pageSize                                                                      uint32
 	paths                                                                                []string
@@ -57,6 +58,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprint(stdout, usage)
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
+				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies plain nested Mach-O helpers/dylibs; nested app/framework directories remain unsupported.")
 				return nil
 			}
 			opts, err := parse(argv)
@@ -214,6 +216,8 @@ func parse(args []string) (options, error) {
 				o.continueOnError = true
 			case "dryrun":
 				o.dryrun = true
+			case "deep":
+				o.deep = true
 			case "json":
 				o.json = true
 			case "verbose":
@@ -338,7 +342,7 @@ func parseFlags(s string) (uint32, error) {
 }
 
 func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
-	signOpts := codesign.SignOptions{Identifier: o.identifier, Force: o.force, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	signOpts := codesign.SignOptions{Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
 		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
 		return 2
@@ -476,7 +480,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignature(ctx, path)
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{Deep: o.deep, Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
 			if o.json && report != nil {
 				if e := json.NewEncoder(stdout).Encode(report); e != nil {
 					err = e

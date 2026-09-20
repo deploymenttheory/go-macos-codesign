@@ -3,8 +3,8 @@
 The path APIs and CLI can sign, inspect, verify and remove signatures from a
 bounded `Contents`-based macOS app layout. Production uses Go filesystem and
 cryptographic code on Linux, macOS and Windows. Apple tools and Clang are used
-only for research and acceptance testing. This is the first bundle phase;
-frameworks, nested code and full native bundle policy remain incomplete.
+only for research and acceptance testing. Plain nested Mach-O files are supported;
+nested app/framework layouts and full native bundle policy remain incomplete.
 
 ## Supported layout
 
@@ -13,6 +13,9 @@ Example.app/
   Contents/
     Info.plist
     MacOS/hello
+    MacOS/helper               # optional signed Mach-O child
+    Helpers/group/tool         # optional signed Mach-O child
+    Frameworks/libexample.dylib # optional signed Mach-O child
     Resources/                 # optional; plain files and directories
     PkgInfo                    # optional
     version.plist              # optional
@@ -79,10 +82,48 @@ Construction errors, including timestamp-provider failures, precede mutation.
 Successful removal strips the main signature and deletes CodeResources and the
 empty signature directory; it also accepts an already unsigned supported app.
 
+## Nested Mach-O code
+
+Plain Mach-O executables, dylibs and bundles may appear under `MacOS`, `Helpers`,
+`Frameworks`, `SharedFrameworks`, `PlugIns`, `Plug-ins`, `XPCServices`, or
+`Library/Automator`, `Library/Spotlight`, `Library/LoginItems`. Grouping directories
+without dots are allowed. A directory such as `Foo.framework` or `Helper.app`
+requires separate bundle discovery and is rejected by this phase.
+
+Nested entries appear in `files2` as a designated requirement and CDHash metadata;
+they are excluded from legacy file hashes. An explicit child requirement is
+formatted using the implemented native grammar. Ad-hoc children without one use
+their architecture CDHashes joined by OR. The requirement determines whether a
+replacement child is valid; the recorded CDHash is not an equality constraint.
+Universal selection follows the arm64 baseline, then container order, on every
+OS. Native selection can differ on an Intel host.
+
+Without `--deep`, children must already be signed. With `--deep`, unsigned or
+linker-signed children are signed first; existing signatures are preserved unless
+`--force` is supplied. Signing options apply to children as well as the parent,
+including an explicit identifier, requirements, entitlements and timestamps.
+Absent an override, helpers use the canonical filename and the native ad-hoc UUID
+suffix (or load-command hash fallback). Embedded Mach-O Info.plist identifier
+discovery remains outside this profile.
+
+All child and parent outputs are constructed before writing any file. A dry run
+still seals the child bytes on disk, matching native behavior: `--deep --dryrun`
+fails for an unsigned on-disk child and preserves every input. Removal affects
+only the outer executable and envelope, even with `--deep`.
+
+Verification always checks child signature metadata, CMS/trust and the parent's
+requirement. `--verify --deep` additionally checks child code pages, special slots
+and self requirements. A child page modification can pass shallow verification,
+as on the native baseline. Use deep verification when child content integrity is
+required. Caller-supplied certificate and TSA roots apply to every child; an
+ad-hoc parent does not bypass a certificate child's trust policy.
+
+The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
+
 ## Limits
 
-- Only the displayed layout is supported. Frameworks, plugins, XPC services,
-  helpers, nested apps/code, flat/iOS/installer bundles, receipts, extra signature
+- Only the displayed layout and plain nested Mach-O files are supported. Framework,
+  plugin, XPC and nested app directories, flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to
@@ -95,17 +136,22 @@ empty signature directory; it also accepts an already unsigned supported app.
 - Paths use portable ASCII names: no traversal, Windows-reserved names,
   case collisions, trailing dots/spaces or platform-specific punctuation.
   Path limits are 1,024 bytes, 255 bytes per component and 32 separators.
-  There are at most 10,000 tree entries and 1 GiB of hashed resource data;
-  the existing 1 GiB Mach-O bound also applies.
+  There are at most 10,000 tree entries, 64 nested files and 1 GiB of combined
+  resource/child input data. Staged child, parent and envelope outputs together
+  are limited to 1 GiB; the existing per-Mach-O bound also applies.
+- Nested signatures require one SHA-256 CodeDirectory per architecture. Child
+  requirements must use the implemented predicate/text subset; native quoted
+  literal control whitespace is rejected before writing. Additional directory
+  variants, requirement predicates and full implicit certificate synthesis remain open.
 - Symlinks and non-regular files are rejected. Hard links within Contents to
-  either file that signing writes are rejected. Filesystem operations use
+  any file that signing can write are rejected. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
   links retain their usual shared-file behavior.
-- Writes to the executable and envelope are not a transaction. Write, sync,
+- Writes to children, executable and envelope are not a transaction. Write, sync,
   close or truncation failures can leave partial output. Concurrent filesystem
   mutation is unsupported; sign a copy when rollback is required.
 - Extended-attribute policy, native strict-validation flags, resource-rule
-  overrides, nested-code requirements, notarization and full diagnostic parity
+  overrides, wider nested-code policy, notarization and full diagnostic parity
   remain open. Default Go verification checks the supported envelope; the CLI's
   native `--strict` option is not implemented by this phase.
 
@@ -135,3 +181,14 @@ strict verification. Three additional [native bundle fixtures](../testdata/bundl
 are verified and reproduced on every OS; CI exports twelve binary-plist bundles
 per Linux/Windows producer. [The binary AST record](../spec/apple-bundle-plists.json)
 adds Apple trailer/marker declarations, framing functions and raw metadata binding.
+
+[Nested-code acceptance](../acceptance/nested_test.go) adds fifteen complete
+ad-hoc comparisons (each main executable, envelope and three children), 75 display
+comparisons, nine ad-hoc/RSA/P-256 apps with native strict deep verification,
+twelve mutation/depth outcomes, lifecycle checks, and independent native
+requirement formatting. Seventeen standalone cases compare default identifiers
+and UUID-less fallback. Three [native nested fixtures](../testdata/nested/README.md)
+include real dylibs and are verified and reproduced on every OS. CI exports nine
+nested apps per Linux/Windows producer for native strict deep verification.
+[The nested AST record](../spec/apple-nested.json) covers five complete Apple
+method bodies on both architecture targets with explicit interface shims.

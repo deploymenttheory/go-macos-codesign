@@ -105,7 +105,7 @@ func TestCertificateFieldRequirements(t *testing.T) {
 			}
 		}
 	}
-	for _, expression := range []string{`anchor test`, `anchor apple`, `certificate 32 = H"` + strings.Repeat("00", 20) + `"`, `certificate -1 = H"00"`, `certificate leaf[subject.OU`, `certificate leaf[subject.UID] = "x"`, `certificate leaf[subject.CN] exists`, `certificate leaf[subject.CN] = x`, `certificate leaf[field.1.no] exists`, `certificate leaf[field.9.2] exists`, `certificate leaf[field.1.2.3] = "x"`} {
+	for _, expression := range []string{`anchor test`, `anchor apple`, `certificate 32 = H"` + strings.Repeat("00", 20) + `"`, `certificate -1 = H"00"`, `certificate leaf[subject.OU`, `certificate leaf[subject.UID] = "x"`, `certificate leaf[subject.CN] exists`, `certificate leaf[subject.CN] = 17`, `certificate leaf[field.1.no] exists`, `certificate leaf[field.9.2] exists`, `certificate leaf[field.1.2.3] = "x"`} {
 		if _, err := CompileRequirement(expression); err == nil {
 			t.Fatal(expression)
 		}

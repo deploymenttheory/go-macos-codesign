@@ -106,7 +106,7 @@ func TestFileOperations(t *testing.T) {
 		t.Fatal(err)
 	}
 	r, err := Inspect(ctx, path)
-	if err != nil || r.Architectures[0].Signature.Directories[0].Identifier != "hello" {
+	if err != nil || r.Architectures[0].Signature.Directories[0].Identifier != "hello-555549442de53ff73d323d21af337baddce25aae" {
 		t.Fatalf("%+v %v", r, err)
 	}
 	r, err = Verify(ctx, path, VerifyOptions{})

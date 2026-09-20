@@ -113,14 +113,13 @@ func (p *requirementParser) atom() (*requirementNode, error) {
 			}
 			p.next()
 		}
-		if p.token != scanner.String {
-			return nil, fmt.Errorf("requirement: expected quoted string")
+		if op == 8 && p.token != scanner.String {
+			return nil, malformed("quoted CDHash required")
 		}
-		value, err := strconv.Unquote(p.text)
+		value, err := p.stringValue()
 		if err != nil {
 			return nil, err
 		}
-		p.next()
 		if op == 8 {
 			b, err := hex.DecodeString(value)
 			if err != nil || len(b) != 20 {
@@ -200,10 +199,12 @@ func (p *requirementParser) certificateField(slot int32) (*requirementNode, erro
 		var raw asn1.RawValue
 		_ = decodeDER(der, &raw)
 		n.op, n.field = 14, string(raw.Bytes)
-		if p.text != "exists" {
+		// Apple's dumper emits an implicit matchExists with a comment.
+		if p.text == "exists" {
+			p.next()
+		} else if p.token != scanner.EOF && p.text != "and" && p.text != "or" && p.text != ")" {
 			return nil, unsupported("certificate extension match")
 		}
-		p.next()
 		return n, nil
 	}
 	if field != "subject.CN" && field != "subject.OU" && field != "subject.O" {
@@ -213,16 +214,32 @@ func (p *requirementParser) certificateField(slot int32) (*requirementNode, erro
 		return nil, malformed("certificate subject equality")
 	}
 	p.next()
-	if p.token != scanner.String {
-		return nil, malformed("quoted certificate subject value")
-	}
-	value, err := strconv.Unquote(p.text)
+	value, err := p.stringValue()
 	if err != nil {
 		return nil, err
 	}
-	p.next()
 	n.value = value
 	return n, nil
+}
+
+func (p *requirementParser) stringValue() (string, error) {
+	text := p.text
+	var value string
+	var err error
+	switch {
+	case p.token == scanner.String:
+		value, err = strconv.Unquote(text)
+	case p.token == scanner.Ident && simpleRequirementString(text):
+		value = text
+	case p.token == scanner.Int && strings.HasPrefix(text, "0x"):
+		var data []byte
+		data, err = hex.DecodeString(text[2:])
+		value = string(data)
+	default:
+		return "", malformed("requirement string value")
+	}
+	p.next()
+	return value, err
 }
 func parseRequirement(text string) (*requirementNode, error) {
 	if len(text) > 1<<20 {

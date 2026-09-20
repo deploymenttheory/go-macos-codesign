@@ -31,6 +31,10 @@ testdata/bundles/*.md text eol=lf
 testdata/bundle-plists/** -text
 testdata/bundle-plists/*.json text eol=lf
 testdata/bundle-plists/*.md text eol=lf
+testdata/nested/** -text
+testdata/nested/*.json text eol=lf
+testdata/nested/*.md text eol=lf
+testdata/nested/*.c text eol=lf
 testdata/dmg/* -text
 testdata/dmg/*.json text eol=lf
 testdata/dmg/*.md text eol=lf

@@ -31,6 +31,10 @@ type Identity struct {
 type SignOptions struct {
 	Identifier string
 	Force      bool
+	// Deep signs supported nested Mach-O files before sealing their parent.
+	// Existing child signatures, except linker signatures, are retained unless
+	// Force is also set.
+	Deep bool
 	// DryRun constructs the signature and checks the input without writing path.
 	DryRun                   bool
 	Flags                    uint32
@@ -55,6 +59,9 @@ type SignOptions struct {
 // VerifyOptions selects an architecture and optional external special-slot data.
 // Certificate-backed signatures are not reported valid until CMS verification succeeds.
 type VerifyOptions struct {
+	// Deep checks nested code pages and special slots. Without it, nested
+	// signatures and the parent's requirements are checked, matching Apple.
+	Deep         bool
 	Architecture string
 	InfoPlist    []byte
 	Resources    []byte
@@ -73,7 +80,8 @@ type VerifyOptions struct {
 	// CurrentTime controls certificate validity checks. An authenticated,
 	// explicitly trusted timestamp selects genTime instead and must not be in
 	// the future relative to CurrentTime. Zero uses time.Now.
-	CurrentTime time.Time
+	CurrentTime   time.Time
+	directoryOnly bool // internal shallow nested-code validation, never a public bypass
 }
 
 // Blob retains the complete encoding, including its magic and length fields.

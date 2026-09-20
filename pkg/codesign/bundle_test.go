@@ -90,7 +90,7 @@ func TestBundleLifecycle(t *testing.T) {
 }
 
 func TestBundleRejectsUnsupportedLayout(t *testing.T) {
-	for _, name := range []string{"extra", "Contents/Frameworks/F.framework/file", "Contents/MacOS/helper", "Contents/CodeResources", "Contents/_CodeSignature/other", "Contents/_MASReceipt/receipt"} {
+	for _, name := range []string{"extra", "Contents/Frameworks/F.framework/file", "Contents/CodeResources", "Contents/_CodeSignature/other", "Contents/_MASReceipt/receipt"} {
 		t.Run(name, func(t *testing.T) {
 			app := testBundle(t)
 			bundleFile(t, app, name, []byte("unsupported"))
