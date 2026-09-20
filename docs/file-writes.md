@@ -6,7 +6,7 @@ Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta`](https://github.com/deploymenttheory/go-apfs-v2/pull/100).
+[`go-apfs-v2/pkg/hostmeta` in v0.4.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.4.0/pkg/hostmeta).
 Codesign calls its `PrepareReplacement` and `RestoreMetadata` APIs and owns the
 signing-specific decision to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
@@ -56,5 +56,6 @@ with no temporary directory left behind.
 
 The dependency's tests check xattrs, ownership, modes, Darwin ACLs/flags/birth
 time, inherited directory ACLs, Linux POSIX ACLs, and Windows streams/security
-descriptors. Cross-platform CI status is reported in the linked dependency PR;
+descriptors. The shared API's cross-platform evidence is recorded in
+[merged APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100);
 a local compile is not treated as Windows or Linux execution evidence.

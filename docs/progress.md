@@ -63,8 +63,10 @@ That release contains the supported subset through PR #18.
 
 ### Standalone writer and shared metadata phase
 
-The writer delegates filesystem metadata to the exported go-apfs-v2 API proposed
-in [APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100).
+The writer delegates filesystem metadata to the exported go-apfs-v2 API delivered
+in [merged APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100)
+and released in [v0.4.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.4.0).
+The dependency now pins that release.
 Codesign contains no platform metadata copier. The Darwin replacement path uses
 supported libSystem wrappers; the dependency's separate legacy compression
 reader is unchanged. [Writer limits](file-writes.md) document clone support,
@@ -85,10 +87,11 @@ passed on all three platforms. Downloaded evidence reports:
 | Windows 2025 | 3,909/4,087 — 95.64% | 417/425 — 98.12% | 1/1 — 100% |
 | macOS 27 | 3,919/4,087 — 95.89% | 423/425 — 99.53% | 1/1 — 100% |
 
-All 563 source/fixture hashes per OS match the checkout, allowing only seventeen
+All 563 source/fixture hashes per OS matched that tested commit, allowing only seventeen
 expected Windows text line-ending conversions. Six archives and six SPDX SBOMs
 pass all twelve checksum checks. Build metadata in every binary confirms the
-pinned APFS commit and `CGO_ENABLED=0`. Final workflow, native-import and
+pinned APFS commit and `CGO_ENABLED=0`. The v0.4.0 release's package sources are
+byte-identical to that dependency commit. Final release-pin workflow, native-import and
 race/fuzz results are recorded in [PR #24](https://github.com/deploymenttheory/go-macos-codesign/pull/24).
 The [APFS dependency workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35522969833)
 passes its three OS test/acceptance jobs and six build targets.
