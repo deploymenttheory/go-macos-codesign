@@ -347,10 +347,9 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   any file that signing can write, including across app and version boundaries, are rejected
   by the structural signing/deep scan. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
-  links retain their usual shared-file behavior. Native standalone signing can
-  replace a hard-linked target without changing its other names; the current
-  standalone writer does not reproduce that behavior. Read-only hard-link
-  discovery is tested separately from this remaining write-semantics gap.
+  links retain their usual shared-file behavior. Standalone Mach-O inputs use
+  [staged replacement through go-apfs-v2](file-writes.md), preserving other
+  hard-link names. That does not change bundle executable/envelope writes.
 - Writes to children, executable and envelope are not a transaction. Write, sync,
   close or truncation failures can leave partial output. Concurrent filesystem
   mutation is unsupported; sign a copy when rollback is required.

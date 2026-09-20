@@ -1,0 +1,81 @@
+package codesign
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+type cancelBeforeRename struct {
+	context.Context
+	checks int
+}
+
+func (c *cancelBeforeRename) Err() error {
+	c.checks++
+	if c.checks >= 2 {
+		return context.Canceled
+	}
+	return nil
+}
+
+func TestReplacementCancellationPreservesHardlinks(t *testing.T) {
+	dir := t.TempDir()
+	path, other := filepath.Join(dir, "target"), filepath.Join(dir, "other")
+	data := fixture(t, "unsigned-arm64")
+	if err := os.WriteFile(path, data, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Link(path, other); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := &cancelBeforeRename{Context: context.Background()}
+	if err := replaceFile(ctx, path, []byte("staged, never committed")); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+	for _, name := range []string{path, other} {
+		st, err := os.Stat(name)
+		if err != nil || !os.SameFile(before, st) {
+			t.Fatalf("inode changed: %s %v", name, err)
+		}
+		got, err := os.ReadFile(name)
+		if err != nil || !bytes.Equal(got, data) {
+			t.Fatalf("bytes changed: %s %v", name, err)
+		}
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) != 2 {
+		t.Fatalf("staging leaked: %v %v", entries, err)
+	}
+}
+
+func TestWriterAST(t *testing.T) {
+	data, err := os.ReadFile("../../spec/apple-writer.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var record struct {
+		Targets map[string]struct {
+			Methods map[string]struct{ References map[string]int }
+		}
+	}
+	if err := json.Unmarshal(data, &record); err != nil {
+		t.Fatal(err)
+	}
+	if len(record.Targets) != 2 {
+		t.Fatal("both writer AST targets required")
+	}
+	for target, facts := range record.Targets {
+		if facts.Methods["commit"].References["rename"] != 1 || facts.Methods["commit"].References["copy"] != 2 || facts.Methods["~MachOEditor"].References["remove"] != 1 {
+			t.Fatalf("missing writer control flow for %s", target)
+		}
+	}
+}

@@ -174,8 +174,8 @@ Executable-path acceptance adds 54 complete native signing/removal comparisons,
 270 exact display comparisons and 54 dry runs across nine input profiles,
 XML/binary metadata and three architectures. Four main/helper/file-alias cases
 compare complete trees and resource-tampering outcomes. Read-only hard-link
-discovery matches native display; native hard-link write replacement remains a
-separate documented gap. A parent-link test signs the physical target while
+discovery matches native display; [separate writer tests](file-writes.md) cover
+standalone hard-link replacement. A parent-link test signs the physical target while
 preserving the lexical neighbour, including when that neighbour is absent.
 Thirty-two option-operation outcomes compare executable-input version selection.
 Nine ad-hoc/RSA/P-256 mixed trees sign every child through its executable before

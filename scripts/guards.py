@@ -26,6 +26,8 @@ def main():
                 errors.append(f"Forbidden production dependency: {path.relative_to(ROOT)}")
             if "go:linkname" in source or "go:cgo_" in source:
                 errors.append(f"Native binding directive: {path.relative_to(ROOT)}")
+            if re.search(r'\b(?:syscall|unix)\.(?:Syscall\w*|RawSyscall\w*|SYS_\w+)\b', source):
+                errors.append(f"Direct syscall instead of supported wrapper: {path.relative_to(ROOT)}")
     env = dict(os.environ, CGO_ENABLED="0")
     for goos in ("linux", "darwin", "windows"):
         output = subprocess.check_output(["go", "list", "-deps", "-f", "{{.ImportPath}}|{{join .CgoFiles \",\"}}", "./cmd/macoscodesign"],
