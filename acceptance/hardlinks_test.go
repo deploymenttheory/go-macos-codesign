@@ -38,6 +38,12 @@ func TestStandaloneHardlinkWrites(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
+					linked, err := os.Stat(neighbour)
+					// Windows resolves path-based FileInfo IDs lazily in SameFile.
+					// Cache the original identity before the CLI replaces that path.
+					if err != nil || !os.SameFile(before, linked) {
+						t.Fatalf("input pair is not linked: %v", err)
+					}
 					mustRun(t, exe, append(args, path)...)
 					after, err := os.Stat(path)
 					if err != nil {
@@ -47,8 +53,9 @@ func TestStandaloneHardlinkWrites(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					if os.SameFile(before, after) != (mode == "dryrun") || !os.SameFile(before, other) {
-						t.Fatal("incorrect hard-link detachment")
+					retained, neighbourRetained := os.SameFile(before, after), os.SameFile(before, other)
+					if retained != (mode == "dryrun") || !neighbourRetained || os.SameFile(after, other) != (mode == "dryrun") {
+						t.Fatalf("incorrect hard-link detachment: target retained=%t neighbour retained=%t operation=%s", retained, neighbourRetained, mode)
 					}
 					if before.Mode() != after.Mode() {
 						t.Fatalf("mode changed: %v -> %v", before.Mode(), after.Mode())
@@ -92,6 +99,10 @@ func TestDMGHardlinkWritesRemainInPlace(t *testing.T) {
 		before, err := os.Stat(path)
 		if err != nil {
 			t.Fatal(err)
+		}
+		linked, err := os.Stat(other)
+		if err != nil || !os.SameFile(before, linked) {
+			t.Fatalf("input DMG pair is not linked: %v", err)
 		}
 		mustRun(t, exe, "-s", "-", "-i", "org.example.hardlink.dmg", "--timestamp=none", path)
 		after, err := os.Stat(path)
