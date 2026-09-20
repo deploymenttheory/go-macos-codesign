@@ -144,6 +144,17 @@ outputs, 44 live host comparisons, and nine native re-signing comparisons. Unit
 tests cover malformed symbol ranges, command relocation, endian/32-bit forms and
 preservation after later-architecture failure.
 
+Framework-version acceptance adds twelve selected-signing tree comparisons,
+ninety exact display comparisons, six selected-removal comparisons and six dry
+runs across XML/binary metadata and three architectures. Twenty-one parent cases
+check unsigned, differently signed, wrong-requirement, page, resource and metadata
+variants in both shallow/deep modes, while standalone Current remains valid.
+Nine ad-hoc/RSA/P-256 trees pass native strict deep verification. Three native
+app archives are reproduced byte for byte on each OS. The Clang layout record
+now contains seven complete methods, adding selection and alternate validation.
+Unit tests cover selection boundaries, unsafe names, budgets and cross-version
+hard links. These checks establish a bounded profile, not all native options.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -164,8 +175,9 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 300 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay, forty-five app bundles, 63 layout archives and fifteen DMGs
+all 318 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, forty-five app bundles, 63 layout archives, nine multi-version
+framework trees and fifteen DMGs
 per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
@@ -175,6 +187,8 @@ require native `--deep`. The 63 tar archives per OS add 54 standalone layouts
 (six formats, three architectures and three identities) and nine mixed trees.
 Tar retains symbolic links through artifact transport; the Mac safely extracts
 each archive and verifies its outer bundle with native `--strict --deep`.
+The nine framework-version archives per producer cover three identities and
+three architectures; Apple verifies both the parent and explicit A/B selections.
 Every native fixture test and producer exercises real filesystem symlinks,
 including on Windows; these cases are required rather than silently skipped.
 The downstream

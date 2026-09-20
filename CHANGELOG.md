@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Support multiple physical framework versions and `--bundle-version` selection
+  for signing, inspection, verification and removal, with matching path APIs.
+- Validate every nested framework version against the parent's requirement,
+  including code pages, resources and descendants during deep verification.
+- Preserve unselected versions, reject cross-version hard-linked write targets,
+  and share traversal budgets across physical versions.
+- Add native byte/display/removal comparisons, alternate-version mutations,
+  three native fixtures, two complete Apple methods in the Clang AST record,
+  and eighteen additional Linux/Windows trees for native CI verification.
+
 ## 0.1.0 (2026-09-20)
 
 
@@ -36,12 +48,12 @@
 
 ## Changelog
 
-## Unreleased
+## Development record through 0.1.0
 
 The implementation is under development. Full-parity claims remain blocked by
 the [compatibility inventory](spec/compatibility.json); versioned releases describe
-the supported subset. The entries below describe
-implemented development work, not published versioned releases. See
+the supported subset. The entries below describe the development milestones
+included in 0.1.0. See
 [project progress](docs/progress.md) for milestones and measured validation.
 
 ### Added

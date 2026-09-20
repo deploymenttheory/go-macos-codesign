@@ -310,8 +310,13 @@ func updateLinkedit(out []byte, im *image, end int) {
 // RemoveSignature removes embedded Mach-O and supported app-bundle signatures.
 // Native codesign does not support removing a UDIF signature; that returns ErrUnsupported.
 func RemoveSignature(ctx context.Context, path string) error {
+	return RemoveSignatureWithOptions(ctx, path, PathOptions{})
+}
+
+// RemoveSignatureWithOptions removes only the selected version's signature.
+func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) error {
 	if isBundle(path) {
-		return removeBundle(ctx, path)
+		return removeBundle(ctx, path, opts)
 	}
 	data, err := readFile(path)
 	if err != nil {

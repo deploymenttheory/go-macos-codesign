@@ -42,6 +42,17 @@ func write(t *testing.T, name string, data []byte) string {
 }
 
 func TestArgumentParser(t *testing.T) {
+	for _, args := range [][]string{{"-d", "--bundle-version=A", "file"}, {"-d", "--bundle-version", "A", "file"}} {
+		o, err := parse(args)
+		if err != nil || o.bundleVersion != "A" {
+			t.Fatal(o, err)
+		}
+	}
+	for _, args := range [][]string{{"-d", "--bundle-version="}, {"-d", "--bundle-version"}} {
+		if _, err := parse(args); err == nil {
+			t.Fatal("accepted missing version")
+		}
+	}
 	for _, tc := range []struct {
 		args    []string
 		op      string

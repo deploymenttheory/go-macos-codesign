@@ -29,10 +29,10 @@
     },
     {
       "id": "--bundle-version",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -bundle-version Ar version-string",
-      "evidence": ["docs/bundles.md", "spec/apple-bundle-layouts.json"],
-      "notes": "Default Current discovery for a single-version framework is implemented, but explicit version selection and multiple-version validation remain unsupported. This CLI flag must be implemented and independently verified before full-parity release."
+      "evidence": ["docs/bundles.md", "spec/apple-bundle-layouts.json", "acceptance/framework_versions_test.go", "testdata/framework-versions/manifest.json", "pkg/codesign/bundle_versions_test.go"],
+      "notes": "Default Current and explicit physical version selection support signing, display, verification and removal. Nested verification checks every physical version against the parent's requirement; deep checks include pages/resources/descendants. Twelve native selected-signing tree comparisons, 90 display cases, six removal comparisons, 21 shallow/deep cases and three native fixtures establish the bounded profile. Contents parents ignore selection and children use their own Current. Direct version-directory paths, wider discovery, malformed-selector diagnostics and complete option interactions remain incomplete."
     },
     {
       "id": "--check-notarization",
@@ -62,7 +62,7 @@
       "status": "partial",
       "manual": ".It Fl -deep",
       "evidence": ["acceptance/nested_test.go", "acceptance/nested_app_test.go", "acceptance/layout_test.go", "acceptance/layout_nested_test.go", "pkg/codesign/bundle_nested_test.go", "pkg/codesign/bundle_tree_test.go", "pkg/codesign/bundle_layout_test.go", "spec/apple-nested.json", "spec/apple-nested-apps.json", "spec/apple-bundle-layouts.json", "testdata/nested/manifest.json", "testdata/nested-apps/manifest.json", "testdata/layouts/manifest.json", "docs/bundles.md"],
-      "notes": "Plain Mach-O children, APPL/BNDL/XPC! Contents layouts and unversioned/single-version FMWK frameworks support staged descendant-first signing, preservation/force, dry-run semantics and deep page/resource/descendant verification. Shallow verification checks immediate child CMS/trust, non-resource metadata and the parent's requirement. New layout evidence adds 36 standalone and twelve mixed-tree native byte comparisons, 180 display cases, 63 native strict-deep signatures, 39 mutations checked in both modes and eighteen native archives. Shared bounds and hard-link checks span all layouts. Multiple framework versions, broader symlink/xattr policy, requirements/digests and full option interactions remain incomplete. Universal selection follows the arm64 baseline on every OS."
+      "notes": "Plain Mach-O children, APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks support staged descendant-first signing, preservation/force, dry-run semantics and deep page/resource/descendant verification. Signing visits only the selected version; nested verification checks every physical version against the parent's requirement. Shallow verification checks immediate child CMS/trust and non-resource metadata, including alternate versions. Layout and framework-version evidence covers native byte/display comparisons, strict deep checks, mutation cases and independent archives. Shared bounds and hard-link checks span all layouts and physical versions. Broader symlink/xattr policy, requirements/digests and full option interactions remain incomplete. Universal selection follows the arm64 baseline on every OS."
     },
     {
       "id": "--detached-database",
@@ -404,7 +404,7 @@
     {
       "id": "bundles",
       "status": "partial",
-      "notes": "APPL/BNDL/XPC! Contents layouts and unversioned/single-version FMWK frameworks support XML/binary metadata, resources, nested code, signing, inspection, verification and outer-only removal. Relative existing resource links use symlink text seals; framework aliases select a validated physical version. Staged signing constructs the complete tree before writes, with shared bounds and cross-bundle hard-link checks. Native comparisons, mutations, Clang AST records and five fixture sets establish the bounded profile. Each Linux/Windows producer exports 45 prior app artifacts plus 63 tar archives preserving symlinks in six standalone layout profiles and mixed trees for native strict deep verification. Multiple framework versions, explicit version selection, broader symlink/xattr policy, discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for limits.",
+      "notes": "APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks support XML/binary metadata, resources, nested code, signing, inspection, verification and outer-only removal. Explicit selection preserves other versions; nested verification applies the parent's requirement to every physical version. Relative existing resource links use symlink text seals. Staged signing constructs the complete tree before writes, with shared bounds and cross-bundle/version hard-link checks. Native comparisons, mutations, Clang AST records and six fixture sets establish the bounded profile. Each Linux/Windows producer exports 45 prior app artifacts plus 63 layout archives and nine multi-version framework trees for native strict deep verification. Direct version-directory paths, broader symlink/xattr policy, discovery, custom rules and full strict/diagnostic parity remain incomplete. See docs/bundles.md for limits.",
       "evidence": ["acceptance/bundle_test.go", "acceptance/bundle_plist_test.go", "acceptance/nested_test.go", "acceptance/nested_app_test.go", "acceptance/layout_test.go", "acceptance/layout_nested_test.go", "pkg/codesign/bundle_test.go", "pkg/codesign/bundle_plist_test.go", "pkg/codesign/bundle_nested_test.go", "pkg/codesign/bundle_tree_test.go", "pkg/codesign/bundle_layout_test.go", "testdata/bundles/manifest.json", "testdata/bundle-plists/manifest.json", "testdata/nested/manifest.json", "testdata/nested-apps/manifest.json", "testdata/layouts/manifest.json", "spec/apple-bundles.json", "spec/apple-bundle-plists.json", "spec/apple-nested.json", "spec/apple-nested-apps.json", "spec/apple-bundle-layouts.json", "docs/bundles.md"]
     },
     {

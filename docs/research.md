@@ -232,11 +232,12 @@ the supported code roots; it does not claim every native bundle representation.
 
 The layout phase adds `scripts/extract-bundle-layouts.go` and
 [spec/apple-bundle-layouts.json](../spec/apple-bundle-layouts.json). It parses complete
-verbatim `BundleDiskRep::checkMoved`, `BundleDiskRep::validateFrameworkRoot`,
+verbatim `BundleDiskRep::setup`, `BundleDiskRep::checkMoved`, `BundleDiskRep::validateFrameworkRoot`,
+`SecStaticCode::validateOtherVersions`,
 `SecStaticCode::validateSymlinkResource`, `BundleDiskRep::Writer::remove()` and
 `BundleDiskRep::Writer::purgeMetaDirectory` bodies for arm64 and x86_64, including
 the framework validator's C++ block. SDK filesystem declarations are real;
-CoreFoundation/validation/writer interfaces and error/flag/slot constants are explicit shims.
+CoreFoundation/disk-representation/validation/writer interfaces and error/flag/slot constants are explicit shims.
 The record pins sources, excerpts, compiler and translation unit. Download
 bundlediskrep.cpp and StaticCode.cpp from its pinned URLs before reproducing it.
 
@@ -247,8 +248,17 @@ an independent reference for paths, nested binaries and symlink text seals.
 Native probes settle the actual Info.plist location, duplicated framework metadata
 sealing, display paths and relative-link behavior. Eighteen native tar fixtures
 and standalone/mixed-tree acceptance independently check the Go implementation.
-Multiple framework versions and absolute/outer-scope resource links are explicitly
-rejected by this phase's bounded profile; the source supports broader policies.
+The version extension parses the complete setup and alternate-version methods.
+Setup selects `Context.version` or Current; Contents layouts take precedence.
+Alternate validation enumerates physical directories, skips the selected canonical
+path, and applies the same parent requirement to each remaining version. The
+previous nested-code AST records its strict-flag call site. Host CLI probes show
+that default parent verification also reaches this check on macOS 27; shallow
+checks omit alternate pages/resources, while deep checks include them. Standalone
+framework validation visits only the selected version. Three additional native
+archives, selected-version byte/display/removal comparisons and mutations prove
+these distinctions independently of the shimmed AST. Absolute/outer-scope
+resource links remain outside the bounded profile.
 
 ## DMG research and direct library reuse
 

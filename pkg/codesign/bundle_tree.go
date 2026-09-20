@@ -16,6 +16,7 @@ type bundleScan struct {
 	entries, nested   int
 	bytes             int64
 	recurse           bool
+	verifyVersions    bool
 	seen              map[string]bool
 	regular, writable map[string]os.FileInfo
 }
@@ -58,10 +59,21 @@ func (s *bundleScan) writeTarget(name string, st os.FileInfo) error {
 	return nil
 }
 
+func (s *bundleScan) regularFile(name string, st os.FileInfo) error {
+	for target, info := range s.writable {
+		if name != target && os.SameFile(st, info) {
+			return unsupported("hard-linked bundle write target: " + target)
+		}
+	}
+	s.regular[name] = st
+	return nil
+}
+
 type nestedAppResource struct {
 	bundle          *appBundle
 	files, files2   map[string]any
 	data, resources []byte
+	otherVersions   []*nestedAppResource
 }
 
 func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleScan, depth int, prefix string) (*nestedAppResource, error) {
@@ -80,19 +92,53 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		return nil, err
 	}
 	b.children = append(b.children, child) // top-level close owns all descendant roots
+	app, err := child.snapshot(ctx, scope, depth, prefix+name+"/")
+	if err != nil {
+		return nil, err
+	}
+	if scope.verifyVersions {
+		for _, version := range child.versions {
+			if version == child.version {
+				continue
+			}
+			if err := scope.addChild(); err != nil {
+				return nil, err
+			}
+			root, err := child.root.OpenRoot(".")
+			if err != nil {
+				return nil, err
+			}
+			other, err := loadAppBundleVersion(root, child.path, version)
+			if err != nil {
+				return nil, err
+			}
+			other.alternate = true
+			child.children = append(child.children, other)
+			snapshot, err := other.snapshot(ctx, scope, depth, prefix+name+"/")
+			if err != nil {
+				return nil, err
+			}
+			app.otherVersions = append(app.otherVersions, snapshot)
+		}
+	}
+	return app, nil
+}
+
+func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth int, prefix string) (*nestedAppResource, error) {
 	scope.bytes += int64(len(child.info))
 	if scope.bytes > maxFileSize {
 		return nil, unsupported("bundle input exceeds 1 GiB")
 	}
 	var files, files2 map[string]any
+	var err error
 	if scope.recurse {
-		files, files2, err = child.scanTree(ctx, scope, depth, prefix+name+"/")
+		files, files2, err = child.scanTree(ctx, scope, depth, prefix)
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	} else if !child.alternate {
 		for _, entry := range child.layoutEntries {
-			if err := scope.entry(prefix + name + "/" + entry); err != nil {
+			if err := scope.entry(prefix + entry); err != nil {
 				return nil, err
 			}
 		}
@@ -113,7 +159,7 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		}
 	}
 	scope.bytes += int64(len(resources))
-	return &nestedAppResource{child, files, files2, data, resources}, nil
+	return &nestedAppResource{bundle: child, files: files, files2: files2, data: data, resources: resources}, nil
 }
 
 // forceMain replaces this executable without changing whether already signed
@@ -162,6 +208,14 @@ func verifyNestedApp(ctx context.Context, name string, value any, app *nestedApp
 	opts.directoryOnly = !opts.Deep
 	if _, err := verifyBundleSnapshot(ctx, app.bundle, app.data, app.resources, app.files2, opts); err != nil {
 		return fmt.Errorf("nested %s: %w", name, err)
+	}
+	for _, other := range app.otherVersions {
+		if _, _, err := nestedSignature(other.data); err != nil {
+			return invalid("embedded framework %s version %s: %v", name, other.bundle.version, err)
+		}
+		if _, err := verifyBundleSnapshot(ctx, other.bundle, other.data, other.resources, other.files2, opts); err != nil {
+			return invalid("embedded framework %s version %s: %v", name, other.bundle.version, err)
+		}
 	}
 	return nil
 }

@@ -44,7 +44,7 @@ real MH_BUNDLE files; XPC fixtures contain MH_EXECUTE files.
 
 `.framework` directories require `FMWK` metadata, an executable named after the
 framework, and `Resources/Info.plist`. Both unversioned frameworks and the
-following single-version layout are supported:
+following versioned layout are supported:
 
 ```text
 Fixture.framework/
@@ -60,6 +60,10 @@ Fixture.framework/
       Headers/Fixture.h                    # optional
       Modules/module.modulemap             # optional
       _CodeSignature/CodeResources
+    B/                                    # another physical version
+      Fixture
+      Resources/Info.plist
+      _CodeSignature/CodeResources
 ```
 
 An unversioned framework puts the contents of `Versions/A` directly in its root.
@@ -67,15 +71,44 @@ An unversioned framework puts the contents of `Versions/A` directly in its root.
 Additional top-level Mach-O files are nested code. The framework's Info.plist is
 bound both through its special slot and resource hashes, unlike Contents/Info.plist.
 
-Version selection reads `Versions/Current`, validates a single physical version
-directory and canonical root aliases, then uses the physical path for all reads
-and writes. Aliases can use `Versions/Current` or the selected version, optionally
-prefixed with `./`. The executable and Resources aliases are required. Extra
-versions, ambiguous Contents/Support Files layouts, wrong aliases and unsealed
-root entries are rejected. Non-executable `.DS_Store` files and root `module.map`
-are permitted by the bounded native root profile. `--bundle-version` and verification
-of multiple versions remain unimplemented; native strict validation checks those
-other versions independently against the containing app's requirement.
+Selection defaults to `Versions/Current`. `--bundle-version A` or
+`--bundle-version=A` selects that physical directory; `Current` explicitly selects
+the alias. Reads and writes use the validated physical path. Display retains
+`Versions/Current` for default/Current selection and the explicit name otherwise.
+Root aliases must still name Current's matching entries, through `Versions/Current`
+or its physical target, optionally prefixed with `./`. Executable and Resources
+aliases are required. Ambiguous Contents/Support Files layouts, version symlinks,
+wrong aliases and unsealed root entries are rejected. Non-executable `.DS_Store`
+files and root `module.map` are permitted by the bounded native root profile.
+
+Signing, display, standalone verification and removal operate on the selected
+version. Even `--deep` signing visits only that version and its descendants;
+it does not sign every historical version. Selection on a Contents parent is
+ignored and never propagated to nested frameworks. Non-bundle files also ignore
+selection; unversioned frameworks reject explicit selection.
+
+When a framework is nested in a bundle, verification additionally checks every
+other physical version against the **same requirement sealed by the parent**.
+Default verification checks each version's signature, trust and non-resource
+metadata; `--deep` adds pages, resource envelopes and descendants. A valid Current
+does not excuse an unsigned alternate version. Separately signed ad-hoc versions
+usually have different CDHashes and fail a parent's implicit CDHash requirement;
+sign them with a shared applicable designated requirement or certificate identity
+before sealing the parent. Verification never broadens the parent's requirement
+to make alternate versions pass.
+
+```sh
+macoscodesign -s - --bundle-version=A -r '=designated => identifier "org.example.fixture"' ./Fixture.framework
+macoscodesign -s - --bundle-version=B -r '=designated => identifier "org.example.fixture"' ./Fixture.framework
+macoscodesign -dvvvv --bundle-version=A ./Fixture.framework
+macoscodesign --verify --deep --bundle-version=B ./Fixture.framework
+macoscodesign --remove-signature --bundle-version=A ./Fixture.framework
+```
+
+The example requires the framework's identifier to be `org.example.fixture`.
+Each unselected version is inventoried without following links, so signing or
+removal cannot change it through an internal hard link. Its signature and metadata
+are not parsed unless that version is selected or checked as a nested framework.
 
 ### Resource symlinks
 
@@ -126,6 +159,12 @@ overrides. `Report.Bundle` describes the main executable, Info.plist entry count
 and envelope version/rule/file counts. Inspection metadata does not establish
 validity or trust.
 
+`SignOptions.BundleVersion` and `VerifyOptions.BundleVersion` select versions.
+`InspectWithOptions` and `RemoveSignatureWithOptions` accept `PathOptions` with
+the same field; existing APIs retain Current selection. An empty API field means
+default selection. The CLI rejects an explicitly empty selector as an argument
+error; Apple's exact error text/status for malformed selectors remains incomplete.
+
 ## Sealing and verification
 
 Signing constructs deterministic XML `CodeResources` with Apple's non-flat
@@ -175,7 +214,7 @@ Without `--deep`, children must already be signed. With `--deep`, unsigned or
 linker-signed children are signed first; existing signatures are preserved unless
 `--force` is supplied. Preserving an already signed app preserves its descendants
 as well; signing an unsigned app does not force replacement of a signed grandchild.
-Signing options apply to children as well as the parent,
+Signing options other than bundle-version selection apply to children as well as the parent,
 including an explicit identifier, requirements, entitlements and timestamps.
 Absent an override, helpers use the canonical filename and the native ad-hoc UUID
 suffix (or load-command hash fallback). Embedded Mach-O Info.plist identifier
@@ -209,8 +248,8 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 ## Limits
 
 - Only the displayed Contents and framework layouts and plain nested Mach-O files
-  under the listed code directories are supported. Multiple framework versions,
-  flat/iOS/installer bundles, receipts, extra signature
+  under the listed code directories are supported. Direct paths into
+  `Versions/A`, flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to
@@ -224,7 +263,8 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   case collisions, trailing dots/spaces or platform-specific punctuation.
   Path limits are 1,024 bytes, 255 bytes per component and 32 separators.
   Signing/deep traversal permits at most eight nested bundle levels, 10,000 total
-  tree entries and 64 nested code objects (apps and plain files combined).
+  tree entries and 64 nested code objects (bundles, alternate framework versions
+  and plain files combined). A framework may contain at most 64 physical versions.
   Budgets do not reset at app boundaries. Combined resource/child input data is
   limited to 1 GiB, including child metadata, executables and envelopes. Staged
   outputs together are limited to 1 GiB; the outer executable retains its separate
@@ -235,7 +275,7 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   variants, requirement predicates and full implicit certificate synthesis remain open.
 - Symlinks outside the profile above and other non-regular files are rejected.
   Hard links within a bundle to
-  any file that signing can write, including across app boundaries, are rejected
+  any file that signing can write, including across app and version boundaries, are rejected
   by the structural signing/deep scan. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
   links retain their usual shared-file behavior.

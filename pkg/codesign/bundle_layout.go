@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ func nestedBundleSuffix(name string) bool {
 	return false
 }
 
-// Framework aliases select a single physical version. Never traverse an alias
+// Framework aliases identify Current independently of the selected version. Never traverse an alias
 // when reading or writing code; only its validated spelling selects that path.
 func (b *appBundle) discoverLayout() error {
 	b.base, b.infoPath, b.format = "Contents/", "Contents/Info.plist", "app bundle with "
@@ -26,6 +27,9 @@ func (b *appBundle) discoverLayout() error {
 	b.framework, b.base, b.infoPath, b.format = true, "", "Resources/Info.plist", "bundle with "
 	st, err := b.root.Lstat("Versions")
 	if errors.Is(err, os.ErrNotExist) {
+		if b.selection != "" {
+			return unsupported("framework has no selectable versions")
+		}
 		return nil
 	}
 	if err != nil {
@@ -45,19 +49,33 @@ func (b *appBundle) discoverLayout() error {
 	if err := bundleRelativePath(current); err != nil {
 		return err
 	}
-	b.version, b.base = current, "Versions/"+current+"/"
+	b.current, b.version = current, current
+	if b.selection == "" {
+		b.selection = "Current"
+	}
+	if b.selection != "Current" {
+		if strings.Contains(b.selection, "/") || b.selection == "." {
+			return unsupported("framework version must name one directory")
+		}
+		if err := bundleRelativePath(b.selection); err != nil {
+			return err
+		}
+		b.version = b.selection
+	}
+	b.base = "Versions/" + b.version + "/"
 	b.infoPath = b.base + "Resources/Info.plist"
 	return b.validateFrameworkRoot()
 }
 
-// Additional versions are rejected until every version can be independently
-// verified against the parent's requirement, as native strict checking requires.
+// Root aliases always name Current, even when another version is selected.
 func (b *appBundle) validateFrameworkRoot() error {
 	if b.version == "" {
 		return nil
 	}
 	b.layoutEntries = nil
-	required := map[string]bool{"Versions": false, "Versions/Current": false, "Versions/" + b.version: false, "Resources": false, strings.TrimSuffix(filepath.Base(b.path), filepath.Ext(b.path)): false}
+	b.versions = nil
+	required := map[string]bool{"Versions": false, "Versions/Current": false, "Versions/" + b.current: false, "Resources": false, strings.TrimSuffix(filepath.Base(b.path), filepath.Ext(b.path)): false}
+	required["Versions/"+b.version] = false
 	for _, dir := range []string{".", "Versions"} {
 		f, err := b.root.Open(dir)
 		if err != nil {
@@ -73,6 +91,9 @@ func (b *appBundle) validateFrameworkRoot() error {
 		}
 		for _, entry := range entries {
 			name := path.Join(dir, entry.Name())
+			if err := bundleRelativePath(name); err != nil {
+				return err
+			}
 			if name == "Contents" || name == "Support Files" {
 				return unsupported("ambiguous framework layout")
 			}
@@ -80,9 +101,16 @@ func (b *appBundle) validateFrameworkRoot() error {
 				required[name] = true
 			}
 			b.layoutEntries = append(b.layoutEntries, name)
-			if name == "Versions" || name == "Versions/"+b.version {
+			if name == "Versions" {
 				if !entry.IsDir() {
 					return unsupported("framework version is not a directory")
+				}
+				continue
+			}
+			if dir == "Versions" && entry.IsDir() && entry.Name() != "Current" {
+				b.versions = append(b.versions, entry.Name())
+				if len(b.versions) > maxNestedFiles {
+					return unsupported("framework version count limit")
 				}
 				continue
 			}
@@ -97,7 +125,7 @@ func (b *appBundle) validateFrameworkRoot() error {
 				continue
 			}
 			if entry.Type()&os.ModeSymlink == 0 || dir == "Versions" && entry.Name() != "Current" {
-				return unsupported("unsealed framework root or multiple versions: " + name)
+				return unsupported("unsealed framework root: " + name)
 			}
 			target, err := b.root.Readlink(name)
 			if err != nil {
@@ -105,14 +133,15 @@ func (b *appBundle) validateFrameworkRoot() error {
 			}
 			target = strings.TrimPrefix(filepath.ToSlash(target), "./")
 			if name == "Versions/Current" {
-				if target != b.version {
+				if target != b.current {
 					return invalid("framework version changed")
 				}
-			} else if target != "Versions/Current/"+name && target != b.base+name {
+			} else if target != "Versions/Current/"+name && target != "Versions/"+b.current+"/"+name {
 				return unsupported("framework alias must name the current version's matching entry: " + name)
 			}
 		}
 	}
+	sort.Strings(b.versions)
 	for name, found := range required {
 		if !found {
 			return unsupported("missing framework layout entry: " + name)

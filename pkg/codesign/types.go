@@ -27,10 +27,20 @@ type Identity struct {
 	Certificates [][]byte
 }
 
+// PathOptions selects the physical version of a versioned framework. Empty or
+// "Current" follows Versions/Current. Contents bundles and non-bundle inputs
+// ignore BundleVersion; unversioned frameworks reject explicit selection. The
+// selection applies only to the input bundle, never to its nested frameworks.
+type PathOptions struct {
+	BundleVersion string
+}
+
 // SignOptions controls the signed representation. A nil Identity requests ad-hoc signing.
 type SignOptions struct {
-	Identifier string
-	Force      bool
+	// BundleVersion has the same meaning as PathOptions.BundleVersion.
+	BundleVersion string
+	Identifier    string
+	Force         bool
 	// Deep signs supported nested Mach-O files, apps, plug-ins and frameworks before sealing
 	// their parent, from the deepest children outwards.
 	// Existing child signatures, except linker signatures, are retained unless
@@ -60,6 +70,9 @@ type SignOptions struct {
 // VerifyOptions selects an architecture and optional external special-slot data.
 // Certificate-backed signatures are not reported valid until CMS verification succeeds.
 type VerifyOptions struct {
+	// BundleVersion selects the input framework; nested frameworks check every
+	// physical version against the parent's sealed requirement.
+	BundleVersion string
 	// Deep checks nested code pages, resource envelopes and descendants.
 	// Without it, immediate child signatures, signed non-resource metadata and
 	// the parent's requirements are checked, matching Apple.
