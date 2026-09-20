@@ -31,7 +31,7 @@ type Identity struct {
 type SignOptions struct {
 	Identifier string
 	Force      bool
-	// Deep signs supported nested Mach-O files and APPL apps before sealing
+	// Deep signs supported nested Mach-O files, apps, plug-ins and frameworks before sealing
 	// their parent, from the deepest children outwards.
 	// Existing child signatures, except linker signatures, are retained unless
 	// Force is also set.

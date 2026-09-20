@@ -18,6 +18,7 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | Binary bundle plists | Bounded metadata graphs, original-byte binding, XML/binary envelope verification and native byte/display comparisons for two encoders | [Bundle profile and evidence](bundles.md) |
 | Nested Mach-O code | Helper/dylib requirement seals, staged deep signing, shallow/deep verification and explicit child trust | [Nested profile and native evidence](bundles.md#nested-mach-o-code-and-apps) |
 | Recursive APPL apps | Nested .app discovery, mixed XML/binary metadata, descendant-first signing, shared budgets and cross-bundle hard-link checks | [Recursive profile and native evidence](bundles.md) |
+| Plug-ins, XPC and frameworks | BNDL/XPC! Contents layouts, unversioned/single-version FMWK layouts, validated framework aliases and relative symlink seals | [Layout profiles and evidence](bundles.md#frameworks) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -26,17 +27,42 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The recursive-app phase passes local native comparisons on macOS 27 build 26A428:
-24 complete tree byte comparisons, 90 display cases, eighteen ad-hoc/RSA/P-256
-trees accepted with strict deep verification, and 26 mutation/depth outcomes.
-Three native fixtures each contain three apps and six Mach-O files. Native
-lifecycle and shallow metadata-tampering checks also pass. Shared bounds,
-cross-bundle hard links, root closure and late construction failures are tested.
-An independent local TSA covers all twelve signatures in a universal tree,
-child TSA trust and preservation after a later child's timestamp request fails.
-Local verification measures 3,553/3,684 library statements (96.44%), 420/422 CLI
+The bundle-layout phase passes local native comparisons on macOS 27 build 26A428:
+36 complete standalone byte comparisons, 180 display cases, twelve mixed-tree
+byte comparisons and 63 ad-hoc/RSA/P-256 native strict deep checks. Thirty-nine
+mutations are compared in both shallow and deep modes. Eighteen native archives
+preserve signed bytes and symlink targets; plug-ins use real MH_BUNDLE fixtures.
+Shared bounds, framework aliases, malformed layouts and cross-bundle hard links
+are tested. An independent local TSA covers all eighteen architecture signatures
+in a universal mixed tree, dry runs and preservation after a later request fails.
+Five complete Apple validation/removal methods have two-target Clang AST records.
+Native removal comparisons check all six layouts; empty signature directories
+now match Apple, while the pre-existing MH_EXECUTE alignment-padding difference
+is explicitly measured and remains open.
+Local verification measures 3,688/3,827 library statements (96.37%), 420/422 CLI
 statements (99.53%) and 1/1 entry-point statement (100%); golangci-lint passes.
-Remote CI must establish this phase's expanded 174-artifact matrix.
+Remote CI must establish this phase's expanded 300-artifact matrix.
+
+### Recursive-app phase CI
+
+[PR #16 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/16).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35501058762)
+tested commit `603922b77ea11fe0637b4e99c68eb260c7c9ea26`. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,547/3,684 — 96.28% | 414/422 — 98.10% | 1/1 — 100% |
+| Windows 2025 | 3,544/3,684 — 96.20% | 414/422 — 98.10% | 1/1 — 100% |
+| macOS 27 | 3,553/3,684 — 96.44% | 420/422 — 99.53% | 1/1 — 100% |
+
+All three OS jobs, six-target GoReleaser packaging, race detection and nine fuzz
+targets passed. Apple verified all **174** Linux/Windows artifacts, including
+**36 recursive app trees** and **18 plain-nested-code apps** with strict deep
+verification, plus **24 binary-plist apps** and **30 DMGs**; every DMG also passed
+`hdiutil verify`. [golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35501058628).
+All 463 recorded source/fixture hashes per OS were audited against that checkout;
+only expected Windows Git text line-ending conversions differed. Hosted macOS
+build 26A5406e also passed the exact native byte and display comparisons.
 
 ### Nested Mach-O phase CI
 
@@ -150,10 +176,11 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 ## What is still incomplete
 
-The Contents-based app/resource profile includes XML and bounded binary bundle
-plists, plain nested Mach-O helpers/dylibs and recursive Contents-based APPL apps.
-Framework/plugin/XPC bundle layouts and symlink/xattr policy are the next format
-work. UDIF signing is implemented for a bounded profile;
+The bundle profile includes XML/binary metadata, nested Mach-O files, recursive
+APPL/BNDL/XPC! Contents layouts, unversioned/single-version FMWK frameworks and
+bounded relative symlink seals. Multiple framework versions, explicit version
+selection and broader symlink/xattr policy are the next format work.
+UDIF signing is implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes
 requirement predicates, CodeDirectory variants, metadata preservation, certificate

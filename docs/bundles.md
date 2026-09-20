@@ -1,11 +1,10 @@
-# App bundles and resource sealing
+# Bundles, frameworks and resource sealing
 
 The path APIs and CLI can sign, inspect, verify and remove signatures from a
-bounded `Contents`-based macOS app layout. Production uses Go filesystem and
+bounded macOS app, plug-in, XPC and framework layouts. Production uses Go filesystem and
 cryptographic code on Linux, macOS and Windows. Apple tools and Clang are used
-only for research and acceptance testing. Plain nested Mach-O files and recursive
-Contents-based APPL apps are supported; framework/plugin layouts and full native
-bundle policy remain incomplete.
+only for research and acceptance testing. Plain nested Mach-O files and supported
+bundle layouts can be nested recursively. Full native bundle policy remains incomplete.
 
 ## Supported layout
 
@@ -32,10 +31,71 @@ Example.app/
 
 `Info.plist` must be an XML or binary plist dictionary containing a nonempty
 `CFBundleIdentifier`, a single filename in `CFBundleExecutable`, and
-`CFBundlePackageType` equal to `APPL`. The executable must use a supported Mach-O
+`CFBundlePackageType` equal to `APPL`, `BNDL` or `XPC!`. The executable must use a supported Mach-O
 layout. Its filename is resolved under `Contents/MacOS`. Signing defaults to the
 bundle identifier; `--identifier` or `SignOptions.Identifier` can override it.
-The directory suffix alone does not determine bundle recognition.
+Contents-based `.app`, `.bundle`, `.plugin`, `.xpc` and `.appex` children are
+recognized under the supported nested-code roots. Top-level Contents layouts
+are identified by metadata. APPL displays as `app bundle with Mach-O`; BNDL and
+XPC! display as `bundle with Mach-O`, matching Apple. Plug-in fixtures contain
+real MH_BUNDLE files; XPC fixtures contain MH_EXECUTE files.
+
+### Frameworks
+
+`.framework` directories require `FMWK` metadata, an executable named after the
+framework, and `Resources/Info.plist`. Both unversioned frameworks and the
+following single-version layout are supported:
+
+```text
+Fixture.framework/
+  Fixture -> Versions/Current/Fixture
+  Resources -> Versions/Current/Resources
+  Headers -> Versions/Current/Headers       # optional alias
+  Versions/
+    Current -> A
+    A/
+      Fixture
+      Resources/Info.plist
+      Resources/message.txt
+      Headers/Fixture.h                    # optional
+      Modules/module.modulemap             # optional
+      _CodeSignature/CodeResources
+```
+
+An unversioned framework puts the contents of `Versions/A` directly in its root.
+`Headers`, `PrivateHeaders` and `Modules` contain ordinary sealed resources.
+Additional top-level Mach-O files are nested code. The framework's Info.plist is
+bound both through its special slot and resource hashes, unlike Contents/Info.plist.
+
+Version selection reads `Versions/Current`, validates a single physical version
+directory and canonical root aliases, then uses the physical path for all reads
+and writes. Aliases can use `Versions/Current` or the selected version, optionally
+prefixed with `./`. The executable and Resources aliases are required. Extra
+versions, ambiguous Contents/Support Files layouts, wrong aliases and unsealed
+root entries are rejected. Non-executable `.DS_Store` files and root `module.map`
+are permitted by the bounded native root profile. `--bundle-version` and verification
+of multiple versions remain unimplemented; native strict validation checks those
+other versions independently against the containing app's requirement.
+
+### Resource symlinks
+
+Resources may contain relative symlinks to existing targets within their resource
+base (`Contents`, the unversioned framework root, or its selected version).
+Their exact target text is recorded under `symlink` in `files2`; legacy `files`
+omits them. Optional localization rules also apply to link entries. Retargeting a
+link invalidates the seal even when both targets contain identical bytes.
+
+The scanner never descends through resource links or hashes bytes through them;
+it checks target existence through `os.Root`. Absolute links, lexical escapes,
+dangling links, cycles, `.DS_Store` links and links replacing metadata/executables
+or structural directories are rejected. Some of these restrictions are stricter
+than native signing. Absolute system links and links into enclosing bundles
+remain outside this profile. Windows link separators are normalized to POSIX
+spelling in CodeResources. Creating test fixtures requires symlink privileges;
+production only reads existing links. CI transfers signed layouts in tar archives
+to retain target text rather than dereferencing links during artifact upload.
+
+### Metadata and commands
 
 Binary metadata supports booleans, signed/unsigned 64-bit integers, real numbers,
 dates, data, ASCII/UTF-16 strings, arrays and dictionaries. Signing preserves the
@@ -85,19 +145,24 @@ uses `files2`, so changing that omitted file does not invalidate the bundle.
 `--force` is required to replace a signed executable. `--dryrun` constructs the
 signature without creating signature directories or writing outputs.
 Construction errors, including timestamp-provider failures, precede mutation.
-Successful removal strips the main signature and deletes CodeResources and the
-empty signature directory; it also accepts an already unsigned supported app.
+Successful removal strips the main signature and deletes CodeResources, leaving
+the empty signature directory as Apple does; it also accepts an already unsigned
+supported bundle. The existing Mach-O remover retains signature-alignment padding
+in some inputs: the arm64 MH_EXECUTE fixtures retain eight zero bytes and the
+corresponding LINKEDIT size difference. Removal byte parity is therefore incomplete;
+the layout tests measure this difference explicitly and compare all other entries.
 
 ## Nested Mach-O code and apps
 
 Plain Mach-O executables, dylibs and bundles may appear under `MacOS`, `Helpers`,
 `Frameworks`, `SharedFrameworks`, `PlugIns`, `Plug-ins`, `XPCServices`, or
 `Library/Automator`, `Library/Spotlight`, `Library/LoginItems`. Grouping directories
-without dots are allowed. A `.app` directory under these roots opens a separate
-Contents-based APPL bundle boundary; the same rules apply recursively within it.
-Each app has its own Info.plist, executable and CodeResources. XML and binary
-metadata may be mixed within a tree. Framework/plugin/XPC bundle formats remain
-unsupported even when located under one of these code directories.
+without dots are allowed. A supported `.app`, `.bundle`, `.plugin`, `.xpc`,
+`.appex` or `.framework` directory opens a separate bundle boundary; the same
+rules apply recursively within it.
+Each bundle has its own Info.plist, executable and CodeResources. XML and binary
+metadata may be mixed within a tree. Each layout retains its own resource base
+and metadata paths.
 
 Nested entries appear in `files2` as a designated requirement and CDHash metadata;
 they are excluded from legacy file hashes. An explicit child requirement is
@@ -144,9 +209,9 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 
 ## Limits
 
-- Only the displayed layout, plain nested Mach-O files and Contents-based APPL
-  `.app` children under the listed code directories are supported. Framework,
-  plugin/XPC bundle formats, flat/iOS/installer bundles, receipts, extra signature
+- Only the displayed Contents and framework layouts and plain nested Mach-O files
+  under the listed code directories are supported. Multiple framework versions,
+  flat/iOS/installer bundles, receipts, extra signature
   metadata and custom resource specifications return errors.
 - Bundle plists are limited to 8 MiB. XML permits 32 nesting levels and 100,000
   elements. Binary plists additionally limit the table and expanded graph to
@@ -159,7 +224,7 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
 - Paths use portable ASCII names: no traversal, Windows-reserved names,
   case collisions, trailing dots/spaces or platform-specific punctuation.
   Path limits are 1,024 bytes, 255 bytes per component and 32 separators.
-  Signing/deep traversal permits at most eight nested app levels, 10,000 total
+  Signing/deep traversal permits at most eight nested bundle levels, 10,000 total
   tree entries and 64 nested code objects (apps and plain files combined).
   Budgets do not reset at app boundaries. Combined resource/child input data is
   limited to 1 GiB, including child metadata, executables and envelopes. Staged
@@ -169,7 +234,8 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   requirements must use the implemented predicate/text subset; native quoted
   literal control whitespace is rejected before writing. Additional directory
   variants, requirement predicates and full implicit certificate synthesis remain open.
-- Symlinks and non-regular files are rejected. Hard links within Contents to
+- Symlinks outside the profile above and other non-regular files are rejected.
+  Hard links within a bundle to
   any file that signing can write, including across app boundaries, are rejected
   by the structural signing/deep scan. Filesystem operations use
   `os.Root` for path containment. Existing inodes are preserved; external hard
@@ -232,3 +298,19 @@ CI exports eighteen recursive trees per Linux/Windows producer.
 directory-boundary scanning and non-resource metadata validation bodies.
 An independent local TSA also timestamps every architecture in a universal tree,
 checks child TSA trust, and exercises dry runs and a later child's request failure.
+
+[Layout acceptance](../acceptance/layout_test.go) adds 36 complete native byte
+comparisons and 180 display comparisons across six layouts, three architectures
+and XML/binary metadata. Fifty-four ad-hoc/RSA/P-256 layout signatures pass native
+strict deep verification. Eighteen [native archives](../testdata/layouts/README.md)
+are verified and reproduced on every OS. [Mixed-tree acceptance](../acceptance/layout_nested_test.go)
+adds twelve native byte comparisons across seven-bundle trees, including runtime
+flags, identifier/requirement overrides and preservation. Nine certificate/ad-hoc
+mixed trees per OS are exported alongside the 54 standalone layouts. Thirty-nine
+mutation cases check both shallow and deep outcomes, including retargeted,
+missing, cyclic and dangling links and altered framework aliases. An independent
+TSA covers all eighteen architecture signatures in a universal mixed tree, dry
+runs and late-failure preservation. [Clang AST evidence](../spec/apple-bundle-layouts.json)
+records five complete Apple validation/removal methods on both architecture targets.
+Native removal comparisons cover all six layouts, with the explicitly recorded
+MH_EXECUTE padding difference described above.

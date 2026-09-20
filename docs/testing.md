@@ -126,6 +126,21 @@ tree preservation after later signing failures. An independent local TSA signs
 all twelve architecture signatures in a universal tree, checks child TSA trust,
 and proves dry-run and late-response-failure preservation without native trust setup.
 
+Bundle-layout acceptance adds 36 standalone native byte comparisons, 180 display
+cases, twelve mixed-tree byte comparisons and 63 ad-hoc/RSA/P-256 native strict
+deep checks. Six layouts cover `.bundle`, `.plugin`, `.xpc`, `.appex`, unversioned
+frameworks and single-version frameworks. Thirty-nine mutations are checked in
+both shallow/deep modes, including symlink text/type/target changes and framework
+aliases. Eighteen native archives are verified and reproduced on every OS; the
+plug-in inputs are real Clang-generated MH_BUNDLE files. Mixed trees include
+seven bundles and nine Mach-O files. An independent TSA exercises all eighteen
+architecture signatures, dry runs and late-failure preservation. Unit tests
+cover malformed framework roots, shared limits and cross-layout hard links.
+Native removal comparisons check all six layouts and empty signature-directory
+preservation. MH_EXECUTE removal retains eight signature-alignment zero bytes and
+a matching LINKEDIT size difference in the arm64 fixtures; this pre-existing
+Mach-O gap is recorded explicitly, with every remaining byte and entry compared.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -146,13 +161,19 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 174 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay, forty-five app bundles and fifteen DMGs per OS). Twelve of
+all 300 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, forty-five app bundles, 63 layout archives and fifteen DMGs
+per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
 three architectures and ad-hoc/RSA/P-256 identities. Another eighteen per OS
 contain recursive app trees under XML/mixed-metadata profiles. Both nested groups
-require native `--deep`.
+require native `--deep`. The 63 tar archives per OS add 54 standalone layouts
+(six formats, three architectures and three identities) and nine mixed trees.
+Tar retains symbolic links through artifact transport; the Mac safely extracts
+each archive and verifies its outer bundle with native `--strict --deep`.
+Every native fixture test and producer exercises real filesystem symlinks,
+including on Windows; these cases are required rather than silently skipped.
 The downstream
 job also requires `hdiutil verify` for every imported DMG.
 Every algorithm/architecture combination must be present from both OS jobs.
