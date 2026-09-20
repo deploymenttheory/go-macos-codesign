@@ -24,13 +24,16 @@ implemented development work, not published versioned releases. See
 - Contents-based APPL bundle signing, inspection, verification and removal;
   deterministic CodeResources, Info.plist binding, localization rules and
   resource tamper detection, with explicit layout/path/size limits.
+- Binary Info.plist support with original-byte preservation, bounded object
+  graphs, duplicate/cycle rejection, native fixtures and two-encoder acceptance;
+  verification of binary CodeResources under the existing resource rules.
 - UDIF DMG signing, inspection and verification through a direct go-apfs-v2
   dependency, with native trailer binding, identifiers, CMS/timestamps and display.
   Native-unsupported DMG removal preserves the input and returns an error.
 - Clang AST research with pinned source hashes, native macOS differential
   acceptance, OpenSSL checks and a greater-than-95% coverage gate per package.
 - Linux/macOS/Windows CI, race checks, eight fuzz targets, and required native
-  verification of 96 Linux/Windows-produced files, app bundles and DMGs.
+  verification of 120 Linux/Windows-produced files, app bundles and DMGs.
 - GoReleaser builds and snapshot packages for six OS/architecture pairs.
 
 ### Changed

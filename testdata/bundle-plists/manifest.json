@@ -1,0 +1,60 @@
+{
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "convert_arguments": [
+    "-convert",
+    "binary1",
+    "-o",
+    "Info.plist",
+    "Info.xml"
+  ],
+  "files": {
+    "Info.plist": "bcd7c6368487442cb23d7269e5fb151a28bb983db3e127ecb5984dcaa00c6557",
+    "Info.xml": "c3caeb6654a32ff61663683e178cd4e0df695c454faa03c0e9ca5159bf44b83f",
+    "arm64.app/Contents/Info.plist": "bcd7c6368487442cb23d7269e5fb151a28bb983db3e127ecb5984dcaa00c6557",
+    "arm64.app/Contents/MacOS/hello": "cd2874471b0394e0427de2a11f8cc6736aa3ad9cb170c4b8eb29c9e3d1d7e4b8",
+    "arm64.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "arm64.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "arm64.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "arm64.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "arm64.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "arm64.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "arm64.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "arm64.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8",
+    "universal.app/Contents/Info.plist": "bcd7c6368487442cb23d7269e5fb151a28bb983db3e127ecb5984dcaa00c6557",
+    "universal.app/Contents/MacOS/hello": "a6a3bff91650cfb34266f381eca24a38c118dcac0bece9ef0ea3704080de2e71",
+    "universal.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "universal.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "universal.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "universal.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "universal.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "universal.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "universal.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "universal.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8",
+    "x86_64.app/Contents/Info.plist": "bcd7c6368487442cb23d7269e5fb151a28bb983db3e127ecb5984dcaa00c6557",
+    "x86_64.app/Contents/MacOS/hello": "eca070f8d365791e67971616110ac415e7edd5b35dba2061eb32ef39371a2fed",
+    "x86_64.app/Contents/PkgInfo": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+    "x86_64.app/Contents/Resources/.DS_Store": "6c34b4cd2694a8afeb4aa26403d30fe53fa9f13566cfe73e7cdc149d1b08fe1c",
+    "x86_64.app/Contents/Resources/Base.lproj/hello.txt": "f34848ca92665c342abd5816c9e3eda0e82180671195362bcd0080544a3bc2ac",
+    "x86_64.app/Contents/Resources/fr.lproj/hello.txt": "efb83f2a277e9f49b38efd505f5cbb93885e721b6bd16b788937c9396174c006",
+    "x86_64.app/Contents/Resources/fr.lproj/locversion.plist": "25090214fbcaaeb60332188dc187bafaa38295905202c5d467c53afb992de810",
+    "x86_64.app/Contents/Resources/message.txt": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+    "x86_64.app/Contents/_CodeSignature/CodeResources": "ab455159a3279335c72d6643a8ffb17501fad5c7007a57b80079b77bbad25b06",
+    "x86_64.app/Contents/version.plist": "00924d13e42b726b99eef613c377d4ec8128e37b4ea5072819b63acb4e22f4a8"
+  },
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "native_strict_verified": true,
+  "plutil_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
+  "schema": 1,
+  "sign_arguments": [
+    "-s",
+    "-",
+    "--timestamp=none",
+    "\u003cbundle\u003e"
+  ],
+  "source": "acceptance/bundle_plist_test.go: TestRecordAppleBinaryBundleFixtures",
+  "verify_arguments": [
+    "--verify",
+    "--strict",
+    "\u003cbundle\u003e"
+  ]
+}

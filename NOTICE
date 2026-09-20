@@ -20,7 +20,7 @@ third_party/rc2 retains the unmodified RC2 source and tests from golang.org/x/cr
 v0.50.0, with its upstream LICENSE and file hashes in UPSTREAM.json. A local
 go.mod packages this subset without the upstream crypto/x509 dependency.
 
-Apple SDK declarations and open-source Security code were consulted for format
+Apple SDK declarations and open-source Security/CoreFoundation code were consulted for format
 facts and behavior. Clang-generated factual metadata is in spec/apple-sdk.json
 and spec/apple-cms.json.
 Apple implementation source and SDK headers are not included in release archives.

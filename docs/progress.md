@@ -1,6 +1,6 @@
 # Project progress
 
-Updated 2026-09-19. This page describes the implementation in this branch and
+Updated 2026-09-20. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 release gate; the [roadmap](implementation.md) lists the remaining work.
@@ -15,6 +15,7 @@ release gate; the [roadmap](implementation.md) lists the remaining work.
 | Online timestamps | Pure-Go HTTP transport, Apple/custom TSA CLI options, pinned Apple roots, deadlines, cancellation and failure preservation | [PR #10, merged](https://github.com/deploymenttheory/go-macos-codesign/pull/10) |
 | Basic app bundles | Contents-based APPL signing/removal, XML Info.plist binding, deterministic resource envelopes, metadata display and tamper checks | [Supported profile and native evidence](bundles.md) |
 | UDIF disk images | Direct go-apfs-v2 dependency; payload-preserving signatures, canonical trailer binding, native identifiers/display and timestamps | [DMG support and native evidence](dmg-integration.md) |
+| Binary bundle plists | Bounded metadata graphs, original-byte binding, XML/binary envelope verification and native byte/display comparisons for two encoders | [Bundle profile and evidence](bundles.md) |
 
 The third-party repositories are research references. Production does not call
 Apple tools, import Apple frameworks, use CGO, or require an SDK/Clang. Certificate
@@ -23,13 +24,35 @@ guards inspect the full graph for Linux, Darwin and Windows.
 
 ## Recorded validation
 
-The DMG phase passes local `make verify` on macOS 27 build 26A428 with 3,093/3,216
-library statements (96.18%), 418/420 CLI statements (99.52%) and 1/1 entry-point
-statement covered. Forty native byte comparisons, 200 display comparisons,
-fifteen signature/image-checksum cases, five committed native fixtures, local TSA
-tests, lint and a 30-second DMG fuzz run pass. A live Apple timestamp on the APFS
-fixture also passes native strict verification. These are local results; remote
-CI must establish the expanded 96-artifact matrix for this implementation.
+The binary-plist phase passes local native comparisons on macOS 27 build 26A428:
+six exact signatures/envelopes, thirty display cases, twelve ad-hoc/RSA apps,
+four metadata mutations, three native fixtures and a binary-resource-envelope
+case. Local `make verify` passes with 3,246/3,369 library statements (96.35%),
+418/420 CLI statements (99.52%) and 1/1 entry-point statement (100%). The bounded
+binary reader has 100% unit statement coverage. Lint and a 30-second resource
+parser fuzz run (868,537 executions) pass. Remote CI must establish the expanded
+120-artifact matrix for this implementation.
+
+### DMG phase CI
+
+[PR #13 is merged](https://github.com/deploymenttheory/go-macos-codesign/pull/13).
+Its [completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35471292982)
+tested commit `d51f6a863c0c0d385094e94675d258cf4bfe2bdd`. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,084/3,216 — 95.90% | 412/420 — 98.10% | 1/1 — 100% |
+| Windows 2025 | 3,081/3,216 — 95.80% | 412/420 — 98.10% | 1/1 — 100% |
+| macOS 27 | 3,093/3,216 — 96.18% | 418/420 — 99.52% | 1/1 — 100% |
+
+All three OS jobs, six-target GoReleaser packaging, race detection and all eight
+fuzz targets passed. Native strict verification accepted all **96** artifacts;
+all **30 DMGs** also passed `hdiutil verify`.
+[golangci-lint passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35471292983).
+Forty native byte comparisons, 200 display comparisons, fifteen signature/image
+checks, five committed fixtures and local TSA tests passed. A separate live Apple
+timestamp on the APFS fixture passed native strict verification at 2026-09-19
+21:31:11 UTC.
 
 ### App-bundle phase CI
 
@@ -82,8 +105,8 @@ attestation output format are documented in [timestamps](timestamps.md).
 
 ## What is still incomplete
 
-The initial Contents-based app/resource profile is implemented. Binary bundle
-plists, nested code, framework/plugin layouts and symlink/xattr policy are the
+The Contents-based app/resource profile includes XML and bounded binary bundle
+plists. Nested code, framework/plugin layouts and symlink/xattr policy are the
 next format work. UDIF signing is now implemented for a bounded profile;
 large-image streaming, encrypted/segmented images, generic-file and detached
 signatures remain open. Further work includes

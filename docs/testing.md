@@ -97,6 +97,13 @@ Apple app fixtures on every OS. Tests also cover force/removal, dry runs and
 unchanged files after timestamp failure. Layout, path, XML and filesystem
 rejection cases run in unit tests. See [bundle scope](bundles.md).
 
+Binary bundle metadata adds six native byte comparisons, thirty display cases,
+twelve ad-hoc/RSA strict-verification cases, four metadata mutations and one
+binary-resource-envelope case. Three Apple-signed fixtures preserve `plutil`
+output and run on every OS. Hand-built malformed graphs exercise offset/length
+overflow, references, cycles, duplicate keys, Unicode and expansion bounds.
+`FuzzBundleResources` includes binary seeds from Apple and malicious graphs.
+
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
 Fifteen ad-hoc/RSA/P-256 images pass native strict signature and checksum checks.
@@ -117,8 +124,10 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 96 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
-one timestamp replay, six app bundles and fifteen DMGs per OS). The downstream
+all 120 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+one timestamp replay, eighteen app bundles and fifteen DMGs per OS). Twelve of
+each OS's apps use binary metadata: two encodings, three architectures and two
+identities. The downstream
 job also requires `hdiutil verify` for every imported DMG.
 Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
