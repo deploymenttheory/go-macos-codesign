@@ -3,7 +3,7 @@
 A pure Go library and Cobra/Viper CLI for Apple code signatures. The implementation
 currently signs, inspects, verifies, and removes **ad-hoc and RSA/ECDSA
 certificate-backed Mach-O signatures**, including a bounded macOS app-bundle
-layout with resource sealing. It also signs, inspects and verifies UDIF DMGs using
+layout with XML/binary metadata and resource sealing. It also signs, inspects and verifies UDIF DMGs using
 [`go-apfs-v2`](docs/dmg-integration.md) directly. Certificate verification uses explicit
 leaf-certificate pins or caller-supplied CA roots. It is **not yet a complete replacement for Apple
 `codesign`**. Full certificate policy, nested bundles/frameworks, additional disk-image forms, and other requirements remain open in the
@@ -125,8 +125,8 @@ make lint
 Verification runs unit tests and the compiled CLI as a subprocess, merges their
 statement coverage, and requires **more than 95% in every production package**.
 It writes coverage, raw acceptance transcripts, fixture hashes, and source
-provenance under `artifacts/`. The recorded online-timestamp phase measures
-96.79–96.83% library coverage, 99.01–99.51% CLI coverage and 100% entry-point coverage
+provenance under `artifacts/`. The merged DMG phase measures
+95.80–96.18% library coverage, 98.10–99.52% CLI coverage and 100% entry-point coverage
 across the three CI operating systems; see the [commit-specific results](docs/progress.md#recorded-validation).
 The current implementation has been checked against
 Apple `codesign` on macOS 27.0, build 26A428. See
@@ -134,10 +134,11 @@ Apple `codesign` on macOS 27.0, build 26A428. See
 
 CI runs tests on Linux, macOS 27, and Windows; builds all six targets with
 GoReleaser; checks race behavior and fuzzes parsers; and sends files signed on
-Linux/Windows to macOS for Apple verification. The recorded run passed all 54
-foreign-file verifications; the bundle phase subsequently passed all 66 artifacts.
-The DMG phase expands the required matrix to 96, including 30 disk images verified
-with both native signing and image-checksum tools. Go code linting uses golangci-lint only.
+Linux/Windows to macOS for Apple verification. The merged DMG phase passed all 96
+artifacts, including 30 disk images verified with both native signing and
+image-checksum tools. Binary bundle metadata expands the required matrix to 120,
+including 24 additional apps from two independent binary encoders. See the
+progress page for completed runs. Go code linting uses golangci-lint only.
 
 ## Research and remaining work
 

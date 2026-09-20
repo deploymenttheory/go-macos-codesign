@@ -215,7 +215,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		return
 	}
 	reference := apple(t)
-	count, dmgs := 0, 0
+	count, dmgs, binaryBundles := 0, 0, 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -223,6 +223,9 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		}
 		if d.IsDir() && strings.HasPrefix(d.Name(), "signed-bundle-") {
 			mustRun(t, reference, "--verify", "--strict", path)
+			if strings.HasPrefix(d.Name(), "signed-bundle-binary") {
+				binaryBundles++
+			}
 			count++
 			seen[d.Name()]++
 			return filepath.SkipDir
@@ -241,8 +244,8 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 96 || dmgs != 30 {
-		t.Fatalf("expected 96 artifacts including 30 DMGs from Linux and Windows, found %d/%d", count, dmgs)
+	if count != 120 || dmgs != 30 || binaryBundles != 24 {
+		t.Fatalf("expected 120 artifacts including 30 DMGs and 24 binary-plist bundles from Linux and Windows, found %d/%d/%d", count, dmgs, binaryBundles)
 	}
 	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
@@ -255,6 +258,13 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		for _, profile := range []string{"binary", "binary-go"} {
+			for _, identity := range []string{"adhoc", "rsa"} {
+				if seen["signed-bundle-"+profile+"-"+identity+"-"+arch+".app"] != 2 {
+					t.Fatalf("expected both OS binary bundles for %s/%s/%s", profile, identity, arch)
+				}
+			}
+		}
 		for _, identity := range []string{"adhoc", "rsa"} {
 			if seen["signed-bundle-"+identity+"-"+arch+".app"] != 2 {
 				t.Fatalf("expected both OS bundles for %s/%s", identity, arch)
@@ -278,5 +288,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles})
 }

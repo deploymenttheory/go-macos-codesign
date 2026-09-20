@@ -1,0 +1,386 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "excerpt_sha256": {
+    "__CFBinaryPlistGetTopLevelInfo": "16816d7d56b413eebeb04a302d12348d14479a873b3bf4e7c0105dc2db82cebb",
+    "_getSizedInt": "b597da4bf434d17fee605bc38ba90f4e3c5bc909046e1560d5f1f42492b72c63",
+    "_readInt": "bef8ef563ecabdeb9566c4f87c1bc19b832d269cc7e27de30fbb1f6fd12b4827",
+    "component": "20ef0087349f4ec2a2769d046f3f22117bf6e34fe147a6a8587112a0d0557603",
+    "getDictionary": "6f1d63cfbaaf140936cc853d2853ed92a379818dfbe09f5936f0eacd0c52f32f",
+    "markers": "d460e3304f5d6dec922a86124ee110929600ad24c6b862e9e169f431e9b6d234",
+    "trailer": "1df9c299b883b925245bfda509bb3d057d9b198ba25d6b96a61b1befdb6a98f6"
+  },
+  "schema": 1,
+  "scope": "Verbatim CoreFoundation trailer/marker declarations, three binary framing/integer functions, and two Security component/dictionary methods. Explicit interface, checked-arithmetic, endian and error shims; AST analysis does not execute CoreFoundation or claim complete native parsing policy.",
+  "sources": {
+    "CFBinaryPList.c": {
+      "sha256": "8b8c72427ba60e7918f3ffa088d9f25859456eb75a0081ff5cdb7277ff62c384",
+      "url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBinaryPList.c"
+    },
+    "ForFoundationOnly.h": {
+      "sha256": "937efef93f9f15807659816c3a5a50ce4a27631723086748cda3ae778c7b3219",
+      "url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/ForFoundationOnly.h"
+    },
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
+    "bundlediskrep.cpp": {
+      "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "constants": {
+        "ObjectCount": "8",
+        "OffsetTable": "24",
+        "OffsetWidth": "6",
+        "ReferenceWidth": "7",
+        "TopObject": "16",
+        "TrailerSize": "32",
+        "kCFBinaryPlistMarkerASCIIString": "80",
+        "kCFBinaryPlistMarkerArray": "160",
+        "kCFBinaryPlistMarkerData": "64",
+        "kCFBinaryPlistMarkerDate": "51",
+        "kCFBinaryPlistMarkerDict": "208",
+        "kCFBinaryPlistMarkerFalse": "8",
+        "kCFBinaryPlistMarkerFill": "15",
+        "kCFBinaryPlistMarkerInt": "16",
+        "kCFBinaryPlistMarkerNull": "0",
+        "kCFBinaryPlistMarkerReal": "32",
+        "kCFBinaryPlistMarkerSet": "192",
+        "kCFBinaryPlistMarkerTrue": "9",
+        "kCFBinaryPlistMarkerUID": "128",
+        "kCFBinaryPlistMarkerUnicode16String": "96"
+      },
+      "methods": {
+        "__CFBinaryPlistGetTopLevelInfo": {
+          "ast_kinds": {
+            "": 1,
+            "BinaryOperator": 54,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 22,
+            "CXXConstructExpr": 1,
+            "CXXOperatorCallExpr": 1,
+            "CallExpr": 15,
+            "CompoundAssignOperator": 1,
+            "CompoundStmt": 24,
+            "DeclRefExpr": 117,
+            "DeclStmt": 12,
+            "DoStmt": 21,
+            "ForStmt": 1,
+            "FunctionDecl": 1,
+            "IfStmt": 24,
+            "ImplicitCastExpr": 155,
+            "IntegerLiteral": 45,
+            "MemberExpr": 35,
+            "ParenExpr": 10,
+            "ParmVarDecl": 5,
+            "ReturnStmt": 22,
+            "StringLiteral": 1,
+            "UnaryExprOrTypeTraitExpr": 5,
+            "UnaryOperator": 14,
+            "VarDecl": 12
+          },
+          "operators": {
+            "!": 1,
+            "!=": 7,
+            "\u0026": 8,
+            "\u0026\u0026": 2,
+            "*": 7,
+            "+": 7,
+            "++": 1,
+            "+=": 1,
+            "-": 5,
+            "\u003c": 13,
+            "\u003c\u003c": 2,
+            "\u003c=": 5,
+            "=": 8,
+            "||": 2
+          }
+        },
+        "_getSizedInt": {
+          "ast_kinds": {
+            "": 1,
+            "ArraySubscriptExpr": 1,
+            "BinaryOperator": 4,
+            "CompoundStmt": 2,
+            "DeclRefExpr": 8,
+            "DeclStmt": 2,
+            "ForStmt": 1,
+            "FunctionDecl": 1,
+            "ImplicitCastExpr": 11,
+            "IntegerLiteral": 3,
+            "ParenExpr": 1,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 1,
+            "UnaryOperator": 1,
+            "VarDecl": 2
+          },
+          "operators": {
+            "+": 1,
+            "++": 1,
+            "\u003c": 1,
+            "\u003c\u003c": 1,
+            "=": 1
+          }
+        },
+        "_readInt": {
+          "ast_kinds": {
+            "BinaryOperator": 10,
+            "CXXBoolLiteralExpr": 5,
+            "CallExpr": 2,
+            "CompoundAssignOperator": 1,
+            "CompoundStmt": 5,
+            "DeclRefExpr": 24,
+            "DeclStmt": 4,
+            "DoStmt": 4,
+            "FunctionDecl": 1,
+            "IfStmt": 5,
+            "ImplicitCastExpr": 31,
+            "IntegerLiteral": 8,
+            "ParenExpr": 2,
+            "ParmVarDecl": 4,
+            "ReturnStmt": 5,
+            "UnaryOperator": 5,
+            "VarDecl": 4
+          },
+          "operators": {
+            "!=": 2,
+            "\u0026": 3,
+            "*": 3,
+            "++": 1,
+            "+=": 1,
+            "-": 1,
+            "\u003c": 2,
+            "\u003c\u003c": 1,
+            "=": 2
+          }
+        },
+        "component": {
+          "ast_kinds": {
+            "CXXBoolLiteralExpr": 2,
+            "CXXConstructExpr": 3,
+            "CXXMemberCallExpr": 13,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 8,
+            "CallExpr": 2,
+            "CaseStmt": 2,
+            "CompoundStmt": 4,
+            "ConstantExpr": 2,
+            "DeclRefExpr": 16,
+            "DeclStmt": 3,
+            "DefaultStmt": 1,
+            "GNUNullExpr": 2,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 28,
+            "MemberExpr": 17,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 6,
+            "SwitchStmt": 1,
+            "VarDecl": 3
+          },
+          "operators": {}
+        },
+        "getDictionary": {
+          "ast_kinds": {
+            "CXXMemberCallExpr": 3,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 3,
+            "CallExpr": 2,
+            "CompoundStmt": 2,
+            "DeclRefExpr": 10,
+            "DeclStmt": 2,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 13,
+            "MemberExpr": 3,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 2,
+            "VarDecl": 2
+          },
+          "operators": {}
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "constants": {
+        "ObjectCount": "8",
+        "OffsetTable": "24",
+        "OffsetWidth": "6",
+        "ReferenceWidth": "7",
+        "TopObject": "16",
+        "TrailerSize": "32",
+        "kCFBinaryPlistMarkerASCIIString": "80",
+        "kCFBinaryPlistMarkerArray": "160",
+        "kCFBinaryPlistMarkerData": "64",
+        "kCFBinaryPlistMarkerDate": "51",
+        "kCFBinaryPlistMarkerDict": "208",
+        "kCFBinaryPlistMarkerFalse": "8",
+        "kCFBinaryPlistMarkerFill": "15",
+        "kCFBinaryPlistMarkerInt": "16",
+        "kCFBinaryPlistMarkerNull": "0",
+        "kCFBinaryPlistMarkerReal": "32",
+        "kCFBinaryPlistMarkerSet": "192",
+        "kCFBinaryPlistMarkerTrue": "9",
+        "kCFBinaryPlistMarkerUID": "128",
+        "kCFBinaryPlistMarkerUnicode16String": "96"
+      },
+      "methods": {
+        "__CFBinaryPlistGetTopLevelInfo": {
+          "ast_kinds": {
+            "": 1,
+            "BinaryOperator": 54,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 22,
+            "CXXConstructExpr": 1,
+            "CXXOperatorCallExpr": 1,
+            "CallExpr": 15,
+            "CompoundAssignOperator": 1,
+            "CompoundStmt": 24,
+            "DeclRefExpr": 117,
+            "DeclStmt": 12,
+            "DoStmt": 21,
+            "ForStmt": 1,
+            "FunctionDecl": 1,
+            "IfStmt": 24,
+            "ImplicitCastExpr": 155,
+            "IntegerLiteral": 45,
+            "MemberExpr": 35,
+            "ParenExpr": 10,
+            "ParmVarDecl": 5,
+            "ReturnStmt": 22,
+            "StringLiteral": 1,
+            "UnaryExprOrTypeTraitExpr": 5,
+            "UnaryOperator": 14,
+            "VarDecl": 12
+          },
+          "operators": {
+            "!": 1,
+            "!=": 7,
+            "\u0026": 8,
+            "\u0026\u0026": 2,
+            "*": 7,
+            "+": 7,
+            "++": 1,
+            "+=": 1,
+            "-": 5,
+            "\u003c": 13,
+            "\u003c\u003c": 2,
+            "\u003c=": 5,
+            "=": 8,
+            "||": 2
+          }
+        },
+        "_getSizedInt": {
+          "ast_kinds": {
+            "": 1,
+            "ArraySubscriptExpr": 1,
+            "BinaryOperator": 8,
+            "CStyleCastExpr": 6,
+            "CallExpr": 3,
+            "CompoundStmt": 6,
+            "DeclRefExpr": 22,
+            "DeclStmt": 5,
+            "ForStmt": 1,
+            "FunctionDecl": 1,
+            "IfStmt": 4,
+            "ImplicitCastExpr": 36,
+            "IntegerLiteral": 7,
+            "ParenExpr": 1,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 5,
+            "UnaryOperator": 5,
+            "VarDecl": 5
+          },
+          "operators": {
+            "*": 4,
+            "+": 1,
+            "++": 1,
+            "\u003c": 1,
+            "\u003c\u003c": 1,
+            "=": 1,
+            "==": 4
+          }
+        },
+        "_readInt": {
+          "ast_kinds": {
+            "BinaryOperator": 10,
+            "CXXBoolLiteralExpr": 5,
+            "CallExpr": 2,
+            "CompoundAssignOperator": 1,
+            "CompoundStmt": 5,
+            "DeclRefExpr": 24,
+            "DeclStmt": 4,
+            "DoStmt": 4,
+            "FunctionDecl": 1,
+            "IfStmt": 5,
+            "ImplicitCastExpr": 31,
+            "IntegerLiteral": 8,
+            "ParenExpr": 2,
+            "ParmVarDecl": 4,
+            "ReturnStmt": 5,
+            "UnaryOperator": 5,
+            "VarDecl": 4
+          },
+          "operators": {
+            "!=": 2,
+            "\u0026": 3,
+            "*": 3,
+            "++": 1,
+            "+=": 1,
+            "-": 1,
+            "\u003c": 2,
+            "\u003c\u003c": 1,
+            "=": 2
+          }
+        },
+        "component": {
+          "ast_kinds": {
+            "CXXBoolLiteralExpr": 2,
+            "CXXConstructExpr": 3,
+            "CXXMemberCallExpr": 13,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 8,
+            "CallExpr": 2,
+            "CaseStmt": 2,
+            "CompoundStmt": 4,
+            "ConstantExpr": 2,
+            "DeclRefExpr": 16,
+            "DeclStmt": 3,
+            "DefaultStmt": 1,
+            "GNUNullExpr": 2,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 28,
+            "MemberExpr": 17,
+            "ParmVarDecl": 1,
+            "ReturnStmt": 6,
+            "SwitchStmt": 1,
+            "VarDecl": 3
+          },
+          "operators": {}
+        },
+        "getDictionary": {
+          "ast_kinds": {
+            "CXXMemberCallExpr": 3,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 3,
+            "CallExpr": 2,
+            "CompoundStmt": 2,
+            "DeclRefExpr": 10,
+            "DeclStmt": 2,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 13,
+            "MemberExpr": 3,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 2,
+            "VarDecl": 2
+          },
+          "operators": {}
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "cdc8fc59ffdf9ccb568b80248546ded0f9d90e12edf3921091c4f34070a247ce"
+}

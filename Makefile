@@ -37,6 +37,7 @@ research-timestamps:
 
 research-bundles:
 	go run scripts/extract-bundles.go
+	go run scripts/extract-bundle-plists.go
 
 research-dmg:
 	go run scripts/extract-dmg.go

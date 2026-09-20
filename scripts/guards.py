@@ -59,6 +59,7 @@ def main():
                                      ("testdata/pkcs12", "manifest.json"),
                                      ("testdata/timestamps", "manifest.json"),
                                      ("testdata/bundles", "manifest.json"),
+                                     ("testdata/bundle-plists", "manifest.json"),
                                      ("testdata/dmg", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory

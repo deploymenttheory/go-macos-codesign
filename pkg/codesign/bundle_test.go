@@ -347,6 +347,14 @@ func TestBundleClangFacts(t *testing.T) {
 func FuzzBundleResources(f *testing.F) {
 	f.Add(encodeBundleResources(map[string]any{}, map[string]any{}))
 	f.Add([]byte(testBundleInfo))
+	f.Add(scalarBundlePlist([]byte{9}))
+	f.Add(rawBundlePlist([][]byte{{0xd1, 1, 2}, {0x51, 'k'}, {0xa2, 3, 3}, {0x61, 0, 'v'}}, 1, 1))
+	f.Add(rawBundlePlist([][]byte{{0xd1, 1, 2}, {0x51, 'k'}, {0xa1, 2}}, 8, 1))
+	binaryInfo, err := os.ReadFile("../../testdata/bundle-plists/Info.plist")
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(binaryInfo)
 	f.Fuzz(func(t *testing.T, data []byte) {
 		if len(data) > maxBundlePlist {
 			return

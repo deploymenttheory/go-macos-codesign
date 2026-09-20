@@ -16,6 +16,8 @@ import (
 
 const maxBundlePlist = 8 << 20
 const maxBundleEntries = 10000
+const maxBundlePlistDepth = 32
+const maxBundlePlistValues = 100000
 
 // These fixed dictionaries describe Apple's non-flat V2 bundle profile. Other
 // rule sets are rejected on verification instead of weakening resource checks.
@@ -93,8 +95,11 @@ func decodeBundlePlist(data []byte) (map[string]any, error) {
 	if len(data) == 0 || len(data) > maxBundlePlist {
 		return nil, malformed("bundle plist size")
 	}
-	// The initial profile uses XML plists. Preflight nesting, element count and
-	// dictionary keys before the generic plist decoder allocates its object graph.
+	if bytes.HasPrefix(data, []byte("bplist")) {
+		return decodeBinaryBundlePlist(data)
+	}
+	// Preflight XML nesting, element count and dictionary keys before the generic
+	// plist decoder allocates its object graph.
 	decoder := xml.NewDecoder(bytes.NewReader(data))
 	depth, count := 0, 0
 	type dictionary struct {
@@ -120,7 +125,7 @@ func decodeBundlePlist(data []byte) (map[string]any, error) {
 			rootSeen = true
 			depth++
 			count++
-			if depth > 32 || count > 100000 {
+			if depth > maxBundlePlistDepth || count > maxBundlePlistValues {
 				return nil, malformed("bundle plist complexity limit")
 			}
 			if t.Name.Local == "dict" {

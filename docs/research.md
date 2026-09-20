@@ -158,6 +158,24 @@ Info.plist/resource binding, display counts, and addition/removal/tamper behavio
 for the [supported app profile](bundles.md). Go code never invokes Clang or
 CoreFoundation to load or seal a bundle.
 
+The target also runs `scripts/extract-bundle-plists.go`, using pinned
+[CoreFoundation binary-plist source](https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBinaryPList.c).
+It extracts the complete trailer/marker declarations, `_getSizedInt`,
+`__CFBinaryPlistGetTopLevelInfo`, `_readInt`, and Security's `component` and
+`getDictionary` methods. [spec/apple-bundle-plists.json](../spec/apple-bundle-plists.json)
+records both targets, trailer size/offsets, marker values, method ASTs and hashes.
+Explicit interface/endian/arithmetic shims support parsing; the driver does not
+execute CoreFoundation or derive its full parsing policy. Download CFBinaryPList.c,
+ForFoundationOnly.h, bundlediskrep.cpp and StaticCode.cpp from the recorded URLs
+into `.research/apple` before running it.
+
+The existing [howett.net/plist decoder](https://github.com/DHowett/go-plist/blob/v1.0.1/bplist_parser.go)
+was reviewed for binary object and integer semantics. Production retains it for
+XML; binary bundle metadata uses a bounded reader because generic graph expansion
+has no depth/value/byte budget. Native `plutil` fixtures and independent Go-encoded
+inputs establish the implemented subset. Source research and these comparisons
+do not establish malformed-input acceptance parity outside the documented bounds.
+
 ## DMG research and direct library reuse
 
 `make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple
@@ -199,7 +217,8 @@ during native signing. The implementation reproduces these details for the
 recorded fixtures rather than comparing only extracted hashes.
 
 Original XML entitlement bytes are preserved on the observed native path. Binary
-plist CLI input is rejected. Boolean entitlements can change executable flags;
+plist entitlement input is rejected by the CLI; binary bundle metadata is supported.
+Boolean entitlements can change executable flags;
 truth-like strings and integers are not equivalent to boolean true.
 
 Further research must pin source revisions, extract C++ declarations/control
