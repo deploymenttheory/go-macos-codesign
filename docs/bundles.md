@@ -346,12 +346,15 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   Hard links within a bundle to
   any file that signing can write, including across app and version boundaries, are rejected
   by the structural signing/deep scan. Filesystem operations use
-  `os.Root` for path containment. Existing inodes are preserved; external hard
-  links retain their usual shared-file behavior. Standalone Mach-O inputs use
-  [staged replacement through go-apfs-v2](file-writes.md), preserving other
-  hard-link names. That does not change bundle executable/envelope writes.
-- Writes to children, executable and envelope are not a transaction. Write, sync,
-  close or truncation failures can leave partial output. Concurrent filesystem
+  `os.Root` for path containment. Bundle Mach-O executables use
+  [staged replacement through go-apfs-v2](file-writes.md), preserving external
+  hard-link names and their original bytes. Existing CodeResources files retain
+  their inode on signing and are unlinked on removal.
+- All executable replacements are staged before committing any bundle writes.
+  Preparation errors and cancellation before commit preserve the tree. Commits
+  remain descendant-first, with each envelope preceding its main executable.
+  Later commit failures can leave earlier children or envelopes changed; the
+  whole tree is not a transaction. Concurrent filesystem
   mutation is unsupported; sign a copy when rollback is required.
 - Extended-attribute policy, native strict-validation flags, resource-rule
   overrides, wider nested-code policy, notarization and full diagnostic parity

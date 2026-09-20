@@ -76,6 +76,26 @@ def main():
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
                 errors.append(f"Missing or changed pinned file: {directory}/{name}")
     spec = json.loads((ROOT / "spec/compatibility.json").read_text())
+    native = json.loads((ROOT / spec["native_inventory"]).read_text())
+    if native["driver_sha256"] != hashlib.sha256((ROOT / "scripts/probe-cli.go").read_bytes()).hexdigest():
+        errors.append("Native inventory driver changed without refreshed evidence")
+    for key in ("codesign_sha256", "manual_sha256"):
+        if native[key] != spec["baseline"][key]:
+            errors.append(f"Native inventory baseline mismatch: {key}")
+    if hashlib.sha256((ROOT / native["fixture"]).read_bytes()).hexdigest() != native["fixture_sha256"]:
+        errors.append("Native inventory fixture changed without refreshed evidence")
+    operations = {"sign", "verify", "display", "remove", "hosting", "validate-constraint", "merge-detached-certificates"}
+    for name, option in native["options"].items():
+        if set(option["applicability_probes"]) != operations:
+            errors.append(f"Incomplete native applicability record: {name}")
+        for operation, probe in option["applicability_probes"].items():
+            if probe.get("unavailable"):
+                if probe["exit"] != -1:
+                    errors.append(f"Unavailable native probe counted as executed: {name}/{operation}")
+            elif not all(key in probe for key in ("arguments", "exit", "before_sha256", "after_sha256")):
+                errors.append(f"Missing native observation: {name}/{operation}")
+            elif probe["exit"] == -1 and not probe.get("signal"):
+                errors.append(f"Missing native termination signal: {name}/{operation}")
     identifiers = set()
     for feature in spec["features"]:
         if feature["id"] in identifiers:
@@ -89,6 +109,8 @@ def main():
             if not (ROOT / evidence).is_file():
                 errors.append(f"Missing evidence: {evidence}")
     pending = [x for x in spec["features"] if x["status"] != "verified"]
+    if {name for name in identifiers if name.startswith("--")} != set(native["options"]):
+        errors.append("Compatibility inventory differs from native option inventory")
     print(f"Full parity: {len(spec['features'])-len(pending)}/{len(spec['features'])} verified inventory entries")
     if args.require_complete and pending:
         errors.append("Full-parity release blocked: " + ", ".join(x["id"] for x in pending))

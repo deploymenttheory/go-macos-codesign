@@ -480,28 +480,24 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	// All construction (including TSA requests) precedes mutation. As with file
-	// signing, I/O failures during the writes can leave partial output.
-	for _, write := range writes {
-		if write.create {
-			if err := write.bundle.root.Mkdir(write.bundle.base+"_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
-				return err
-			}
-		}
-		if err := write.bundle.write(ctx, write.name, write.data, write.create); err != nil {
-			return err
-		}
-	}
-	return nil
+	return commitBundleWrites(ctx, writes)
 }
 
 func (b *appBundle) write(ctx context.Context, name string, data []byte, create bool) error {
+	if !create {
+		return commitBundleWrites(ctx, []bundleWrite{{name: name, data: data, bundle: b, kind: bundleMachOWrite}})
+	}
+	return b.writeResource(ctx, name, data)
+}
+
+// Resource envelopes retain their inode; executable replacement is separate.
+func (b *appBundle) writeResource(ctx context.Context, name string, data []byte) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	st, err := b.root.Lstat(name)
 	flags := os.O_WRONLY
-	if errors.Is(err, os.ErrNotExist) && create {
+	if errors.Is(err, os.ErrNotExist) {
 		flags |= os.O_CREATE | os.O_EXCL
 	} else if err != nil {
 		return err

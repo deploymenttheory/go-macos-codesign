@@ -54,6 +54,11 @@ func main() {
 	source := read(".research/apple/signerutils.cpp")
 	unit := `#include <string>
 #include <cstdio>
+#include <set>
+#include <fcntl.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/attr.h>
 #include <sys/acl.h>
@@ -63,7 +68,8 @@ func main() {
 #include <CoreFoundation/CoreFoundation.h>
 #include <TargetConditionals.h>
 namespace CodesignWriterResearch {
-struct UnixError { static void check(int); };
+using std::string;
+struct UnixError { static void check(int); static void throwMe(); };
 struct UidGuard { bool seteuid(uid_t); };
 struct Copyfile { void set(unsigned int, void*); void operator()(const char*, const char*, copyfile_flags_t); };
 struct FD { operator int(); void read(void*, size_t, off_t); void write(const void*, size_t, off_t); };
@@ -79,6 +85,22 @@ extern CFStringRef kAFSCCompressionTypes;
 void secinfo(const char*, const char*, ...);
 struct MacOSError { static void throwMe(int); };
 constexpr int errSecCSInternalError = -67050;
+constexpr int errSecCSBadBundleFormat = -67049, errSecCSUnsealedAppRoot = -67048;
+enum {cdResourceDirSlot=3, cdSlotCount=12, cdSignatureSlot=0x10000, writerLastResort=1};
+struct CodeDirectory { using SpecialSlot=int; static const char* canonicalSlotName(int); };
+struct ExecWriter { bool attribute(int); void component(int, CFDataRef); void remove(); void flush(); };
+struct AutoFileDesc { AutoFileDesc(const string&, int, int); void writeAll(const UInt8*, CFIndex); void close(); };
+struct DirScanner { DirScanner(const string&); bool initialized(); struct dirent* getNext(); bool isRegularFile(struct dirent*); void unlink(struct dirent*, int); };
+string cfStringRelease(CFURLRef);
+struct BundleDiskRep {
+ string mMetaPath; bool mMetaExists; CFBundleRef mBundle;
+ void createMeta(); string metaPath(const char*); CFURLRef copyCanonicalPath();
+ struct Writer {
+  BundleDiskRep* rep; ExecWriter* execWriter; std::set<string> mWrittenFiles;
+  bool getPreserveAFSC(); void component(int, CFDataRef); void remove(); void remove(int); void flush(); void purgeMetaDirectory();
+ };
+};
+#define BUNDLEDISKREP_DIRECTORY "_CodeSignature"
 struct MachOEditor {
   ~MachOEditor(); void commit();
   std::string sourcePath, tempPath; FD mFd;
@@ -101,6 +123,21 @@ enum MetadataConstants : unsigned long long {
 		hashes[name] = hash(excerpt)
 		unit += "\n" + string(excerpt) + "\n"
 	}
+	bundle := read(".research/apple/bundlediskrep.cpp")
+	for _, name := range []string{"createMeta", "metaPath", "component", "remove", "flush", "purgeMetaDirectory"} {
+		prefix := "BundleDiskRep::Writer::"
+		if name == "createMeta" || name == "metaPath" {
+			prefix = "BundleDiskRep::"
+		}
+		excerpts := regexp.MustCompile(`(?ms)^(?:void|string) `+prefix+name+`\(.*?^}`).FindAll(bundle, -1)
+		if len(excerpts) == 0 {
+			panic("missing complete bundle method " + name)
+		}
+		for i, excerpt := range excerpts {
+			hashes[fmt.Sprintf("bundle_%s_%d", name, i)] = hash(excerpt)
+			unit += "\n" + string(excerpt) + "\n"
+		}
+	}
 	unit += "}\n"
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	targets := map[string]any{}
@@ -109,14 +146,14 @@ enum MetadataConstants : unsigned long long {
 		must(json.Unmarshal(run(unit, "clang++", "-target", target, "-isysroot", sdk, "-std=c++17", "-x", "c++", "-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=CodesignWriterResearch", "-"), &ast))
 		methods, constants := map[string]any{}, map[string]string{}
 		walk(ast, func(n node) {
-			if n.Kind == "EnumConstantDecl" {
+			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize") {
 				walk(n, func(c node) {
 					if c.Kind == "ConstantExpr" {
 						constants[n.Name] = fmt.Sprint(c.Value)
 					}
 				})
 			}
-			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl") || hashes[n.Name] == "" {
+			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl") || hashes[n.Name] == "" && hashes["bundle_"+n.Name+"_0"] == "" {
 				return
 			}
 			kinds, references := map[string]int{}, map[string]int{}
@@ -130,11 +167,15 @@ enum MetadataConstants : unsigned long long {
 				}
 			})
 			if kinds["CompoundStmt"] > 0 {
-				methods[n.Name] = map[string]any{"ast_kinds": kinds, "references": references}
+				name := n.Name
+				if hashes[name] == "" {
+					name = fmt.Sprintf("bundle_%s_%d", name, kinds["ParmVarDecl"])
+				}
+				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 2 || len(constants) != 5 {
-			panic("incomplete AST")
+		if len(methods) != 9 || len(constants) != 5 {
+			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
 	}
@@ -144,12 +185,15 @@ enum MetadataConstants : unsigned long long {
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope":       "Complete verbatim MachOEditor::commit and destructor bodies. Stat, rename, remove, copyfile flags, filesystem layouts and CoreFoundation declarations come from the real SDK. Private Copyfile/UidGuard/FD/Writer/Universal/compression interfaces, logging and the internal error constant are declaration-only research shims. AST analysis records metadata-copy-before-rename and cleanup control flow, not execution or full Security compilation. Native tests independently establish hard-link outcomes. Production delegates metadata to go-apfs-v2; no SDK or Apple tool is a runtime/build requirement. The clone-based Darwin implementation has narrower filesystem/compression support than native copyfile.",
-		"sources":     map[string]any{"signerutils.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signerutils.cpp", "sha256": hash(source)}},
+		"scope": "Nine complete verbatim method bodies: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. Native acceptance independently tests the bounded supported write profile; compression, stale signature-directory contents and broader creation ACL equivalence remain unimplemented profiles.",
+		"sources": map[string]any{
+			"signerutils.cpp":   map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signerutils.cpp", "sha256": hash(source)},
+			"bundlediskrep.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp", "sha256": hash(bundle)},
+		},
 		"sdk_headers": headers, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets,
 	}
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: two-target MachOEditor and metadata AST")
+	fmt.Println("Wrote spec/apple-writer.json: nine writer methods on two targets")
 }

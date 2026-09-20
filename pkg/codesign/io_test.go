@@ -74,8 +74,24 @@ func TestWriterAST(t *testing.T) {
 		t.Fatal("both writer AST targets required")
 	}
 	for target, facts := range record.Targets {
+		if len(facts.Methods) != 9 {
+			t.Fatalf("missing complete writer methods for %s", target)
+		}
 		if facts.Methods["commit"].References["rename"] != 1 || facts.Methods["commit"].References["copy"] != 2 || facts.Methods["~MachOEditor"].References["remove"] != 1 {
 			t.Fatalf("missing writer control flow for %s", target)
+		}
+		for method, call := range map[string]string{
+			"bundle_component_2":          "writeAll",
+			"bundle_createMeta_0":         "copyfile",
+			"bundle_metaPath_1":           "CFBundleCopySupportFilesDirectoryURL",
+			"bundle_remove_0":             "execWriter",
+			"bundle_remove_1":             "unlink",
+			"bundle_flush_0":              "purgeMetaDirectory",
+			"bundle_purgeMetaDirectory_0": "unlink",
+		} {
+			if facts.Methods[method].References[call] != 1 {
+				t.Fatalf("missing %s/%s for %s", method, call, target)
+			}
 		}
 	}
 }

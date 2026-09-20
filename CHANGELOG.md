@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Stage bundle Mach-O replacements through the root-relative metadata API in
+  go-apfs-v2 v0.5.0.
+  Preserve external hard-link neighbours for main and nested executables while
+  retaining in-place CodeResources updates and unlink-on-removal behavior.
+- Add 126 native writer comparisons, 15 metadata profiles, cancellation/failure
+  checks, and 168 additional Linux/Windows archives for native verification.
+  Record remaining ACL-inheritance, creation-time and signature-directory gaps.
+- Extend writer research to nine complete Apple methods and inventory all 79
+  recognized native switches with operation probes. Retain the original 55
+  compatibility obligations and add 33 without upgrading feature statuses.
+
 - Resolve standalone file aliases before reading, deriving identifiers, displaying
   paths or writing. Preserve relative/absolute/chained symlinks and use physical
   parents for `link/..`; retain the shared APFS writer and in-place DMG behavior.

@@ -217,7 +217,7 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	reference := apple(t)
 	count, dmgs, binaryBundles, nestedBundles, recursiveBundles := 0, 0, 0, 0, 0
 	layoutArchives, versionArchives, pathArchives := 0, 0, 0
-	executableArchives := 0
+	executableArchives, writerArchives := 0, 0
 	seen := map[string]int{}
 	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -242,7 +242,10 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			return filepath.SkipDir
 		}
 		if !d.IsDir() && strings.HasPrefix(d.Name(), "signed-") {
-			if strings.HasPrefix(d.Name(), "signed-executable-") {
+			if strings.HasPrefix(d.Name(), "signed-bundle-writer-") {
+				verifyBundleWriterArchive(t, reference, path)
+				writerArchives++
+			} else if strings.HasPrefix(d.Name(), "signed-executable-") {
 				verifyExecutableArchive(t, reference, path)
 				executableArchives++
 			} else if strings.HasPrefix(d.Name(), "signed-paths-") {
@@ -269,8 +272,8 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if count != 354 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 || layoutArchives != 126 || versionArchives != 18 || pathArchives != 18 || executableArchives != 18 {
-		t.Fatalf("expected 354 artifacts including 30 DMGs, 24 binary-plist bundles, 18 nested Mach-O bundles, 36 recursive app trees, 126 layout archives, 18 multi-version trees, 18 direct-path trees and 18 executable-path trees from Linux and Windows, found %d/%d/%d/%d/%d/%d/%d/%d/%d", count, dmgs, binaryBundles, nestedBundles, recursiveBundles, layoutArchives, versionArchives, pathArchives, executableArchives)
+	if count != 522 || writerArchives != 168 || dmgs != 30 || binaryBundles != 24 || nestedBundles != 18 || recursiveBundles != 36 || layoutArchives != 126 || versionArchives != 18 || pathArchives != 18 || executableArchives != 18 {
+		t.Fatalf("expected 522 artifacts, including 168 writer archives and the existing 354-artifact matrix; found total=%d writer=%d dmg=%d binary=%d nested=%d recursive=%d layout=%d version=%d path=%d executable=%d", count, writerArchives, dmgs, binaryBundles, nestedBundles, recursiveBundles, layoutArchives, versionArchives, pathArchives, executableArchives)
 	}
 	for _, profile := range []string{"raw", "zlib", "lzfse", "lzma", "apfs"} {
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
@@ -283,6 +286,13 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		t.Fatal("expected both OS timestamp artifacts")
 	}
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
+		for _, kind := range append([]string{"app"}, bundleLayouts...) {
+			for _, operation := range []string{"sign-new", "sign", "resign", "dryrun"} {
+				if seen["signed-bundle-writer-"+kind+"-"+arch+"-"+operation+".tar"] != 2 {
+					t.Fatalf("expected both OS writer archives for %s/%s/%s", kind, arch, operation)
+				}
+			}
+		}
 		for _, identity := range []string{"adhoc", "rsa", "p256"} {
 			if seen["signed-executable-"+identity+"-"+arch+".tar"] != 2 {
 				t.Fatalf("expected both OS executable-path archives for %s/%s", identity, arch)
@@ -343,5 +353,5 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 			}
 		}
 	}
-	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles, "imported_layout_archives_deep_verified": layoutArchives, "imported_framework_version_trees_deep_verified": versionArchives, "imported_framework_path_trees_deep_verified": pathArchives, "imported_executable_path_trees_deep_verified": executableArchives})
+	attest(t, map[string]any{"imported_artifacts_verified": count, "imported_bundle_writer_archives_deep_verified": writerArchives, "imported_dmgs_verified": dmgs, "imported_binary_bundles_verified": binaryBundles, "imported_nested_bundles_deep_verified": nestedBundles, "imported_recursive_app_trees_deep_verified": recursiveBundles, "imported_layout_archives_deep_verified": layoutArchives, "imported_framework_version_trees_deep_verified": versionArchives, "imported_framework_path_trees_deep_verified": pathArchives, "imported_executable_path_trees_deep_verified": executableArchives})
 }

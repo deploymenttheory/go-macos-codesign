@@ -7,8 +7,9 @@ to be complete.
 The [detailed implementation plan](implementation_plan.md) expands this overview
 into a complete post-PR #25 backlog, with all 55 inventory entries mapped to
 24 work packages, dependencies, native acceptance criteria and proposed PR slices.
-It is the execution plan for remaining work; feature implementation is paused
-while that plan is reviewed.
+Work has resumed through the first D04 writer slice. The expanded D01 inventory
+now retains 88 obligations; [native inventory](native-inventory.md) and
+[file writes](file-writes.md) describe the evidence and remaining differences.
 
 The certificate-chain/Team ID/PKCS#12 phase and RFC 3161 core are merged. Online
 HTTP timestamp acquisition is merged in [PR #10](https://github.com/deploymenttheory/go-macos-codesign/pull/10).
@@ -26,7 +27,8 @@ Explicit version selection, alternate-version requirement validation and direct
 physical/Current version-directory inputs are implemented. Supported main-executable
 paths now select their bundles. Standalone file aliases select the physical target
 for signing/removal, default identifiers and display; Mach-O replacement reuses
-go-apfs-v2's metadata API. Wider discovery and bundle symlink/xattr policy remain next.
+go-apfs-v2's metadata API. Bundle executable replacement now preserves external
+hard-link neighbours while keeping resource envelopes in place. Wider discovery and bundle symlink/xattr policy remain next.
 See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 | Stage | Current result | Outstanding work |
@@ -40,7 +42,7 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2, native trailer binding, identifiers and byte comparisons | Large-image streaming, encrypted/segmented images, detached/generic/xattr files and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 354 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and nine fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 522 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and nine fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
 
 ## Next implementation sequence
 

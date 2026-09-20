@@ -134,8 +134,9 @@ in-memory use. Input bytes are not modified by signing or signature removal.
 Standalone file aliases resolve to their physical target for signing, removal,
 identifiers and display; the symlink remains intact. `Report.Path` is the absolute
 resolved standalone path. Mach-O writes stage a replacement through go-apfs-v2,
-preserving other hard-link names. DMG and bundle writes retain existing inodes and can leave partial
-output on I/O failure. See [writer behavior and limits](docs/file-writes.md).
+preserving other hard-link names for standalone and bundle executables. DMGs and
+existing bundle resource envelopes retain their in-place behavior. Bundle commits
+can leave partial output on I/O failure. See [writer behavior and limits](docs/file-writes.md).
 File operations currently have a 1 GiB input/output limit.
 The path APIs also accept supported app bundles; byte APIs accept Mach-O and UDIF.
 See [bundle layouts and limits](docs/bundles.md).
