@@ -72,10 +72,11 @@ Local full-suite coverage is 3,803/3,949 library statements (96.30%), 423/425 CL
 statements (99.53%) and 1/1 entry-point statement (100%). Lint, dependency and
 fixture guards, and six-target GoReleaser builds pass.
 
-CI now requires 318 signed imports, including eighteen additional Linux/Windows
-framework-version trees, plus the existing 88 removal comparisons. The current
-branch still needs its own completed CI run; prior merged evidence is not a claim
-about this implementation.
+CI requires 318 signed imports, including eighteen additional Linux/Windows
+framework-version trees, plus the existing 88 removal comparisons.
+[PR #20](https://github.com/deploymenttheory/go-macos-codesign/pull/20) tracks this
+phase's workflow results and downloaded coverage evidence. Prior merged evidence
+does not establish validation of a later implementation.
 
 ### Bundle-layout phase CI
 
