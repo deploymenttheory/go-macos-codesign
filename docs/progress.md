@@ -78,7 +78,8 @@ total to 354 while retaining 88 removal comparisons. The complete local suite
 passes with 3,891/4,044 library statements (96.22%), 423/425 CLI statements
 (99.53%) and 1/1 entry-point statement (100%). Lint, dependency/fixture guards
 and all six GoReleaser build targets pass. Per-commit workflow and artifact
-results will be recorded in the implementation PR after CI finishes.
+results are recorded in [PR #23](https://github.com/deploymenttheory/go-macos-codesign/pull/23)
+after CI finishes.
 
 Native standalone signing replaces a hard-linked target while the current writer
 preserves the inode. This newly observed write-semantics gap remains separate
