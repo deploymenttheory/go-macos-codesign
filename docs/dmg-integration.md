@@ -1,10 +1,10 @@
 # DMG signing with go-apfs-v2
 
 DMG signing directly uses `github.com/deploymenttheory/go-apfs-v2/pkg/disk`, pinned
-to `v0.4.0`. Production reuses its exported
+to `v0.5.0`. Production reuses its exported
 `DMGFooter`, including the signature offset/length fields. This repository adds
 the signature adapter; it does not maintain another DMG reader, writer or codec.
-The same dependency now supplies the [standalone file metadata API](file-writes.md).
+The same dependency now supplies the [standalone and root-relative file metadata APIs](file-writes.md).
 
 ## CLI and library
 

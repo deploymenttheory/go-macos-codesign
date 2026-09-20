@@ -74,16 +74,35 @@ remain explicit gaps in [file writes](file-writes.md).
 
 The APFS prerequisite shipped in [PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102)
 and [v0.5.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.5.0).
-This module pins that release; it needs no development workspace or APFS replace. Local native
-acceptance passes 126 complete tree/inode comparisons. Fifteen metadata profiles
+This module pins that release; it needs no development workspace or APFS replace.
+Local native acceptance passes 126 complete tree/inode comparisons. Fifteen metadata profiles
 also record the remaining native differences. Local full verification
 passes with 3,979/4,161 library statements (95.63%), 423/425 CLI statements (99.53%)
 and 1/1 entry-point statement. golangci-lint and all six GoReleaser builds pass.
 APFS [three-OS tests and six builds](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35531568090)
-passed at `5ffe196cad831ba35916cec46f30f1d0ce419591`. Per-commit codesign CI results and
-downloaded artifact audits are recorded in the implementation pull request; local
-checks alone do not establish Linux/Windows execution.
-The configured import gate grows from 354 to 522 signed artifacts.
+passed at `5ffe196cad831ba35916cec46f30f1d0ce419591`.
+
+[PR #27](https://github.com/deploymenttheory/go-macos-codesign/pull/27) records the
+[implementation workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35532377695)
+for `a9248cd5c091c9cbb9a6cc8d195243a4dcca6af1`. Its three producer jobs,
+six-target packaging, native imports and
+[golangci-lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35532377717)
+pass. Downloaded artifacts report:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,972/4,161 — 95.46% | 417/425 — 98.12% | 1/1 — 100% |
+| Windows 2025 | 3,969/4,161 — 95.39% | 417/425 — 98.12% | 1/1 — 100% |
+| macOS 27 | 3,979/4,161 — 95.63% | 423/425 — 99.53% | 1/1 — 100% |
+
+All 573 source/fixture hashes per OS match the tested source, with only seventeen
+expected Windows text conversions. Each foreign producer's 126 writer-tree
+hashes and 184 standalone/alias/allocation hashes match the hosted Apple-compared
+outputs. Apple accepts all 522 imported signed artifacts, including 168 writer
+archives; all 88 removal outputs match native bytes. Twelve archive/SBOM checksums
+pass, and all six binaries embed APFS v0.5.0 with CGO disabled. The CI merge commit
+has the same tree as the tested head. Final PR checks and subsequent documentation
+commits remain identified separately in the pull request.
 
 D01 expands the checklist from 55 to 88 entries without upgrading statuses:
 25 partial, 55 not implemented, eight blocked, zero fully verified. The
