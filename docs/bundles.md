@@ -253,9 +253,15 @@ uses `files2`, so changing that omitted file does not invalidate the bundle.
 `--force` is required to replace a signed executable. `--dryrun` constructs the
 signature without creating signature directories or writing outputs.
 Construction errors, including timestamp-provider failures, precede mutation.
-Successful removal strips the main signature and deletes CodeResources, leaving
-the empty signature directory as Apple does; it also accepts an already unsigned
-supported bundle. The [Mach-O removal fix](removal.md) trims symbol-table alignment
+Successful signing purges stale regular files from each rewritten bundle's
+`_CodeSignature` directory after committing its main executable, keeping the new
+CodeResources. Successful removal strips the main signature and deletes all
+regular signature files, leaving the empty directory as Apple does; it also accepts
+an already unsigned supported bundle. Removal leaves descendant signatures alone.
+External hard links to purged files retain their bytes. Unexpected signature files
+still fail verification, and non-regular signature entries remain unsupported;
+[file-write evidence](file-writes.md) records the native failure-order differences.
+The [Mach-O removal fix](removal.md) trims symbol-table alignment
 padding and preserves virtual sizes. The layout tests now require complete native
 byte equality, including the executable, without the earlier eight-byte exception.
 

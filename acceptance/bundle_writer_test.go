@@ -183,6 +183,7 @@ func TestBundleWriterParity(t *testing.T) {
 func verifyBundleWriterArchive(t *testing.T, reference, archive string) {
 	t.Helper()
 	name := strings.TrimPrefix(filepath.Base(archive), "signed-bundle-writer-")
+	name = strings.TrimPrefix(name, "signed-bundle-cleanup-")
 	kind, _, ok := strings.Cut(name, "-")
 	if !ok {
 		t.Fatal("invalid writer archive", archive)

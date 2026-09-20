@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -48,6 +49,12 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 			}
 			continue
 		}
+		if write.kind == bundleSignatureCleanup {
+			if err := write.bundle.purgeSignatureFiles(ctx, true); err != nil {
+				return err
+			}
+			continue
+		}
 		if err := write.bundle.root.Mkdir(write.bundle.base+"_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
 			return err
 		}
@@ -56,6 +63,72 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 		}
 	}
 	return nil
+}
+
+// Apple flushes the metadata directory after committing the main executable.
+// Only regular files are supported; unlink them without following links or
+// replacing or rewriting any hard-link neighbours. Keep the directory itself.
+func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	name := b.base + "_CodeSignature"
+	st, err := b.root.Lstat(name)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return unsupported("signature directory is not a directory")
+	}
+	root, err := b.root.OpenRoot(name)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	current, err := root.Stat(".")
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("bundle signature directory changed")
+	}
+	dir, err := root.Open(".")
+	if err != nil {
+		return err
+	}
+	defer dir.Close()
+	for count := 0; ; count++ {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		entries, err := dir.ReadDir(1)
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if count >= maxBundleEntries {
+			return unsupported("signature directory entry count limit")
+		}
+		entry := entries[0].Name()
+		info, err := root.Lstat(entry)
+		if err != nil {
+			return err
+		}
+		if !info.Mode().IsRegular() {
+			return unsupported("non-regular signature file: " + entry)
+		}
+		if keepResources && entry == "CodeResources" {
+			continue
+		}
+		if err := root.Remove(entry); err != nil {
+			return err
+		}
+	}
 }
 
 func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *preparedBundleExecutable, result error) {

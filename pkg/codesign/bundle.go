@@ -229,6 +229,24 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
+		if strings.HasPrefix(rel, "_CodeSignature/") && name != b.resourcesPath() {
+			if strings.EqualFold(rel, "_CodeSignature/CodeResources") {
+				return unsupported("noncanonical resource envelope filename: " + rel)
+			}
+			if !scope.signatureCleanup {
+				return unsupported("unexpected signature file: " + rel)
+			}
+			st, err := d.Info()
+			if err != nil {
+				return err
+			}
+			if !st.Mode().IsRegular() {
+				return unsupported("non-regular signature file: " + rel)
+			}
+			// These files are unlinked after the executable commit, never sealed
+			// or read. Retain inode checks against in-place envelope writes.
+			return scope.regularFile(prefix+name, st)
+		}
 		nested, container := nestedCodePath(rel)
 		if b.framework && !strings.Contains(rel, "/") && !d.IsDir() {
 			nested = true // additional top-level Mach-O files are nested code
@@ -462,7 +480,9 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	defer b.close()
-	files, files2, err := b.scan(ctx)
+	scope := newBundleScan()
+	scope.signatureCleanup = true
+	files, files2, err := b.scanTree(ctx, scope, 0, "")
 	if err != nil {
 		return err
 	}
@@ -534,7 +554,9 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 		return err
 	}
 	defer b.close()
-	if _, _, err = b.scan(ctx); err != nil {
+	scope := newBundleScan()
+	scope.signatureCleanup = true
+	if _, _, err = b.scanTree(ctx, scope, 0, ""); err != nil {
 		return err
 	}
 	data, err := b.read(b.executable, maxFileSize)
@@ -548,9 +570,5 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 	if err := b.write(ctx, b.executable, out, false); err != nil {
 		return err
 	}
-	if err := b.root.Remove(b.resourcesPath()); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	// Apple's bundle writer unlinks signature files but retains the directory.
-	return nil
+	return b.purgeSignatureFiles(ctx, false)
 }

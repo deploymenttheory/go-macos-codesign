@@ -47,15 +47,30 @@ and clean staging directories. Commits proceed descendant-first, with each
 resource envelope preceding its main executable. Each executable rename checks
 the original file identity again. A later I/O or cancellation failure can leave
 earlier commits in place; this is not whole-tree rollback. Removal replaces only
-the selected main executable and unlinks its envelope, retaining the empty
-signature directory, as in the tested native profile.
+the selected main executable and empties its signature directory, retaining the
+directory itself. Descendant signatures remain unchanged during outer removal.
+
+For supported regular files in `_CodeSignature`, signing excludes old sidecars
+from resource seals and purges them after committing that bundle's main executable.
+Only the newly written `CodeResources` remains. Removal purges all regular files,
+including unknown names, even for an unsigned executable. Unlinking preserves
+external hard-link neighbours' bytes and inode. Dry runs preserve every sidecar.
+Verification still rejects unexpected signature files; accepting them for cleanup
+does not relax verification. Cleanup stays beneath an opened metadata-directory
+root, rejects non-regular entries and bounds the number of entries inspected.
+
+Directories and symlinks inside `_CodeSignature` remain unsupported during the
+initial scan. Native sign/removal can commit the executable before rejecting
+these entries, and native dry runs can succeed; Go rejects them before writes.
+This failure-order difference is recorded by acceptance tests. Cleanup failures
+after a commit do not roll it back or commit later prepared executables.
 
 The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
 change creation time; our replacement preserves the original ACL and birth time.
 Mode, owner/group, the tested xattr and supported flags survive both writers.
-Apple source also copies security metadata when creating the signature directory
-and purges stale signature files; those behaviors remain unimplemented here.
+Apple source also copies security metadata when creating the signature directory;
+that behavior remains unimplemented here.
 Compressed/protected files, wider permissions and failure order remain open.
 
 Standalone file symlinks resolve to the physical target before reading, deriving
@@ -92,6 +107,16 @@ exports 84 signed archives for independent native verification. Fifteen native
 metadata profiles retain raw stat observations and ACL/xattr/flag results,
 including the differences above. Failure tests cover preparation before envelope
 creation, cancellation, changed target identity, partial commits and cleanup.
+
+The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
+three architectures and five operations. It includes named and unknown stale
+files, hidden files, external hard links, deep signing and outer-only removal.
+Each foreign producer exports another 42 cleaned signed archives; independent
+Apple import verification now requires 606 signed artifacts in total. Eight
+directory/symlink profiles record the non-regular rejection difference explicitly.
+Unit tests cover flush failure after executable commit, later staged-file cleanup,
+cancellation, directory replacement by a symlink, retained internal write-alias
+rejection, and unchanged verification policy.
 
 Host acceptance compares all output bytes and inode outcomes for fifteen
 architecture/operation combinations, plus one in-place DMG case. Six newly
