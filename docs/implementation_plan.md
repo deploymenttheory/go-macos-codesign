@@ -1,0 +1,1718 @@
+# Detailed implementation plan: remaining codesign equivalence
+
+Status: planning backlog, prepared 2026-09-20 after PR #25 merged. Feature
+implementation is paused. Creating this document does not start the work below,
+change compatibility statuses, or authorize a release.
+
+This is the detailed execution companion to [implementation stages](implementation.md).
+It includes missing features, unfinished behavior within existing features,
+unproven compatibility, deliberate limits, and dependencies on unavailable state.
+All work packages are outstanding unless their baseline explicitly describes
+already delivered behavior. Proposed APIs, tests and artifacts are proposals,
+not existing capabilities.
+
+## 1. Objective, baseline and meaning of completion
+
+The objective remains a pure Go library and Cobra/Viper CLI reproducing Apple's
+`codesign` behavior, with no Apple code-signing runtime, framework, helper binary,
+SDK, Clang or CGO requirement in production. Supported workflows must execute on
+Linux, macOS and Windows. Clang/AST research and independent Apple acceptance
+belong to development and testing. GoReleaser owns production builds and packaging.
+
+The baseline is deliberately specific:
+
+| Item | Recorded baseline |
+| --- | --- |
+| Native reference | `/usr/bin/codesign`, macOS 27.0 build 26A428, arm64 |
+| Binary and manual identity | SHA-256 values in [spec/compatibility.json](../spec/compatibility.json) |
+| Production feature baseline | [PR #25](https://github.com/deploymenttheory/go-macos-codesign/pull/25), tested commit `e3de6c447101e469211ded2d85fca11066391e20` |
+| Merge into main | `4145fd27e7079e6e22ecea9279ecb1b4a6f1aaac` |
+| Shared filesystem/DMG dependency | `github.com/deploymenttheory/go-apfs-v2 v0.4.0` |
+| Compatibility checklist | 55 entries: 25 partial, 25 not implemented, five blocked, zero fully verified |
+| Documented-option subtotal | 47 entries: 22 partial, 22 not implemented, three blocked |
+| Additional capability subtotal | Eight entries: three partial, three not implemented, two blocked |
+
+The [completed PR #25 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35525819487)
+establishes the following starting evidence. These numbers describe that commit,
+not future changes or all native behavior:
+
+| Runner | Library statements | CLI statements | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 3,923/4,098, 95.73% | 417/425, 98.12% | 1/1, 100% |
+| Windows 2025 | 3,920/4,098, 95.66% | 417/425, 98.12% | 1/1, 100% |
+| macOS 27 | 3,930/4,098, 95.90% | 423/425, 99.53% | 1/1, 100% |
+
+The same run passed race detection, nine fuzz targets, six-target packaging,
+354 imported signature verifications and 88 imported removal byte comparisons.
+The artifact audit checked 567 source/fixture hashes per OS, twelve archive/SBOM
+checksums, and all 169 Linux plus 169 Windows alias/allocation hashes against
+the independently Apple-compared macOS outputs. The [lint run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35525819499)
+also passed.
+
+Completion has several separate meanings:
+
+1. **Implemented:** production code handles a precisely documented input and
+   operation profile. Merely recognizing an option is insufficient.
+2. **Independently verified:** native tools or independent reference encoders
+   establish the expected behavior; tests do not generate both sides with our code.
+3. **Portable:** execution succeeds on the three producer operating systems;
+   cross-compilation alone does not establish execution or filesystem behavior.
+4. **Feature equivalent:** the feature's supported native inputs, defaults,
+   failures, interactions and observable side effects have a completed matrix.
+5. **Full equivalent:** every inventory entry and subsequently discovered native
+   behavior is resolved, including host-state blockers. A supported-subset release
+   does not satisfy this final condition.
+
+Statement coverage above 95% is required in every production package. It is not a
+percentage of Apple's functionality implemented. The 55 entries are unequal in
+scope and are not a useful completion-percentage denominator.
+
+## 2. Non-negotiable implementation boundaries
+
+- Keep Cobra and Viper. Native option semantics must remain independent of ambient
+  Viper configuration; portable extensions need explicit documentation.
+- Keep production pure Go. Audit the complete dependency graph on Darwin,
+  Linux and Windows. `CGO_ENABLED=0` alone does not prove absence of Apple bridges.
+- Retain the current production guard against `crypto/x509`, `crypto/tls`,
+  `net/http`, subprocess helpers, native binding directives and direct raw syscalls.
+  A future networking or cryptography dependency must pass that audit; no quiet
+  exception is part of this plan. Test-only independent oracles remain separate.
+- Reuse APFS `pkg/disk` for disk-image structure and APFS `pkg/hostmeta` for host
+  metadata operations. Put missing general filesystem/image functionality into
+  the APFS project, expose a documented public API, release it, then consume it.
+  Do not copy its implementation into codesign or import another repository's
+  `internal` package.
+- Ordinary host filesystem I/O through supported Go/x/sys wrappers is compatible
+  with this boundary. Security.framework, CoreFoundation execution and invoking
+  Apple's signing services are not production fallbacks.
+- Keep GoReleaser for builds, archives and SBOM generation. Existing Python
+  verification/research orchestration is not a replacement production build system;
+  new research drivers should follow the existing Go-driver pattern.
+- Use golangci-lint for Go linting. Do not reintroduce Super-Linter.
+- Preserve bounded parsing and explicit errors. Do not copy observed native
+  memory corruption, unsafe pointer behavior or unbounded resource consumption.
+  Record safe divergences honestly; they prevent an unconditional parity claim.
+- Preserve byte APIs' ownership contracts: inputs remain unchanged and callers
+  own returned data. Newly introduced streaming APIs must state lifetime and
+  concurrency contracts.
+- Do not change existing explicit-trust library APIs into weaker verification
+  silently. Native-compatible validation and optional trust policies need distinct
+  result semantics and a migration plan where behavior changes.
+
+## 3. Work-package map and delivery order
+
+Work-package IDs are stable references, not estimates of equal effort. Each
+package below contains implementation tasks, independent acceptance and an exit
+condition. Dependencies can be delivered incrementally; unresolved portions must
+remain visible instead of holding unrelated portable work indefinitely.
+
+| ID | Work package | Main prerequisite or boundary |
+| --- | --- | --- |
+| [WP-01](#wp-01) | Native baseline, source/AST research and complete option inventory | Start first; continue throughout |
+| [WP-02](#wp-02) | Bundle file replacement and wider metadata preservation | APFS public API, native writer probes |
+| [WP-03](#wp-03) | Bundle discovery, paths and layout coverage | Path identity and containment contract |
+| [WP-04](#wp-04) | Resource policy, xattrs and strict verification | WP-02/WP-03; shared APFS metadata APIs |
+| [WP-05](#wp-05) | Signature metadata preservation and signing-option semantics | Existing signature readers; WP-07/WP-08/WP-09 as needed |
+| [WP-06](#wp-06) | Mach-O allocation, architecture and removal coverage | Native allocation evidence; streaming work for large offsets |
+| [WP-07](#wp-07) | CodeDirectory versions, digest selection and special slots | WP-06; CMS and nested-code integration |
+| [WP-08](#wp-08) | Entitlement representation and option equivalence | Typed plist/DER evidence |
+| [WP-09](#wp-09) | Complete requirements compiler, decoder, formatter and evaluator | Certificate/constraint/notarization contexts where predicates require them |
+| [WP-10](#wp-10) | Certificate validation and native verification semantics | WP-09/WP-12 interfaces; explicit policy separation |
+| [WP-11](#wp-11) | Identity formats and software-signing identity selection | Existing signer interface; host-state boundary |
+| [WP-12](#wp-12) | CMS representations and signature algorithms | WP-07/WP-11; independent crypto verification |
+| [WP-13](#wp-13) | Timestamp compatibility and transport policy | WP-10/WP-12 and portable transport audit |
+| [WP-14](#wp-14) | Launch/library constraints and validation | Typed plist/DER plus WP-07 special-slot binding |
+| [WP-15](#wp-15) | Native detached signature files | Representation dispatch, architecture IDs and external data |
+| [WP-16](#wp-16) | Generic/xattr signatures and other native representations | WP-15 and APFS xattr support |
+| [WP-17](#wp-17) | Wider DMG representations and streaming signing | APFS format APIs and WP-21 |
+| [WP-18](#wp-18) | Hybrid/PQC signatures, signature slots and detached certificates | Native fixtures, WP-07/WP-11/WP-12 |
+| [WP-19](#wp-19) | Notarization ticket checking | Native protocol/policy evidence and portable authenticated transport |
+| [WP-20](#wp-20) | Complete CLI, extraction, diagnostics and display behavior | Incremental integration with every work package |
+| [WP-21](#wp-21) | Streaming, limits, cancellation and resource accounting | Cross-cutting; start before widening allocation/DMG limits |
+| [WP-22](#wp-22) | Live macOS state and non-exportable identity blockers | Feasibility investigation now; actual state/key access required |
+| [WP-23](#wp-23) | Differential acceptance, portability, CI and distribution evidence | Continuous gate, not a final testing phase |
+| [WP-24](#wp-24) | Documentation, inventory maintenance and full-parity audit | Continuous updates; final closure after all relevant gates |
+
+Recommended sequence:
+
+1. Establish WP-01's expanded inventory and WP-22's access constraints. Maintain
+   WP-23/WP-24 continuously so the goal cannot shrink silently.
+2. Complete bundle writer behavior, path/layout coverage and resource/xattr policy
+   in WP-02 through WP-04. Deliver small native-proven profiles, not one large
+   filesystem rewrite.
+3. Add WP-05 preservation, useful WP-20 extraction/reporting options and WP-21
+   interfaces. These improve everyday re-signing without waiting for PQC.
+4. Widen Mach-O and CodeDirectory forms, entitlements and requirements in WP-06
+   through WP-09. Implement pure grammar/encoding portions before predicates that
+   require trust or remote state.
+5. Extend identities/CMS, then native validation and timestamp policy in WP-11,
+   WP-12, WP-10 and WP-13. Resolve circular integration incrementally through
+   explicit format and policy interfaces rather than mutual package dependencies.
+6. Deliver constraints, native detached signatures, generic representations and
+   wider DMGs in WP-14 through WP-17.
+7. Deliver WP-18 and WP-19 once algorithms, formats, credentials and service
+   behavior are evidenced. Do not postpone their discovery/fixture work until then.
+8. Complete remaining CLI interactions and final audits. WP-22 remains a blocker
+   for full equivalence unless its inputs/access constraints are actually resolved.
+
+No calendar estimate is assigned to private-format, credential-dependent or
+host-state work before investigation. Each implementation PR should identify a
+bounded observable behavior, its tests, remaining exclusions and dependent APFS PR.
+
+## 4. Traceability for every existing inventory entry
+
+Statuses below are copied from the PR #25 baseline. They are not upgraded by this
+plan. The work-package column maps every existing entry to remaining work.
+
+| Inventory entry | Baseline | Work packages and remaining obligation |
+| --- | --- | --- |
+| `--all-architectures` | partial | WP-06/WP-07/WP-20: precedence with architecture selection, every slice and damaged unselected slices |
+| `--architecture` | partial | WP-06/WP-20: names, numeric CPU/subtypes, host defaults, invalid/missing slices and non-Mach-O applicability |
+| `--bundle-version` | partial | WP-03/WP-04/WP-20: wider version layouts, malformed selectors, operation and nested-version interactions |
+| `--check-notarization` | not-implemented | WP-19: authenticated forced online ticket lookup, failures and native diagnostics |
+| `--display` | partial | WP-20 plus each format owner: complete metadata, extraction, architecture/slot selection and damaged signatures |
+| `--detached` | not-implemented | WP-15: native detached container creation, reading, validation and extraction |
+| `--deep` | partial | WP-03/WP-04/WP-09: wider nested layouts, alternate directories/digests, preservation and validation policy |
+| `--detached-database` | blocked | WP-22: actual native system database state/access; offline file support is not equivalence |
+| `--input-detached-certificates` | not-implemented | WP-18: native certificate interchange input and signature linkage |
+| `--output-detached-certificates` | not-implemented | WP-18: native interchange output, ordering and omission rules |
+| `--keep-root-detached-certificates` | not-implemented | WP-18: root classification, inclusion and merge interaction |
+| `--merge-detached-certificates` | not-implemented | WP-18/WP-20: standalone merge operation, repeated inputs, deduplication and output behavior |
+| `--use-software-signing-cert` | not-implemented | WP-11/WP-18/WP-22: establish native identity-selection contract and required identity-provider access |
+| `--force` | partial | WP-05/WP-20: preservation, linker-signed inputs, nested signatures and invalid old metadata |
+| `--force-library-entitlements` | partial | WP-08: all applicable file types and conflict/default behavior |
+| `--generate-entitlement-der` | partial | WP-08/WP-20: confirm baseline no-op/deprecation behavior and XML/DER combinations |
+| `--hosting` | blocked | WP-22: live process hosting chain, validity and authorization |
+| `--identifier` | partial | WP-05/WP-20: embedded metadata defaults, Unicode/case/path rules, empty/duplicate options and formats |
+| `--options` | partial | WP-05/WP-07/WP-20: complete flags, numeric masks, applicability, preservation and conflicts |
+| `--pagesize` | partial | WP-06/WP-07/WP-17: boundaries, architecture/image defaults and interaction with CodeDirectory forms |
+| `--remove-signature` | partial | WP-02/WP-06/WP-15/WP-16: writer side effects, legacy layouts and additional signature representations |
+| `--requirements` | partial | WP-09/WP-20: complete source/binary forms, all requirement types and display/extraction |
+| `--test-requirement` | partial | WP-09/WP-10/WP-20: complete evaluation contexts, trust predicates and error behavior |
+| `--sign` | partial | WP-02 through WP-19 as applicable: format, identity, metadata, policy and complete operation matrix |
+| `--verbose` | partial | WP-20: all levels, overloaded short syntax, localization and channels |
+| `--verify` | partial | WP-04/WP-07/WP-09/WP-10/WP-13/WP-19/WP-22: validation, policy, representations and process targets |
+| `--continue` | partial | WP-20: mixed success/failure targets, output ordering, aggregate exit status and write preservation |
+| `--dryrun` | partial | WP-02/WP-05/WP-13/WP-20: all write forms, identity/TSA effects and failures |
+| `--entitlements` | partial | WP-08/WP-20: full typed input/output, missing slots and failure behavior |
+| `--enforce-constraint-validity` | not-implemented | WP-14: strict constraint validation during signing and default warning behavior |
+| `--extract-certificates` | not-implemented | WP-20/WP-12/WP-18: chain order, DER bytes, filenames and multiple signatures |
+| `--file-list` | not-implemented | WP-20/WP-02/WP-04: accurate reported files for signing and display, append/overwrite/failure semantics |
+| `--ignore-resources` | not-implemented | WP-04: native scope of resource suppression without bypassing executable integrity |
+| `--keychain` | blocked | WP-22/WP-11: native identity lookup, search lists, preferences and authorization |
+| `--prefix` | not-implemented | WP-05/WP-20: native identifier-prefix rules for each default/explicit identifier source |
+| `--preserve-metadata` | not-implemented | WP-05: signature fields, abbreviations, override precedence and linker-signed exception |
+| `--strict` | not-implemented | WP-04/WP-20: supported strictness selectors, all/default behavior and diagnostics |
+| `--timestamp` | partial | WP-13: native defaults, transport, TSA policy and error/output interactions |
+| `--runtime-version` | partial | WP-05/WP-07/WP-20: derivation, boundaries, preservation and architecture/platform defaults |
+| `--launch-constraint-self` | not-implemented | WP-14: native serialization, binding and validation |
+| `--launch-constraint-parent` | not-implemented | WP-14: native serialization, binding and validation |
+| `--launch-constraint-responsible` | not-implemented | WP-14: native serialization, binding and validation |
+| `--library-constraint` | not-implemented | WP-14: library constraint encoding, signing and inspection |
+| `--strip-disallowed-xattrs` | not-implemented | WP-04/WP-02: native disallowed-attribute policy, shared metadata mutation and preservation |
+| `--single-threaded-signing` | not-implemented | WP-04/WP-20: resource-seal scheduling contract and identical results |
+| `--validate-constraint` | not-implemented | WP-14/WP-20: separate operation, typed schema, known keys and optional extensions |
+| `--signature-slot` | not-implemented | WP-18/WP-20: native slot numbering, default preference and selected verification/display |
+| `certificate-signing` | partial | WP-09 through WP-13/WP-18: formats, algorithms, native policy and real credential evidence |
+| `bundles` | partial | WP-02/WP-03/WP-04/WP-09/WP-21: layout, resources, metadata, requirements and limits |
+| `dmg` | partial | WP-17/WP-07/WP-13/WP-19: APFS-backed representations, digests, timestamps and ticket policy |
+| `hybrid-pqc` | not-implemented | WP-18: complete evidenced native algorithms, combined signatures and interchange |
+| `generic-files` | not-implemented | WP-16: native non-Mach-O/xattr representations |
+| `legacy-formats` | not-implemented | WP-06/WP-07/WP-12: native-supported old architectures, digests and signature structures |
+| `live-process-verification` | blocked | WP-22: actual process/kernel state and dynamic validity |
+| `hardware-identities` | blocked | WP-22/WP-11/WP-18: access to the original non-exportable key/device/service |
+
+The installed manual also documents `CODESIGN_ALLOCATE` and acknowledges
+undocumented options. They are not included in the 55-entry count. WP-01 must
+inventory them, and WP-22 must record the conflict between substituting an external
+allocator executable and the project's no-helper production requirement.
+
+<a id="wp-01"></a>
+## WP-01: Native baseline, source research and inventory closure
+
+**Starting point:** the repository has a pinned native manual, fixture manifests,
+two-target SDK/Apple-source AST records and many native comparisons. The checklist
+is intentionally conservative and does not inventory every undocumented switch,
+environment interaction or failed-input behavior.
+
+**Implementation and research tasks:**
+
+- [ ] Record host OS/build, architecture, locale, timezone, filesystem type,
+  case sensitivity, native binary hash and installed manual hash for each oracle.
+- [ ] Enumerate the installed manual's operations/options, public CLI parser source,
+  SDK flags and binary-visible option names. Use read-only probes to distinguish
+  accepted options, ignored options, aliases, deprecated forms and unknown switches.
+- [ ] Create a complete applicability table for sign, verify, display, remove,
+  hosting, constraint validation and detached-certificate merging. Include options
+  accepted but ignored for particular operations.
+- [ ] Inventory undocumented features only after direct evidence. Candidate names
+  found in older source, such as digest selection or resource-rule options, are
+  research leads rather than promises that the current binary supports them.
+- [ ] Expand Clang extraction to complete relevant C/C++/Objective-C function bodies,
+  enums, constants and control flow on arm64 and x86_64 targets. Pin source,
+  excerpt, translation-unit and relevant SDK-header hashes.
+- [ ] Record private declarations/macros that need shims, excluded preprocessor
+  branches and unavailable source. Do not infer struct wire encoding from a shim.
+- [ ] Compare source-derived expectations with the installed binary. Retain the
+  discrepancy and version it when published source lags the host.
+- [ ] Use independent GitHub references for design and cross-checking; inspect
+  licenses and transitive dependencies before any reuse. Pin newly used revisions.
+- [ ] Add newly discovered native behavior to the machine-readable inventory;
+  retain the original entries and their meaning rather than narrowing them to pass.
+
+**Acceptance and exit:** every documented option is mapped; every discovered
+undocumented option has an observed applicability/status record; each claimed
+source fact has reproducible provenance; unresolved private behavior remains
+explicit. Existing full-parity guards continue to fail until the actual gaps close.
+
+**Touchpoints:** [spec](../spec/), [research drivers](../scripts/),
+[research guide](research.md), [reference review](reference-implementations.md),
+[CLI parser](../internal/cli/cli.go).
+
+<a id="wp-02"></a>
+## WP-02: Bundle writes and wider filesystem metadata preservation
+
+**Starting point:** standalone Mach-O uses APFS `PrepareReplacement` and
+`RestoreMetadata`; DMGs update in place. Bundle executable/envelope writes use
+`appBundle.write` in place. Bundle scans reject internal write-target hard links;
+external hard links can still observe bundle writes. Exact native behavior for
+each bundle write kind must be established before changing it.
+
+**Implementation tasks:**
+
+- [ ] Probe native first signing, re-signing, removal and dry runs separately for
+  main executables, nested Mach-O code and existing/new `CodeResources` files.
+  Measure inodes, link counts, alias text, ownership, permissions, ACLs, xattrs,
+  creation/modification times and supported flags before/after.
+- [ ] Include internal/external hard links, read-only files, inherited directory
+  ACLs, signed/unsigned inputs and an existing signature directory. Do not assume
+  the standalone replacement policy applies to resource envelopes.
+- [ ] Route each proven replacement case through shared APFS metadata facilities.
+  Keep bundle path containment through `os.Root`; define the handoff between
+  root-relative paths, opened file descriptors and staging directories explicitly.
+- [ ] If APFS needs root-relative staging, clone fallback, descriptor-based
+  attributes or additional cleanup support, implement and test that API upstream
+  first. Pin a released version in codesign; avoid permanent workspace replaces.
+- [ ] Establish creation modes/inheritance for newly created signature files,
+  versus metadata restoration for existing files. Do not clone metadata from an
+  unrelated bundle file merely to populate a new envelope.
+- [ ] Investigate safe non-cloning filesystem support on Darwin, including HFS+,
+  and compressed/protected inputs. Measure native behavior and leave unsupported
+  cases explicit until the APFS replacement contract can preserve their metadata.
+- [ ] Extend Linux/Windows metadata preservation where representable: ACLs,
+  xattrs, streams, read-only flags and rename/share-mode behavior. Separate native
+  macOS metadata from host-specific equivalents and state unavoidable differences.
+- [ ] Preserve all pre-write validation/staging guarantees. Document commit order,
+  cancellation points, failures after an earlier child has committed, and cleanup.
+  Native signing is not a whole-tree transaction; do not promise stronger atomicity
+  without implementing it as an explicitly separate behavior.
+- [ ] Re-evaluate internal hard-link rejection only after demonstrating how native
+  writes affect each name and how resource seals remain correct.
+
+**Acceptance:** architecture × bundle layout × operation × link/metadata profile;
+compare complete file/tree bytes and observable metadata separately. Force failure
+before staging, after staging, before rename, during writing and after a child
+commit. Check original bytes where preservation is promised, no leaked staging,
+correct neighbour behavior and repeatable errors on all three OSes. APFS owns
+platform-specific preservation tests; codesign owns signing/write integration tests.
+
+**Exit:** each bundle write kind has a native-proven policy and a shared APFS
+implementation where required; metadata exclusions and partial-commit behavior
+are documented. Standalone alias/hard-link and DMG behavior remain regression gates.
+
+**Touchpoints:** [bundle.go](../pkg/codesign/bundle.go),
+[bundle_tree.go](../pkg/codesign/bundle_tree.go), [io.go](../pkg/codesign/io.go),
+[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.4.0/pkg/hostmeta).
+
+<a id="wp-03"></a>
+## WP-03: Bundle discovery, path identity and layout coverage
+
+**Starting point:** Contents-based APPL/BNDL/XPC! layouts, supported frameworks,
+main-executable discovery, physical version selection and standalone aliases work.
+Directory/resource symlinks follow a narrower policy. Bundle paths require portable
+ASCII names and reject case collisions and Windows-reserved components.
+
+**Implementation tasks:**
+
+- [ ] Catalogue native layout selection for flat bundles, additional package types,
+  missing/partial Info.plist data, executable-name fallbacks and ambiguous roots.
+  Distinguish codesign-supported representations from installer package signing
+  that belongs to other Apple tools or the separate package project.
+- [ ] Extend path selection without confusing the root bundle, a physical framework
+  version, its Current alias, its main executable and an unrelated helper/hard link.
+- [ ] Probe root/intermediate/final symlinks, absolute/relative/chained targets,
+  `link/..`, broken/cyclic links, trailing separators and moved bundles. Record
+  which paths select an object and which paths native diagnostics display.
+- [ ] Add Unicode names, composed/decomposed forms and case-sensitive versus
+  case-insensitive lookup tests. Do not use simplistic lowercasing as a substitute
+  for native filesystem name equivalence.
+- [ ] Define how names valid on macOS but unrepresentable on a Windows filesystem
+  can be handled. Investigate an archive/virtual filesystem input abstraction;
+  do not silently rename sealed paths and claim identical bundles.
+- [ ] Expand nested-code locations and package discovery from native evidence,
+  including alternate framework versions and unsealed root entries.
+- [ ] Test selectors on framework roots, direct version directories, executable
+  paths, unversioned bundles, parents containing frameworks and non-bundle files.
+- [ ] Expand plist types only where needed by native-compatible metadata. Separate
+  structural parser errors, absent keys, incorrect types and unsupported layouts.
+- [ ] Preserve bounded traversal and containment while exposing the selected
+  representation/path consistently to sign, inspect, verify and remove.
+
+**Acceptance:** complete-tree signing/removal comparison, display paths, resource
+tampering, selector errors and unchanged neighbours. Test filename collisions,
+aliases resolving outside the selected boundary and names unsupported by a producer
+filesystem. Such cases must be honestly marked blocked or tested through an
+equivalent virtual representation, never silently skipped as passing portability.
+
+**Exit:** a versioned layout/path decision table exists and every newly accepted
+layout has native and three-OS evidence. Remaining name/representation restrictions
+stay visible in the inventory.
+
+**Touchpoints:** [bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
+[bundle_layout.go](../pkg/codesign/bundle_layout.go),
+[bundle_paths.go](../pkg/codesign/bundle_paths.go),
+[bundle_versions.go](../pkg/codesign/bundle_versions.go), [bundle guide](bundles.md).
+
+<a id="wp-04"></a>
+## WP-04: Resource envelopes, extended attributes and strict verification
+
+**Starting point:** the supported resource-envelope profile handles XML/binary
+metadata, nested requirements and relative symlink text seals. Default checking
+is conservative. The native `--strict`, `--ignore-resources`,
+`--strip-disallowed-xattrs` and `--single-threaded-signing` controls are absent.
+
+**Implementation tasks:**
+
+- [ ] Extract native resource-rule precedence, weighting, omission, optionality,
+  nested-code classification and v1/v2 interactions. Validate extra/missing entries,
+  localization exceptions, symlink seals and legacy digest combinations.
+- [ ] Determine support for custom/deprecated resource specifications on the pinned
+  binary before adding a CLI surface. Implement only an observed native contract.
+- [ ] Introduce explicit strictness options separate from default verification.
+  Model plain/all, `symlinks`, `sideband`, combinations, invalid selectors and any
+  additional selectors found by WP-01. Native strictness may evolve by OS version.
+- [ ] Match default versus strict treatment of broken, external, unsealed and
+  cyclic resource links without weakening path containment during writes.
+- [ ] Detect native disallowed sideband attributes, including FinderInfo and
+  resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
+- [ ] Implement `--strip-disallowed-xattrs` through APFS APIs, including native
+  diagnostic order, offending paths, partial failure and dry-run behavior. Do not
+  use the legacy best-effort attribute reader where exact failures matter.
+- [ ] Implement `--ignore-resources` with precisely measured scope. It must not
+  accidentally suppress Mach-O page checks, CMS integrity or explicit requirements.
+- [ ] Support nested signatures with multiple/alternate CodeDirectories and the
+  expanded requirement language when WP-07/WP-09 provide them.
+- [ ] Implement the native single-thread resource-seal option. A currently serial
+  implementation may already have the scheduling property, but applicability,
+  parsing and byte/output equivalence still need tests.
+- [ ] If parallel sealing is added, retain deterministic entry ordering, global
+  budgets, error ordering and cancellation. Parallelism is not a parity shortcut.
+
+**Acceptance:** sign natively and mutate one resource property at a time; compare
+default, strict selectors, deep/shallow and ignore-resources outcomes. Include
+xattrs on executable, ordinary resource, symlink and signature directory; test
+absence, empty values, inheritance, permission failure and unrelated attributes.
+Compare envelope bytes, diagnostics, exit codes and filesystem side effects.
+
+**Exit:** the project's CLI implements the flags itself. Having Apple verify our
+outputs with `--strict` is useful evidence but does not satisfy this package.
+
+**Touchpoints:** [bundle_resources.go](../pkg/codesign/bundle_resources.go),
+[bundle_tree.go](../pkg/codesign/bundle_tree.go),
+[bundle_nested.go](../pkg/codesign/bundle_nested.go),
+[verify.go](../pkg/codesign/verify.go), [CLI](../internal/cli/cli.go).
+
+<a id="wp-05"></a>
+## WP-05: Signature metadata preservation and signing-option semantics
+
+**Starting point:** force signing and explicit options work for the tested profile.
+There is no `--preserve-metadata` or `--prefix`. Filesystem metadata preservation
+through APFS is a different capability from reusing fields of an old signature.
+
+**Implementation tasks:**
+
+- [ ] Represent option presence separately from its value so an explicit empty,
+  zero or false setting can be distinguished from an omitted setting.
+- [ ] Add preservation selectors for identifier, entitlements, requirements,
+  flags, runtime, launch constraints and library constraints. Implement abbreviations,
+  comma lists, repeated options, unknown names and the deprecated bare form based
+  on native probes, without confusing an optional value with the following path.
+- [ ] Establish precedence: explicit new metadata, selected preserved metadata,
+  derived defaults. Measure the linker-signed exception and unsigned/malformed
+  old signatures rather than assuming they supply usable values.
+- [ ] Preserve internal requirements as the correct native group; do not replace
+  all requirement kinds with the designated requirement alone.
+- [ ] Establish per-slice metadata rules for universal files with different old
+  identifiers, flags, requirements or runtime values. Do not copy the first slice
+  indiscriminately to every architecture.
+- [ ] Apply deep/force/preserve rules independently to the parent and eligible
+  children. Preserve the tested behavior for already-signed children when force
+  is absent.
+- [ ] Implement `--prefix` against each identifier source: explicit identifier,
+  embedded Info.plist, bundle metadata, canonical filename, ad-hoc UUID/hash suffix
+  and preserved identifier. Prefixing every string unconditionally is not a plan.
+- [ ] Complete flag masks/names and runtime-version syntax, overflow handling,
+  defaults by architecture/platform and applicability to non-Mach-O formats.
+- [ ] Preserve current native trailing-allocation-byte behavior when new metadata
+  shrinks or grows the signature, and define how retained bytes interact with
+  larger CMS allocations and additional signature slots.
+
+**Acceptance:** a pairwise matrix first, then high-risk combinations of force,
+deep, preserve selectors, explicit overrides, dry run, identity changes,
+timestamps and linker signatures. Compare bytes for deterministic cases, exact
+authenticated fields for nondeterministic ones, and untouched files on failures.
+
+**Exit:** every preservation selector has its own native tests, the CLI grammar
+matches native optional-value handling, and no unsupported preserved field is
+silently dropped. Constraints can remain a separately blocked selector until WP-14.
+
+**Touchpoints:** [types.go](../pkg/codesign/types.go),
+[sign.go](../pkg/codesign/sign.go), [identifier.go](../pkg/codesign/identifier.go),
+[bundle_tree.go](../pkg/codesign/bundle_tree.go), [CLI](../internal/cli/cli.go).
+
+<a id="wp-06"></a>
+## WP-06: Mach-O allocation, architectures and removal
+
+**Starting point:** bounded thin/universal parsing, ad-hoc/certificate allocation,
+force replacement and removal have substantial native evidence. That evidence
+does not cover every native architecture, load-command layout or file type.
+Universal output assembly currently rejects offsets above 32 bits; file APIs
+also have the memory limits listed in WP-21.
+
+**Implementation tasks:**
+
+- [ ] Build an explicit matrix of 32/64-bit, little/big-endian, thin/FAT32/FAT64,
+  CPU/subtype and Mach-O file type. Separate what the parser accepts, what the
+  writer produces, what the installed native tool accepts and what needs an older
+  native oracle. Synthetic CPU-tag changes are not evidence for real binaries.
+- [ ] Implement signing when there is insufficient load-command padding. First
+  enumerate every affected file offset, virtual address, section, relocation,
+  symbol table, export/bind/rebase record, chained fixup and link-edit reference
+  from pinned headers/source. Do not insert bytes and update only `__LINKEDIT`.
+- [ ] Preserve alignment and mapping relationships when adding or resizing
+  `LC_CODE_SIGNATURE`. Define behavior for unknown offset-bearing commands;
+  reject an unproven transformation before writing any output.
+- [ ] Handle native-supported nonterminal signatures, trailing data, sparse or
+  unusually ordered link-edit contents and larger existing signature allocations.
+  Keep PR #25's native allocation-padding behavior as a regression invariant.
+- [ ] Add FAT64 output and offsets through the streaming interfaces, with checked
+  arithmetic. Preserve observed slice order, alignment, inter-slice padding and
+  architecture-table representation rather than canonicalizing without evidence.
+- [ ] Complete architecture selection: names and aliases, numeric CPU with optional
+  subtype, duplicate/unavailable slices, subtype capability bits, `--architecture`
+  versus `--all-architectures`, and options ignored for non-Mach-O representations.
+- [ ] Make the reference architecture/default explicit. Current universal selection
+  follows the arm64 baseline across producer OSes; using a Linux runner's host
+  architecture would silently change that behavior. Record any future profile
+  selection/API change and test Intel-native defaults separately.
+- [ ] Extend removal only to forms native `codesign` removes. Preserve its measured
+  load-command padding, link-edit size, virtual size, truncation and trailer rules.
+  A format supporting signing does not imply native removal support.
+- [ ] Investigate legitimate older binaries and other file types only within the
+  installed/declared native version's scope. Keep unsupported historical cases
+  explicit if no independent oracle is available.
+
+**Acceptance:** native-to-Go and Go-to-native cases for every added matrix cell;
+compare entire output bytes, parsed offsets and untouched regions. Include old
+signatures smaller/equal/larger than the new allocation, slice-specific failures,
+integer boundaries, missing padding, truncated load commands and removal followed
+by re-signing. Use independent structural tools as supplemental evidence, not a
+replacement for native signing comparisons.
+
+**Exit:** layout transformations have complete offset coverage and bounded failure
+behavior. Real architecture fixtures establish claims; unavailable legacy evidence
+continues to limit the corresponding inventory entry.
+
+**Touchpoints:** [macho.go](../pkg/codesign/macho.go),
+[sign.go](../pkg/codesign/sign.go), [remove.go](../pkg/codesign/remove.go),
+[writer evidence](../spec/apple-writer.json),
+[removal evidence](../spec/apple-removal.json).
+
+<a id="wp-07"></a>
+## WP-07: CodeDirectory versions, digests and special-slot binding
+
+**Starting point:** signing emits the supported SHA-256 CodeDirectory profile;
+readers understand a wider bounded subset. Scatter directories are rejected, and
+CMS verification rejects multiple CodeDirectories using the same digest.
+
+**Implementation tasks:**
+
+- [ ] Inventory every CodeDirectory header version and extension in the pinned
+  SDK/source and actual fixtures. Document wire offsets, length prerequisites,
+  byte order, optional fields and reserved values independently of C struct padding.
+- [ ] Extend parsing, inspection and verification for native-supported scatter,
+  pre-encrypt, 64-bit code-limit, executable-segment, platform, runtime, linkage and
+  newer fields. Reading a field without applying its verification semantics is
+  not implementation of that field.
+- [ ] Implement applicable legacy/alternate digest forms, including selection rules
+  across multiple directories. Derive supported algorithms, truncation and
+  preferred-CDHash rules from native evidence; do not assume every Go hash belongs
+  in an Apple signature or change default signing to a weaker algorithm.
+- [ ] Support repeated digest families where native signatures require them.
+  Associate each directory with its CMS hash-agility binding and relevant signature
+  slot instead of indexing solely by digest name.
+- [ ] Complete page-size semantics: native defaults, zero/special values where
+  accepted, maximum values, final partial pages and representation-specific rules.
+- [ ] Model every special slot with its authenticated source, presence rules and
+  verifier. Distinguish an absent slot, a present empty blob, an externally supplied
+  value and a zero-filled unused hash. Unknown slots must not be reported verified.
+- [ ] Integrate requirements, XML/DER entitlements, resources, constraints and
+  external representation data without duplicate independent hashing logic.
+- [ ] Update allocation calculations before adding bytes. Use a checked two-pass
+  size/encode flow and ensure offsets remain consistent after larger CMS or
+  multiple-signature additions.
+- [ ] Propagate selected-directory rules into nested resource seals, display,
+  requirement evaluation, detached formats and notarization lookup.
+
+**Acceptance:** independent native fixtures for each version/field/hash combination;
+exact deterministic output comparisons; mutations of every newly authenticated
+field, directory ordering, omitted alternate hashes, duplicate slot IDs and
+inconsistent counts/lengths. Verify that a valid alternate directory cannot conceal
+a damaged directory which native verification would require.
+
+**Exit:** each supported directory variant has parser, writer where applicable,
+verifier, display and allocation coverage. SuperBlob slot IDs, native signature
+slots and architecture slices remain separate concepts in the API and tests.
+
+**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
+[sign.go](../pkg/codesign/sign.go), [verify.go](../pkg/codesign/verify.go),
+[cms.go](../pkg/codesign/cms.go), [types.go](../pkg/codesign/types.go).
+
+<a id="wp-08"></a>
+## WP-08: Entitlement representations and option equivalence
+
+**Starting point:** supported XML entitlements and generated DER already bind into
+signatures. The remaining work is full native type/format behavior, applicability,
+extraction and interaction coverage, not simply adding a DER encoder.
+
+**Implementation tasks:**
+
+- [ ] Enumerate native-accepted plist types and their DER mapping: booleans,
+  integers, strings, data, arrays and dictionaries, with evidence for any additional
+  type. Distinguish accepted plist syntax from accepted entitlement values.
+- [ ] Establish integer widths/signs, dictionary ordering, duplicate-key handling,
+  Unicode, escaping, empty collections and nested collection rules. Preserve XML
+  bytes where native preserves them and canonicalize only where native does.
+- [ ] Compare XML-only, DER-only, matching/mismatched XML+DER, malformed DER and
+  missing slots during sign, display and verification. Determine which
+  representation native uses for requirements and each display operation.
+- [ ] Complete `--force-library-entitlements` applicability for executable, dylib,
+  bundle and non-Mach-O inputs. Test omission and explicit override when old
+  entitlements are preserved by WP-05.
+- [ ] Pin the installed baseline's `--generate-entitlement-der` behavior, including
+  any deprecated/no-effect behavior, and avoid inventing a toggle absent in native.
+- [ ] Keep native CLI input compatibility separate from library extensions. The
+  current baseline rejects binary-plist entitlement CLI input; supporting library
+  conversion does not justify accepting it in the native-compatible CLI path.
+- [ ] Complete extraction of raw and decoded forms, empty/absent-slot behavior,
+  stdout/file destinations and interactions with verbosity/architecture/slot.
+- [ ] Retain bounded plist/DER decoding, reject external entity expansion and
+  invalid encodings, and account for nested values under one operation budget.
+
+**Acceptance:** native-generated typed fixtures and independent DER inspection;
+full signature bytes for deterministic cases; malformed XML/DER corpus; mutations
+which independently break the XML slot, DER slot or selected entitlement predicate.
+Compare exact output channels, not just successful parsing of extracted content.
+
+**Exit:** entitlement data can round-trip through supported native and Go workflows
+with the same authenticated values, wire bytes where deterministic, and defaults.
+Runtime authorization to exercise an entitlement is a separate host policy claim.
+
+**Touchpoints:** [entitlements.go](../pkg/codesign/entitlements.go),
+[bundle_plist.go](../pkg/codesign/bundle_plist.go),
+[sign.go](../pkg/codesign/sign.go), [CLI](../internal/cli/cli.go).
+
+<a id="wp-09"></a>
+## WP-09: Complete requirements language and evaluation
+
+**Starting point:** a bounded subset is compiled, decoded, displayed and evaluated,
+including the predicates used by current bundle/certificate fixtures. Numerous
+anchor, certificate-field, extension-match and opcode forms remain unsupported.
+
+**Implementation tasks:**
+
+- [ ] Expand Clang/source research to the requirement lexer/parser, opcode
+  definitions, binary builder, dumper and interpreter. Record inaccessible/private
+  paths and prove behavior with native `csreq`/`codesign` fixtures where possible.
+- [ ] Build a grammar and opcode checklist covering precedence, parentheses,
+  escaping, comments, numeric/date literals, certificate positions, named
+  requirements, binary input and requirement-set syntax.
+- [ ] Support all native requirement kinds, including designated, host, guest,
+  library and plug-in forms where accepted. Preserve an entire requirement set;
+  do not flatten it into a single designated expression.
+- [ ] Complete comparison operators and field contexts from evidence: existence,
+  absence, equality/order, string matching, Info.plist, entitlements, certificate
+  subjects/extensions/policies/dates and hash/identifier matching.
+- [ ] Complete Apple anchor and certificate-chain predicates using authenticated
+  chain context. A subject OU, familiar certificate name or an unverified marker
+  extension alone must not establish an Apple-issued identity.
+- [ ] Inventory platform, notarization, legacy, dynamic or other predicates exposed
+  by the pinned source/binary. Route each to an explicit evaluator context; mark
+  predicates needing unavailable state as unresolved instead of returning true.
+- [ ] Separate syntax acceptance, binary decoding, canonical rendering and
+  evaluation. Unsupported evaluation must not be mistaken for a false predicate,
+  successful verification or a successfully enforced policy.
+- [ ] Complete designated-requirement synthesis for all supported identity and
+  code representations, including explicit overrides and preserved requirements.
+- [ ] Match native `--requirements`/`--test-requirement` source/file/binary forms,
+  operation applicability and failure distinctions. Cover requirement extraction
+  and native canonical text, not just semantically equivalent custom formatting.
+- [ ] Preserve expression/depth/byte limits and avoid exponential evaluation,
+  unbounded certificate searches or repeated plist decoding.
+
+**Acceptance:** compile identical source with native and Go, compare binary bytes,
+decompile each other's output and compare native canonical text. Evaluate against
+independently signed objects; exercise true, false, malformed and unavailable-context
+outcomes for every predicate. Add operator/precedence metamorphic tests only as a
+supplement to the independent oracle.
+
+**Exit:** the grammar/opcode checklist is complete for the declared baseline and
+every supported predicate has a real context and failure test. Host-dependent
+predicates remain linked to WP-19/WP-22 until their inputs are obtainable.
+
+**Touchpoints:** [requirements.go](../pkg/codesign/requirements.go),
+[requirement_text.go](../pkg/codesign/requirement_text.go),
+[certificate.go](../pkg/codesign/certificate.go),
+[bundle_nested.go](../pkg/codesign/bundle_nested.go).
+
+<a id="wp-10"></a>
+## WP-10: Certificate validation and native verification semantics
+
+**Starting point:** portable ASN.1 certificate decoding, bounded chain validation,
+explicit leaf pins/CA roots, purpose/time checks, Team IDs and separate TSA trust
+are implemented for a defined profile. This is not complete Apple policy, and
+the current explicit-trust library contract is not identical to every native
+`codesign --verify` invocation.
+
+**Implementation tasks:**
+
+- [ ] Probe native default verification separately from explicit requirement,
+  certificate trust, timestamp validity, revocation and notarization checks.
+  Define which checks are actually requested by each operation/option combination.
+- [ ] Design separate result/policy concepts for signature integrity, requirement
+  satisfaction, chain validity, trust decision, timestamp validity and ticket status.
+  Do not label parsed CMS or a valid page hash as a trusted signing identity.
+- [ ] Preserve existing explicit-trust APIs or introduce a documented migration
+  before changing defaults. A native-compatible CLI policy must not silently
+  weaken callers who currently require supplied pins or roots.
+- [ ] Complete evidenced certificate handling: chain ordering and alternatives,
+  cross-signs, self-issued versus self-signed certificates, name comparison,
+  constraints, critical extensions, policies, path length, key usage and EKU.
+  Document each unsupported PKIX feature instead of claiming general PKIX support.
+- [ ] Measure native handling of expired/not-yet-valid certificates, missing
+  intermediates, weak/legacy algorithms and validation time with/without trusted
+  timestamps. Avoid replacing native behavior with an assumed stricter policy.
+- [ ] Add issuer retrieval, OCSP/CRL and cache/freshness behavior only where required
+  by the observed operation. Make network/offline modes, cancellation, trust and
+  soft/hard failure decisions explicit; WP-13 owns reusable transport boundaries.
+- [ ] Complete Team ID derivation, missing/duplicate OU handling and equality
+  requirements across leaf, CodeDirectory and nested signatures. Validate Apple
+  marker extensions in the correct authenticated chain context.
+- [ ] Expand Developer ID and other Apple-issued signing evidence using legitimate
+  fixtures and authorized opt-in credentials. Synthetic look-alike certificates
+  are useful negative tests and cannot prove Apple-issued policy compatibility.
+- [ ] Keep cryptographic inspection separate from Gatekeeper execution policy.
+  Native `codesign` verification alone does not prove Gatekeeper acceptance or
+  launch eligibility under all system policies.
+
+**Acceptance:** native-produced and independently constructed chains covering
+positive/negative path decisions, alternate issuers, ambiguous subjects, missing
+and duplicate extensions, timestamps crossing validity boundaries and revocation
+states. Record evaluation time and trust inputs so tests are reproducible rather
+than dependent on the runner's changing trust store.
+
+**Exit:** operation-specific policy tables explain each native acceptance/rejection;
+tests cover the supported table, and the API reports integrity and trust distinctly.
+Unavailable credentials or live policy services remain explicit evidence gaps.
+
+**Touchpoints:** [certificate.go](../pkg/codesign/certificate.go),
+[certificate_sign.go](../pkg/codesign/certificate_sign.go),
+[verify.go](../pkg/codesign/verify.go), [types.go](../pkg/codesign/types.go),
+[certificate guide](certificates.md).
+
+<a id="wp-11"></a>
+## WP-11: Identity formats and software-signing identity selection
+
+**Starting point:** identities already expose `crypto.Signer`; PEM supports RSA,
+EC and unencrypted PKCS#8, and authenticated PKCS#12 supports a documented cipher
+and MAC subset. Native `codesign` identity lookup uses keychain semantics; portable
+PEM/PKCS#12 inputs are project extensions, not equivalent native CLI switches.
+
+**Implementation tasks:**
+
+- [ ] Add encrypted PEM/PKCS#8 through portable, reviewed cryptographic components.
+  Specify accepted encryption/KDF profiles, password encoding, authentication,
+  resource budgets and errors; do not accept unauthenticated contents accidentally.
+- [ ] Inventory unsupported PKCS#12 bag/content/cipher/integrity forms against
+  independent exported archives. Prioritize legitimate identity interchange needs;
+  distinguish interoperability extensions from native CLI feature parity.
+- [ ] Design explicit selection for archives containing multiple private keys,
+  certificates, friendly names or local key IDs. Reject ambiguity unless a
+  documented selector resolves it. Preserve current one-identity API behavior or
+  provide a separately named API rather than choosing a new arbitrary first key.
+- [ ] Support useful extra chain certificates and cross-signs with deterministic
+  path selection, while retaining proof that the selected private key matches the
+  selected leaf. Do not conflate archive ordering with validated chain ordering.
+- [ ] Expand key/signature algorithms only after native acceptance and dependency
+  review. RSA-PSS parameters, additional key encodings and hybrid identities require
+  coordinated certificate, CMS and timestamp changes rather than only key parsing.
+- [ ] Determine the exact native behavior of `--use-software-signing-cert`: identity
+  lookup, certificate/key pairing, hybrid selection, defaults and errors. Selecting
+  the first PEM certificate cannot stand in for an unimplemented native provider.
+- [ ] Reuse the existing signer interface for external/provider-backed signing;
+  document supported public keys, signer options, signature encoding and cancellation
+  limitations. Do not invent an export operation for a non-exportable private key.
+- [ ] Complete password-file behavior, empty versus absent passwords, newline
+  handling, malformed Unicode, wrong-password diagnostics and log redaction.
+  Do not claim guaranteed key-memory erasure from ordinary Go garbage collection.
+
+**Acceptance:** independent OpenSSL/LibreSSL or platform-exported archives with
+known public keys and native-accepted signatures; correct/wrong/empty passwords,
+multiple identities, duplicate bags, mismatched keys, unsupported algorithms and
+KDF budget exhaustion. Use public test identities in CI; no production key material
+in fixtures, logs, manifests or PR artifacts.
+
+**Exit:** each newly supported identity form has independent import/sign/verify
+evidence and a stated selection contract. Native keychain search and authorization
+remain WP-22 responsibilities; portable file input does not close those entries.
+
+**Touchpoints:** [identity.go](../pkg/codesign/identity.go),
+[pkcs12.go](../pkg/codesign/pkcs12.go),
+[certificate_sign.go](../pkg/codesign/certificate_sign.go),
+[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
+
+<a id="wp-12"></a>
+## WP-12: CMS representations and signature algorithms
+
+**Starting point:** code-signing CMS supports a bounded SHA-256 RSA/ECDSA profile,
+Apple hash-agility attributes and selected indefinite-length BER outer containers.
+It does not provide a general CMS/BER implementation, all algorithms or all signer
+and attribute combinations.
+
+**Implementation tasks:**
+
+- [ ] Inventory native-created CMS variants by signing identity, algorithm,
+  timestamp, legacy form, multiple CodeDirectories and hybrid signature slot.
+  Record SignedData/SignerInfo versions, identifier forms and algorithm parameters.
+- [ ] Extend only evidenced envelope encodings while retaining original
+  authenticated bytes. Re-encoding a certificate or signed-attribute set before
+  verification can change what was signed; parser normalization must not repair
+  malformed authenticated data into a successful signature.
+- [ ] Implement native-supported digest/signature combinations and strict parameter
+  validation, including RSA-PSS if accepted. Distinguish absent versus NULL parameters,
+  key algorithm constraints, digest identifiers and signature octet encoding.
+- [ ] Complete both hash-agility attributes for multiple/alternate directories,
+  including repeated digest families, preferred-directory selection and ordering.
+  Check all required bindings, not just the primary directory's content digest.
+- [ ] Investigate additional signer identifiers/counts, certificate choices, CRLs,
+  countersignatures and unsigned attributes. Support them where native requires
+  them; document rejection where outside the observed native profile.
+- [ ] Calculate signature allocation for larger keys, variable-length ECDSA,
+  timestamps, larger chains and PQC. Preserve the existing native reservation and
+  padding rules for current identities rather than globally changing their output.
+- [ ] Define inspection behavior when envelope metadata is readable but signature
+  algorithms or attributes are unsupported. Return descriptive metadata without
+  implying integrity or trust was verified.
+- [ ] Bound total ASN.1 elements/depth/bytes across wrappers, certificates, attributes
+  and nested tokens, including indefinite-length and concatenated-input cases.
+
+**Acceptance:** verify native fixtures with Go and Go fixtures with both native
+and an independent cryptographic implementation where available. Compare complete
+RSA outputs at recorded signing times. For randomized signatures, compare exact
+authenticated attributes/layout and independently verify signatures; declare only
+the genuinely nondeterministic byte ranges. Exercise wrong algorithm parameters,
+duplicate attributes, ambiguous signer certificates and partial hash-agility data.
+
+**Exit:** supported CMS profiles are explicit and independently verified, with
+allocation, display and failure coverage. A permissive parser alone never closes
+a CMS verification gap.
+
+**Touchpoints:** [cms.go](../pkg/codesign/cms.go),
+[cms_ber.go](../pkg/codesign/cms_ber.go),
+[certificate_sign.go](../pkg/codesign/certificate_sign.go),
+[identity.go](../pkg/codesign/identity.go), [CMS evidence](../spec/apple-cms.json).
+
+<a id="wp-13"></a>
+## WP-13: Timestamp compatibility and portable transport
+
+**Starting point:** explicit HTTP acquisition, nonce/imprint checking, supported
+RFC 3161 verification, separate TSA roots, deadlines/cancellation and native replay
+fixtures are delivered. Transport, CMS, TSA policy and native default selection
+remain a bounded subset.
+
+**Implementation tasks:**
+
+- [ ] Establish implicit/default timestamp selection for each identity/representation,
+  including Developer ID, ad-hoc, preserved metadata and explicit `none`. Test
+  omitted, bare and URL-valued options and malformed options before any mutation.
+- [ ] Probe native redirects, proxy settings, URL authentication, compression,
+  chunk extensions, retries, DNS/IPv6, connection failure and timeout behavior.
+  Implement the observed profile, with explicit cancellation and operation budgets.
+- [ ] Keep the recorded baseline distinction: native macOS 27 rejects HTTPS TSA
+  URLs too. HTTPS is not automatically a missing native feature; a future native
+  version or separate authenticated service may create a different requirement.
+- [ ] Preserve the production dependency guard. Any secure transport needed for
+  WP-10/WP-19 must have an audited pure-Go dependency path without the forbidden
+  Darwin trust bridge; adding `net/http` is not an implicit approved solution.
+- [ ] Extend TSTInfo/ESS handling where native accepts it: multiple certificate IDs,
+  policy information, supported TSA name forms, extensions, fractional time,
+  accuracy/ordering and nonce-present/absent contexts. Acquisition's nonce-bound
+  contract must remain distinct from verification of an imported token.
+- [ ] Complete TSA policy-OID, certificate-chain, revocation and trusted-time
+  behavior. Measure clock-skew tolerance, expired TSA/code certificates and
+  malformed optional attributes against the native operation being reproduced.
+- [ ] Extend token algorithms/BER/signer forms through WP-12 rather than creating
+  a second inconsistent CMS verifier. Account for larger signature octets from WP-18.
+- [ ] Define retry/idempotence behavior per architecture and per nested code object.
+  A dry run currently calls the provider; new behavior must preserve or explicitly
+  reconcile that contract with native evidence.
+- [ ] Keep recorded-token replay for deterministic tests, with exact binding to the
+  code signer's signature octets. Fresh online acquisition needs separate tests;
+  replay cannot prove a new signing event or current endpoint availability.
+
+**Acceptance:** deterministic offline fixtures plus local protocol-oracle tests
+for framing, cancellation, redirects and malformed responses. Use opt-in live TSA
+acceptance with recorded endpoint/time/native result; keep mandatory CI reliable
+without relying on external service uptime. Compare native acceptance and metadata
+while allowing only case-declared nonce/time/signature differences.
+
+**Exit:** default selection, transport and policy have separate completed matrices;
+TSA trust remains distinct from code trust and notarization. Unresolved transport
+or policy cases stay visible rather than becoming undocumented fallback behavior.
+
+**Touchpoints:** [timestamp.go](../pkg/codesign/timestamp.go),
+[timestamp_http.go](../pkg/codesign/timestamp_http.go),
+[timestamp_request.go](../pkg/codesign/timestamp_request.go),
+[timestamp_roots.go](../pkg/codesign/timestamp_roots.go),
+[timestamp guide](timestamps.md).
+
+<a id="wp-14"></a>
+## WP-14: Launch constraints, library constraints and validation
+
+**Starting point:** the six constraint-related inventory options are unimplemented.
+They need format, schema, signing, display and CLI work. Successful encoding does
+not prove that a non-macOS host can enforce Apple's runtime launch policy.
+
+**Implementation tasks:**
+
+- [ ] Extract versioned constraint keys/operators and slot definitions from the
+  SDK/source using Clang. Obtain native examples for self, parent, responsible and
+  library constraints, including minimal/empty and nested expressions.
+- [ ] Determine the native plist-to-DER format and canonical ordering. Reuse common
+  typed primitives only after proving equivalence; do not assume constraint DER
+  is identical to entitlement DER.
+- [ ] Implement `--validate-constraint` as its own operation, including input syntax,
+  schema/type errors, unknown keys, supported optional-extension mechanisms and
+  native output/exit behavior. Version the schema where native versions differ.
+- [ ] Implement the four signing inputs and bind each to its correct special slot.
+  Handle omission, explicit empty values, preservation, replacement and file-type
+  applicability. Carry them through allocation, inspection and removal.
+- [ ] Implement `--enforce-constraint-validity`, establishing the default warning
+  versus failure policy and the precise validation point before filesystem changes.
+- [ ] Integrate preservation selectors with WP-05 and architecture/slot selection
+  with WP-07/WP-18. A forced re-sign must not silently discard requested constraints.
+- [ ] Determine native deep-signing behavior: which constraints apply to the parent,
+  which are inherited/ignored for descendants and how per-object inputs are selected.
+- [ ] Separate structural validity, authenticated constraint binding and runtime
+  evaluation. Expose unavailable runtime context explicitly rather than reporting
+  that launch restrictions were enforced on Linux or Windows.
+
+**Acceptance:** byte-for-byte native constraint blobs and complete deterministic
+signatures; validation diagnostics for wrong types/operators/unknown keys; mutations
+of each slot; preserve/override/deep interactions. Where runtime behavior is part
+of the claim, use controlled harmless Mac fixtures and record OS-policy prerequisites.
+
+**Exit:** all six CLI options have positive, negative and interaction tests; slot
+binding and validation match native, and any runtime-only limitation is explicit.
+
+**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
+[entitlements.go](../pkg/codesign/entitlements.go),
+[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
+New constraint-specific codecs/schema files should keep common primitives shared.
+
+<a id="wp-15"></a>
+## WP-15: Native detached signature files
+
+**Starting point:** native `--detached` is unimplemented. Existing detached-content
+CMS is an internal cryptographic structure, not Apple's detached-signature file
+container. Reference projects' custom detached formats are not interchangeable
+without direct native evidence.
+
+**Implementation tasks:**
+
+- [ ] Recover the native container, indexing and per-architecture/object identity
+  rules from source/AST and native files. Distinguish detached signatures from
+  detached certificate interchange and the system detached-signature database.
+- [ ] Establish creation and consumption semantics for Mach-O, bundles, DMGs and
+  generic files where native accepts them, including required external resources.
+- [ ] Probe whether each operation changes the source object, which old embedded
+  metadata it reads, and how force/preserve/dry-run affect output. Do not assume
+  an external signature always means an entirely untouched input representation.
+- [ ] Add byte and streaming APIs with explicit detached-data ownership and path
+  lookup. Bind the signature to the intended object and selected architecture;
+  filenames alone are insufficient authentication.
+- [ ] Implement native precedence when embedded and detached signatures coexist,
+  disagree, are malformed or refer to different input bytes. Reject ambiguous
+  selection rather than silently choosing whichever verifies first.
+- [ ] Implement CLI output creation, multiple-target behavior, overwrite/append or
+  merge behavior where native supports it, stdout use and failure preservation.
+- [ ] Reuse the same CMS, requirements, timestamp, special-slot and trust validators
+  as embedded signatures. Detached verification must not bypass missing external
+  Info.plist, resources or constraint inputs.
+- [ ] Complete detached display/extraction and native errors for missing/stale files,
+  malformed containers, unsupported versions and invalid architecture indexes.
+
+**Acceptance:** native creates/Go reads and Go creates/native reads in both valid
+and tampered cases; exact container bytes for deterministic identities; multiple
+architectures/objects, moved paths, mismatched content and embedded/detached conflicts.
+Record input and output file hashes/metadata before and after each operation.
+
+**Exit:** native file interchange is independently demonstrated. This does not
+close `--detached-database`, which requires the actual system state in WP-22.
+
+**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
+[verify.go](../pkg/codesign/verify.go), [sign.go](../pkg/codesign/sign.go),
+[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
+Container encoding and lookup should live in dedicated new representation files.
+
+<a id="wp-16"></a>
+## WP-16: Generic files, xattr signatures and representation dispatch
+
+**Starting point:** the current public workflows concentrate on Mach-O, supported
+bundles and supported UDIF images. Native generic-file signatures and wider
+representation selection remain unimplemented.
+
+**Implementation tasks:**
+
+- [ ] Inventory native representation dispatch from source and probes: ordinary
+  files, scripts, recognized bundle layouts, disk images and any additional format
+  actually accepted by the baseline. Record rejection as a valid native result.
+  Do not assume installer package signing belongs to `codesign` because another
+  Apple tool can sign a package.
+- [ ] Recover native xattr names, blob layout, allocation/chunking rules and
+  fallback behavior for generic signatures from the relevant disk-representation
+  code. Establish interactions with resource forks and existing unrelated xattrs.
+- [ ] Implement generic sign, verify, display, force, dry-run and removal where
+  supported. Probe unsigned removal, partial signature attributes, empty files,
+  executable permission changes and content changes independently.
+- [ ] Put missing strict xattr enumeration/read/write/remove operations in the APFS
+  public metadata API. Retain aggregate size bounds, no-follow behavior and error
+  propagation; do not add a second syscall/xattr implementation here.
+- [ ] Decide how Linux/Windows can ingest and emit the complete native metadata
+  representation. Their filesystems do not automatically provide the same xattr
+  namespace/semantics as a Mac. Evaluate an explicit archive/virtual-filesystem
+  carrier or native detached files rather than silently renaming attributes.
+- [ ] Label a portable carrier/sidecar as an extension unless native accepts it
+  directly. Demonstrate restoration on a Mac before claiming preservation of a
+  native generic signature; a JSON description alone is not a signed native file.
+- [ ] Define format precedence for ambiguous/malformed inputs, symlinks, executable
+  paths inside bundles and files with both embedded and attribute signatures.
+- [ ] Reuse identifier, requirements, certificate and timestamp policies across
+  representations with explicit per-format applicability.
+- [ ] Treat resource sidecars such as AppleDouble as a researched representation
+  issue where encountered, not an automatic substitute for native xattr storage.
+
+**Acceptance:** native generic signatures imported into Go on every OS through the
+declared carrier; Go-produced objects restored and accepted by native; content and
+attribute mutations; unrelated-xattr preservation; permission failures and partial
+attribute sets. Verify bytes, metadata, diagnostics and carrier limitations.
+
+**Exit:** the native-supported representation inventory is accounted for, and each
+portable storage path has a demonstrated native restoration/interchange story.
+Unrepresentable host filesystem behavior remains an explicit compatibility limit.
+
+**Touchpoints:** [io.go](../pkg/codesign/io.go),
+[bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
+[types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md),
+[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.4.0/pkg/hostmeta).
+
+<a id="wp-17"></a>
+## WP-17: Wider APFS-backed DMG support and streaming
+
+**Starting point:** codesign directly reuses APFS v0.4.0's UDIF model. Its own
+adapter currently accepts a single-segment version-4 image, flags equal to one,
+a resource plist, bounded non-overlapping ranges and a 1 GiB in-memory profile.
+APFS supporting a broader image format does not mean this signing adapter already
+handles that format.
+
+**Implementation tasks:**
+
+- [ ] Audit public APFS APIs against the signing adapter's remaining needs before
+  designing new code. Reuse existing footer/range/format handling and document any
+  genuinely missing public primitive as an upstream APFS issue/PR.
+- [ ] Introduce `ReaderAt`/size-based inspection and hashing, then bounded staged or
+  in-place output according to the native write contract. Avoid reading/rebuilding
+  the entire image merely to append or replace a signature.
+- [ ] Establish every byte participating in the image signature: code range,
+  footer/trailer canonicalization, special-slot binding, old signature allocation,
+  resource plist and any permitted trailing data. Preserve opaque image payload.
+- [ ] Probe encrypted, segmented, sparse or other native-accepted image forms and
+  malformed footer variants. Determine which operations need one segment versus
+  the full set, password access or additional APFS parsing before committing APIs.
+- [ ] Extend adapter checks for the evidenced cases rather than bypassing current
+  overlap/length/flag checks wholesale. Use checked 64-bit arithmetic throughout.
+- [ ] Keep image codecs, decryption, segment reconstruction and filesystem parsing
+  in APFS. Signing unchanged compressed bytes should not require unnecessary
+  decompression/recompression or a new codec implementation in this project.
+- [ ] Separate fixture-generation problems from signing compatibility. For example,
+  a failing upstream encoder does not prove an independently native-created image
+  cannot be signed or verified.
+- [ ] Complete identifier, page-size, digest, preservation, entitlement, timestamp,
+  architecture-option applicability and detached-signature behavior per image form.
+- [ ] Retain native rejection of DMG `--remove-signature` on the recorded baseline;
+  implementing a custom remover would be an extension, not closing a parity gap.
+- [ ] Keep disk-image signature validation separate from filesystem mountability,
+  decryption success, notarization and Gatekeeper policy. Add those only where the
+  native codesign operation actually requires them.
+
+**Acceptance:** native-created images with different payload encodings, large/sparse
+sizes, supported encryption/segmentation and signature histories; deterministic
+whole-output or chunk-manifest comparisons; native verification of Linux/Windows
+outputs; footer/resource/trailer mutations; bounded memory and cancelled I/O.
+Use native tools only for fixtures/oracles, never as the portable production path.
+
+**Exit:** the supported image matrix extends beyond the current adapter profile
+with evidence and measured memory behavior. Any APFS change is released and consumed
+through its public API; no copied disk-image implementation is introduced.
+
+**Touchpoints:** [dmg.go](../pkg/codesign/dmg.go),
+[io.go](../pkg/codesign/io.go), [DMG guide](dmg-integration.md),
+[DMG evidence](../spec/apple-dmg.json),
+[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.4.0/pkg/disk).
+
+<a id="wp-18"></a>
+## WP-18: Hybrid/PQC signatures, native signature slots and detached certificates
+
+**Starting point:** the macOS 27 inventory includes hybrid/PQC-related behavior,
+slot selection and certificate interchange. None is implemented. The precise
+algorithms, wire formats and credential availability require early investigation;
+this plan does not assume an algorithm or OID from the word “PQC.”
+
+**Implementation tasks:**
+
+- [ ] Obtain legitimate native-created examples and record the native version,
+  identity class, required entitlements/provider and availability constraints.
+  If creation requires unavailable credentials or hardware, record the blocker
+  immediately; public parse fixtures and fabricated test identities prove less.
+- [ ] Recover the relationship between classical and PQC components: certificate
+  representation, public keys, algorithm parameters, signed content, directory
+  binding, CMS structure and native acceptance rules for each component.
+- [ ] Implement native `--signature-slot` selection, numbering and default preferred
+  slot for display and verification. Keep this distinct from architecture slices
+  and SuperBlob slot identifiers. Probe missing, duplicate and out-of-range slots.
+- [ ] Define verification results for supported/unsupported components, damaged
+  classical/PQC parts and downgrade attempts. A passing classical signature must
+  not imply the required hybrid policy succeeded if the second component failed.
+- [ ] Select reviewed pure-Go cryptographic implementations with independent test
+  vectors and dependency/license audits. Do not translate unreviewed cryptographic
+  arithmetic merely to remove a dependency or claim performance equivalence.
+- [ ] Extend allocation, CMS, certificate parsing, timestamp imprint inputs and
+  resource budgets for the actual signature/key sizes. Avoid reusing the current
+  8 KiB timestamp-signature limit as an unexplained incompatibility.
+- [ ] Implement native detached-certificate input/output file format, chain/slot
+  linkage, ordering, duplicate handling and missing-certificate errors. A plain
+  concatenated PEM/DER file is not assumed equivalent without evidence.
+- [ ] Implement `--keep-root-detached-certificates` using native root classification;
+  self-issued, self-signed and trusted-anchor are not interchangeable properties.
+- [ ] Implement standalone `--merge-detached-certificates`: repeated inputs,
+  deduplication keys, cross-signed variants, ordering, output creation and collisions.
+  Define whether malformed/partial inputs leave an existing output untouched.
+- [ ] Integrate `--use-software-signing-cert` with WP-11's actual identity-provider
+  selection, and test mixed classical/hybrid identities and explicit slot options.
+- [ ] Decide versioned library/report models before adding fields that assume
+  exactly one signature/certificate chain per architecture.
+
+**Acceptance:** native interchange in both directions for every supported identity
+and slot; independent algorithm vectors; exact deterministic container/certificate
+bytes; separately tampered components; missing chains; duplicate/merged inputs;
+all three OS producers. Record which tests require restricted credentials and
+which are reproducible from public fixtures.
+
+**Exit:** actual native hybrid signatures can be produced and validated according
+to native slot policy, and all five certificate-selection/interchange flags plus
+`--signature-slot` have complete evidence. Parser-only support or unavailable
+signing credentials cannot close the entire hybrid-signing entry.
+
+**Touchpoints:** [types.go](../pkg/codesign/types.go),
+[blob.go](../pkg/codesign/blob.go), [cms.go](../pkg/codesign/cms.go),
+[identity.go](../pkg/codesign/identity.go), [CLI](../internal/cli/cli.go).
+New codecs and algorithms require dedicated provenance and compatibility records.
+
+<a id="wp-19"></a>
+## WP-19: Notarization checking and ticket policy
+
+**Starting point:** `--check-notarization` is unimplemented. Existing Apple chain
+and timestamp validation does not imply notarization, and a successful native
+signature check does not imply a Gatekeeper allow decision.
+
+**Implementation tasks:**
+
+- [ ] Research the baseline's ticket discovery, lookup request/response, authenticated
+  ticket format, trust roots, object identifiers and forced-online behavior.
+  Pin source/fixtures and record private or undocumented protocol uncertainty.
+- [ ] Establish what the flag checks for Mach-O, bundles and DMGs, including which
+  architecture, CodeDirectory or signature slot identifies the submitted object.
+- [ ] Implement ticket parsing and cryptographic/content binding independently of
+  retrieval. Reject a valid ticket bound to different code, an unsupported ticket
+  version or an unauthenticated response presented as a positive result.
+- [ ] Reproduce required service lookup, cache/freshness, revoked/unknown/rejected
+  status and offline/error behavior. Forced online lookup must not silently succeed
+  from stale local data if native requires a fresh result.
+- [ ] Resolve portable authenticated transport under the dependency guard. Existing
+  HTTP TSA authentication depends on signed tokens; that does not justify using
+  unauthenticated transport for a different protocol without proving its security.
+- [ ] Connect requirement-language notarization predicates to an explicit verified
+  context. Do not let caller-provided metadata strings establish notarized status.
+- [ ] Complete CLI output, aggregate exit status and interaction with ordinary
+  verification, explicit requirements, timestamps and signature-slot selection.
+- [ ] Keep submission, account management and stapling out of this work unless
+  evidence establishes them as `codesign` operations. Other Apple tools' features
+  do not automatically belong in a codesign-equivalence backlog.
+
+**Acceptance:** legitimate public notarized artifacts and authorized opt-in live
+tests; bound/unbound ticket mutations; unknown/revoked/offline/service-error cases;
+native side-by-side results with recorded times and cache conditions. Replay tests
+prove decoder/policy behavior, not current remote service status.
+
+**Exit:** the requested native check is implemented with authenticated results and
+documented service dependencies. Missing protocol access, credentials or portable
+transport remains an explicit blocker rather than a hardcoded positive answer.
+
+**Touchpoints:** [requirements.go](../pkg/codesign/requirements.go),
+[certificate.go](../pkg/codesign/certificate.go),
+[verify.go](../pkg/codesign/verify.go), [types.go](../pkg/codesign/types.go),
+[CLI](../internal/cli/cli.go). Ticket and service logic need separate new modules.
+
+<a id="wp-20"></a>
+## WP-20: CLI equivalence, display, extraction and diagnostics
+
+**Starting point:** Cobra/Viper wrap a native-style parser and the main portable
+operations. Many flags are absent, and covered flags still lack complete native
+grammar, output, applicability and error behavior. The library having a capability
+does not prove CLI compatibility.
+
+**Implementation tasks:**
+
+- [ ] Build the complete operation matrix for sign, verify, display, remove,
+  hosting, constraint validation and detached-certificate merging. Cover missing
+  and conflicting operations, implicit modes, aliases and deprecated options.
+- [ ] Complete short-option clusters, repeated `-v`, optional values, equals forms,
+  abbreviations where native supports them, `--`, dash-prefixed paths, repeated
+  options and last-value/error precedence. Retain Cobra/Viper while preventing
+  their generic behavior from overriding native semantics.
+- [ ] Reproduce options accepted but ignored for a particular operation only after
+  native evidence. Unknown or unsupported behavior must not become a silent no-op.
+- [ ] Route numeric targets according to native process-versus-path rules, including
+  explicit `./` filename disambiguation. Until WP-22 exists, report unavailable
+  live-process behavior instead of treating every PID as an ordinary filename.
+- [ ] Complete verbosity-level display: architecture, flags, CodeDirectory fields,
+  hash candidates/preference, signature allocation, authorities, Team ID, runtime,
+  requirements, entitlements, constraints, timestamps and alternate signature slots.
+- [ ] Match canonical/physical path reporting, quoting, ordering, stdout versus
+  stderr, trailing newlines and exit codes. Preserve PR #25's physical-target
+  display/default-identifier behavior for standalone aliases.
+- [ ] Replace the current fixed English UTC date approximation with an explicit
+  native locale/timezone contract. Test fixed baseline locale first; retain other
+  localized/native-version outputs as separate unproven profiles until evidenced.
+- [ ] Implement `--extract-certificates`: DER bytes, chain ordering, default/custom
+  prefixes, numbering, root inclusion, existing files, multiple targets and partial
+  failures. Extraction must not imply that the certificate chain is trusted.
+- [ ] Implement `--file-list`: discover exact native signing/display contents,
+  file order, path spelling, newline/output destination and append/overwrite rules.
+  Track actual affected files; listing every scanned file is not a substitute.
+- [ ] Complete requirement/entitlement/constraint extraction through the format
+  owners. Test absent/malformed slots, raw versus decoded output, architecture
+  and signature-slot selection, stdin/stdout where supported and multiple targets.
+- [ ] Finish `--continue` aggregate behavior: mixed successes/failures, processing
+  order, diagnostics and final exit code. Confirm which targets are mutated before
+  and after a failure, including nested and detached outputs.
+- [ ] Complete `--dryrun` across every writer. Record identity/provider/network
+  activity separately from filesystem changes; “no files changed” is not proof
+  that no signing or timestamp operation occurred.
+- [ ] Keep portable extensions such as JSON, explicit trust and file identities
+  documented separately. Evolve report fields without confusing parsed metadata,
+  integrity, policy, trust and actual native success.
+- [ ] Audit help and usage against overloaded native short flags; in particular,
+  a generic CLI help shortcut must not steal an actual native operation.
+
+**Acceptance:** execute identical argument vectors through native and Go against
+equivalent isolated inputs; capture raw stdout/stderr, exit status and filesystem
+snapshots. Include malformed options, unknown algorithms, missing files, permission
+errors, broken links, mixed targets and all new extraction outputs. Normalize only
+documented fixture-specific differences, never broad error text or missing fields.
+
+**Exit:** every documented and evidenced undocumented option has operation-specific
+tests and an honest status. Output compatibility is measured, not inferred from
+human-readable similarity or equal success codes.
+
+**Touchpoints:** [CLI](../internal/cli/cli.go),
+[entry point](../cmd/macoscodesign/), [types.go](../pkg/codesign/types.go),
+[acceptance tests](../acceptance/), [compatibility inventory](../spec/compatibility.json).
+
+<a id="wp-21"></a>
+## WP-21: Streaming, operational limits and cancellation
+
+**Starting point:** bounded inputs are intentional protections, but some bounds
+also exclude ordinary native-supported workloads. Increasing a constant is not
+an adequate streaming or performance implementation.
+
+The following baseline limits need explicit evaluation. This is an audit starting
+list, not permission to remove all limits:
+
+| Area | Current bound/profile | Remaining implementation question |
+| --- | --- | --- |
+| File/image processing | 1 GiB in-memory input/output profile | Seekable streaming, large offsets and bounded output staging |
+| Bundle traversal | Shared byte budget, 10,000 entries, 64 nested code objects, depth eight | Scalable traversal with global resource accounting |
+| Bundle plist | 8 MiB, binary graph depth 32 and 100,000 expanded values | Real native limits, graph amplification and larger resource envelopes |
+| Bundle paths | Portable ASCII restriction, 1,024-byte path, 255-byte component, bounded depth | Native Unicode/case semantics and cross-host representability |
+| Requirements | Depth 128 and 4,096 expression nodes | Bounded full grammar and deterministic evaluation cost |
+| CMS normalization | Bounded ASN.1 structure/element processing | Shared budgets across larger signatures and nested tokens |
+| Chain building | 64-certificate pool, 32-certificate path, 256 visits | Cross-sign/path policy without combinatorial search |
+| PKCS#12 | 16 MiB archive, 1,024-byte password, bounded salt and KDF work | Larger/multi-identity inputs with explicit resource policy |
+| Timestamp | 1 MiB token/response, 8 KiB signature input, 160-bit serial/nonce | Native-supported larger signatures and bounded protocol variants |
+| HTTP framing | 32 KiB framing/header budgets, 8 KiB lines, bounded line counts | Native-required transport forms without parser ambiguity |
+| Shared metadata | APFS metadata APIs have their own bounds/contracts | Upstream extension where needed; no local duplicate implementation |
+
+**Implementation tasks:**
+
+- [ ] Define seekable input, known size, hashing, output reservation and commit
+  interfaces. Preserve existing byte APIs as convenience wrappers with documented
+  memory limits and unchanged ownership contracts.
+- [ ] Use incremental page/resource hashing and bounded buffers. Design two-pass
+  allocation so adding a signature does not require keeping every input/output in
+  memory, including universal slices, bundle descendants and disk images.
+- [ ] Account for total memory, temporary disk space, open files, parsed objects,
+  network requests and cryptographic work across the entire operation. Per-child
+  limits alone do not prevent a large nested tree from exhausting resources.
+- [ ] Detect source changes between discovery, hashing and commit. Define stable
+  file identity and concurrent-write handling; avoid signing one byte sequence
+  while committing or reporting a different one.
+- [ ] Preserve path containment through root-relative handles and shared APFS
+  metadata operations. A streaming refactor must not reintroduce symlink races.
+- [ ] Make cancellation effective during reading, hashing, traversal, remote requests
+  and staging, with a documented last cancellable point before commit. External
+  signer callbacks need an explicit contract if they cannot be interrupted.
+- [ ] Add checked conversions for signed/unsigned sizes and host `int` values;
+  reject overflow before allocation, seeking or writing.
+- [ ] Define disk-full, short-write, permission-change and cleanup behavior. Do not
+  promise whole-bundle atomicity where native semantics and the filesystem cannot
+  provide it; document recoverable partial commits precisely.
+- [ ] Measure realistic large application/image workloads and worst-case malformed
+  inputs. Report peak memory, temporary storage, time and file descriptors against
+  a pinned environment; do not claim native performance parity without measurements.
+- [ ] Separate configurable operational budgets from fundamental unsupported
+  formats. If a deliberate bound still rejects native-accepted data, preserve that
+  compatibility limitation in documentation and the full-parity audit.
+
+**Acceptance:** files around every size boundary, large sparse files, many small
+resources, deep layouts, repeated plist references, ambiguous certificate graphs,
+cancelled reads/writes, disk exhaustion and changing inputs. Assert bounded resource
+usage and preserved original data on pre-commit failures; verify actual committed
+state for failures after the documented commit boundary.
+
+**Exit:** supported large workloads have measured bounded-memory behavior and
+portable failure semantics. Remaining limits are explicit, tested and not hidden
+by increasing test fixtures only slightly beyond the old bound.
+
+**Touchpoints:** [io.go](../pkg/codesign/io.go),
+[macho.go](../pkg/codesign/macho.go), [dmg.go](../pkg/codesign/dmg.go),
+[bundle_tree.go](../pkg/codesign/bundle_tree.go),
+[types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md).
+
+<a id="wp-22"></a>
+## WP-22: Live-state, key-provider and external-helper blockers
+
+**Starting point:** five inventory entries are explicitly blocked. They depend on
+state or private-key operations that are not contained in the input file. Pure Go
+can implement file formats; it cannot infer unavailable live state or recover a
+non-exportable key from a certificate.
+
+| Blocked feature | State needed for native-equivalent behavior | Useful portable work | What would still be missing |
+| --- | --- | --- | --- |
+| `--hosting` | Actual process, guest/host chain and dynamic validity | Decode documented representations; design explicit process-context models | A snapshot is not the current native hosting chain |
+| `live-process-verification` | Target process identity, loaded code and kernel-enforced signing state | Share static validation and model authenticated process evidence | File verification cannot prove the current process state |
+| `--keychain` | Search lists, identity preferences, unlock/ACL decisions and usable private-key provider | Offline supported archive formats and explicit provider interfaces | Native lookup/authorization behavior and protected key access |
+| `--detached-database` | Actual native system database contents, update semantics and permissions | Research/read/write a supplied offline database copy | Registering a record in the real system database and observing its effect |
+| `hardware-identities` | Authorized access to the original device/service and signing operation | Existing `crypto.Signer` integration and portable device protocols if available | A local substitute key is not the same hardware identity |
+
+**Research and resolution tasks:**
+
+- [ ] Enumerate the actual native operations and authorization requirements through
+  pinned source/AST and isolated tests. Separate representation decoding from
+  current-state access; do not use blanket “host feature” labels to avoid research.
+- [ ] For process operations, specify target identity, PID reuse, races, host/guest
+  ordering, dynamic invalidation and error behavior. Determine which observations
+  can be obtained through allowed portable interfaces and which cannot.
+- [ ] For keychain lookup, investigate preference/exact-name/substring/hash selection,
+  duplicate certificates, search ordering, explicit keychain scope, intermediate
+  lookup, locked stores and user authorization. File-based identities remain a
+  separate supported path, not a native search-list implementation.
+- [ ] For detached databases, establish the schema/version, matching keys, update
+  transaction, precedence over embedded/file-detached signatures and persistence.
+  Use disposable test state; reading an offline copy alone proves only the codec.
+- [ ] For hardware identities, document each accessible protocol and whether a
+  reviewed pure-Go client can use the real provider. Preserve key non-exportability
+  and record unavailable device/credential requirements without fabricating success.
+- [ ] Inventory `CODESIGN_ALLOCATE` and any other evidenced environment/helper hooks.
+  The native external-helper override has observable execution/selection behavior;
+  a built-in Go allocator can reproduce normal output but cannot also reproduce
+  arbitrary helper execution while honoring the no-helper requirement.
+- [ ] Record the feasibility outcome for every blocker: achievable within existing
+  constraints, needs an external input/provider, or conflicts with the original
+  constraints. Describe the exact missing input and independently testable contract.
+- [ ] Keep optional snapshots, remote services or experimental adapters visibly
+  separate if ever proposed. A macOS bridge/service would require an explicit
+  scope change and would not satisfy the original zero-macOS-dependency objective.
+- [ ] Maintain deterministic unsupported/unavailable diagnostics in the portable
+  CLI until real implementations exist. Correct failure reporting is useful but
+  does not upgrade a blocked feature to verified equivalence.
+
+**Acceptance:** real isolated native processes/stores/devices where authorized,
+with matching state and before/after observations. Public replay fixtures supplement
+those tests but cannot replace live-state proof. Do not access unrelated production
+keychains, alter system trust or write the system database to populate CI fixtures.
+
+**Exit:** each blocker is either truly implemented with the required state/key
+access inside the original constraints, or remains explicitly blocked. There is
+no unconditional full-parity completion while any of these remains unresolved.
+An agreed narrower product scope would be a different objective, not silent
+completion of this one.
+
+**Touchpoints:** [compatibility inventory](../spec/compatibility.json),
+[types.go](../pkg/codesign/types.go), [identity.go](../pkg/codesign/identity.go),
+[CLI](../internal/cli/cli.go), [research guide](research.md).
+
+<a id="wp-23"></a>
+## WP-23: Differential acceptance, portability, CI and distribution
+
+**Starting point:** three-OS tests, native verification of foreign-produced files,
+per-package coverage, race/fuzz checks, GoReleaser packaging, release workflows and
+golangci-lint already exist. They must expand with each feature; their existence
+alone does not prove a newly added capability.
+
+**Implementation and validation tasks:**
+
+- [ ] For each new feature, add native-produced public fixtures that Go consumes on
+  all three OSes, and Linux/Windows-produced outputs that a downstream Mac checks.
+  Record exact generating commands, tool/source versions, expected results and hashes.
+- [ ] Compare entire deterministic outputs and filesystem trees, not only CDHashes
+  or native verification success. For timestamps/randomized cryptography, declare
+  exact permitted differences per case and verify every authenticated invariant.
+- [ ] Extend evidence beyond bytes: mode/ownership/ACL/xattrs, link/inode behavior,
+  path spelling, stdout/stderr, exit status, changed-file lists and failure state.
+- [ ] Keep mandatory Ubuntu, Windows 2025 and baseline macOS execution jobs. Treat
+  missing native tools or skipped required cases as missing evidence; do not turn
+  a failed platform into a green job by excluding the difficult cases.
+- [ ] Preserve Windows diagnostics: operation, target path, current working
+  directory, temp volume, relevant access/rename errors and cleanup status, with
+  no private keys/passwords. Retain relative-input fixtures under the working
+  directory when cross-volume relative paths are impossible.
+- [ ] Pin the native OS/build/binary identity in each run. When a hosted runner
+  changes, detect drift and explicitly update the baseline/fixtures; do not silently
+  compare a new Apple behavior to old expected output and normalize the difference.
+- [ ] Enforce statement coverage strictly above 95% in every production package on each
+  required OS. Add meaningful behavior/mutation tests for new paths; no excluding
+  difficult files or packages merely to keep the coverage report green.
+- [ ] Keep race detection test-only where it needs a C toolchain. Expand the current
+  nine fuzz targets for new codecs, constraints, detached containers and tickets;
+  retain minimized regression inputs with provenance and reproducible failure cases.
+- [ ] Run dependency guards for Darwin, Linux and Windows, including transitive
+  production imports, vendored/local adapters and build tags. Inspect all six
+  packaged binaries for `CGO_ENABLED=0`, actual dependency versions and unintended
+  local replacements; source `go.mod` alone is insufficient evidence.
+- [ ] Keep production builds and archives in GoReleaser. Preserve Linux/macOS/Windows
+  amd64/arm64 packaging, SBOM contents, checksums and executable/version smoke tests
+  where the runner can execute the architecture.
+- [ ] Maintain Release Please and tag-release workflows using the established
+  go-macos-pkg reference patterns. Check manifest/version/config consistency,
+  credential/event triggering and permissions after changes; do not replace the
+  repaired workflow with an unrelated release system.
+- [ ] For an authorized tagged release, verify downloaded archives/SBOMs against
+  checksums and validate signed-checksum provenance with the expected repository
+  and workflow identity. A signature file existing is not signature verification.
+- [ ] Hash fixture bytes after checkout and preserve binary fixtures against line
+  ending conversion. Record expected text line-ending differences separately;
+  do not normalize signed binary content to make Windows comparisons pass.
+- [ ] Audit artifacts from the exact final PR commit after all implementation fixes.
+  Link the tested SHA and completed workflow; stale green runs from an earlier
+  commit are not final evidence.
+
+**Acceptance:** a complete feature PR has a green three-OS/native-import matrix,
+required coverage/lint/dependency gates and inspectable independent artifacts.
+Credential-dependent live tests may be opt-in, but their absence must remain a
+stated limitation on the feature claim. A documentation-only PR needs documentation
+checks and required CI, not invented new cryptographic acceptance results.
+
+**Exit:** every claimed feature/input profile has traceable independent evidence
+and the shipped binary contains the code/dependencies which produced it. Keep the
+full-parity guard failing while genuine inventory gaps remain.
+
+**Touchpoints:** [test workflow](../.github/workflows/test.yml),
+[lint workflow](../.github/workflows/go-lint.yml),
+[release workflow](../.github/workflows/release.yml),
+[Release Please workflow](../.github/workflows/release-please.yml),
+[guards](../scripts/guards.py), [testing guide](testing.md),
+[release guide](releases.md).
+
+<a id="wp-24"></a>
+## WP-24: Documentation, compatibility inventory and final audit
+
+**Starting point:** progress, focused guides, source manifests and the machine-readable
+inventory exist. Some focused guides retain historical phase counts; current
+aggregate evidence belongs to the dated progress record, not a sum of stale totals.
+
+**Implementation/documentation tasks:**
+
+- [ ] Update the inventory in the same PR as each behavior change. Retain `partial`
+  when only a bounded profile is proven; use `verified` only when the entire
+  entry's declared native scope and relevant interactions have evidence.
+- [ ] Expand coarse umbrella entries into traceable subprofiles where useful while
+  retaining their original obligations. Splitting entries must not make missing
+  behavior disappear or inflate a misleading completion percentage.
+- [ ] Keep this plan's baseline historical. Add dated completion/evidence links for
+  delivered work and revised outstanding tasks rather than rewriting past evidence
+  as though it applied to later commits.
+- [ ] Update CLI help, public API comments, README examples, focused guides and
+  compatibility limitations when behavior/defaults change. Explain portable
+  extensions and native-compatible paths distinctly.
+- [ ] Document per-format, per-operation, per-architecture and per-native-version
+  support. Include size/path/storage limitations, trust/network inputs and actual
+  runtime requirements for each profile.
+- [ ] Publish a migration note for changed trust defaults, signature/report models,
+  new option precedence or removal of a prior restriction. Version public API and
+  CLI compatibility deliberately rather than treating every pre-1.0 change as free.
+- [ ] Maintain Apple/source/Clang provenance, reference-project pins, attribution
+  and license obligations. Reference implementations inspire tests/design; none
+  independently proves our output matches Apple.
+- [ ] Reconcile tests, manifests, narrative counts and inventory at each milestone.
+  Verify fixture paths, local documentation links, public artifact links and the
+  exact commit associated with reported coverage.
+- [ ] Complete a final native delta audit beyond the original 55 entries: newly
+  discovered flags, environment hooks, live-state behavior, error conditions,
+  storage semantics and supported native-version differences.
+- [ ] Run `make release-check` only as a genuine full-parity closure check. Do not bypass
+  `--require-complete`, remove blocked entries or set `full_parity` merely to permit
+  a release. Supported-subset releases must continue to say they are partial.
+
+**Acceptance and exit:** every full-parity claim can be traced to current code,
+independent tests and shipped artifacts, with no unresolved original requirement.
+If an original constraint makes a feature impossible, preserve that fact and the
+blocked objective instead of declaring success through rewording.
+
+**Touchpoints:** [documentation index](README.md), [progress](progress.md),
+[compatibility guide](compatibility.md),
+[implementation stages](implementation.md),
+[machine-readable inventory](../spec/compatibility.json),
+[reference review](reference-implementations.md).
+
+## 5. Research inputs and ownership boundaries
+
+Research should answer a concrete implementation question before expanding a
+parser or writer. These are existing reviewed reference families; new revisions
+must be pinned and reviewed before relying on changed behavior.
+
+| Work | Primary evidence | Supplemental reference/design input | Required caution |
+| --- | --- | --- | --- |
+| Operation grammar and defaults | Installed manual/binary; Apple CLI source; differential probes | Existing CLI acceptance harness | Public source may lag the installed binary |
+| Mach-O and CodeDirectory | Apple Security/SDK declarations and native files | Go linker, LLVM LLD, go-macho | Linker ad-hoc signing is a narrower use case |
+| Allocation/removal/file writes | Apple writer and disk-representation source; filesystem snapshots | Existing writer/path/removal AST manifests | Output hashes alone miss inode/metadata differences |
+| Bundle discovery/resources | Apple bundle and resource code; native complete trees | apple-platform-rs, sigtool, zsign | Do not import their host helpers or assume identical resource rules |
+| Requirements | Apple lexer/compiler/interpreter; `csreq` and `codesign` output | apple-platform-rs and existing local compiler fixtures | A semantically similar expression can still have different native bytes/text |
+| Certificates/CMS/PKCS#12 | Apple CMS/policy source; independent encoded fixtures | Relic, ipsw, zsign-rs, signapple | Audit native-framework dependencies and preserve signed bytes |
+| Timestamping | Apple timestamp source/AST and recorded/live native exchanges | Relic and existing independent protocol tests | Replay and live service evidence answer different questions |
+| DMG and filesystem APIs | Existing APFS public implementations and native signed images | Relic as a signature-placement cross-check | APFS owns image codecs and metadata mechanics |
+| Detached signatures | Apple native container and disk-representation source | Other projects' external-signature designs | signapple's custom detached format is not Apple's format |
+| Constraints, PQC and tickets | Current SDK, native fixtures and available Apple source | Reviewed independent implementations if found | Do not guess private wire formats, algorithms or trust decisions |
+
+Exact pins, reviewed limitations and URLs are in [research.md](research.md) and
+[reference-implementations.md](reference-implementations.md). Third-party licenses
+must be checked before copying code; a reference is not automatically a dependency.
+
+The ownership split for future changes is:
+
+| Layer | Owns | Must not absorb |
+| --- | --- | --- |
+| APFS project | Disk-image models/codecs and reusable host metadata/file primitives | codesign CLI semantics, requirements or CMS policy |
+| `pkg/codesign` | Native signature representations, hashing/signing/verification and format-specific write decisions | CLI argument policy or duplicated low-level APFS implementations |
+| `internal/cli` | Cobra/Viper integration, native arguments, operation dispatch, output and exit behavior | A second cryptographic verifier or private format implementation |
+| Research/acceptance | Clang extraction, native tools, independent encoders and captured evidence | A production runtime fallback to macOS or external helpers |
+| CI/release | Portability/coverage/provenance gates and GoReleaser artifacts | Unverified declarations that a partial profile is full equivalence |
+
+## 6. Proposed delivery slices and merge order
+
+The following are review boundaries, not promised PR numbers or a claim that one
+row will always fit one PR. Split further by observed behavior when necessary.
+Each implementation slice includes tests, documentation and inventory updates;
+none leaves independent acceptance for a later “testing PR.”
+
+| Slice | Scope and first reviewable result | Dependency / gate |
+| --- | --- | --- |
+| D01 | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
+| D02 | Native bundle writer/metadata probe corpus, including hard links and failure states | D01; isolate existing behavior before changing it |
+| D03 | Any missing APFS root-relative replacement/metadata primitive with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
+| D04 | One bundle write class at a time uses the proven replacement contract | D02/D03; compare bytes, aliases, ACLs and inodes on all OSes |
+| D05 | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
+| D06 | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
+| D07 | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
+| D08 | Certificate extraction and accurate file-list output for existing representations | Complete raw output/file side-effect comparisons |
+| D09 | Seekable hashing/output interfaces and first large-file/image path | WP-21 budgets and source-change detection; preserve existing byte APIs |
+| D10 | Mach-O header expansion, then FAT64/legacy layout/removal profiles | D09 where large offsets apply; every transformation independently evidenced |
+| D11 | One CodeDirectory/digest/slot family per slice, with CMS/nested integration | WP-07; no parser-only feature completion |
+| D12 | Complete entitlement types, extraction and applicability | D11 as needed; native XML/DER byte comparisons |
+| D13 | Requirement grammar/encoding/rendering families, then contextual predicates | WP-09; unavailable contexts remain explicitly unsupported |
+| D14 | Identity/PFX extensions and CMS algorithms in matching increments | Independent identity and signature fixtures; no native dependency regression |
+| D15 | Native-compatible verification policy and broader timestamp/transport behavior | WP-10/WP-13; explicit-trust migration decision and independent chain tests |
+| D16 | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
+| D17 | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
+| D18 | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
+| D19 | Additional DMG representations, one APFS-backed profile at a time | D09; upstream release first if any new API is needed |
+| D20 | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
+| D21 | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
+| D22 | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
+| D23 | Any feasible live-state/provider implementation within original constraints | Requires actual state/key access; no scope downgrade disguised as implementation |
+| D24 | Final inventory, baseline-version, distribution and full-parity audit | All original obligations satisfied; otherwise publish only an honest partial milestone |
+
+CI improvements and documentation corrections can accompany any slice. APFS PRs
+remain separate upstream changes. After the user merges a project PR, start the
+next slice from the new `main`, carry only needed work, and link its dependent
+upstream release. Do not accumulate unrelated feature packages in one long branch.
+
+The first implementation phase after this documentation pause should be D01/D02:
+confirm the remaining baseline and produce the native bundle-write probe matrix.
+The first production change then follows the evidence from those probes, with
+APFS changes only if the current public API cannot express the required operation.
+
+## 7. Common differential acceptance matrix
+
+Use this matrix to select cases for each slice. Cover every relevant value and use
+pairwise combinations for broad interactions, then exhaustive combinations for
+high-risk trust, preservation, alias and multi-signature cases. The full Cartesian
+product is not required, but exclusions need a reason and an explicit scope limit.
+
+| Dimension | Cases to include where applicable |
+| --- | --- |
+| Producer/consumer | Native to Go on all OSes; each Go OS to native; committed public fixtures to all OSes |
+| Operation | Sign, force re-sign, verify, display/extract, remove, dry run, standalone validate/merge |
+| Representation | Thin/universal Mach-O; supported app/bundle/framework layouts; DMG; detached; generic/xattr |
+| Architecture | arm64, x86_64, real supported legacy/subtype fixtures; native default and explicit selection |
+| Identity | Ad-hoc, RSA, each supported EC curve, real Apple-issued public fixtures, new algorithms/providers |
+| Signature state | Unsigned, valid, linker-signed, malformed, oversized old allocation, multiple directories/slots |
+| Metadata | Default, explicit, preserved, explicit override of preserved, missing, malformed and contradictory |
+| Bundle structure | Nested code, alternate framework versions, helper paths, resource-only changes, shallow/deep |
+| Path | Absolute/relative, canonical/alias, alias followed by `..`, Unicode/case variants, broken/cyclic/outside links |
+| Host filesystem | Supported APFS and other claimed Mac filesystems; Linux; Windows volumes, ACLs, ADS and readonly states |
+| File identity | No link, internal/external hard link, symlink chain, inode replacement and source changed during operation |
+| Resources | Required/optional/omitted/nested/symlink seals, added/removed/changed bytes, xattr sideband, strict selectors |
+| Trust | Explicit pin/root, missing root, alternate chain, wrong usage, expired/future/revoked, unavailable service |
+| Time/network | Fixed time, valid/invalid timestamp, replay/fresh token, timeout/cancel, proxy/redirect/error framing |
+| Output | Whole bytes/tree, parsed authenticated fields, raw stdout/stderr, status, extracted files and file list |
+| Failure timing | Parse, identity selection, traversal, hashing, signing, network, staging, metadata restoration, commit |
+| Scale | Empty/minimal, typical, boundary, above-boundary, large sparse and adversarial bounded inputs |
+
+High-risk combinations that need explicit named cases include:
+
+1. Force + selected preservation + explicit override + different per-architecture
+   old metadata; then repeat for linker signatures and malformed old signatures.
+2. Deep signing + nested framework versions + constraints/entitlements + failure
+   in a later child, with exact before/after tree and metadata comparison.
+3. Symlink input + physical filename-derived identifier + hard-linked target +
+   signature growth/shrinkage + dry run/removal.
+4. Multiple CodeDirectories + CMS hash-agility + native preferred slot + damaged
+   alternate directory or hybrid component.
+5. Expired signing certificate + valid/invalid/untrusted timestamp + explicit
+   requirement + current-time versus authenticated-time policy.
+6. Detached versus embedded signature disagreement + resource changes + selected
+   architecture, including a detached certificate set from another object.
+7. Multi-target `--continue` + output extraction/file-list collision + one failed
+   write, with aggregate exit status and subsequent-target behavior.
+8. Large streamed input + cancellation/source mutation/disk exhaustion + metadata
+   restoration, with no unexplained partial success.
+
+### Required evidence record per acceptance case
+
+Capture enough information to reproduce and audit the result:
+
+- Case ID, work-package/inventory IDs, profile scope and expected native behavior.
+- Input hashes, fixture source/license, generator source revision and command.
+- Native OS/build/architecture/tool hash, locale/timezone and relevant filesystem
+  properties; producer OS, Go version and tested project commit.
+- Exact argument vector, nonsecret configuration, working-directory relationship,
+  selected trust roots/time and external-provider prerequisites.
+- Raw native and Go stdout/stderr, exit statuses and complete output hashes or
+  chunk/tree manifests; metadata snapshots where filesystem behavior matters.
+- Explicit nondeterministic fields and independent validation of their meaning.
+  Never normalize an unexplained mismatch out of the comparison.
+- Verification commands/results from Apple and any supplemental independent
+  cryptographic parser, plus negative mutation outcomes.
+- Any skipped/unavailable portion and its effect on the compatibility claim.
+
+Store private keys only for deliberately public test identities. Live credential
+tests should retain public outputs and redacted command/configuration evidence,
+not passwords, access tokens or confidential signing material.
+
+## 8. Decision and risk register
+
+These questions must be resolved by evidence or an explicit scope decision when
+their implementation is reached. They do not block writing or reviewing this plan.
+
+| Question/risk | Owner | Required resolution |
+| --- | --- | --- |
+| Published Apple source differs from the installed macOS 27 binary | WP-01 | Native probe wins for that baseline; record the source discrepancy and hashes |
+| Unicode/metadata cannot be represented faithfully on a producer filesystem | WP-03/WP-16 | Prove a declared carrier/virtual representation or retain the limitation; no silent renaming |
+| Bundle replacement needs functionality missing from APFS's public API | WP-02 | Small upstream API with tests and release, then consume it |
+| Replacing in-place writes changes hard-link, ACL or failure behavior | WP-02 | Compare each write class independently; avoid assuming one strategy fits all formats |
+| Native verification differs from the library's explicit-trust contract | WP-10 | Separate policies/results or documented migration; no silent trust weakening |
+| A private format/algorithm lacks native fixtures or usable credentials | WP-14/WP-18/WP-19 | Acquire legitimate public evidence/authorized test access or retain an explicit blocker |
+| Authenticated networking pulls an Apple bridge through dependencies | WP-13/WP-19 | Audited portable implementation or unresolved transport requirement; preserve guards |
+| Larger signatures/files exceed allocation and parser budgets | WP-07/WP-18/WP-21 | Streaming, checked arithmetic and measured budgets before lifting bounds |
+| Apple behavior changes with OS, locale, architecture or trust state | WP-01/WP-20/WP-23 | Versioned profiles and recorded environment; no universal claim from one host |
+| Native input acceptance would require unsafe/unbounded behavior | WP-21 | Document a safe divergence; it remains an exception to literal full equivalence |
+| Live state or a non-exportable key is unavailable | WP-22 | Actual authorized access or explicit unresolved original requirement |
+| Coverage rises while native feature evidence stays incomplete | WP-23/WP-24 | Keep statement coverage and feature verification as independent gates |
+| Research reference uses incompatible license/runtime dependencies | WP-01 | Independent implementation or compatible reviewed component with attribution |
+
+## 9. Definition of done for a feature PR
+
+- [ ] State the concrete native behavior and baseline/profile being added.
+- [ ] Identify the work-package and inventory entries affected, with remaining
+  scope spelled out; do not mark an umbrella complete after one successful case.
+- [ ] Include pinned source/Clang evidence and independent native fixtures/probes.
+- [ ] Implement parser, operation, verifier, inspection and CLI behavior needed by
+  the claim, with explicit errors for unsupported subcases.
+- [ ] Reuse APFS APIs for image/metadata mechanics; consume a released dependency
+  if an upstream change was required.
+- [ ] Test failure boundaries, malformed inputs, cancellation and important option
+  interactions, including original-file preservation where promised.
+- [ ] Pass required execution/native-import checks and coverage strictly above 95%
+  for every production package on every required OS.
+- [ ] Pass golangci-lint, dependency/provenance guards and relevant race/fuzz checks.
+- [ ] Verify deterministic bytes or precisely declared cryptographic invariants;
+  inspect required filesystem side effects and raw CLI outputs.
+- [ ] Audit the actual final commit's artifacts and record workflow/commit links.
+- [ ] Update docs, help/API comments, source/fixture manifests and inventory together.
+- [ ] Explain remaining risks, unavailable credentials and untested native profiles
+  in the PR; do not count unavailable evidence as passed acceptance.
+- [ ] Present a focused PR for the user to merge. Do not publish a release or
+  merge the PR as a side effect of finishing an implementation slice.
+
+## 10. Full-objective completion gate
+
+The original objective is complete only when **all** of the following hold:
+
+1. Every original and subsequently discovered codesign capability is implemented
+   and independently verified for the declared native scope, including live-state
+   and hardware/provider behavior rather than substitutes.
+2. Native-compatible defaults, outputs, errors, filesystem effects and interactions
+   are covered, not just valid signature creation.
+3. The same production Go implementation executes on Linux, macOS and Windows
+   without Apple code-signing frameworks, helper executables or runtime SDKs.
+4. Every production package exceeds 95% coverage and the full portability,
+   provenance, native acceptance and distribution gates pass for the shipped commit.
+5. `spec/compatibility.json` truthfully contains no unresolved entry, its
+   `full_parity` value is justified, and `make release-check` passes without bypasses.
+6. Deliberate limitations, unavailable state and version-specific differences have
+   actually been resolved for that claim. Documenting a blocker is not resolving it.
+
+Until then, continue delivering useful, independently proven partial capabilities
+with accurate release notes. The status at the top of this document remains a
+planning baseline; nothing in this plan asserts that the outstanding work is done.
