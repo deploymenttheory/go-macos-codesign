@@ -232,14 +232,15 @@ the supported code roots; it does not claim every native bundle representation.
 
 The layout phase adds `scripts/extract-bundle-layouts.go` and
 [spec/apple-bundle-layouts.json](../spec/apple-bundle-layouts.json). It parses complete
-verbatim `BundleDiskRep::setup`, `BundleDiskRep::checkMoved`, `BundleDiskRep::validateFrameworkRoot`,
+verbatim `DiskRep::bestGuess(const char*, const Context*)`, `BundleDiskRep::setup`,
+`BundleDiskRep::checkMoved`, `BundleDiskRep::validateFrameworkRoot`,
 `SecStaticCode::validateOtherVersions`,
 `SecStaticCode::validateSymlinkResource`, `BundleDiskRep::Writer::remove()` and
 `BundleDiskRep::Writer::purgeMetaDirectory` bodies for arm64 and x86_64, including
 the framework validator's C++ block. SDK filesystem declarations are real;
 CoreFoundation/disk-representation/validation/writer interfaces and error/flag/slot constants are explicit shims.
 The record pins sources, excerpts, compiler and translation unit. Download
-bundlediskrep.cpp and StaticCode.cpp from its pinned URLs before reproducing it.
+bundlediskrep.cpp, StaticCode.cpp and diskrep.cpp from its pinned URLs before reproducing it.
 
 Apple's [framework anatomy](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPFrameworks/Concepts/FrameworkAnatomy.html)
 and [bundle placement guidance](https://developer.apple.com/documentation/bundleresources/placing-content-in-a-bundle)
@@ -259,6 +260,17 @@ framework validation visits only the selected version. Three additional native
 archives, selected-version byte/display/removal comparisons and mutations prove
 these distinctions independently of the shimmed AST. Absolute/outer-scope
 resource links remain outside the bounded profile.
+
+The direct-directory extension adds the complete `DiskRep::bestGuess` body.
+Its directory branch constructs a BundleDiskRep at that directory; setup only
+arbitrates versions beneath its own bundle root. Host tests independently show
+that a direct `Versions/A` remains valid despite malformed outer aliases or
+sibling metadata, and rejects an additional bundle-version selector. A direct
+Current directory input resolves to its physical target for display. Eighteen
+signing/removal comparisons, ninety display cases and 64 failed-selector checks
+exercise that behavior. The AST also exposes native executable-path promotion;
+that branch is recorded as future work, not claimed as implemented. CoreFoundation
+discovery remains shimmed; native acceptance supplies the behavior evidence.
 
 ## DMG research and direct library reuse
 

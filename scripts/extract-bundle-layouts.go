@@ -50,8 +50,9 @@ func walk(n node, f func(node)) {
 }
 
 func main() {
-	bundle, code := read(".research/apple/bundlediskrep.cpp"), read(".research/apple/StaticCode.cpp")
+	bundle, code, disk := read(".research/apple/bundlediskrep.cpp"), read(".research/apple/StaticCode.cpp"), read(".research/apple/diskrep.cpp")
 	excerpts := map[string][]byte{
+		"bestGuess":               regexp.MustCompile(`(?ms)^DiskRep \*DiskRep::bestGuess\(const char \*path, const Context \*ctx\).*?\n}`).Find(disk),
 		"setup":                   regexp.MustCompile(`(?ms)^void BundleDiskRep::setup\(.*?\n}`).Find(bundle),
 		"validateOtherVersions":   regexp.MustCompile(`(?ms)^void SecStaticCode::validateOtherVersions\(.*?\n}`).Find(code),
 		"validateFrameworkRoot":   regexp.MustCompile(`(?ms)^void BundleDiskRep::validateFrameworkRoot\(.*?\n}`).Find(bundle),
@@ -70,6 +71,9 @@ func main() {
 #include <unistd.h>
 #include <dirent.h>
 #include <sstream>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <TargetConditionals.h>
 using std::string;
 using CFURLRef=const void*;using SecCSFlags=uint32_t;
 using CFBundleRef=const void*;using CFDictionaryRef=const void*;using CFTypeRef=const void*;using CFStringRef=const void*;
@@ -80,19 +84,26 @@ template<class T> using SecPointer=T*;
 CFURLRef CFBundleCopyExecutableURL(CFBundleRef);CFURLRef _CFBundleCopyInfoPlistURL(CFBundleRef);
 CFURLRef CFBundleCopySupportFilesDirectoryURL(CFBundleRef);CFURLRef CFTempURL(string);
 CFBundleRef _CFBundleCreateUnique(const void*,CFURLRef);
+CFBundleRef _CFBundleCreateWithExecutableURLIfMightBeBundle(const void*,CFURLRef);
 CFDictionaryRef CFBundleGetInfoDictionary(CFBundleRef);CFTypeRef CFDictionaryGetValue(CFDictionaryRef,CFTypeRef);
 bool CFEqual(CFTypeRef,CFTypeRef);int CFGetTypeID(CFTypeRef);int CFStringGetTypeID();
 string cfStringRelease(CFURLRef);CFURLRef makeCFURL(string,bool=false,CFURLRef=nullptr);
 string findDistFile(string);void checkPlainFile(int,string);
-struct Context{const char* version;bool skipFrameworkCheck;};
-struct DiskRep{static DiskRep* bestFileGuess(string,const Context*);static DiskRep* bestGuess(const char*);int fd();string format();CFURLRef copyCanonicalPath();};
+struct Context{const char* version;bool skipFrameworkCheck,fileOnly;};
+struct DiskRep{static DiskRep* bestFileGuess(string,const Context*);static DiskRep* bestGuess(const char*,const Context* = nullptr);int fd();string format();CFURLRef copyCanonicalPath();};
 struct FileDiskRep:DiskRep{FileDiskRep(const char*);};
+struct AutoFileDesc{AutoFileDesc(const char*,int);};
+struct MachORep:DiskRep{static bool candidate(AutoFileDesc&);MachORep(const char*,const Context*);};
+struct DiskImageRep:DiskRep{static bool candidate(AutoFileDesc&);DiskImageRep(const char*);};
+struct EncDiskImageRep:DiskRep{static bool candidate(AutoFileDesc&);EncDiskImageRep(const char*);};
+struct DYLDCacheRep:DiskRep{static bool candidate(AutoFileDesc&);DYLDCacheRep(const char*);};
+struct CommonError{int unixError() const;};
 struct SecRequirement{static const void* required(SecRequirementRef);};
 enum{errSecCSStaticCodeNotFound=10,errSecCSBadBundleFormat=11};
 string cfString(CFURLRef);string CFTempString(const string&);
 enum{errSecCSAmbiguousBundleFormat=1,errSecCSUnsealedFrameworkRoot=2,errSecCSBadResource=3,errSecCSInvalidSymlink=4,kSecCFErrorResourceAltered=5,errSecCSUnsealedAppRoot=6,kSecCSStrictValidate=1,kSecCSRestrictSymlinks=2};
 struct MacOSError{[[noreturn]] static void throwMe(int);int error;};
-struct UnixError{static void check(int);};
+struct UnixError{static void check(int);[[noreturn]] static void throwMe();};
 struct ResourceBuilder{static string escapeRE(string);};
 struct DirValidator {
  enum{directory=1,descend=2,symlink=4,file=8,noexec=16};
@@ -104,7 +115,8 @@ struct CodeDirectory{using SpecialSlot=int;};
 enum{cdSlotCount=16,cdSignatureSlot=65536};
 struct ExecWriter{void remove();};
 struct DirScanner{DirScanner(string);bool initialized();dirent* getNext();bool isRegularFile(dirent*);void unlink(dirent*,int);};
-struct BundleDiskRep {
+struct BundleDiskRep:DiskRep {
+ BundleDiskRep(const char*,const Context*);BundleDiskRep(CFBundleRef,const Context*);
  bool mComponentsFromExecValid,mInstallerPackage,mAppLike;CFRef<CFBundleRef> mBundle;CFRef<CFURLRef> mMainExecutableURL;DiskRep* mExecRep;
  string mFormat;CFURLRef copyCanonicalPath();string mainExecutablePath();string resourcesRootPath();void setup(const Context*);
  void recordStrictError(int);void checkMoved(CFURLRef,CFURLRef);void validateFrameworkRoot(string);
@@ -121,7 +133,7 @@ struct SecStaticCode{
  void validateSymlinkResource(string,string,ValidationContext&,SecCSFlags);
 };
 `
-	for _, name := range []string{"setup", "checkMoved", "validateFrameworkRoot", "validateOtherVersions", "validateSymlinkResource", "remove", "purgeMetaDirectory"} {
+	for _, name := range []string{"bestGuess", "setup", "checkMoved", "validateFrameworkRoot", "validateOtherVersions", "validateSymlinkResource", "remove", "purgeMetaDirectory"} {
 		if len(excerpts[name]) == 0 {
 			panic("missing complete body " + name)
 		}
@@ -166,13 +178,13 @@ struct SecStaticCode{
 		targets[target] = facts
 	}
 	sources, hashes := map[string]any{}, map[string]string{}
-	for name, data := range map[string][]byte{"bundlediskrep.cpp": bundle, "StaticCode.cpp": code} {
+	for name, data := range map[string][]byte{"bundlediskrep.cpp": bundle, "StaticCode.cpp": code, "diskrep.cpp": disk} {
 		sources[name] = map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/" + name, "sha256": hash(data)}
 	}
 	for name, data := range excerpts {
 		hashes[name] = hash(data)
 	}
-	result := map[string]any{"schema": 1, "scope": "Complete verbatim BundleDiskRep::setup, BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateOtherVersions, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations and C++ blocks. CoreFoundation, disk-representation/validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. Host acceptance separately establishes version selection and nested alternate-version checking. Absolute/outer-scope resource links remain outside the Go profile.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets}
+	result := map[string]any{"schema": 1, "scope": "Complete verbatim DiskRep::bestGuess(const char*,const Context*), BundleDiskRep::setup, BundleDiskRep::checkMoved, BundleDiskRep::validateFrameworkRoot, SecStaticCode::validateOtherVersions, SecStaticCode::validateSymlinkResource, BundleDiskRep::Writer::remove() and BundleDiskRep::Writer::purgeMetaDirectory bodies parsed with real SDK filesystem declarations, TargetConditionals and C++ blocks. CoreFoundation, disk-representation/validation/writer interfaces, error codes, slots and flags are explicitly shimmed; shim numbers are not extracted constants. AST facts establish source control flow, not execution or complete bundle policy. Host acceptance separately establishes direct version-directory boundaries, Current resolution, version selection and nested alternate-version checking. Executable-path promotion and absolute/outer-scope resource links remain outside the Go profile.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets}
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-bundle-layouts.json", append(b, '\n'), 0644))

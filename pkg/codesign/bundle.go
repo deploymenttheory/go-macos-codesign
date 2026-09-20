@@ -38,7 +38,13 @@ type appBundle struct {
 	layoutEntries                []string
 }
 
-func isBundle(path string) bool { st, err := os.Stat(path); return err == nil && st.IsDir() }
+func isBundle(path string) bool {
+	if framework, _ := frameworkVersionDirectory(path); framework != "" {
+		return true // resolve structural version paths before OS-specific path normalization
+	}
+	st, err := os.Stat(path)
+	return err == nil && st.IsDir()
+}
 
 func bundleRelativePath(name string) error {
 	if !fs.ValidPath(name) || len(name) > 1024 || strings.Count(name, "/") > 32 {
@@ -66,6 +72,10 @@ func openAppBundle(path string) (*appBundle, error) {
 }
 
 func openAppBundleVersion(path, version string) (*appBundle, error) {
+	path, err := resolveFrameworkCurrent(path)
+	if err != nil {
+		return nil, err
+	}
 	st, err := os.Lstat(path)
 	if err != nil {
 		return nil, err
@@ -111,7 +121,7 @@ func loadAppBundleVersion(root *os.Root, path, version string) (*appBundle, erro
 		return fail(malformed("CFBundleIdentifier must be a nonempty string"))
 	}
 	if b.framework {
-		if values["CFBundlePackageType"] != "FMWK" || executable != strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)) {
+		if values["CFBundlePackageType"] != "FMWK" || executable != frameworkName(path) {
 			return fail(unsupported("framework metadata must name its FMWK executable"))
 		}
 	} else {

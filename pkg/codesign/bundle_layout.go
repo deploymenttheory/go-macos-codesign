@@ -21,10 +21,17 @@ func nestedBundleSuffix(name string) bool {
 // when reading or writing code; only its validated spelling selects that path.
 func (b *appBundle) discoverLayout() error {
 	b.base, b.infoPath, b.format = "Contents/", "Contents/Info.plist", "app bundle with "
-	if !strings.EqualFold(filepath.Ext(b.path), ".framework") {
+	framework, version := frameworkVersionDirectory(b.path)
+	if framework == "" && !strings.EqualFold(filepath.Ext(b.path), ".framework") {
 		return nil
 	}
 	b.framework, b.base, b.infoPath, b.format = true, "", "Resources/Info.plist", "bundle with "
+	if version != "" {
+		if b.selection != "" {
+			return unsupported("direct framework version has no selectable versions")
+		}
+		return nil
+	}
 	st, err := b.root.Lstat("Versions")
 	if errors.Is(err, os.ErrNotExist) {
 		if b.selection != "" {

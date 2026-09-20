@@ -150,10 +150,25 @@ runs across XML/binary metadata and three architectures. Twenty-one parent cases
 check unsigned, differently signed, wrong-requirement, page, resource and metadata
 variants in both shallow/deep modes, while standalone Current remains valid.
 Nine ad-hoc/RSA/P-256 trees pass native strict deep verification. Three native
-app archives are reproduced byte for byte on each OS. The Clang layout record
-now contains seven complete methods, adding selection and alternate validation.
+app archives are reproduced byte for byte on each OS. That phase expanded the
+Clang layout record to seven methods, adding selection and alternate validation.
 Unit tests cover selection boundaries, unsafe names, budgets and cross-version
 hard links. These checks establish a bounded profile, not all native options.
+
+Direct-version directory acceptance adds eighteen complete signing/removal
+comparisons and dry runs, ninety display comparisons, four independent-boundary
+cases and 64 selector rejection/preservation checks. Physical A/B and Current
+paths cover XML/binary metadata and three architectures. Nine identity/architecture
+trees are produced through direct paths; ad-hoc trees reproduce the existing
+native archives. Unit tests reject malformed Current targets and retain the
+selected directory's hard-link protection. The AST layout record now includes
+eight complete methods, adding native directory/file representation discovery.
+Two additional path cases compare an intermediate symlink followed by `..` with
+Apple, require preservation of the lexical sibling, and verify the physical
+target even when that sibling is absent. Different Current targets catch early
+Windows path normalization.
+Six further direct-path trees include an unsigned Mach-O helper; deep signing
+reproduces Apple's complete tree and passes strict deep verification.
 
 DMG acceptance adds forty exact signing comparisons and 200 display comparisons
 across raw/zlib/LZFSE generated images and APFS/native-LZMA fixtures from go-apfs-v2.
@@ -175,9 +190,9 @@ The test workflow runs the coverage gate on Ubuntu, Windows, and macOS 27. Linux
 and Windows jobs upload the actual Mach-O files, app bundles and DMGs they signed,
 including hidden resources. A downstream Mac
 job downloads both sets and requires Apple's strict verification to succeed for
-all 318 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
+all 336 imported artifacts (three ad-hoc, twelve PEM, eight PKCS#12, three chain,
 one timestamp replay, forty-five app bundles, 63 layout archives, nine multi-version
-framework trees and fifteen DMGs
+framework trees, nine direct-path framework trees and fifteen DMGs
 per OS). Twelve of
 each OS's apps use binary metadata: two encodings, three architectures and two
 identities. Nine more apps per OS contain two nested helpers and a dylib, covering
@@ -189,6 +204,8 @@ Tar retains symbolic links through artifact transport; the Mac safely extracts
 each archive and verifies its outer bundle with native `--strict --deep`.
 The nine framework-version archives per producer cover three identities and
 three architectures; Apple verifies both the parent and explicit A/B selections.
+The nine direct-path archives add signing through physical A and Current inputs;
+Apple checks their parents, root selections and all three directory input paths.
 Every native fixture test and producer exercises real filesystem symlinks,
 including on Windows; these cases are required rather than silently skipped.
 The downstream
