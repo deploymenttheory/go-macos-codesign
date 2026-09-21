@@ -19,8 +19,8 @@ in [file writes](file-writes.md).
 passed Linux, macOS and Windows execution plus six CGO-disabled builds. Codesign
 pins the published [v0.6.0 release](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0).
 Local verification adds 40 directory cases and eight native security profiles,
-with 95.41% library coverage; codesign's released-pin CI and artifact audit are
-pending. The [implementation plan](implementation_plan.md#delivery-status) retains
+with 95.41% library coverage; [codesign PR #31](https://github.com/deploymenttheory/go-macos-codesign/pull/31)
+is running the released-pin CI and artifact audit. The [implementation plan](implementation_plan.md#delivery-status) retains
 the remaining ACL/birth-time and broader failure profiles explicitly.
 
 ## Delivered milestones

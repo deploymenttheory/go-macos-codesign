@@ -8,7 +8,7 @@ The current native-import gate is 606 signed artifacts and 88 removal comparison
 The active D04 follow-up implements new signature-directory stat metadata, using
 [merged APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104),
 released and pinned as v0.6.0. Codesign review and its three-OS artifact audit remain
-pending. Executable ACL/creation-time behavior, explicit directory ACL copying and
+pending in [PR #31](https://github.com/deploymenttheory/go-macos-codesign/pull/31). Executable ACL/creation-time behavior, explicit directory ACL copying and
 broader cleanup failures remain open, followed by D05.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
@@ -1768,7 +1768,8 @@ upstream release. Do not accumulate unrelated feature packages in one long branc
 
 ### Next implementation work after PR #30
 
-The `fix/bundle-directory-security` branch starts from PR #30's merged `3ad9e15`
+[PR #31](https://github.com/deploymenttheory/go-macos-codesign/pull/31), on
+`fix/bundle-directory-security`, starts from PR #30's merged `3ad9e15`
 and carries the saved PR #29/#30 documentation update. Its bounded profile is:
 
 - [x] Add shared `CopyDirectoryStat` in APFS PR #104, with caller-owned directory
