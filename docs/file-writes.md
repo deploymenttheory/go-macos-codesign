@@ -6,11 +6,11 @@ Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostmeta` in v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.7.0. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.8.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
@@ -115,7 +115,7 @@ The bundle writer does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries;
 our replacement preserves the original ACL. Creation-time updates use the explicit
 `SetCreationTime` API from [merged APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108),
-released and pinned as [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
+first released in [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
 The released creation-time implementation matches the tested upstream API.
 
 On Darwin, rewritten bundle executables receive a new creation time capped by an
@@ -129,11 +129,11 @@ runs; tests assert the operation interval or exact source modification time.
 Executable ACL inheritance remains outside this profile.
 Mode, owner/group, the tested xattr and supported flags survive both writers.
 
-The access-time implementation in this branch requires `RecordReadAccess` from
-[APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110), which awaits
-merge and release. The module still pins v0.7.0; local development checks use an
-isolated module-file override, with a temporary workspace for lint. Final integration
-requires the released API and fresh codesign CI without those overrides.
+Access-time recording uses `RecordReadAccess` from
+[merged APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110),
+released and pinned as [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0).
+The published metadata implementation matches the tested upstream API. No APFS
+module replacement or development workspace is required.
 
 On Darwin, signing and re-signing record access on each successfully read bundle
 executable, including nested code. Outer removal records access only on the main
@@ -255,8 +255,8 @@ and check source/replacement identity, external-link bytes, untouched descendant
 times and dry-run preservation. Rewritten access must follow the original inode's
 access; both must fall within the operation. A unit regression enforces read bounds
 before access recording. The original writer fails the new access-time regression.
-These Darwin metadata cases add no foreign import archives and require final
-validation with the released dependency before this profile is delivered.
+These Darwin metadata cases add no foreign import archives. Final per-commit
+validation with the released dependency is recorded in the implementation PR.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale

@@ -6,7 +6,7 @@
   re-signing, outer removal and dry runs. Record source and replacement reads
   through APFS, preserving external-link bytes and untouched descendants on
   removal. Add 294 native comparisons and a bounded-read regression.
-  Integration awaits a release containing APFS PR #110's read-access API.
+  Use the released APFS v0.8.0 read-access API.
 
 - Match Darwin bundle-executable creation time: use a new time capped by
   the source modification time, preserving external hard-link neighbors, existing

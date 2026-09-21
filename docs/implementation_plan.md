@@ -10,13 +10,13 @@ ordering, signing-envelope failures and Darwin executable creation time, are on 
 
 The next bounded profile, bundle executable access time, is in progress on
 `fix/bundle-access-time`, branched from PR #40's merge `bccf374e`. The shared
-read-access API is in [APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110).
-Its CI passes; merge and release remain pending. Codesign integration currently
-uses isolated development module/workspace overrides. Local full verification,
-294 native access-time comparisons, lint and all six builds pass; library coverage
-is 95.43%, CLI coverage 99.53% and entry-point coverage 100%.
-The committed dependency remains v0.7.0 until the API is released. This profile
-requires fresh codesign CI and artifact validation after pinning that release.
+read-access API from [APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110)
+is merged and released in [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0),
+which this branch pins directly. Its published metadata implementation matches
+the tested upstream API. No APFS module replacement or workspace is required.
+The 294-case native corpus and local development validation are complete;
+released-dependency CI and artifact evidence belong to the implementation PR.
+This profile awaits codesign validation and merge before it is recorded as delivered.
 
 PR #39 adds 210 native creation-time comparisons covering past/future modification
 times, nested code, external hard links and dry runs. Final three-OS execution,
@@ -891,7 +891,7 @@ remain open alongside executable ACL inheritance and access-time behavior.
   vet, the hash race regression and all six CGO-disabled builds. CI merge
   `827fd4fb2bfb4ecd0c08e60eb5ea2b791f5224e7` shares head tree
   `b8993aa84d012da7181eb451aebed6d9f72d7617`. Hosted Darwin tests use macOS 26.6.2
-  arm64; local API/native tests use macOS 27.0 arm64. The PR is ready for review.
+  arm64; local API/native tests use macOS 27.0 arm64.
 - [x] Add bounded codesign source reads and later staged-replacement access,
   retaining unsupported-host behavior. Add 294 native comparisons and a
   read-bound regression, plus complete allocation-mapping Clang evidence.
@@ -901,9 +901,12 @@ remain open alongside executable ACL inheritance and access-time behavior.
   Audit all 294 access-time cases, 1,120 retained native metadata/writer cases and
   586 source/fixture hashes. `artifacts/access-time-development-audit.json` retains
   this local evidence and exact development overrides; it is not released CI.
-- [ ] Merge APFS PR #110 and publish its Release Please release with user approval.
-  Pin the published version/checksums; remove the development override from all
-  final checks.
+- [x] Merge APFS PR #110 as `bc2854fca7fd32d0033b8bb684f5f94ad0d5525d` and publish
+  [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0) through
+  release PR #111, tagged at `a958828fc6816a7ad703191a68867447b08f88f3`.
+  Pin the published version/checksums without an APFS replace or workspace.
+  The actual upstream merge matches the tested tree; released metadata files match
+  the tested API. Final codesign checks use the published dependency.
 - [ ] Pass final codesign three-OS execution, coverage, packaging, race/fuzz, lint,
   the 606-import/88-removal gate and artifact audit. Confirm the actual merge
   shares the tested tree before recording this profile as delivered.
@@ -964,7 +967,7 @@ are documented. Standalone alias/hard-link and DMG behavior remain regression ga
 **Touchpoints:** [bundle.go](../pkg/codesign/bundle.go),
 [bundle_tree.go](../pkg/codesign/bundle_tree.go),
 [bundle_writer.go](../pkg/codesign/bundle_writer.go), [io.go](../pkg/codesign/io.go),
-[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
+[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
 
 <a id="wp-03"></a>
 ## WP-03: Bundle discovery, path identity and layout coverage
@@ -1670,12 +1673,12 @@ Unrepresentable host filesystem behavior remains an explicit compatibility limit
 **Touchpoints:** [io.go](../pkg/codesign/io.go),
 [bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
 [types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md),
-[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
+[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
 
 <a id="wp-17"></a>
 ## WP-17: Wider APFS-backed DMG support and streaming
 
-**Starting point:** codesign directly reuses APFS v0.7.0's UDIF model. Its own
+**Starting point:** codesign directly reuses APFS v0.8.0's UDIF model. Its own
 adapter currently accepts a single-segment version-4 image, flags equal to one,
 a resource plist, bounded non-overlapping ranges and a 1 GiB in-memory profile.
 APFS supporting a broader image format does not mean this signing adapter already
@@ -1724,7 +1727,7 @@ through its public API; no copied disk-image implementation is introduced.
 **Touchpoints:** [dmg.go](../pkg/codesign/dmg.go),
 [io.go](../pkg/codesign/io.go), [DMG guide](dmg-integration.md),
 [DMG evidence](../spec/apple-dmg.json),
-[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/disk).
+[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/disk).
 
 <a id="wp-18"></a>
 ## WP-18: Hybrid/PQC signatures, native signature slots and detached certificates
@@ -2207,7 +2210,7 @@ none leaves independent acceptance for a later “testing PR.”
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
 | D02 | Prior corpora merged; access-time corpus in progress | 294 Darwin comparisons cover executable reads, replacements and outer-removal preservation | Final released-dependency CI/artifact gates pending; platform-specific scope remains explicit |
-| D03 | APFS v0.7.0 consumed; read-access API in APFS PR #110 | Upstream CI passes; merge/release and codesign pin pending | Validate the published API without a local override before final integration |
+| D03 | Read-access API merged and released; APFS v0.8.0 pinned in the access-time branch | Published metadata implementation matches tested APFS PR #110 | Final codesign validation uses the published API without a local override |
 | D04 | Profiles through creation time merged; access-time integration in progress | Finish bounded executable access time, then ACL inheritance and wider profiles | Native evidence plus final CI/artifact validation for each profile; D04 remains open |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
@@ -2286,9 +2289,9 @@ implementation does not add raw syscalls, native binding directives or a helper 
 copying can leave an empty or partially updated directory before its envelope and
 executable commit. No feature or work-package status is upgraded to fully verified.
 
-1. Merge/release tested APFS PR #110 with user approval and pin its published API.
-   Local access-time validation is complete. Run final codesign CI and artifact checks
-   without the development override. Retain the 210 creation-time comparisons
+1. Validate the published APFS v0.8.0 pin in final codesign CI and audit the
+   artifacts without a development override. Record the results in the implementation
+   PR, then confirm its actual merge. Retain the 210 creation-time comparisons
    and every merged writer matrix; the new 294-case corpus has a bounded Darwin
    executable scope and does not complete D04/WP-02.
 2. Investigate executable ACL inheritance and uncovered access-time, permission
