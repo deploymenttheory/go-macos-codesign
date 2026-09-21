@@ -64,7 +64,8 @@ func TestWriterAST(t *testing.T) {
 	}
 	var record struct {
 		Targets map[string]struct {
-			Methods map[string]struct{ References map[string]int }
+			Methods   map[string]struct{ References map[string]int }
+			Constants map[string]string `json:"metadata_constants"`
 		}
 	}
 	if err := json.Unmarshal(data, &record); err != nil {
@@ -74,7 +75,7 @@ func TestWriterAST(t *testing.T) {
 		t.Fatal("both writer AST targets required")
 	}
 	for target, facts := range record.Targets {
-		if len(facts.Methods) != 9 {
+		if len(facts.Methods) != 10 {
 			t.Fatalf("missing complete writer methods for %s", target)
 		}
 		if facts.Methods["commit"].References["rename"] != 1 || facts.Methods["commit"].References["copy"] != 2 || facts.Methods["~MachOEditor"].References["remove"] != 1 {
@@ -91,6 +92,23 @@ func TestWriterAST(t *testing.T) {
 		} {
 			if facts.Methods[method].References[call] != 1 {
 				t.Fatalf("missing %s/%s for %s", method, call, target)
+			}
+		}
+		for call, count := range map[string]int{
+			"fchown": 1, "fchmod": 1, "fsetattrlist": 2,
+			"fd_volume_has_feature": 2, "copyfile_set_bsdflags": 1,
+		} {
+			if facts.Methods["copyfile_stat"].References[call] != count {
+				t.Fatalf("missing directory stat control flow %s for %s", call, target)
+			}
+		}
+		for name, value := range map[string]string{
+			"DirectoryCopyStat": "2", "DirectoryCopySecurity": "3",
+			"DirectorySupportedFlags": "32777", "DirectoryOmitFlags": "1573056",
+			"DirectoryPreserveFlags": "1572992",
+		} {
+			if facts.Constants[name] != value {
+				t.Fatalf("directory SDK constant %s = %q for %s; want %s", name, facts.Constants[name], target, value)
 			}
 		}
 	}

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Copy canonical bundle-root stat metadata to newly created signature directories
+  through go-apfs-v2 v0.6.0, including physical framework-version selection.
+  Retain existing-directory metadata and record the remaining explicit ACL gap.
+  Add 40 directory profiles, eight native security profiles and copyfile_stat AST
+  evidence; preserve cancellation and executable-staging cleanup guarantees.
+
 - Stage bundle Mach-O replacements through the root-relative metadata API in
   go-apfs-v2 v0.5.0.
   Preserve external hard-link neighbours for main and nested executables while

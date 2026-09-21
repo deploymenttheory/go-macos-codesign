@@ -295,8 +295,23 @@ component-write, remove overloads, flush and stale-file purge methods. The
 SDK open/copyfile constants establish in-place envelope writes and metadata copy;
 private interface/slot/error shims do not establish wire values. Native tests
 independently establish bundle executable replacement, envelope inode retention
-and unlink-on-removal. Native directory security copying and stale signature-file
-purging remain recorded gaps in this first implementation slice.
+and unlink-on-removal. Regular stale-file cleanup is delivered in PR #30.
+
+The directory-stat follow-up also parses the complete `copyfile_stat` function
+and its internal flag enum from copyfile revision
+`9f91eb6ced021952278816cdc76ad68da8631ccb`. The private header supplies omit/preserve
+masks; SDK declarations supply the actual BSD, mode and copyfile flag values.
+The private state carrier and two helper interfaces are declaration-only shims.
+The native directory matrix confirms physical framework-version selection and
+records the remaining explicit-source-ACL difference. APFS tests independently
+execute `copyfile(COPYFILE_STAT)` as a test-only metadata oracle.
+
+To refresh the additional research inputs before `make research-writer`:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/apple-oss-distributions/copyfile/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile.c -o .research/apple/copyfile.c
+curl -fsSL https://raw.githubusercontent.com/apple-oss-distributions/copyfile/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile_private.h -o .research/apple/copyfile_private.h
+```
 
 `make research-inventory` records the installed binary/manual identity and probes
 79 recognized switches, including 32 absent from the manual. It also retains ten

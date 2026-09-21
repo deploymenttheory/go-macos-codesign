@@ -1,10 +1,27 @@
 # Project progress
 
-Updated 2026-09-20. This page describes the implementation in this branch and
+Updated 2026-09-21. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
+
+## Current directory-metadata follow-up
+
+New signature directories copy canonical bundle-root stat metadata through the
+released APFS v0.6.0 API. Versioned frameworks use the selected physical version
+root. Existing directories retain their metadata; source xattrs and explicit ACL
+entries are outside this copy profile. The exact platform and failure limits are
+in [file writes](file-writes.md).
+
+[APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104) is merged and
+[its final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598)
+passed Linux, macOS and Windows execution plus six CGO-disabled builds. Codesign
+pins the published [v0.6.0 release](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0).
+Local verification adds 40 directory cases and eight native security profiles,
+with 95.41% library coverage; [codesign PR #31](https://github.com/deploymenttheory/go-macos-codesign/pull/31)
+is running the released-pin CI and artifact audit. The [implementation plan](implementation_plan.md#delivery-status) retains
+the remaining ACL/birth-time and broader failure profiles explicitly.
 
 ## Delivered milestones
 

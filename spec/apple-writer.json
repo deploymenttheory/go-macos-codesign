@@ -8,23 +8,35 @@
     "bundle_purgeMetaDirectory_0": "792fb7483726cf146f7900b44c7d981e6cc83e252850435cb8cdc296a2a65820",
     "bundle_remove_0": "62325dd1d80e67a608048e54ebea84a934cfdfc78ac1e8217f430f89669b9028",
     "bundle_remove_1": "e9fd7f4c94864ad831982b9207aff6bde0e5d14d69fc5fb7525c6004c8e4d75a",
+    "cfInternalFlags": "e7fdf45f199b3a99064abf953bea60555adf26de26d7421ad2b3c8396bb72e6d",
     "commit": "cd38270eb44ea1adf21e033169404c10bb7cf65f800533163152546d405f761d",
+    "copyfile_stat": "0626fb24e5a0bc0c0a2f9a06aa4a65d1889d7894233f7cac802a114cc882fdcc",
     "~MachOEditor": "0d70cbae2b34e437c7c2e4af40f4be2f095717f12ca8c6db033d22cdd004c218"
   },
   "schema": 1,
-  "scope": "Nine complete verbatim method bodies: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. Native acceptance independently tests the bounded supported write profile; regular stale signature files now have a separate native cleanup matrix; non-regular entry failure timing, compression and broader creation ACL equivalence remain open.",
+  "scope": "Nine complete verbatim methods plus copyfile_stat: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; non-regular entry failure timing, compression and broader creation ACL equivalence remain open.",
   "sdk": "MacOSX.sdk",
   "sdk_headers": {
     "copyfile.h": "56f4a00b83f21ac98c818876eb1b3a3eb246d0a7a31e95fddbd1fd21f7c79ff9",
     "sys/acl.h": "9511f84f0abe1e108e10979900d4fea8567534aef78f0984f7050c49f6c29ff7",
     "sys/attr.h": "5118b9245bc932bc32dcc60084b1e40d70bb5479a360b31cdbf188ef866deefe",
     "sys/clonefile.h": "1efe4ef4241c360905ecc40092245334725a9f1b208be8886ce87e2538b89cbd",
-    "sys/kauth.h": "9c8808c918bb6fb8c4f9854f7c34d7d51b2017de8e19f4bfc67cf82b7553d0b4"
+    "sys/kauth.h": "9c8808c918bb6fb8c4f9854f7c34d7d51b2017de8e19f4bfc67cf82b7553d0b4",
+    "sys/mount.h": "45872741bb916b92bddd2e562d2047b552af1f68269081a0aeb58a3e5a2b8a51",
+    "sys/stat.h": "1546ce7485287bec0d15a643ef5d5f882d21272f2f089fed71c36457e609b92a"
   },
   "sources": {
     "bundlediskrep.cpp": {
       "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "copyfile.c": {
+      "sha256": "19f3ad0910f05bb2a6ae982ebdabcc4dc9c911b65ec2d99e75b7c4c52272805c",
+      "url": "https://github.com/apple-oss-distributions/copyfile/blob/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile.c"
+    },
+    "copyfile_private.h": {
+      "sha256": "8ac427e2c1dbe0ca92cfe2fbf114df90fd747f3fbe25c2a4919ff941a1be81c5",
+      "url": "https://github.com/apple-oss-distributions/copyfile/blob/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile_private.h"
     },
     "signerutils.cpp": {
       "sha256": "2f352abf90941bca654b31bee3a44a75499abc22da4362601920c0ff6301c699",
@@ -36,6 +48,11 @@
       "metadata_constants": {
         "AttrReferenceSize": "8",
         "CloneACL": "4",
+        "DirectoryCopySecurity": "3",
+        "DirectoryCopyStat": "2",
+        "DirectoryOmitFlags": "1573056",
+        "DirectoryPreserveFlags": "1572992",
+        "DirectorySupportedFlags": "32777",
         "FileSecMagic": "19710317",
         "FileSecSize": "44",
         "NoACL": "4294967295"
@@ -395,6 +412,67 @@
             "val": 2,
             "write": 1,
             "writer": 2
+          }
+        },
+        "copyfile_stat": {
+          "ast_kinds": {
+            "BinaryOperator": 28,
+            "CStyleCastExpr": 5,
+            "CXXConstructExpr": 4,
+            "CXXConstructorDecl": 3,
+            "CXXCtorInitializer": 2,
+            "CXXOperatorCallExpr": 2,
+            "CXXRecordDecl": 1,
+            "CallExpr": 8,
+            "CompoundAssignOperator": 4,
+            "CompoundStmt": 5,
+            "DeclRefExpr": 52,
+            "DeclStmt": 4,
+            "FieldDecl": 2,
+            "FunctionDecl": 1,
+            "IfStmt": 4,
+            "ImplicitCastExpr": 79,
+            "IntegerLiteral": 32,
+            "MemberExpr": 26,
+            "ParenExpr": 14,
+            "ParmVarDecl": 3,
+            "ReturnStmt": 1,
+            "UnaryExprOrTypeTraitExpr": 3,
+            "UnaryOperator": 10,
+            "VarDecl": 5
+          },
+          "references": {
+            "acc_time": 1,
+            "attrlist": 6,
+            "bitmapcount": 1,
+            "cfAlwaysCopySuidBits": 1,
+            "cfForbidCopySuidBits": 1,
+            "cfMakeFileInvisible": 1,
+            "commonattr": 1,
+            "copyfile_set_bsdflags": 1,
+            "dst_fd": 5,
+            "dst_flags": 5,
+            "fchmod": 1,
+            "fchown": 1,
+            "fd_volume_has_feature": 2,
+            "flags": 1,
+            "fsetattrlist": 2,
+            "internal_flags": 3,
+            "ma_times": 6,
+            "memset": 1,
+            "mod_time": 1,
+            "new_perms": 2,
+            "operator=": 2,
+            "preserve_flags": 3,
+            "s": 17,
+            "sb": 6,
+            "src_fd": 1,
+            "st_atimespec": 1,
+            "st_flags": 1,
+            "st_gid": 1,
+            "st_mode": 1,
+            "st_mtimespec": 1,
+            "st_uid": 1
           }
         },
         "~MachOEditor": {
@@ -424,6 +502,11 @@
       "metadata_constants": {
         "AttrReferenceSize": "8",
         "CloneACL": "4",
+        "DirectoryCopySecurity": "3",
+        "DirectoryCopyStat": "2",
+        "DirectoryOmitFlags": "1573056",
+        "DirectoryPreserveFlags": "1572992",
+        "DirectorySupportedFlags": "32777",
         "FileSecMagic": "19710317",
         "FileSecSize": "44",
         "NoACL": "4294967295"
@@ -785,6 +868,67 @@
             "writer": 2
           }
         },
+        "copyfile_stat": {
+          "ast_kinds": {
+            "BinaryOperator": 28,
+            "CStyleCastExpr": 5,
+            "CXXConstructExpr": 4,
+            "CXXConstructorDecl": 3,
+            "CXXCtorInitializer": 2,
+            "CXXOperatorCallExpr": 2,
+            "CXXRecordDecl": 1,
+            "CallExpr": 8,
+            "CompoundAssignOperator": 4,
+            "CompoundStmt": 5,
+            "DeclRefExpr": 52,
+            "DeclStmt": 4,
+            "FieldDecl": 2,
+            "FunctionDecl": 1,
+            "IfStmt": 4,
+            "ImplicitCastExpr": 79,
+            "IntegerLiteral": 32,
+            "MemberExpr": 26,
+            "ParenExpr": 14,
+            "ParmVarDecl": 3,
+            "ReturnStmt": 1,
+            "UnaryExprOrTypeTraitExpr": 3,
+            "UnaryOperator": 10,
+            "VarDecl": 5
+          },
+          "references": {
+            "acc_time": 1,
+            "attrlist": 6,
+            "bitmapcount": 1,
+            "cfAlwaysCopySuidBits": 1,
+            "cfForbidCopySuidBits": 1,
+            "cfMakeFileInvisible": 1,
+            "commonattr": 1,
+            "copyfile_set_bsdflags": 1,
+            "dst_fd": 5,
+            "dst_flags": 5,
+            "fchmod": 1,
+            "fchown": 1,
+            "fd_volume_has_feature": 2,
+            "flags": 1,
+            "fsetattrlist": 2,
+            "internal_flags": 3,
+            "ma_times": 6,
+            "memset": 1,
+            "mod_time": 1,
+            "new_perms": 2,
+            "operator=": 2,
+            "preserve_flags": 3,
+            "s": 17,
+            "sb": 6,
+            "src_fd": 1,
+            "st_atimespec": 1,
+            "st_flags": 1,
+            "st_gid": 1,
+            "st_mode": 1,
+            "st_mtimespec": 1,
+            "st_uid": 1
+          }
+        },
         "~MachOEditor": {
           "ast_kinds": {
             "CXXDeleteExpr": 1,
@@ -809,5 +953,5 @@
       }
     }
   },
-  "translation_unit_sha256": "59f3ed637e0698dd755809d4c1bf713bede97f205afa249b48ecc83d5a549e71"
+  "translation_unit_sha256": "1c9c2781a7cc752243bff8bd9a00f3f96f5e9fe4a674574e6f098dcfe275dc02"
 }

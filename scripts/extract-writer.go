@@ -51,6 +51,9 @@ func walk(n node, f func(node)) {
 
 func main() {
 	const revision = "db15acbe6a7f257a859ad9a3bb86097bfe0679d9"
+	const copyRevision = "9f91eb6ced021952278816cdc76ad68da8631ccb"
+	copySource := read(".research/apple/copyfile.c")
+	copyHeader := read(".research/apple/copyfile_private.h")
 	source := read(".research/apple/signerutils.cpp")
 	unit := `#include <string>
 #include <cstdio>
@@ -65,6 +68,8 @@ func main() {
 #include <sys/kauth.h>
 #include <sys/clonefile.h>
 #include <copyfile.h>
+#include <sys/mount.h>
+#include <cstring>
 #include <CoreFoundation/CoreFoundation.h>
 #include <TargetConditionals.h>
 namespace CodesignWriterResearch {
@@ -138,7 +143,29 @@ enum MetadataConstants : unsigned long long {
 			unit += "\n" + string(excerpt) + "\n"
 		}
 	}
-	unit += "}\n"
+	// Parse the complete stat-copy implementation using SDK filesystem types.
+	// Only the private state carrier and two helper interfaces are shims.
+	statCopy := regexp.MustCompile(`(?ms)^static int copyfile_stat\(copyfile_state_t s\).*?^}`).Find(copySource)
+	internalFlags := regexp.MustCompile(`(?ms)^enum cfInternalFlags \{.*?^};`).Find(copySource)
+	suidMask := regexp.MustCompile(`(?m)^#define S_ISSUD[^\n]+`).Find(copySource)
+	if len(statCopy) == 0 || len(internalFlags) == 0 || len(suidMask) == 0 {
+		panic("missing copyfile stat source")
+	}
+	hashes["copyfile_stat"] = hash(statCopy)
+	hashes["cfInternalFlags"] = hash(internalFlags)
+	unit += "\n" + string(copyHeader) + "\n" + string(internalFlags) + "\n" + string(suidMask) + `
+ struct DirectoryCopyState { struct stat sb; uint32_t internal_flags; copyfile_flags_t flags; int src_fd, dst_fd; };
+ using copyfile_state_t = DirectoryCopyState*;
+ int fd_volume_has_feature(int, uint32_t);
+ int copyfile_set_bsdflags(copyfile_state_t, uint32_t, uint32_t);
+ enum DirectoryConstants : unsigned long long {
+  DirectorySupportedFlags = UF_NODUMP | UF_OPAQUE | UF_HIDDEN,
+  DirectoryOmitFlags = COPYFILE_OMIT_FLAGS,
+  DirectoryPreserveFlags = COPYFILE_PRESERVE_FLAGS,
+  DirectoryCopyStat = COPYFILE_STAT,
+  DirectoryCopySecurity = COPYFILE_SECURITY
+ };
+ ` + string(statCopy) + "\n}\n"
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	targets := map[string]any{}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -146,14 +173,14 @@ enum MetadataConstants : unsigned long long {
 		must(json.Unmarshal(run(unit, "clang++", "-target", target, "-isysroot", sdk, "-std=c++17", "-x", "c++", "-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=CodesignWriterResearch", "-"), &ast))
 		methods, constants := map[string]any{}, map[string]string{}
 		walk(ast, func(n node) {
-			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize") {
+			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize" || strings.HasPrefix(n.Name, "Directory")) {
 				walk(n, func(c node) {
 					if c.Kind == "ConstantExpr" {
 						constants[n.Name] = fmt.Sprint(c.Value)
 					}
 				})
 			}
-			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl") || hashes[n.Name] == "" && hashes["bundle_"+n.Name+"_0"] == "" {
+			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl" && n.Kind != "FunctionDecl") || hashes[n.Name] == "" && hashes["bundle_"+n.Name+"_0"] == "" {
 				return
 			}
 			kinds, references := map[string]int{}, map[string]int{}
@@ -174,26 +201,28 @@ enum MetadataConstants : unsigned long long {
 				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 9 || len(constants) != 5 {
+		if len(methods) != 10 || len(constants) != 10 {
 			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
 	}
 	headers := map[string]string{}
-	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h"} {
+	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h"} {
 		headers[path] = hash(read(filepath.Join(sdk, "usr/include", path)))
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope": "Nine complete verbatim method bodies: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. Native acceptance independently tests the bounded supported write profile; regular stale signature files now have a separate native cleanup matrix; non-regular entry failure timing, compression and broader creation ACL equivalence remain open.",
+		"scope": "Nine complete verbatim methods plus copyfile_stat: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; non-regular entry failure timing, compression and broader creation ACL equivalence remain open.",
 		"sources": map[string]any{
-			"signerutils.cpp":   map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signerutils.cpp", "sha256": hash(source)},
-			"bundlediskrep.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp", "sha256": hash(bundle)},
+			"copyfile.c":         map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile.c", "sha256": hash(copySource)},
+			"copyfile_private.h": map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile_private.h", "sha256": hash(copyHeader)},
+			"signerutils.cpp":    map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signerutils.cpp", "sha256": hash(source)},
+			"bundlediskrep.cpp":  map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp", "sha256": hash(bundle)},
 		},
 		"sdk_headers": headers, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets,
 	}
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: nine writer methods on two targets")
+	fmt.Println("Wrote spec/apple-writer.json: nine writer methods and copyfile_stat on two targets")
 }

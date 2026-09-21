@@ -55,7 +55,7 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 			}
 			continue
 		}
-		if err := write.bundle.root.Mkdir(write.bundle.base+"_CodeSignature", 0755); err != nil && !errors.Is(err, os.ErrExist) {
+		if err := write.bundle.createSignatureDirectory(ctx); err != nil {
 			return err
 		}
 		if err := write.bundle.writeResource(ctx, write.name, write.data); err != nil {
@@ -63,6 +63,54 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 		}
 	}
 	return nil
+}
+
+// Native createMeta copies the canonical bundle root's security only when mkdir
+// creates the signature directory. The shared stat profile covers mode, owner,
+// times and supported flags; copying explicit Darwin ACL entries remains open.
+func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	name := b.base + "_CodeSignature"
+	if err := b.root.Mkdir(name, 0755); err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return nil
+		}
+		return err
+	}
+	canonical := "."
+	if b.version != "" {
+		canonical = b.base
+	}
+	source, err := b.root.Open(canonical)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+	st, err := b.root.Lstat(name)
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return unsupported("signature directory is not a directory")
+	}
+	target, err := b.root.Open(name)
+	if err != nil {
+		return err
+	}
+	defer target.Close()
+	current, err := target.Stat()
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("bundle signature directory changed")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return hostmeta.CopyDirectoryStat(source, target)
 }
 
 // Apple flushes the metadata directory after committing the main executable.
