@@ -1,32 +1,35 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-21 after [PR #33 merged](https://github.com/deploymenttheory/go-macos-codesign/pull/33).
+Status: updated 2026-09-21 after [PR #34 merged](https://github.com/deploymenttheory/go-macos-codesign/pull/34).
 D01/D02's initial evidence, D04 bundle Mach-O replacement, regular stale-file
 cleanup, new signature-directory stat metadata and the bounded failure profile
-for stale directories and symlinks are now on `main`. The shared APFS dependency remains
-released and pinned at v0.6.0, including `CopyDirectoryStat`
+for stale directories and symlinks, plus case-insensitive APFS ASCII cleanup
+ordering, are now on `main`. This follow-up pins released APFS v0.6.1, including
+the concurrent name-hash initialization fix from PR #106 and `CopyDirectoryStat`
 from [APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104).
-PR #33 passed three-OS execution, packaging, race/fuzz, independent Apple import
+PR #34 passed three-OS execution, packaging, race/fuzz, independent Apple import
 verification and the final artifact audit. The native-import gate remains 606
 signed artifacts and 88 removal comparisons. Executable ACL/creation-time behavior,
 explicit signature-directory ACL copying and broader cleanup failures remain open.
-The merged failure profile adds 214 native comparisons; it does not close D04.
-Further writer profiles precede D05. This slice required no new APFS API or release.
+PR #34 adds 278 native comparisons alongside PR #33's 214 failure comparisons.
+Neither profile closes D04; the shared dependency follow-up precedes further work.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
-The current follow-up in [draft PR #34](https://github.com/deploymenttheory/go-macos-codesign/pull/34)
-prepares D04's case-insensitive APFS ASCII cleanup-order
-profile, with 278 new native comparisons and complete signer-removal AST evidence.
-It corrects the earlier CodeResources-first assumption. Its shared hashing API
-needs the concurrency fix in [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106).
-The codesign v0.6.0 pin remains provisional for this follow-up; upstream release,
-the new pin and final codesign CI/artifact audit are required before integration.
+The merged ordering profile corrects the earlier CodeResources-first assumption
+and includes complete signer-removal AST evidence. PR #34 merged with the
+provisional v0.6.0 pin. [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
+subsequently became available in [v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.1),
+published through [release PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107).
+This branch starts from PR #34's merged main and consumes that released fix,
+without a local replace/workspace. Its final codesign CI/artifact audit is a
+separate gate from PR #34's existing-pin results; no umbrella feature status changes.
 
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
 eight blocked and zero fully verified. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
-[PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33) and the
+[PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
+[PR #34 evidence](#merged-pr34) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -266,6 +269,63 @@ multiple-entry enumeration order, broader permissions, exact diagnostics and the
 remaining ACL/birth-time profiles stay open. D04/WP-02 remains open, and no status
 in the 88-entry inventory is upgraded.
 
+<a id="merged-pr34"></a>
+### Merged milestone: PR #34 (2026-09-21)
+
+| Item | Delivered evidence |
+| --- | --- |
+| Merge into main | `f4d7e284f5ce21deeae80890238d1344f155ce72`, merged at 09:22:55 UTC |
+| Tested PR head | `eba869d93b7e802878007caf5e0301b29c348d38` |
+| Tested CI merge | `efb8502d5ca33a2d089b6900b8bdcd26ab5b1dd2` |
+| Audited source tree | `6eca03f7a8d77bebdb0b23cedf1389583782ef73`, shared by the tested head, CI merge and actual PR #34 merge |
+| Dependency in the merged code | APFS v0.6.0 was pinned; the concurrency fix in merged APFS PR #106 was not yet consumed |
+| Native ordering corpus | 278 complete tree comparisons across seven layouts, including named components, two hash-collision pairs, opposite creation orders and entries before CodeResources |
+| Source evidence | Ten complete Apple writer methods plus `copyfile_stat` on both Clang targets, adding the complete `SecCodeSigner::Signer::remove` method |
+
+The [completed PR #34 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35581091931)
+and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35581091975)
+passed for the tested head above. Downloaded coverage artifacts report:
+
+| Runner | Library statements | CLI statements | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 4,070/4,273, 95.25% | 417/425, 98.12% | 1/1, 100% |
+| Windows 2025 | 4,067/4,273, 95.18% | 417/425, 98.12% | 1/1, 100% |
+| macOS 27 | 4,077/4,273, 95.41% | 423/425, 99.53% | 1/1, 100% |
+
+All three producers, six-target packaging, race detection, nine fuzz targets and
+independent Apple import verification passed. The artifact audit checked 580
+source/fixture hashes per OS, with seventeen expected Windows text conversions;
+twelve archive/SBOM checksums; and six clean, CGO-disabled binaries with the
+exact CI revision and provisional APFS v0.6.0 dependency. Each foreign producer's
+278 new trees, survivor sets, exit statuses and recorded inode/neighbour effects
+matched independent native outputs. The previous 126 writer, 105 regular-cleanup,
+40 directory, 214 failure and 184 standalone/alias/allocation comparisons per
+producer remain intact. Apple verified all 606 signed imports and 88 removal byte
+comparisons. Failed-operation cases do not add signed import artifacts.
+
+Cleanup now follows case-insensitive APFS ASCII name-hash order, using folded
+name comparisons on collisions, and stops at the first non-regular entry.
+CodeResources participates in that order during removal; an earlier failure can
+retain it. A non-regular removal envelope is rejected after executable replacement
+when reached. Signing retains early envelope validation. These results supersede
+PR #33's CodeResources-first assumption, preserving containment, bounds, internal
+write-alias checks, dry runs, strict verification and partial-purge cancellation.
+
+APFS PR #106 merged as `1989afea6a0de3cbfe99930f20ec24b420666db9` at 09:02:26 UTC.
+Its tested head `0820e44cd0e095bf51932359bc42431e495a357a` passed the
+[upstream workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35580019373),
+including a fresh-process regression that reproduced the old first-use race.
+Release Please [PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107)
+passed its [CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35581097944)
+and merged as `3210dbb112d180d5a53232daaaee0752c06d62a3` at 09:27:21 UTC.
+[v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.1) was
+published at 09:27:31 UTC and contains the tested fix. The current follow-up pins
+that release; PR #34's evidence above still describes v0.6.0. The new dependency
+commit requires its own final CI run and artifact audit.
+Other filesystem orders, non-regular signing envelopes, broader permissions and
+diagnostics, executable ACL/birth-time behavior and explicit directory ACL copying
+remain open. D04/WP-02 and the 88-entry inventory retain their partial status.
+
 ### Completion criteria
 
 Completion has several separate meanings:
@@ -455,10 +515,12 @@ are recorded, not resolved. The current total is 88; none of the new entries is 
 <a id="wp-01"></a>
 ## WP-01: Native baseline, source research and inventory closure
 
-**Current state after PR #33:** the initial expanded inventory and writer AST
+**Current state after PR #34:** the initial expanded inventory and writer AST
 are merged; PR #31 added complete `copyfile_stat` AST evidence and SDK flag values
 on both targets. PR #33 re-extracted the same pinned AST and updated its scope for
-the cleanup-failure corpus. [Native inventory](native-inventory.md) describes the
+the cleanup-failure corpus. PR #34 adds the complete signer removal method, bringing
+the writer record to ten methods plus `copyfile_stat` on both targets.
+[Native inventory](native-inventory.md) describes the
 pinned host profile, parser-only evidence, unavailable operation contexts and the missing
 current parser source. Full semantics, ignored-option behavior, wider fixtures
 and later-discovered options remain open.
@@ -512,15 +574,17 @@ explicit. Existing full-parity guards continue to fail until the actual gaps clo
 <a id="wp-02"></a>
 ## WP-02: Bundle writes and wider filesystem metadata preservation
 
-**Current state after PR #33:** standalone Mach-O uses APFS `PrepareReplacement`;
+**Current state after PR #34:** standalone Mach-O uses APFS `PrepareReplacement`;
 bundle main/nested Mach-O uses `PrepareReplacementAt` under an opened `os.Root`.
 Both detach the selected hard-link name. DMGs and existing CodeResources retain
 in-place updates. Signing purges stale regular signature files after each rewritten
 main executable, keeping CodeResources; successful removal empties only the selected signature
 directory and retains it. Stale directories/symlinks now fail at cleanup after
 executable replacement; dry runs preserve them and succeed. Child cleanup failure
-stops the parent commit. New signature directories copy canonical-root stat
-metadata using APFS v0.6.0; existing directories retain theirs. Explicit source ACL
+stops the parent commit. PR #34 adds APFS ASCII hash/collision cleanup order and
+post-commit rejection of non-regular removal envelopes. Its APFS first-use race
+fix is released and pinned at v0.6.1 in this follow-up. New signature directories
+copy canonical-root stat metadata using APFS; existing directories retain theirs. Explicit source ACL
 copying remains outside that profile. Internal write-target hard links remain rejected.
 
 **Delivered in PR #27 and APFS PR #102/v0.5.0:**
@@ -585,14 +649,15 @@ copying remains outside that profile. Internal write-target hard links remain re
   gates. Audit the final artifacts and confirm that the actual merge shares the
   tested source tree. See [merged validation](#merged-pr33).
 
-This is a bounded failure-timing profile. Raw diagnostics, native named-component
-removal ordering beyond CodeResources, enumeration order with multiple stale
-entries and broader permission failures remain open. Non-regular envelopes,
-special files, unreadable subtrees and unsafe names/aliases can still fail early.
+At PR #33, this was a bounded failure-timing profile. Named-component and
+multiple-entry ordering remained open, and non-regular envelopes could fail early.
+PR #34 subsequently delivers the ordering/removal-envelope behavior below;
+broader permissions, raw diagnostics, special files, unreadable subtrees and
+unsafe names/aliases remain outside the claim.
 The final validation and artifact audit are complete for PR #33's tested tree.
 The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
 
-**Current D04 follow-up, awaiting upstream release and final integration:**
+**Delivered in PR #34; released dependency follow-up under validation:**
 
 - [x] Establish native case-insensitive APFS ASCII enumeration order, including
   equal-hash names of different case/length and opposite creation orders.
@@ -604,12 +669,17 @@ The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
   retain early signing validation, containment, bounds and write-alias rejection.
 - [x] Add 278 native tree comparisons across seven layouts, with cancellation and
   entry-limit unit tests. Retain all merged writer/metadata/failure corpora.
-- [ ] Merge/release [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
-  and replace the provisional v0.6.0 pin with that published release. The APFS
+- [x] Pass the three-OS, packaging, race/fuzz and native-import gates on PR #34's
+  tested tree; audit its artifacts and confirm the actual merge has the same tree.
+  These binaries still use APFS v0.6.0. See [merged evidence](#merged-pr34).
+- [x] Merge [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
+  as `1989afea6a0de3cbfe99930f20ec24b420666db9`. The APFS
   regression reproduces the old race in a fresh process and passes after the fix.
   Upstream head `0820e44cd0e095bf51932359bc42431e495a357a` passed its
   [final PR workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35580019373):
   three-OS unit/acceptance execution, the first-use race regression and six builds.
+- [x] Publish v0.6.1 through [APFS release PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107)
+  and replace codesign's provisional v0.6.0 pin in this focused follow-up from main.
 - [ ] Complete final codesign three-OS execution/coverage, package, race/fuzz,
   606-import/88-removal and actual-final-commit artifact audit after the release pin.
 
@@ -641,9 +711,9 @@ alongside executable ACL/birth-time and explicit directory ACL differences.
   unimplemented; the destination's existing/inherited ACL is retained.
 - [ ] Complete signature-file cleanup beyond the regular-file and bounded stale
   directory/symlink failure profiles. PR #33 matches post-replacement
-  rejection and successful dry runs for the latter. The current follow-up covers
-  APFS ASCII named-component ordering and awaits its upstream release pin. Other
-  filesystem orders, special files, broader permissions and raw diagnostic
+  rejection and successful dry runs for the latter. PR #34 delivers
+  APFS ASCII named-component ordering; this follow-up pins its released upstream
+  fix. Other filesystem orders, special files, broader permissions and raw diagnostic
   parity remain open; retain stricter bounds and internal write-alias rejection.
 - [ ] Investigate safe non-cloning filesystem support on Darwin, including HFS+,
   and compressed/protected inputs. Measure native behavior and leave unsupported
@@ -672,7 +742,7 @@ are documented. Standalone alias/hard-link and DMG behavior remain regression ga
 **Touchpoints:** [bundle.go](../pkg/codesign/bundle.go),
 [bundle_tree.go](../pkg/codesign/bundle_tree.go),
 [bundle_writer.go](../pkg/codesign/bundle_writer.go), [io.go](../pkg/codesign/io.go),
-[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.0/pkg/hostmeta).
+[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/hostmeta).
 
 <a id="wp-03"></a>
 ## WP-03: Bundle discovery, path identity and layout coverage
@@ -1378,12 +1448,12 @@ Unrepresentable host filesystem behavior remains an explicit compatibility limit
 **Touchpoints:** [io.go](../pkg/codesign/io.go),
 [bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
 [types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md),
-[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.0/pkg/hostmeta).
+[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/hostmeta).
 
 <a id="wp-17"></a>
 ## WP-17: Wider APFS-backed DMG support and streaming
 
-**Starting point:** codesign directly reuses APFS v0.6.0's UDIF model. Its own
+**Starting point:** codesign directly reuses APFS v0.6.1's UDIF model. Its own
 adapter currently accepts a single-segment version-4 image, flags equal to one,
 a resource plist, bounded non-overlapping ranges and a 1 GiB in-memory profile.
 APFS supporting a broader image format does not mean this signing adapter already
@@ -1432,7 +1502,7 @@ through its public API; no copied disk-image implementation is introduced.
 **Touchpoints:** [dmg.go](../pkg/codesign/dmg.go),
 [io.go](../pkg/codesign/io.go), [DMG guide](dmg-integration.md),
 [DMG evidence](../spec/apple-dmg.json),
-[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.0/pkg/disk).
+[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/disk).
 
 <a id="wp-18"></a>
 ## WP-18: Hybrid/PQC signatures, native signature slots and detached certificates
@@ -1679,7 +1749,7 @@ by increasing test fixtures only slightly beyond the old bound.
 <a id="wp-22"></a>
 ## WP-22: Live-state, key-provider and external-helper blockers
 
-**Current state after PR #33:** eight inventory entries are explicitly blocked:
+**Current state after PR #34:** eight inventory entries are explicitly blocked:
 the original five plus `--remote-signing`, `--signing-dylib` and `CODESIGN_ALLOCATE`.
 D01 records the missing inputs and helper-boundary conflicts in
 [native inventory](native-inventory.md). Pure Go can implement file formats;
@@ -1911,12 +1981,12 @@ row will always fit one PR. Split further by observed behavior when necessary.
 Each implementation slice includes tests, documentation and inventory updates;
 none leaves independent acceptance for a later “testing PR.”
 
-| Slice | Status after PR #33 | Scope and first reviewable result | Dependency / gate |
+| Slice | Status after PR #34 | Scope and first reviewable result | Dependency / gate |
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
-| D02 | Writer, regular cleanup, directory-stat and stale-entry failure corpora merged; wider metadata/failures open | Native bundle writer/metadata probe corpus, including hard links and failure states | D01; isolate existing behavior before changing it |
-| D03 | Root-relative API released in APFS v0.5.0; directory-stat API released in APFS v0.6.0 | Missing shared metadata primitives with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
-| D04 | Mach-O replacement, regular cleanup, directory-stat and stale-entry failure profiles merged; wider metadata/failures open | Post-commit failure profile delivered; APFS ASCII cleanup-order follow-up has 278 native cases and awaits APFS PR #106 release/pin | PR #33 audit complete; follow-up requires final codesign CI/audit after the new dependency pin |
+| D02 | Writer, regular cleanup, directory-stat, stale-entry failure and APFS ordering corpora merged; wider profiles open | PR #34 adds 278 native cases and complete signer-removal AST evidence | D01; isolate each remaining profile before implementation |
+| D03 | Root-relative/directory-stat APIs released; name-hash race fix released in APFS v0.6.1 | Current follow-up pins the published v0.6.1 module | APFS PRs #106/#107 merged; final codesign validation and follow-up merge remain |
+| D04 | Replacement, regular cleanup, directory-stat, stale-entry failure and APFS ordering profiles merged; dependency follow-up under validation | PR #34 delivers 278 ordering comparisons; this follow-up pins APFS v0.6.1 | PR #34 passed CI/audit with v0.6.0; the new pin requires its own final gates |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -1950,14 +2020,27 @@ from PR #32's documentation update. Its implementation, 214 native comparisons,
 three-OS execution, packaging, race/fuzz checks and final artifact audit are
 complete. The actual merge `d322e85` shares the tested source tree.
 
-APFS v0.6.0 remains the released pin; PR #33 needed no upstream change. Its
+APFS v0.6.0 remained the released pin at PR #33, which needed no upstream change. Its
 directory-stat API was delivered through APFS PR #104, merged as
 `b77926ec2b33b178084015f94b5f1e1043401026`; the user published v0.6.0 on 2026-09-21.
 That upstream tested head `59f15729c46ed2cce75c866174f7cb9f81814a34` passed the
 [upstream final workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598).
 Codesign consumes that published API without an APFS replace or workspace.
 
-### Next implementation work after PR #33
+### PR #34 delivery and released dependency follow-up
+
+PR #34 merged the ordering implementation and its 278 native comparisons as
+`f4d7e284f5ce21deeae80890238d1344f155ce72`. Its actual merge shares the tested and
+audited source tree documented [above](#merged-pr34), which still pinned APFS
+v0.6.0. Those historical results do not validate a subsequent dependency change.
+
+APFS PR #106's concurrency fix is now released in v0.6.1 through PR #107. This
+focused follow-up pins the published release and removes obsolete v0.6.0 sums.
+No local APFS replace/workspace is needed. Final three-OS, packaging, race/fuzz,
+native-import and artifact checks must validate this new commit before its merge;
+record those workflow and audit results in the dependency PR.
+
+### Next implementation work after PR #34
 
 Native explicit ACL copying, destination envelope inheritance from those entries,
 broader permissions/failure order, and executable ACL/birth-time differences remain
@@ -1966,14 +2049,15 @@ not add raw syscalls, native binding directives or a helper fallback. Failed sta
 copying can leave an empty or partially updated directory before its envelope and
 executable commit. No feature or work-package status is upgraded to fully verified.
 
-1. Finish the prepared D04/WP-02 APFS ASCII cleanup-order slice after APFS PR #106
-   is merged/released and its release is pinned. Run final codesign gates and audit
-   the final artifacts. Then continue independent probes for executable ACL/creation-time
-   differences, explicit directory ACL copying and remaining filesystem-order,
-   permission and failure behavior. Split these into separately evidenced
-   changes; retain PR #33's 214 failure comparisons alongside the executable,
-   envelope, regular-cleanup and directory-stat matrices. Do not repeat the merged
-   stale-directory/symlink failure-timing implementation.
+1. Finish validation and review of this APFS v0.6.1 dependency follow-up from
+   PR #34's merged main. The release and pin are done; repeat final three-OS coverage,
+   package, race/fuzz and native-import checks and audit the new artifacts.
+   Keep this dependency correction ahead of additional writer or D05 changes.
+   Then continue independent probes for executable ACL/creation-time differences,
+   explicit directory ACL copying and remaining filesystem-order, permission and
+   failure behavior. Retain PR #34's 278 ordering comparisons and PR #33's 214
+   failure comparisons alongside all previous writer/metadata matrices; do not
+   repeat the merged implementations.
 2. If a required general metadata primitive is missing, extend APFS upstream and
    consume its next released API before integrating the dependent writer change.
    Do not repeat the delivered root-relative staging or directory-stat APIs, or
@@ -1986,11 +2070,13 @@ executable commit. No feature or work-package status is upgraded to fully verifi
    expanding them with each added profile. Keep remaining native metadata
    differences explicit until their implementation and acceptance are complete.
 
-The next implementation branch must start from merged `main` containing PR #33's
-`d322e85441e5299e55d687212d79155195010fa1`. PR #32's plan update and PR #33's
-cleanup-failure profile are complete, alongside PR #30's regular-file cleanup and
-PR #31's directory-stat profile. Remaining D04 work requires its own implementation
-and evidence. Merge and release gates still apply.
+The next implementation branch must start from merged `main` containing PR #34's
+`f4d7e284f5ce21deeae80890238d1344f155ce72`. Its ordering implementation and existing-pin
+CI/audit are complete, alongside the previous cleanup and metadata profiles.
+The APFS v0.6.1 dependency follow-up is implemented here; its final validation
+and merge must not be inferred from PR #34's earlier results. Remaining D04
+profiles require their own implementation and evidence. Merge and release gates
+still apply.
 
 ## 7. Common differential acceptance matrix
 
