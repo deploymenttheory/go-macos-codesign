@@ -88,14 +88,16 @@ remain different or unverified. Nothing recursively
 deletes directories or unlinks the rejected symlinks.
 
 Hashing and collision comparison use `go-apfs-v2/pkg/apfs`. Codesign PR #34 merged
-with v0.6.0 still pinned. This follow-up consumes
+with v0.6.0 still pinned. Merged [PR #35](https://github.com/deploymenttheory/go-macos-codesign/pull/35) consumes
 [v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.1), which
 fixes the API's concurrent first-use initialization through
 [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106), released by
 [PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107). Hash values and
-public signatures are unchanged. The dependency commit requires its own final
-codesign CI/artifact audit. No copied hashing implementation or local dependency
-replacement is committed.
+public signatures are unchanged. PR #35 passed its own final codesign CI and
+artifact audit with v0.6.1; its actual merge matches the audited source tree.
+The [implementation plan](implementation_plan.md#merged-pr35) records the final
+workflow and artifact evidence. No copied hashing implementation or local
+dependency replacement is committed.
 
 The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
