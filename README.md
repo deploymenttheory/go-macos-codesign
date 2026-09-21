@@ -184,3 +184,8 @@ This project retains the full-parity objective. Operations that depend on live
 macOS process state, system keychains, or non-exportable hardware keys cannot be
 reported equivalent without access to that state. They remain explicit blockers
 under the requirement that the implementation have no macOS dependency.
+
+## Related Projects
+
+- [go-apfs-v2](https://github.com/deploymenttheory/go-apfs-v2) — Pure Go toolkit for reading, creating, and repacking Apple disk images with APFS and HFS+ support.
+- [go-macos-pkg](https://github.com/deploymenttheory/go-macos-pkg) — Cross-platform Go toolkit for inspecting, building, signing, notarizing, and stapling macOS installer packages.
