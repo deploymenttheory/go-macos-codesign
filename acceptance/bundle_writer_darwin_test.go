@@ -128,7 +128,7 @@ func TestBundleWriterNativeMetadata(t *testing.T) {
 					}
 					record[producer] = map[string]any{"argv": append(args, app), "stdout": out, "stderr": stderr, "exit": status, "before": beforeStat, "after": afterStat, "main_metadata_before": beforeMain, "main_metadata_after": afterMain, "existing_envelope_metadata": beforeEnvelope, "common_metadata_preserved": true, "source_acl_preserved": beforeMain.ACL == afterMain.ACL, "source_birthtime_preserved": beforeMain.Birth == afterMain.Birth}
 				}
-				record["remaining_differences"] = []string{"native executable ACL inheritance", "access-time behavior"}
+				record["remaining_differences"] = []string{"native executable ACL inheritance", "uncovered access-time profiles"}
 				attest(t, record)
 			})
 		}

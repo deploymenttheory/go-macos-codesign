@@ -1,11 +1,22 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-21 after [PR #39](https://github.com/deploymenttheory/go-macos-codesign/pull/39) merged.
+Status: updated 2026-09-21 after [PR #39](https://github.com/deploymenttheory/go-macos-codesign/pull/39)
+and [PR #40](https://github.com/deploymenttheory/go-macos-codesign/pull/40) merged.
 D01/D02's initial evidence, D04 bundle Mach-O replacement, regular stale-file
 cleanup, new signature-directory stat metadata and the bounded failure profile
 for stale directories and symlinks, plus case-insensitive APFS ASCII cleanup
 ordering, signing-envelope failures and Darwin executable creation time, are on `main`.
-Codesign pins released APFS v0.7.0 without a local replace or workspace.
+`main` pins released APFS v0.7.0 without a local replace or workspace.
+
+The next bounded profile, bundle executable access time, is in progress on
+`fix/bundle-access-time`, branched from PR #40's merge `bccf374e`. The shared
+read-access API is in [APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110).
+Its CI passes; merge and release remain pending. Codesign integration currently
+uses isolated development module/workspace overrides. Local full verification,
+294 native access-time comparisons, lint and all six builds pass; library coverage
+is 95.43%, CLI coverage 99.53% and entry-point coverage 100%.
+The committed dependency remains v0.7.0 until the API is released. This profile
+requires fresh codesign CI and artifact validation after pinning that release.
 
 PR #39 adds 210 native creation-time comparisons covering past/future modification
 times, nested code, external hard links and dry runs. Final three-OS execution,
@@ -13,8 +24,8 @@ coverage, packaging, race/fuzz, lint and artifact audits passed; the actual merg
 matches the audited tree. Apple verified all 606 signed imports and 88 removal
 comparisons. [Merged validation](#merged-pr39) records the exact commits and results.
 
-Executable ACL inheritance, explicit signature-directory ACL copying, access-time
-behavior and wider permission/filesystem profiles remain open. Symlinked signing
+Executable ACL inheritance, explicit signature-directory ACL copying, uncovered
+access-time behavior and wider permission/filesystem profiles remain open. Symlinked signing
 envelopes retain the documented containment difference. D04/WP-02 is not complete.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
@@ -643,6 +654,9 @@ The writer record contains ten complete methods plus `copyfile_stat` and SDK fla
 values on both Clang targets. Its twelve constants include the creation-time
 attribute and timestamp layout; its scope includes signing-envelope failures and
 the 210 creation-time comparisons, against the same pinned source.
+The access-time branch adds the complete allocation `mapFile` function and three
+SDK mapping constants: twelve complete functions/methods and fifteen constants on
+both targets, tied to the new bounded native observations.
 [Native inventory](native-inventory.md) describes the
 pinned host profile, parser-only evidence, unavailable operation contexts and the missing
 current parser source. Full semantics, ignored-option behavior, wider fixtures
@@ -862,6 +876,37 @@ remain open alongside executable ACL inheritance and access-time behavior.
   Audit the final artifacts and confirm the actual merge shares the tested tree.
   Keep ACL inheritance, access-time and broader filesystem differences explicit.
   See [merged validation](#merged-pr39).
+
+**In progress: bundle executable access time, APFS PR #110:**
+
+- [x] Establish native source/replacement access behavior and show that the original
+  writer fails the new regression. Preserve source hard-link bytes, write times and
+  identity; leave descendant access unchanged during outer removal.
+- [x] Implement descriptor-based `hostmeta.RecordReadAccess` upstream. Darwin uses a
+  bounded read-only mapping without dereferencing mapped memory; other hosts
+  report unsupported. Test held descriptors, renamed paths, empty/read-only files,
+  attribute-denying ACLs, unchanged metadata and unreadable-descriptor rejection.
+- [x] Pass [APFS CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35607473862)
+  on head `5889b2c96bf06df42ddb5775b31435716daf3313`: three-OS tests/image acceptance,
+  vet, the hash race regression and all six CGO-disabled builds. CI merge
+  `827fd4fb2bfb4ecd0c08e60eb5ea2b791f5224e7` shares head tree
+  `b8993aa84d012da7181eb451aebed6d9f72d7617`. Hosted Darwin tests use macOS 26.6.2
+  arm64; local API/native tests use macOS 27.0 arm64. The PR is ready for review.
+- [x] Add bounded codesign source reads and later staged-replacement access,
+  retaining unsupported-host behavior. Add 294 native comparisons and a
+  read-bound regression, plus complete allocation-mapping Clang evidence.
+- [x] Pass full local verification, lint and six CGO-disabled target builds against
+  the isolated upstream checkout. Coverage is 4,095/4,291 library statements
+  (95.43%), 423/425 CLI statements (99.53%) and 1/1 entry-point statement (100%).
+  Audit all 294 access-time cases, 1,120 retained native metadata/writer cases and
+  586 source/fixture hashes. `artifacts/access-time-development-audit.json` retains
+  this local evidence and exact development overrides; it is not released CI.
+- [ ] Merge APFS PR #110 and publish its Release Please release with user approval.
+  Pin the published version/checksums; remove the development override from all
+  final checks.
+- [ ] Pass final codesign three-OS execution, coverage, packaging, race/fuzz, lint,
+  the 606-import/88-removal gate and artifact audit. Confirm the actual merge
+  shares the tested tree before recording this profile as delivered.
 
 **Implementation tasks:**
 
@@ -2158,12 +2203,12 @@ row will always fit one PR. Split further by observed behavior when necessary.
 Each implementation slice includes tests, documentation and inventory updates;
 none leaves independent acceptance for a later “testing PR.”
 
-| Slice | Status after PR #39 | Scope and first reviewable result | Dependency / gate |
+| Slice | Current status | Scope and first reviewable result | Dependency / gate |
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
-| D02 | Writer, cleanup, directory-stat, failure, ordering, envelope and creation-time corpora merged | PR #39 adds 210 Darwin creation-time comparisons; remaining metadata/failure profiles need evidence | D01; final three-OS and artifact gates passed; platform-specific metadata scope remains explicit |
-| D03 | Root-relative/directory-stat APIs, name-hash race fix and creation-time setter consumed | APFS v0.7.0 is pinned and validated in merged PR #39 | Released-dependency and actual-merge audit gates complete for this profile |
-| D04 | Replacement, cleanup, directory-stat, ordering, envelope and creation-time profiles merged | Next: executable ACL inheritance and access-time behavior, then wider permission profiles | Each additional profile needs native evidence and final CI/artifact validation; D04 remains open |
+| D02 | Prior corpora merged; access-time corpus in progress | 294 Darwin comparisons cover executable reads, replacements and outer-removal preservation | Final released-dependency CI/artifact gates pending; platform-specific scope remains explicit |
+| D03 | APFS v0.7.0 consumed; read-access API in APFS PR #110 | Upstream CI passes; merge/release and codesign pin pending | Validate the published API without a local override before final integration |
+| D04 | Profiles through creation time merged; access-time integration in progress | Finish bounded executable access time, then ACL inheritance and wider profiles | Native evidence plus final CI/artifact validation for each profile; D04 remains open |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -2232,7 +2277,7 @@ validation are on `main`. Actual merge `448c4090` shares the audited source tree
 The [PR #39 milestone](#merged-pr39) records its 210 native comparisons, three-OS
 coverage, packaging, race/fuzz, lint, native-import and artifact results.
 
-### Next implementation work after PR #39
+### Next implementation work after PR #39/#40
 
 Native explicit ACL copying, destination envelope inheritance from those entries,
 broader permissions/failure order, executable ACL inheritance and access-time
@@ -2241,15 +2286,15 @@ implementation does not add raw syscalls, native binding directives or a helper 
 copying can leave an empty or partially updated directory before its envelope and
 executable commit. No feature or work-package status is upgraded to fully verified.
 
-1. Investigate remaining executable ACL inheritance and access-time behavior as
-   separate bounded D04/WP-02 profiles. Retain the 210 creation-time comparisons
-   and every merged writer matrix. Symlinked signing envelopes retain the
-   documented containment difference. Creation-time release and validation gates
-   are complete; do not repeat that profile as outstanding work.
-2. If a required general metadata primitive is missing, extend APFS upstream and
-   consume its next released API before integrating the dependent writer change.
-   Do not repeat the delivered root-relative staging or directory-stat APIs, or
-   weaken their existing contracts to accommodate a new profile.
+1. Merge/release tested APFS PR #110 with user approval and pin its published API.
+   Local access-time validation is complete. Run final codesign CI and artifact checks
+   without the development override. Retain the 210 creation-time comparisons
+   and every merged writer matrix; the new 294-case corpus has a bounded Darwin
+   executable scope and does not complete D04/WP-02.
+2. Investigate executable ACL inheritance and uncovered access-time, permission
+   and filesystem profiles separately. Extend APFS first when a reusable primitive
+   is needed, then consume its released API. Preserve existing API contracts and
+   the documented containment difference for symlinked signing envelopes.
 3. After each defined writer profile passes its native and three-OS gates, proceed
    to D05's first additional path/layout profile, then D06 resource/xattr policy.
    Continue D01 applicability/source research and WP-22 access investigations;
@@ -2258,10 +2303,10 @@ executable commit. No feature or work-package status is upgraded to fully verifi
    expanding them with each added profile. Keep remaining native metadata
    differences explicit until their implementation and acceptance are complete.
 
-The next implementation branch must start from merged `main` containing PR #39's
-`448c4090eda0afc63b8f8def3e671dd85f712e8f`. The creation-time profile, APFS v0.7.0
-integration and actual-merge audit are complete. Remaining D04 profiles require
-their own implementation and evidence. Merge and release gates still apply.
+The access-time branch starts from PR #40's actual merge
+`bccf374efad6f897d25890f5039f552c6923fa18`, including PR #39's delivered creation-time
+profile and APFS v0.7.0 integration. Remaining D04 profiles require their own
+implementation and evidence. Merge and release gates still apply.
 
 ## 7. Common differential acceptance matrix
 

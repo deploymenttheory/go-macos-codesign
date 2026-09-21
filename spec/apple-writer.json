@@ -11,11 +11,12 @@
     "cfInternalFlags": "e7fdf45f199b3a99064abf953bea60555adf26de26d7421ad2b3c8396bb72e6d",
     "commit": "cd38270eb44ea1adf21e033169404c10bb7cf65f800533163152546d405f761d",
     "copyfile_stat": "0626fb24e5a0bc0c0a2f9a06aa4a65d1889d7894233f7cac802a114cc882fdcc",
+    "mapFile": "9159b0e5d5b82bca5b3de567df42eb9820365cdaa20f1e056f8fe12ec3d8ab0b",
     "signer_remove": "21675d1a931928f625e014739341b9d0b211a9dd0d4882f7e6f63698bc9eaa3a",
     "~MachOEditor": "0d70cbae2b34e437c7c2e4af40f4be2f095717f12ca8c6db033d22cdd004c218"
   },
   "schema": 1,
-  "scope": "Ten complete verbatim methods plus copyfile_stat: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME and timespec size. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Explicit ACL copying/inheritance, access-time behavior, other filesystems, broader permissions, raw diagnostics and compression remain open.",
+  "scope": "Ten complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Explicit ACL copying/inheritance, verification/display and standalone access times, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
   "sdk": "MacOSX.sdk",
   "sdk_headers": {
     "copyfile.h": "56f4a00b83f21ac98c818876eb1b3a3eb246d0a7a31e95fddbd1fd21f7c79ff9",
@@ -23,6 +24,7 @@
     "sys/attr.h": "5118b9245bc932bc32dcc60084b1e40d70bb5479a360b31cdbf188ef866deefe",
     "sys/clonefile.h": "1efe4ef4241c360905ecc40092245334725a9f1b208be8886ce87e2538b89cbd",
     "sys/kauth.h": "9c8808c918bb6fb8c4f9854f7c34d7d51b2017de8e19f4bfc67cf82b7553d0b4",
+    "sys/mman.h": "07adbf7f11a601e6461ca508a2deca037103008600608f8dbe93a4b0887d46e9",
     "sys/mount.h": "45872741bb916b92bddd2e562d2047b552af1f68269081a0aeb58a3e5a2b8a51",
     "sys/stat.h": "1546ce7485287bec0d15a643ef5d5f882d21272f2f089fed71c36457e609b92a"
   },
@@ -30,6 +32,10 @@
     "bundlediskrep.cpp": {
       "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "codesign_alloc.cpp": {
+      "sha256": "d76101e6f989374b3a065ca9c9d5fdfc2b8237f05894eda93b43e48f5e04a604",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp"
     },
     "copyfile.c": {
       "sha256": "19f3ad0910f05bb2a6ae982ebdabcc4dc9c911b65ec2d99e75b7c4c52272805c",
@@ -61,6 +67,9 @@
         "DirectorySupportedFlags": "32777",
         "FileSecMagic": "19710317",
         "FileSecSize": "44",
+        "MappingPrivate": "2",
+        "MappingRead": "1",
+        "MappingResilientCodesign": "8192",
         "NoACL": "4294967295",
         "TimeSpecSize": "16"
       },
@@ -480,6 +489,46 @@
             "st_mode": 1,
             "st_mtimespec": 1,
             "st_uid": 1
+          }
+        },
+        "mapFile": {
+          "ast_kinds": {
+            "BinaryOperator": 7,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 4,
+            "CXXConstructExpr": 1,
+            "CallExpr": 9,
+            "CompoundStmt": 4,
+            "DeclRefExpr": 27,
+            "DeclStmt": 3,
+            "FunctionDecl": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 31,
+            "IntegerLiteral": 10,
+            "MemberExpr": 2,
+            "ParenExpr": 4,
+            "ParmVarDecl": 4,
+            "ReturnStmt": 4,
+            "StringLiteral": 3,
+            "UnaryOperator": 5,
+            "VarDecl": 3
+          },
+          "references": {
+            "__error": 2,
+            "close": 1,
+            "errorMessage": 3,
+            "fd": 4,
+            "fileLen": 1,
+            "fstat": 1,
+            "log_error": 3,
+            "mappedAddr": 1,
+            "mmap": 1,
+            "open": 1,
+            "p": 2,
+            "path": 4,
+            "st_size": 2,
+            "stat_buf": 3
           }
         },
         "signer_remove": {
@@ -564,6 +613,9 @@
         "DirectorySupportedFlags": "32777",
         "FileSecMagic": "19710317",
         "FileSecSize": "44",
+        "MappingPrivate": "2",
+        "MappingRead": "1",
+        "MappingResilientCodesign": "8192",
         "NoACL": "4294967295",
         "TimeSpecSize": "16"
       },
@@ -985,6 +1037,46 @@
             "st_uid": 1
           }
         },
+        "mapFile": {
+          "ast_kinds": {
+            "BinaryOperator": 7,
+            "CStyleCastExpr": 2,
+            "CXXBoolLiteralExpr": 4,
+            "CXXConstructExpr": 1,
+            "CallExpr": 9,
+            "CompoundStmt": 4,
+            "DeclRefExpr": 27,
+            "DeclStmt": 3,
+            "FunctionDecl": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 31,
+            "IntegerLiteral": 10,
+            "MemberExpr": 2,
+            "ParenExpr": 4,
+            "ParmVarDecl": 4,
+            "ReturnStmt": 4,
+            "StringLiteral": 3,
+            "UnaryOperator": 5,
+            "VarDecl": 3
+          },
+          "references": {
+            "__error": 2,
+            "close": 1,
+            "errorMessage": 3,
+            "fd": 4,
+            "fileLen": 1,
+            "fstat": 1,
+            "log_error": 3,
+            "mappedAddr": 1,
+            "mmap": 1,
+            "open": 1,
+            "p": 2,
+            "path": 4,
+            "st_size": 2,
+            "stat_buf": 3
+          }
+        },
         "signer_remove": {
           "ast_kinds": {
             "BinaryOperator": 1,
@@ -1056,5 +1148,5 @@
       }
     }
   },
-  "translation_unit_sha256": "9c6998a21ce1e9373025cb706c741af4acb9726369c64949dfebc918e25971b5"
+  "translation_unit_sha256": "ad3d116e576c2fd3bee1d0cf88d87e88a8338c247fec7b34bbd57b5596d7b0df"
 }

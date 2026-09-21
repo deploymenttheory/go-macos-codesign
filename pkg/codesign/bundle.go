@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
 )
 
 const bundleResourcesPath = "Contents/_CodeSignature/CodeResources"
@@ -145,6 +147,14 @@ func (b *appBundle) close() {
 }
 
 func (b *appBundle) read(name string, limit int64) ([]byte, error) {
+	return b.readFile(name, limit, false)
+}
+
+func (b *appBundle) readExecutable(name string, limit int64) ([]byte, error) {
+	return b.readFile(name, limit, true)
+}
+
+func (b *appBundle) readFile(name string, limit int64, recordAccess bool) ([]byte, error) {
 	st, err := b.root.Lstat(name)
 	if err != nil {
 		return nil, err
@@ -164,7 +174,16 @@ func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 	if !os.SameFile(st, current) {
 		return nil, invalid("bundle file changed: %s", name)
 	}
-	return readBounded(f, limit)
+	data, err := readBounded(f, limit)
+	if err != nil {
+		return nil, err
+	}
+	if recordAccess {
+		if err := hostmeta.RecordReadAccess(f); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+			return nil, err
+		}
+	}
+	return data, nil
 }
 
 // scan validates the supported tree, seals resource symlinks without following
@@ -335,7 +354,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err := scope.addChild(); err != nil {
 				return err
 			}
-			data, err := b.read(name, maxFileSize-scope.bytes)
+			data, err := b.readFile(name, maxFileSize-scope.bytes, scope.signatureCleanup && !scope.removingSignature)
 			if err != nil {
 				return err
 			}
@@ -496,7 +515,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.readExecutable(b.executable, maxFileSize)
 	if err != nil {
 		return err
 	}
@@ -570,7 +589,7 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 	if _, _, err = b.scanTree(ctx, scope, 0, ""); err != nil {
 		return err
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.readExecutable(b.executable, maxFileSize)
 	if err != nil {
 		return err
 	}

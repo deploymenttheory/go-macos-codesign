@@ -75,7 +75,7 @@ func TestWriterAST(t *testing.T) {
 		t.Fatal("both writer AST targets required")
 	}
 	for target, facts := range record.Targets {
-		if len(facts.Methods) != 11 {
+		if len(facts.Methods) != 12 {
 			t.Fatalf("missing complete writer methods for %s", target)
 		}
 		if facts.Methods["commit"].References["rename"] != 1 || facts.Methods["commit"].References["copy"] != 2 || facts.Methods["~MachOEditor"].References["remove"] != 1 {
@@ -107,10 +107,16 @@ func TestWriterAST(t *testing.T) {
 				t.Fatalf("missing directory stat control flow %s for %s", call, target)
 			}
 		}
+		for _, call := range []string{"open", "fstat", "mmap", "close"} {
+			if facts.Methods["mapFile"].References[call] != 1 {
+				t.Fatalf("missing allocation mapping control flow %s for %s", call, target)
+			}
+		}
 		for name, value := range map[string]string{
 			"DirectoryCopyStat": "2", "DirectoryCopySecurity": "3",
 			"DirectorySupportedFlags": "32777", "DirectoryOmitFlags": "1573056",
 			"DirectoryPreserveFlags": "1572992",
+			"MappingRead":            "1", "MappingPrivate": "2", "MappingResilientCodesign": "8192",
 		} {
 			if facts.Constants[name] != value {
 				t.Fatalf("directory SDK constant %s = %q for %s; want %s", name, facts.Constants[name], target, value)
