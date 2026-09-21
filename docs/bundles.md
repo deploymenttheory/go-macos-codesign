@@ -309,7 +309,10 @@ suffix (or load-command hash fallback). Embedded Mach-O Info.plist identifier
 discovery remains outside this profile. Nested apps default to their own
 CFBundleIdentifier. An explicit identifier override applies throughout the tree.
 
-All child and parent outputs are constructed before writing any file. A dry run
+All child and parent outputs are constructed with ordinary bounded reads before
+writing any file. Executable access is recorded when allocation starts; preserved
+children, shallow descendants and already-signed rejection remain unmapped.
+Ancestors blocked by an allocation failure also retain their access times. A dry run
 still seals the child bytes on disk, matching native behavior: `--deep --dryrun`
 fails for an unsigned on-disk child and preserves every input. Removal affects
 only the outer executable and envelope, even with `--deep`.

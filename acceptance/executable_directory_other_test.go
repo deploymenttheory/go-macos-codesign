@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
-func executableDirectoryAccess(_ *testing.T, _, _, _ os.FileInfo, _, _, _ bool, _, _ time.Time) map[string]any {
+func executableDirectoryUnaccessed(_, _ os.FileInfo) bool { return false }
+
+func executableDirectoryAccess(_ *testing.T, _, _, _ os.FileInfo, _ bool, _, _ time.Time) map[string]any {
 	return nil
 }

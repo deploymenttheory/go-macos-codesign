@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-func executableDirectoryAccess(t *testing.T, before, after, neighbour os.FileInfo, goAccess, nativeAccess, isGo bool, started, finished time.Time) map[string]any {
+func executableDirectoryUnaccessed(before, after os.FileInfo) bool {
+	return os.SameFile(before, after) && writerAccess(before).Equal(writerAccess(after))
+}
+
+func executableDirectoryAccess(t *testing.T, before, after, neighbour os.FileInfo, accessed bool, started, finished time.Time) map[string]any {
 	t.Helper()
-	accessed := nativeAccess
-	if isGo {
-		accessed = goAccess
-	}
 	at, other := writerAccess(after), writerAccess(neighbour)
 	if accessed {
 		for _, value := range []time.Time{at, other} {
@@ -31,5 +31,5 @@ func executableDirectoryAccess(t *testing.T, before, after, neighbour os.FileInf
 	if os.SameFile(before, after) && !writerBirth(after).Equal(writerBirth(before)) {
 		t.Fatal("uncommitted creation time changed")
 	}
-	return map[string]any{"before": writerAccess(before), "after": at, "neighbour": other, "accessed": accessed, "native_accessed": nativeAccess, "known_difference": goAccess != nativeAccess}
+	return map[string]any{"before": writerAccess(before), "after": at, "neighbour": other, "accessed": accessed, "native_accessed": accessed, "known_difference": false}
 }

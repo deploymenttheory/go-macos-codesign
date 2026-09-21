@@ -1,32 +1,34 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-21 after [PR #42](https://github.com/deploymenttheory/go-macos-codesign/pull/42) merged.
-Bundle replacement, signature cleanup, directory stat metadata, bounded failure
-ordering, executable creation time and bounded bundle/standalone access-time
-profiles are on `main`. Codesign retains released APFS v0.8.0 without an APFS
-replace or workspace.
+Status: updated 2026-09-21 after [PR #43](https://github.com/deploymenttheory/go-macos-codesign/pull/43)
+and [PR #44](https://github.com/deploymenttheory/go-macos-codesign/pull/44) merged.
+Executable-directory allocation checks, partial commits and dry-run cleanup are on
+`main`, alongside the earlier replacement, metadata and access-time profiles.
+Codesign retains released APFS v0.8.0 without an APFS replace or workspace.
 
-PR #42's 216 standalone Mach-O, 168 bundle read-only and 80 DMG access-time
-comparisons pass. Final three-OS coverage, packaging, race/fuzz, lint and artifact
-audits pass; the actual merge matches the tested tree. Apple verifies all 606
-signed imports and matches all 88 removal outputs.
-[Verified delivery](#merged-pr42) records the exact source and validation evidence.
+PR #44's 624 POSIX comparisons, three-OS coverage, packaging, lint, race/fuzz and
+artifact audit pass. Its actual merge matches the tested tree. Apple verifies all
+606 signed imports and matches all 88 removal outputs.
+[Verified delivery](#merged-pr44) records the exact evidence.
 
-The active D04/WP-02 slice on `fix/executable-directory-permissions` implements
-readable/searchable executable-directory allocation checks and failure ordering.
-Mach-O dry runs allocate then discard; allocation failures retain independent
-sibling commits and the failed bundle envelope while preventing ancestor writes.
-The 624-case POSIX matrix retains explicit failed/shallow access-time differences.
-Final implementation validation is recorded in its PR. Private staging, physical
-alias resolution and held-root containment remain intact.
+The active D04/WP-02 slice on `fix/bundle-access-order` moves bundle source access
+recording from planning to executable allocation. Preserved descendants, shallow
+children, already-signed rejection and ancestors blocked by allocation failure now
+retain access times. The 624-case directory matrix no longer allows its 216 planning-read
+access differences; 252 additional native cases cover selective signing and
+rejection across seven layouts, three architectures and past/future timestamps.
+Thirty-six failure-boundary cases record the remaining envelope/cleanup and
+unsigned-child dry-run differences. Native exception-aware dispatch can leave an
+independent sibling unstarted after another child fails; the matrix records that
+scheduling difference and verifies the complete untouched subtree. Final validation
+is recorded in the implementation PR.
 
-Executable ACL inheritance, explicit signature-directory ACL copying, uncovered
-access-time behavior and wider filesystem profiles remain open. Supported wrappers
-lack an ACL reader; cloning a parent also clones its children and cannot safely
-serve as an ACL-only snapshot. The 20 DMG dry-run cases record a separate gap:
-native writes bytes and modification time in place while Go preserves both.
-Symlinked signing envelopes retain the documented containment difference.
-D04/WP-02 is not complete. Releases still require approval.
+Inaccessible-directory discovery/removal, broader failure ordering, executable ACL
+inheritance and explicit signature-directory ACL copying remain open. Supported
+wrappers lack an ACL reader; cloning a parent also clones its children. Native DMG
+dry runs still change bytes and modification time while Go preserves both.
+Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
+complete; merge and release remain maintainer gates.
 
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
 eight blocked and zero fully verified. No feature status was upgraded merely
@@ -35,7 +37,8 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
 [PR #34 evidence](#merged-pr34), [PR #35 evidence](#merged-pr35),
 [PR #36/#37 evidence](#merged-pr37), [PR #39 evidence](#merged-pr39),
-[PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42) and the
+[PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42),
+[PR #43/#44 evidence](#merged-pr44) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -538,6 +541,45 @@ Full local native verification, lint and six target builds also pass. Both Clang
 targets retain twelve complete functions/methods and fifteen constants. This
 bounded profile adds no foreign import archives or inventory status upgrades.
 
+<a id="merged-pr44"></a>
+### Merged milestones: PR #43 and PR #44 (2026-09-21)
+
+PR #43 records PR #42's delivery. PR #44 checks Mach-O dry-run allocation and
+retains independent sibling commits after executable allocation permission
+failures, while preserving the failed executable and preventing ancestor writes.
+
+| Item | Delivered evidence |
+| --- | --- |
+| PR #43 documentation merge | `e8f795d3c6ed97c27de6637cda6f05cc447a8c0b`, 18:45:17 UTC |
+| PR #44 actual merge | `989b5c557369dc981041e7649da7223c96511791`, 18:45:42 UTC |
+| Tested PR head | `24a1d0106a8386ed20d301c61e204251f08acb53` |
+| Tested CI merge | `ab21b73fc1fe631a38c0ef123ded4f20d86f54e3` |
+| Audited tree | `1f20e8e7df3e290b31f89f25e8ddaeed20cabbaf`, shared by the tested head, CI merge and actual merge |
+| Shared dependency | Released APFS v0.8.0 retained; no new API, release or override |
+| Native directory profile | 624 POSIX comparisons, seven operand/tree shapes, three architectures, directory modes 0755/0555 and file modes 0755/0551 |
+| Failure controls | Twelve real creation-denial unit cases on each OS, including Windows DACLs; dry-run cancellation and Darwin metadata-denial checks |
+
+[Final compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35624914979)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35624915130)
+pass. Audited coverage is:
+
+| Runner | Library statements | CLI statements | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 4,129/4,334, 95.27% | 417/425, 98.12% | 1/1, 100% |
+| Windows 2025 | 4,124/4,334, 95.15% | 417/425, 98.12% | 1/1, 100% |
+| macOS 27 | 4,137/4,334, 95.45% | 423/425, 99.53% | 1/1, 100% |
+
+All six packaged targets, race detection and nine fuzz targets pass. The audit
+matches 592 source/fixture hashes per OS, seventeen expected Windows text
+conversions and twelve archive/SBOM checksums. Packaged binaries contain the
+released dependency, disabled CGO and the exact CI revision. Apple verifies all
+606 imports and matches 88 removal outputs. The 464 PR #42 controls, 294 bundle
+access-time cases, 210 creation-time cases and earlier writer matrices remain passing.
+Full local verification, lint and six target builds pass. The writer AST contains
+fourteen complete functions/methods on two targets. At this milestone, 216 directory
+cases retained explicit read-access differences; the current slice addresses them.
+No inventory or work-package status was upgraded.
+
 ### Completion criteria
 
 Completion has several separate meanings:
@@ -1005,7 +1047,7 @@ remain open alongside executable ACL inheritance and access-time behavior.
   exact-artifact audit. Merge PR #42 as `8c7c68fc` and confirm its tree matches the
   tested head and CI merge. See [verified delivery](#merged-pr42).
 
-**Current executable-directory permission slice:**
+**Delivered in PR #44: executable-directory permission slice:**
 
 - [x] Reproduce incorrect dry-run success and missing partial commits against the
   merged implementation before applying the fix.
@@ -1021,11 +1063,28 @@ remain open alongside executable ACL inheritance and access-time behavior.
 - [x] Extend the two-target writer AST to complete allocation and global-populate
   methods; review pinned signing/resource-dispatch call sites. Use released APFS
   v0.8.0 with no new shared API or development override.
-Final review requires local and three-OS validation, six-target packaging, lint,
-race/fuzz, retained native matrices, the 606-import/88-removal gate and an exact
-artifact audit. The implementation PR records the tested commit and each result.
+- [x] Pass final local and three-OS validation, six-target packaging, lint,
+  race/fuzz, retained matrices, native imports and exact-artifact audit. Confirm
+  the actual PR #44 merge shares the tested tree. See [verified delivery](#merged-pr44).
 
+**Current bundle allocation-access slice:**
+
+- [x] Reproduce six selective-signing access regressions against merged PR #44
+  after independently passing each native expectation.
+- [x] Keep ordinary planning reads unmapped; record source access on the held
+  descriptor immediately before allocation. Preserve bounds, identity checks,
+  private staging, existing cancellation behavior and released APFS v0.8.0.
+- [x] Require read-access parity for dispatched work in all 624 directory cases;
+  explicitly verify native undispatched siblings remain wholly unchanged. Add 252 selective
+  signing/rejection cases and 36 explicit failure-boundary cases, retaining the
+  294 bundle-access and 464 standalone/read-only/DMG controls.
+- [x] Extract the complete native allocator on both Clang targets, recording input
+  mapping before output creation and declaring all private helper/cleanup shims.
 - [ ] Obtain maintainer merge approval and confirm the actual merge tree.
+
+Final review requires local and three-OS validation, packaging, lint, race/fuzz,
+the 606-import/88-removal gate and an exact-artifact audit. The implementation PR
+records the tested commit and each result.
 
 **Implementation tasks:**
 
@@ -1036,8 +1095,9 @@ artifact audit. The implementation PR records the tested commit and each result.
   corpus to the remaining metadata, permission and failure profiles.
 - [ ] Extend executable-directory permission and failure ordering beyond the
   current readable/searchable 0755/0555 profile. Inaccessible directories still
-  expose discovery/removal differences. Failed ancestors and shallow descendants
-  have explicit read-access differences; wider asynchronous failure combinations,
+  expose discovery/removal differences. Allocation-blocked ancestors and shallow descendants are covered by the current
+  access slice. Envelope/cleanup failures and unsigned-child dry runs retain
+  explicit differences; wider asynchronous failure combinations,
   other filesystems and raw diagnostic parity remain unproven.
 - [ ] Include internal/external hard links, read-only files, inherited directory
   ACLs, signed/unsigned inputs and an existing signature directory. Do not assume
@@ -2335,9 +2395,9 @@ none leaves independent acceptance for a later “testing PR.”
 | Slice | Current status | Scope and first reviewable result | Dependency / gate |
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
-| D02 | Corpora through standalone access time merged | PR #42 adds 464 native cases, including 20 explicit DMG dry-run differences; wider profiles need evidence | Final released-dependency CI/artifact gates pass for the delivered profile |
+| D02 | Corpora through executable-directory permissions merged | PR #44 adds 624 native cases; selective bundle access is in progress | Final released-dependency CI/artifact gates pass for the delivered profile |
 | D03 | Read-access API released and consumed as APFS v0.8.0 | Published implementation, codesign CI and actual merge are audited | Additional reusable metadata APIs require their own upstream release |
-| D04 | Bundle and standalone access-time profiles merged | In progress: readable/searchable executable-directory permissions and failure ordering; inaccessible parents, ACL and wider profiles remain open | Preserve private staging and supported APIs; final native/CI gates for each profile |
+| D04 | Executable-directory permissions and partial commits merged | In progress: selective bundle allocation access; inaccessible parents, later failures, ACL and wider profiles remain open | Preserve private staging and supported APIs; final native/CI gates for each profile |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -2419,29 +2479,36 @@ Standalone access-time behavior, read-only controls and final validation are on
 [PR #42 milestone](#merged-pr42) records all 464 new cases and the retained gates.
 The dependency remains released APFS v0.8.0.
 
-### Active implementation work after PR #42
+### Completed PR #43 and PR #44 delivery
 
-`fix/executable-directory-permissions` starts from the actual PR #42 merge
-`8c7c68fc16a20e6f9621364d631f00f083b276d9` and carries PR #43's progress update.
-Merge the documentation prerequisite before the implementation PR.
+The progress update and executable-directory implementation are on `main`.
+PR #44's actual merge shares the audited tree recorded [above](#merged-pr44).
+The dependency remains released APFS v0.8.0; all native and portable gates pass.
 
-1. Complete the final gates for the readable/searchable executable-directory
-   profile. The implementation checks temporary allocation during Mach-O dry runs,
-   retains independent sibling commits after permission denial and prevents
-   ancestor commits. Native writes the failed bundle's envelope before allocation;
-   its executable and stale sidecars remain unchanged. The 624-case matrix covers
-   first/last sibling, grandchild and bare-helper failures with external hard links.
-2. Retain the 464 PR #42 cases, 294 bundle access-time cases, 210 creation-time
+### Active implementation work after PR #44
+
+`fix/bundle-access-order` starts from PR #44's actual merge
+`989b5c557369dc981041e7649da7223c96511791`. The implementation uses ordinary bounded
+reads while constructing signatures and records source access only when an
+executable reaches allocation. No additional APFS API or release is required.
+
+1. Complete the selective bundle-access gates. All 624 directory cases assert
+   matching access effects for dispatched work, including the 216 planning-read
+   differences. Native undispatched siblings retain explicit scheduling differences,
+   with complete subtree and metadata checks. Add 252
+   native comparisons for shallow signing, preserved children and already-signed
+   rejection, plus 36 cases that explicitly retain later-failure differences.
+2. Retain the 464 PR #42 controls, 294 bundle access-time cases, 210 creation-time
    cases and existing writer matrices. Require three-OS coverage, six-target
-   packaging, lint, race/fuzz, the 606-import/88-removal gate and exact-artifact audit.
-   No additional APFS release is required; v0.8.0 remains pinned without overrides.
-3. Address failed/shallow executable access ordering and inaccessible-directory
-   discovery/removal in separately evidenced profiles. Native resource signing
-   dispatches sibling work asynchronously; this profile does not establish all
-   scheduling outcomes or competing failures. Preserve supported APIs and containment.
-4. Keep ACL inheritance/copying, wider filesystems and WP-17's DMG dry-run difference
-   explicit. Continue D05 path/layout and D06 resource/xattr work as separate slices.
-   Preserve all 88 inventory statuses; this profile does not complete D04/WP-02.
+   packaging, lint, race/fuzz, 606 imports, 88 removals and exact-artifact provenance.
+3. Address access effects around envelope writes and cleanup, then unsigned-child
+   dry-run allocation. Native cleanup failure leaves the replacement's copied
+   source access time; Go still records a later replacement access. Broader planning
+   failures and asynchronous sibling outcomes require their own native evidence.
+4. Investigate inaccessible-directory discovery/removal separately. Keep ACL
+   inheritance/copying, wider filesystems and WP-17's DMG dry-run difference explicit.
+   Continue D05 path/layout and D06 resource/xattr work in separate slices. Preserve
+   all 88 inventory statuses; this profile does not complete D04/WP-02.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,
