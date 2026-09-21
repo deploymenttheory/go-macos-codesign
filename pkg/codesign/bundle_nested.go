@@ -34,14 +34,22 @@ type bundleWriteKind uint8
 const (
 	bundleMachOWrite bundleWriteKind = iota
 	bundleResourceWrite
-	bundleSignatureCleanup
+)
+
+type bundleCleanup uint8
+
+const (
+	bundleCleanupNone bundleCleanup = iota
+	bundleCleanupKeepResources
+	bundleCleanupRemoveAll
 )
 
 type bundleWrite struct {
-	name   string
-	data   []byte
-	bundle *appBundle
-	kind   bundleWriteKind
+	name    string
+	data    []byte
+	bundle  *appBundle
+	kind    bundleWriteKind
+	cleanup bundleCleanup
 }
 
 func nestedSignature(data []byte) (*Report, int, error) {

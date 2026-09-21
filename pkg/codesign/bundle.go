@@ -576,8 +576,5 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 	if err != nil {
 		return err
 	}
-	if err := b.write(ctx, b.executable, out, false); err != nil {
-		return err
-	}
-	return b.purgeSignatureFiles(ctx, false)
+	return commitBundleWrites(ctx, []bundleWrite{{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupRemoveAll}})
 }

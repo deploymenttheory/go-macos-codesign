@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Refresh a committed bundle executable's access time only after signature cleanup
+  succeeds. Cleanup failures retain copied source access for signing and removal;
+  completed descendants retain later access. Add 504 native comparisons and
+  committed-inode/cancellation guards. Keep source-read and unsigned-child dry-run
+  differences explicit.
+
 - Record bundle executable access at allocation instead of during planning.
   Preserve access times for shallow/preserved children, already-signed rejection
   and ancestors blocked by allocation failures. Require matching access for dispatched work in the 624

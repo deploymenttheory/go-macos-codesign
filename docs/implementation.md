@@ -11,10 +11,11 @@ D04 replacement, cleanup ordering, directory stat, envelope failure and bundle
 creation/access-time profiles are merged. PR #42 adds standalone Mach-O access-time
 parity with bundle read-only and DMG controls, retaining released APFS v0.8.0.
 PR #44 delivers dry-run allocation checks and independent sibling commits after
-allocation failures, with 624 POSIX comparisons. The current D04 slice records
-bundle source access at allocation, preserving shallow/preserved children and
-blocked ancestors. It adds selective-signing and explicit later-failure evidence.
-Inaccessible directories, envelope/cleanup access ordering, unsigned-child dry
+allocation failures, with 624 POSIX comparisons. PR #45 records bundle source
+access at allocation, preserving shallow/preserved children and blocked ancestors.
+The current D04 slice refreshes replacement access only after successful signature
+cleanup, with 504 native cases and retained failure-boundary evidence.
+Inaccessible directories, envelope/cleanup source-access ordering, unsigned-child dry
 runs, ACL inheritance/copying and native DMG dry-run writes remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
@@ -54,9 +55,10 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 ## Next implementation sequence
 
-1. **Complete bounded filesystem profiles:** validate selective bundle allocation
-   access and retain the merged metadata/writer matrices. Address later commit
-   failures and unsigned-child dry runs, then inaccessible-directory behavior.
+1. **Complete bounded filesystem profiles:** validate replacement access after
+   signature cleanup and retain the merged metadata/writer matrices. Address source
+   access around later commit failures and unsigned-child dry runs, then
+   inaccessible-directory behavior.
    Investigate supported ACL APIs without relaxing private staging;
    keep WP-17's DMG dry-run writes explicit until independently implemented.
    Follow the detailed [D04 delivery plan](implementation_plan.md#delivery-status).

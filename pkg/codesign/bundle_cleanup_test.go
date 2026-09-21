@@ -88,8 +88,7 @@ func TestBundleCleanupFailureAfterExecutableCommit(t *testing.T) {
 	bundleFile(t, app, "Contents/_CodeSignature/directory/keep", []byte("retained"))
 	writes := []bundleWrite{
 		{name: b.resourcesPath(), data: []byte("envelope committed first"), bundle: b, kind: bundleResourceWrite},
-		{name: b.executable, data: []byte("executable committed second"), bundle: b},
-		{bundle: b, kind: bundleSignatureCleanup},
+		{name: b.executable, data: []byte("executable committed second"), bundle: b, cleanup: bundleCleanupKeepResources},
 		{name: other.executable, data: []byte("not committed"), bundle: other},
 	}
 	if err := commitBundleWrites(context.Background(), writes); !errors.Is(err, ErrUnsupported) {

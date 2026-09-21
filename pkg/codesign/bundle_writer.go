@@ -17,6 +17,7 @@ import (
 type preparedBundleExecutable struct {
 	write       bundleWrite
 	original    os.FileInfo
+	staged      os.FileInfo
 	replacement *hostmeta.RootReplacement
 }
 
@@ -86,16 +87,8 @@ func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (
 			continue
 		}
 		if p := prepared[i]; p != nil {
-			if err := p.commit(); err != nil {
+			if err := p.commit(ctx); err != nil {
 				return err
-			}
-			continue
-		}
-		if write.kind == bundleSignatureCleanup {
-			if !failed[write.bundle] {
-				if err := write.bundle.purgeSignatureFiles(ctx, true); err != nil {
-					return err
-				}
 			}
 			continue
 		}
@@ -302,12 +295,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err := r.RestoreMetadata(); err != nil {
 		return nil, err
 	}
-	// Record access on the replacement itself; source hard links retain their
-	// own read-access time after this staged inode is committed.
-	if err := hostmeta.RecordReadAccess(r.File); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+	if err := r.File.Sync(); err != nil {
 		return nil, err
 	}
-	if err := r.File.Sync(); err != nil {
+	staged, err := r.File.Stat()
+	if err != nil {
 		return nil, err
 	}
 	if err := r.File.Close(); err != nil {
@@ -316,10 +308,10 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err := source.Close(); err != nil {
 		return nil, err
 	}
-	return &preparedBundleExecutable{write: write, original: st, replacement: r}, nil
+	return &preparedBundleExecutable{write: write, original: st, staged: staged, replacement: r}, nil
 }
 
-func (p *preparedBundleExecutable) commit() error {
+func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 	root := p.write.bundle.root
 	current, err := root.Lstat(p.write.name)
 	if err != nil {
@@ -328,5 +320,42 @@ func (p *preparedBundleExecutable) commit() error {
 	if !os.SameFile(p.original, current) {
 		return fmt.Errorf("bundle write target changed")
 	}
-	return root.Rename(p.replacement.Path, p.write.name)
+	if err := root.Rename(p.replacement.Path, p.write.name); err != nil {
+		return err
+	}
+	if p.write.cleanup != bundleCleanupNone {
+		if err := p.write.bundle.purgeSignatureFiles(ctx, p.write.cleanup == bundleCleanupKeepResources); err != nil {
+			return err
+		}
+	}
+	return p.recordReadAccess()
+}
+
+// Refresh the committed inode only after its signature cleanup succeeds.
+// Failed cleanup retains the replacement's copied source access time.
+func (p *preparedBundleExecutable) recordReadAccess() error {
+	root := p.write.bundle.root
+	current, err := root.Lstat(p.write.name)
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(p.staged, current) {
+		return fmt.Errorf("committed bundle executable changed")
+	}
+	file, err := root.Open(p.write.name)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	current, err = file.Stat()
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(p.staged, current) {
+		return fmt.Errorf("committed bundle executable changed")
+	}
+	if err := hostmeta.RecordReadAccess(file); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		return err
+	}
+	return file.Close()
 }

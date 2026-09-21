@@ -6,34 +6,32 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current bundle allocation-access slice
+## Current replacement-access cleanup slice
 
-Bundle planning uses ordinary bounded reads. Source access is recorded immediately
-before executable allocation, preserving timestamps on shallow children, preserved
-signed descendants, already-signed rejection and allocation-blocked ancestors.
-The 624 directory cases require matching access effects for dispatched work. Native
-undispatched siblings are recorded separately and must retain their complete subtree
-and executable metadata; Go completes independent siblings. Another 252 new
-native cases cover selective signing and rejection across seven layouts, three
-architectures and past/future timestamps.
+Bundle signing and removal refresh the committed executable's access time only
+after its signature cleanup succeeds. Cleanup failures retain the copied source
+access time; completed descendants keep their later access. The writer validates
+the committed inode through the held root before recording access.
 
-Thirty-six failure-boundary cases record remaining envelope/cleanup and unsigned-
-child dry-run differences, including copied replacement access after native cleanup
-failure. The source AST adds the complete allocator for fifteen methods/functions
-on two targets. The implementation retains released APFS v0.8.0 without new APIs.
+The new 504-case native matrix covers seven layouts, three architectures,
+past/future access, directory/symlink cleanup failures and six operations. The
+existing 36 failure-boundary cases require replacement-access parity while
+retaining explicit source-read and unsigned-child dry-run differences. Changed-
+target and cleanup-cancellation tests protect the commit boundary. The AST now
+contains sixteen complete writer/controller functions and methods on two targets.
 Final per-commit validation is recorded in the implementation PR.
 
-Merged [PR #44](https://github.com/deploymenttheory/go-macos-codesign/pull/44)
-delivers executable-directory allocation checks, independent sibling commits and
-dry-run cleanup. Its actual merge matches the tested tree; three-OS CI, all six
-packages, race/fuzz, 606 native imports and 88 removal comparisons pass. The
-[implementation plan](implementation_plan.md#merged-pr44) records the exact evidence,
-including PR #43's documentation merge. Earlier native matrices remain required.
+Merged [PR #45](https://github.com/deploymenttheory/go-macos-codesign/pull/45)
+delivers selective allocation access with 252 new native cases and the 624-case
+directory matrix. Its actual merge matches the audited tree; three-OS CI, six
+packages, race/fuzz, 606 signed imports and 88 removals pass. The
+[implementation plan](implementation_plan.md#merged-pr45) records exact evidence.
+Released APFS v0.8.0 remains pinned without a replacement or workspace.
 
-Later commit failures, unsigned-child dry runs, inaccessible directories, wider
-asynchronous behavior, ACL inheritance/copying and DMG dry-run writes remain open.
-[file writes](file-writes.md) records the limits. All 88 inventory statuses and
-D04/WP-02 remain partial or outstanding.
+Source access around later envelope/cleanup failures, unsigned-child dry runs,
+inaccessible directories, asynchronous sibling behavior, ACL inheritance/copying
+and DMG dry-run writes remain open. [File writes](file-writes.md) records the
+limits. All 88 inventory statuses and D04/WP-02 remain partial or outstanding.
 
 ## Delivered milestones
 
