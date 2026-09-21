@@ -14,7 +14,8 @@ The merged failure profile adds 214 native comparisons; it does not close D04.
 Further writer profiles precede D05. This slice required no new APFS API or release.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
-The current follow-up prepares D04's case-insensitive APFS ASCII cleanup-order
+The current follow-up in [draft PR #34](https://github.com/deploymenttheory/go-macos-codesign/pull/34)
+prepares D04's case-insensitive APFS ASCII cleanup-order
 profile, with 278 new native comparisons and complete signer-removal AST evidence.
 It corrects the earlier CodeResources-first assumption. Its shared hashing API
 needs the concurrency fix in [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106).
@@ -606,6 +607,9 @@ The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
 - [ ] Merge/release [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
   and replace the provisional v0.6.0 pin with that published release. The APFS
   regression reproduces the old race in a fresh process and passes after the fix.
+  Upstream head `0820e44cd0e095bf51932359bc42431e495a357a` passed its
+  [final PR workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35580019373):
+  three-OS unit/acceptance execution, the first-use race regression and six builds.
 - [ ] Complete final codesign three-OS execution/coverage, package, race/fuzz,
   606-import/88-removal and actual-final-commit artifact audit after the release pin.
 

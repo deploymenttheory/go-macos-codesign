@@ -11,9 +11,10 @@ import (
 
 // Observed from native APFS enumeration and codesign failures, independently of
 // the production hash API. n23 precedes CodeResources. Both collision pairs
-// require name comparison; N100200/n22934 also differ in case and length.
+// require name comparison; n100200/N22934 differ in case and length, with raw
+// ASCII order opposite to the observed case-folded order.
 var signatureCleanupOrder = []string{
-	"n23", "CodeResources", "N100200", "n22934", "collision-17818", "collision-30606",
+	"n23", "CodeResources", "n100200", "N22934", "collision-17818", "collision-30606",
 	"CodeDirectory", "CodeEntitlements", "CodeTopDirectory", "CodeSignature",
 	"CodeEntitlementsDER", "aaa", "CodeLaunchConstraintResponsible", "000-first",
 	"CodeLaunchConstraintParent", "CodeLibraryConstraint", "CodeRequirements",
@@ -25,7 +26,7 @@ func TestBundleSignatureCleanupOrder(t *testing.T) {
 		badNames := signatureCleanupOrder
 		operations := []string{"remove", "resign"}
 		if layout != "app" {
-			badNames = []string{"n23", "CodeResources", "N100200", "collision-30606"}
+			badNames = []string{"n23", "CodeResources", "n100200", "collision-30606"}
 		} else {
 			operations = append(operations, "remove-unsigned", "dryrun", "verify")
 		}
