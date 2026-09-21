@@ -6,19 +6,19 @@ Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.5.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.5.0/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostmeta` in v0.6.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.0/pkg/hostmeta).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0, which this module pins. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.6.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
-The directory-stat follow-up on this development branch additionally requires
-`CopyDirectoryStat` from [APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104).
-It is tested locally with an external Go workspace. The dependency must be
-released and pinned before this branch can build without that workspace or merge;
-`go.mod` still records the released v0.5.0 replacement baseline.
+`CopyDirectoryStat` comes from [merged APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104),
+released in [v0.6.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0).
+The published module is pinned directly; no development workspace or APFS replace
+directive is required. Its [final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598)
+passed three-OS execution and all six CGO-disabled builds.
 
 On macOS the new replacement path uses the supported x/sys libSystem wrappers
 `Fclonefileat`, `Setattrlist` and `Fchflags`, with CGO disabled. Its private staging
@@ -137,8 +137,8 @@ envelope inheritance. They assert the explicit-source-ACL difference rather than
 claiming full security parity. Unit tests cover held roots with pathname decoys,
 cancellation, metadata failure before executable commit and staging cleanup.
 The existing 606-import/88-removal gate remains unchanged; these new metadata
-observations do not represent additional foreign artifacts or completed three-OS
-codesign evidence until the released dependency is pinned and CI passes.
+observations do not represent additional foreign artifacts. Codesign three-OS
+evidence for this released pin is recorded separately from upstream API testing.
 
 Bundle acceptance adds 126 comparisons across seven layouts, three architectures
 and six operations, including nested helpers/apps, external executable/envelope
