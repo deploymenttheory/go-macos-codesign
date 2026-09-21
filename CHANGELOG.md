@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Match the bounded Darwin bundle-executable access-time profile for signing,
+  re-signing, outer removal and dry runs. Record source and replacement reads
+  through APFS, preserving external-link bytes and untouched descendants on
+  removal. Add 294 native comparisons and a bounded-read regression.
+  Use the released APFS v0.8.0 read-access API.
+
 - Match Darwin bundle-executable creation time: use a new time capped by
   the source modification time, preserving external hard-link neighbors, existing
   envelopes and dry-run timestamps. Add 210 native comparisons and failure guards.

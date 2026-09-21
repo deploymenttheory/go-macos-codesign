@@ -6,18 +6,18 @@ Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostmeta` in v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.7.0. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.8.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
 `CopyDirectoryStat` comes from [merged APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104),
 released in [v0.6.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0).
-The published module is pinned directly; no development workspace or APFS replace
-directive is required. Its [final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598)
+The directory-stat implementation uses the published module directly. Its
+[final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598)
 passed three-OS execution and all six CGO-disabled builds.
 
 On macOS the new replacement path uses the supported x/sys libSystem wrappers
@@ -48,8 +48,9 @@ the opened bundle root. Internal hard links to writable bundle files remain
 rejected by the structural scan.
 
 Bundle signing stages every executable replacement before any bundle write.
-Preparation and cancellation failures before commit preserve the original tree
-and clean staging directories. Commits proceed descendant-first, with each
+Preparation and cancellation failures before commit preserve original names and
+contents and clean staging directories; executable reads can refresh access time.
+Commits proceed descendant-first, with each
 resource envelope preceding its main executable. Each executable rename checks
 the original file identity again. A later I/O or cancellation failure can leave
 earlier commits in place; this is not whole-tree rollback. Removal replaces only
@@ -114,9 +115,8 @@ The bundle writer does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries;
 our replacement preserves the original ACL. Creation-time updates use the explicit
 `SetCreationTime` API from [merged APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108),
-released and pinned as [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
-The released implementation matches the tested upstream API; no local module
-replacement or workspace is required.
+first released in [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
+The released creation-time implementation matches the tested upstream API.
 
 On Darwin, rewritten bundle executables receive a new creation time capped by an
 earlier source modification time, matching native APFS observations. The timestamp
@@ -126,8 +126,33 @@ remain unchanged. Linux/Windows retain their existing replacement metadata polic
 the shared setter reports unsupported there. Standalone replacement still preserves
 its source creation time. Exact wall-clock timestamps differ between independent
 runs; tests assert the operation interval or exact source modification time.
-Access-time behavior and executable ACL inheritance remain outside this profile.
+Executable ACL inheritance remains outside this profile.
 Mode, owner/group, the tested xattr and supported flags survive both writers.
+
+Access-time recording uses `RecordReadAccess` from
+[merged APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110),
+released and pinned as [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0).
+The published metadata implementation matches the tested upstream API. No APFS
+module replacement or development workspace is required.
+
+On Darwin, signing and re-signing record access on each successfully read bundle
+executable, including nested code. Outer removal records access only on the main
+executable. Dry-run signing records the same source reads without replacing files.
+Source hard links observe that read-access time while retaining their bytes,
+modification time and creation time. Each private replacement records a later
+access time before commit. The source read stays bounded and identity-checked;
+rejected oversized reads do not call the access recorder.
+
+Ordinary reads on the tested APFS volume leave access time unchanged. APFS records
+access through a one-byte, read-only private mapping of the held descriptor, then
+unmaps it without reading mapped memory. This also works for empty files and
+read-only files whose ACL denies attribute writes. The filesystem supplies the
+timestamp; the API does not set one or change unrelated metadata. Other hosts
+report unsupported and retain their existing read/replacement policy.
+Standalone files, display/verification, envelope/resource access times, failed or
+shallow signing and broader filesystem/permission profiles remain outside this
+bounded access-time claim.
+
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
 when selected through the framework root. Only successful creation triggers the
@@ -166,8 +191,9 @@ Re-signing copies the original Mach-O slice before writing the new signature,
 matching Apple's allocation behavior. Existing bytes after the new SuperBlob
 remain within the new allocation; newly allocated bytes start at zero.
 
-Preparation failures and cancellation before commit leave the selected file and its neighbours
-unchanged. Concurrent filesystem mutation and crash-durable transactions are
+Preparation failures and cancellation before commit preserve the selected file's
+and its neighbours' names, bytes and write timestamps; reads may refresh access
+time. Concurrent filesystem mutation and crash-durable transactions are
 not supported; sign a copy if rollback is required.
 
 ## Evidence
@@ -179,7 +205,10 @@ pins the Apple source, SDK headers and complete excerpts, and names every privat
 interface shim. It records metadata copying before rename and temporary-file
 cleanup. It also parses the complete `copyfile_stat` function on both targets,
 using a pinned private flag header and internal flag enum. Its state carrier and
-two helper interfaces are explicit declaration-only shims. This is source analysis,
+two helper interfaces are explicit declaration-only shims. The complete allocation
+`mapFile` function adds Apple's read-only private mapping and three SDK mapping
+constants. Its error logger is a declaration-only shim. Both targets now record
+twelve complete methods/functions and fifteen constants. This is source analysis,
 not execution of Apple's source.
 The signer removal method distinguishes the Mach-O allocate/commit path from the
 generic writer's canonical-slot removal loop. Mach-O commit flushes directly;
@@ -216,6 +245,18 @@ the complete metadata-copy and commit methods. This Darwin-only corpus adds
 metadata observations; the existing portable writer and native-import gates
 continue to check Linux/Windows output. Final per-commit CI and artifact evidence
 is recorded in the implementation PR.
+
+Access-time acceptance adds 294 macOS comparisons: seven layouts, three
+architectures, past/future access times and seven operations (sign, read-only sign,
+re-sign, signed/unsigned removal and signed/unsigned-outer dry runs). Unsigned-outer
+dry runs retain valid nested signatures. Tests snapshot access times before
+reading output bytes or invoking native verification, compare complete trees,
+and check source/replacement identity, external-link bytes, untouched descendant
+times and dry-run preservation. Rewritten access must follow the original inode's
+access; both must fall within the operation. A unit regression enforces read bounds
+before access recording. The original writer fails the new access-time regression.
+These Darwin metadata cases add no foreign import archives. Final per-commit
+validation with the released dependency is recorded in the implementation PR.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale

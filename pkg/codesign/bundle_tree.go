@@ -145,7 +145,7 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 			}
 		}
 	}
-	data, err := child.read(child.executable, maxFileSize-scope.bytes)
+	data, err := child.readFile(child.executable, maxFileSize-scope.bytes, scope.signatureCleanup && !scope.removingSignature)
 	if err != nil {
 		return nil, err
 	}

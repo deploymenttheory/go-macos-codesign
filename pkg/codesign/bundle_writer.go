@@ -250,6 +250,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *prepare
 	if err := r.RestoreMetadata(); err != nil {
 		return nil, err
 	}
+	// Record access on the replacement itself; source hard links retain their
+	// own read-access time after this staged inode is committed.
+	if err := hostmeta.RecordReadAccess(r.File); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		return nil, err
+	}
 	if err := r.File.Sync(); err != nil {
 		return nil, err
 	}

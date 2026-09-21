@@ -1,6 +1,6 @@
 //go:build ignore
 
-// Research only: parse Apple's complete MachOEditor commit and destructor.
+// Research only: parse Apple's complete file-mapping, metadata and writer functions.
 package main
 
 import (
@@ -69,6 +69,7 @@ func main() {
 #include <sys/clonefile.h>
 #include <copyfile.h>
 #include <sys/mount.h>
+#include <sys/mman.h>
 #include <cstring>
 #include <CoreFoundation/CoreFoundation.h>
 #include <TargetConditionals.h>
@@ -129,10 +130,20 @@ enum MetadataConstants : unsigned long long {
  FileSecSize = KAUTH_FILESEC_SIZE(0),
  AttrReferenceSize = sizeof(attrreference_t),
  CreationTimeAttribute = ATTR_CMN_CRTIME,
- TimeSpecSize = sizeof(struct timespec)
+ TimeSpecSize = sizeof(struct timespec),
+ MappingRead = PROT_READ,
+ MappingPrivate = MAP_PRIVATE,
+ MappingResilientCodesign = MAP_RESILIENT_CODESIGN
 };
 `
 	hashes := map[string]string{}
+	allocation := read(".research/apple/codesign_alloc.cpp")
+	mapping := regexp.MustCompile(`(?ms)^static bool mapFile\(.*?^}`).Find(allocation)
+	if len(mapping) == 0 {
+		panic("missing complete allocation mapFile")
+	}
+	hashes["mapFile"] = hash(mapping)
+	unit += "\nvoid log_error(char*&, const char*, ...);\n" + string(mapping) + "\n"
 	for _, name := range []string{"~MachOEditor", "commit"} {
 		excerpt := regexp.MustCompile(`(?ms)^(?:void )?MachOEditor::` + regexp.QuoteMeta(name) + `\(\).*?^}`).Find(source)
 		if len(excerpt) == 0 {
@@ -193,7 +204,7 @@ enum MetadataConstants : unsigned long long {
 		must(json.Unmarshal(run(unit, "clang++", "-target", target, "-isysroot", sdk, "-std=c++17", "-x", "c++", "-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=CodesignWriterResearch", "-"), &ast))
 		methods, constants := map[string]any{}, map[string]string{}
 		walk(ast, func(n node) {
-			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize" || n.Name == "CreationTimeAttribute" || n.Name == "TimeSpecSize" || strings.HasPrefix(n.Name, "Directory")) {
+			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize" || n.Name == "CreationTimeAttribute" || n.Name == "TimeSpecSize" || strings.HasPrefix(n.Name, "Directory") || strings.HasPrefix(n.Name, "Mapping")) {
 				walk(n, func(c node) {
 					if c.Kind == "ConstantExpr" {
 						constants[n.Name] = fmt.Sprint(c.Value)
@@ -223,19 +234,20 @@ enum MetadataConstants : unsigned long long {
 				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 11 || len(constants) != 12 {
+		if len(methods) != 12 || len(constants) != 15 {
 			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
 	}
 	headers := map[string]string{}
-	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h"} {
+	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h", "sys/mman.h"} {
 		headers[path] = hash(read(filepath.Join(sdk, "usr/include", path)))
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope": "Ten complete verbatim methods plus copyfile_stat: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME and timespec size. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Explicit ACL copying/inheritance, access-time behavior, other filesystems, broader permissions, raw diagnostics and compression remain open.",
+		"scope": "Ten complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Explicit ACL copying/inheritance, verification/display and standalone access times, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
 		"sources": map[string]any{
+			"codesign_alloc.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp", "sha256": hash(allocation)},
 			"signer.cpp":         map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signer.cpp", "sha256": hash(signer)},
 			"copyfile.c":         map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile.c", "sha256": hash(copySource)},
 			"copyfile_private.h": map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile_private.h", "sha256": hash(copyHeader)},
@@ -247,5 +259,5 @@ enum MetadataConstants : unsigned long long {
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: ten writer methods and copyfile_stat on two targets")
+	fmt.Println("Wrote spec/apple-writer.json: ten writer methods, copyfile_stat and mapFile on two targets")
 }
