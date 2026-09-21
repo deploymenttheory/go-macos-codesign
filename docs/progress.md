@@ -6,7 +6,7 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current standalone access-time slice
+## Delivered standalone access-time profile
 
 Standalone Mach-O signing, re-signing, signed/unsigned removal and signed/unsigned
 dry runs refresh source access time on Darwin. Each replacement receives a later
@@ -19,8 +19,12 @@ and 80 DMG access-time controls. Display and verification preserve executable
 metadata. DMG access time is unchanged, including 20 dry-run cases with an explicit
 remaining difference: native writes bytes and modification time in place, while
 Go preserves both. A sparse oversized-file regression rejects before mapping.
-[PR #42](https://github.com/deploymenttheory/go-macos-codesign/pull/42) records final
-per-commit validation; local tests alone do not establish portable execution.
+[PR #42](https://github.com/deploymenttheory/go-macos-codesign/pull/42) is merged as
+`8c7c68fc`, with the same tree as its tested head and CI merge. Final three-OS
+coverage, packaging, race/fuzz, lint and artifact audits pass. Apple verified all
+606 signed imports and matched all 88 removal outputs. The
+[implementation plan](implementation_plan.md#merged-pr42) records exact revisions
+and coverage; each production package remains above 95%.
 
 Merged [PR #41](https://github.com/deploymenttheory/go-macos-codesign/pull/41)
 delivered 294 bundle access-time comparisons and APFS v0.8.0. Its audited merge,
@@ -32,7 +36,9 @@ signing-envelope failure profiles. The 606-import/88-removal gate remains requir
 Executable ACL inheritance, explicit signature-directory ACL copying, DMG dry-run
 writes and wider filesystem/permission profiles remain open in
 [file writes](file-writes.md). D04/WP-02 and the 88 inventory statuses remain partial
-or outstanding. This slice requires no new APFS API or release.
+or outstanding. No new APFS API or release was required. The next bounded D04 slice
+establishes executable-directory permission and failure-order behavior before
+implementation, retaining private staging and held-root containment.
 
 ## Delivered milestones
 
