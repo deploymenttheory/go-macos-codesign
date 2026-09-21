@@ -6,33 +6,32 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current executable-directory slice
+## Current bundle allocation-access slice
 
-Mach-O dry runs check executable-directory creation permission using a disposable
-private allocation, preserving input bytes and skipping metadata restoration.
-During signing, an allocation permission failure retains independent sibling
-commits and the failed bundle's resource envelope. Its executable and sidecars
-remain unchanged; ancestors do not commit. Removal remains outer-only.
+Bundle planning uses ordinary bounded reads. Source access is recorded immediately
+before executable allocation, preserving timestamps on shallow children, preserved
+signed descendants, already-signed rejection and allocation-blocked ancestors.
+All 624 directory cases now require matching native read-access effects; 252 new
+native cases cover selective signing and rejection across seven layouts, three
+architectures and past/future timestamps.
 
-The matrix adds 624 POSIX cases across three architectures, seven operand/tree
-shapes, two directory modes and two executable modes. It compares complete native
-trees, exit status, replacement identity, external links, timestamps and cleanup.
-Windows uses DACL-denial unit tests instead of POSIX mode assertions. Cancellation
-and Darwin metadata-denial tests preserve dry-run inputs and remove staging.
-The writer AST now contains fourteen complete methods/functions on two targets.
+Thirty-six failure-boundary cases record remaining envelope/cleanup and unsigned-
+child dry-run differences, including copied replacement access after native cleanup
+failure. The source AST adds the complete allocator for fifteen methods/functions
+on two targets. The implementation retains released APFS v0.8.0 without new APIs.
+Final per-commit validation is recorded in the implementation PR.
 
-The implementation retains released APFS v0.8.0 and needs no upstream change.
-[PR #43](https://github.com/deploymenttheory/go-macos-codesign/pull/43) contains the
-preceding progress update; the implementation PR records final validation.
-PR #42's audited merge and 464 cases are in the
-[implementation plan](implementation_plan.md#merged-pr42). The 294 bundle access,
-210 creation-time and earlier writer matrices, plus the 606-import/88-removal gate,
-remain required.
+Merged [PR #44](https://github.com/deploymenttheory/go-macos-codesign/pull/44)
+delivers executable-directory allocation checks, independent sibling commits and
+dry-run cleanup. Its actual merge matches the tested tree; three-OS CI, all six
+packages, race/fuzz, 606 native imports and 88 removal comparisons pass. The
+[implementation plan](implementation_plan.md#merged-pr44) records the exact evidence,
+including PR #43's documentation merge. Earlier native matrices remain required.
 
-Inaccessible directories, failed/shallow access-time ordering, wider asynchronous
-failure combinations, ACL inheritance/copying and DMG dry-run writes remain open.
-[file writes](file-writes.md) records these limits. D04/WP-02 and all 88 inventory
-statuses remain partial or outstanding.
+Later commit failures, unsigned-child dry runs, inaccessible directories, wider
+asynchronous behavior, ACL inheritance/copying and DMG dry-run writes remain open.
+[file writes](file-writes.md) records the limits. All 88 inventory statuses and
+D04/WP-02 remain partial or outstanding.
 
 ## Delivered milestones
 

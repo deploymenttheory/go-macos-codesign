@@ -62,6 +62,10 @@ func main() {
 #include <cstdint>
 #include <cstdlib>
 #include <mach/machine.h>
+#include <mach-o/fat.h>
+#include <mach-o/loader.h>
+#include <mach/mach.h>
+#include <os/overflow.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -116,6 +120,13 @@ namespace LowLevelMemoryUtilities { size_t alignUp(size_t, size_t); }
 bool code_sign_deallocate(const char*, const char*, char*&);
 bool code_sign_allocate(const char*, const char*, unsigned int (^)(cpu_type_t, cpu_subtype_t), char*&);
 void secerror(const char*, ...);
+uint32_t get32(bool, uint32_t);
+bool assure_signature_space(void*, unsigned int, uint32_t, uint32_t&, char*&);
+bool vm_alloc(void*&, vm_size_t, char*&);
+bool vm_dealloc(void*&, vm_size_t, char*&);
+bool writeFile(const char*, const void*, unsigned int, char*&);
+void cleanupUnsigned(unsigned int**);
+#define __os_free __attribute__((cleanup(cleanupUnsigned)))
 struct MachOEditor {
   struct Arch { size_t blobSize; };
   std::map<Architecture, Arch*> architecture;
@@ -156,6 +167,12 @@ enum MetadataConstants : unsigned long long {
 	}
 	hashes["mapFile"] = hash(mapping)
 	unit += "\nvoid log_error(char*&, const char*, ...);\n" + string(mapping) + "\n"
+	allocator := regexp.MustCompile(`(?ms)^bool code_sign_allocate\(.*?^}`).Find(allocation)
+	if len(allocator) == 0 {
+		panic("missing complete code_sign_allocate")
+	}
+	hashes["code_sign_allocate"] = hash(allocator)
+	unit += "\n" + string(allocator) + "\n"
 	alignment := regexp.MustCompile(`(?m)^static const size_t csAlign = [0-9]+;`).Find(source)
 	if len(alignment) == 0 {
 		panic("missing allocation alignment")
@@ -258,18 +275,18 @@ enum MetadataConstants : unsigned long long {
 				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 14 || len(constants) != 15 {
+		if len(methods) != 15 || len(constants) != 15 {
 			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
 	}
 	headers := map[string]string{}
-	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h", "sys/mman.h", "mach/machine.h"} {
+	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h", "sys/mman.h", "mach/machine.h", "mach-o/fat.h", "mach-o/loader.h", "mach/mach.h", "os/overflow.h"} {
 		headers[path] = hash(read(filepath.Join(sdk, "usr/include", path)))
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope": "Twelve complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove and global populate, MachOEditor allocate/commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. The allocation and global-populate bodies record temporary allocation cleanup and dry-run envelope suppression. Pinned signMachO source calls allocate even for dry runs; pinned buildResources dispatches nested work through LimitedAsync and waits for its group. Those two call sites are source-reviewed, not part of this AST extraction. The readable/searchable executable-directory profile compares modes 0755/0555 independently of executable modes 0755/0551, including first/last sibling allocation failures, outer failures, shallow signing, dry runs and removal. Go retains independent sibling commits and the failed bundle envelope, skips ancestors, and discards dry-run allocations without restoring metadata. Failed-parent and shallow executable access still differ because Go reads the complete plan first. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
+		"scope": "Twelve complete verbatim writer methods plus copyfile_stat, allocation mapFile and code_sign_allocate: SecCodeSigner::Signer::remove and global populate, MachOEditor allocate/commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. The complete code_sign_allocate body maps input before creating output; private __os_free uses a declaration-only cleanup attribute shim, while allocation, signature-space and endian helpers are declarations. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. The allocation and global-populate bodies record temporary allocation cleanup and dry-run envelope suppression. Pinned signMachO source calls allocate even for dry runs; pinned buildResources dispatches nested work through LimitedAsync and waits for its group. Those two call sites are source-reviewed, not part of this AST extraction. The readable/searchable executable-directory profile compares modes 0755/0555 independently of executable modes 0755/0551, including first/last sibling allocation failures, outer failures, shallow signing, dry runs and removal. Go retains independent sibling commits and the failed bundle envelope, skips ancestors, and discards dry-run allocations without restoring metadata. Ordinary bundle planning reads leave access untouched; eligible replacement preparation records source access before allocation. All 624 executable-directory cases now match native read-access effects, including blocked ancestors and shallow descendants. Another 252 native cases cover preserved signed children and already-signed rejection across seven layouts, three architectures and past/future times. Thirty-six failure-boundary cases explicitly retain envelope/cleanup and unsigned-child dry-run read differences, plus copied replacement access after native cleanup failures. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
 		"sources": map[string]any{
 			"codesign_alloc.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp", "sha256": hash(allocation)},
 			"signer.cpp":         map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signer.cpp", "sha256": hash(signer)},
@@ -283,5 +300,5 @@ enum MetadataConstants : unsigned long long {
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: twelve writer methods, copyfile_stat and mapFile on two targets")
+	fmt.Println("Wrote spec/apple-writer.json: twelve writer methods, copyfile_stat, mapFile and code_sign_allocate on two targets")
 }

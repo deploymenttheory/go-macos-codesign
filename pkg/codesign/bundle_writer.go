@@ -264,6 +264,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if !os.SameFile(st, current) {
 		return nil, fmt.Errorf("bundle write target changed")
 	}
+	// Native allocation maps the source before trying to create its output.
+	// Recording here leaves preserved descendants and blocked ancestors untouched.
+	if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		return nil, err
+	}
 	created := time.Now()
 	if st.ModTime().Before(created) {
 		created = st.ModTime()

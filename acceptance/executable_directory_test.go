@@ -227,16 +227,15 @@ func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation 
 		if !rewritten && !after.ModTime().Equal(old.ModTime()) {
 			t.Fatalf("uncommitted modification time changed: %s", name)
 		}
-		goAccess := !removing || name == "main"
-		nativeAccess := goAccess
+		accessed := !removing || name == "main"
 		if shallow {
-			nativeAccess = name == "main"
+			accessed = name == "main"
 		}
 		if failure && !removing && !shallow && ancestor {
-			nativeAccess = false
+			accessed = false
 		}
 		effect := map[string]any{"inode_replaced": rewritten, "neighbour_preserved": true}
-		effect["access"] = executableDirectoryAccess(t, old, after, other, goAccess, nativeAccess, exe == binaryPath, started, finished)
+		effect["access"] = executableDirectoryAccess(t, old, after, other, accessed, started, finished)
 		effects[name] = effect
 	}
 	for _, name := range names {

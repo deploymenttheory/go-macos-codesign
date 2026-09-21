@@ -141,9 +141,12 @@ released and pinned as [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/r
 The published metadata implementation matches the tested upstream API. No APFS
 module replacement or development workspace is required.
 
-On Darwin, signing and re-signing record access on each successfully read bundle
-executable, including nested code. Outer removal records access only on the main
-executable. Dry-run signing records the same source reads without replacing files.
+On Darwin, bundle planning uses ordinary bounded reads. Source access is recorded
+on the held descriptor immediately before executable allocation, including a
+permission-denied allocation attempt. Shallow children, preserved signed descendants,
+already-signed rejection and ancestors blocked by allocation failure retain their
+access times. Outer removal records only the main executable's allocation; dry-run
+signing records eligible allocations without replacing inputs.
 Source hard links observe that read-access time while retaining their bytes,
 modification time and creation time. Each private replacement records a later
 access time before commit. The source read stays bounded and identity-checked;
@@ -162,8 +165,10 @@ decoys unchanged. Display and verification preserve standalone and bundle
 executable access times. Supported DMG operations retain ordinary reads and do not
 record mapped access. Native DMG dry runs modify bytes and modification time in
 place; Go preserves both. This difference remains open and is asserted separately
-from access-time equality. Envelope/resource access times, failed or shallow Mach-O
-signing and broader filesystem/permission profiles remain outside this claim.
+from access-time equality. Envelope/resource access times, standalone pre-allocation
+failures and broader filesystem/permission profiles remain outside this claim.
+Bundle envelope/cleanup failures and unsigned-child dry runs retain the explicit
+access differences described below.
 
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
@@ -221,7 +226,10 @@ using a pinned private flag header and internal flag enum. Its state carrier and
 two helper interfaces are explicit declaration-only shims. The complete allocation
 `mapFile` function adds Apple's read-only private mapping and three SDK mapping
 constants. Its error logger is a declaration-only shim. Both targets now record
-fourteen complete methods/functions and fifteen constants. Allocation records both
+fifteen complete methods/functions and fifteen constants. The full `code_sign_allocate`
+body adds input mapping before output creation. Public SDK declarations remain
+real; signature-space, endian and VM helpers are declarations, and the private
+`__os_free` macro uses a declaration-only cleanup attribute shim. Allocation records both
 sign/remove paths and temporary-file cleanup; global populate suppresses envelope
 writes during dry runs. Pinned `signMachO` calls allocation even for dry runs, and
 `buildResources` dispatches nested work through `LimitedAsync` before waiting for
@@ -370,8 +378,24 @@ this POSIX mode matrix; unit tests use an actual DACL creation denial there.
 
 Native APFS asynchronous sibling completion is the observed profile; this does not
 claim every scheduling outcome, filesystem, inaccessible-directory behavior or raw
-diagnostic. Shallow signing and failed ancestor access times remain different:
-Go reads the full plan, while native avoids mapping those executables. The tests
-record and assert those differences. Dry-run cancellation and a Darwin ACL denying
+diagnostic. Access recording occurs at allocation, so all 624 cases now require
+native read-access parity, including shallow children and blocked ancestors. Dry-run cancellation and a Darwin ACL denying
 attribute writes check that temporary allocations are cleaned without committing
 or restoring metadata. Wider failures, competing errors and ACL inheritance remain open.
+
+Selective bundle access adds 252 native comparisons across seven layouts, three
+architectures and past/future timestamps. Shallow signing and dry runs, preserved
+signed children, and already-signed rejection keep unallocated executables' access
+times unchanged. Tests retain complete-tree, inode, hard-link, modification/creation-
+time and operation-interval checks. A unit regression verifies bounded planning
+reads leave metadata unchanged and dry-run allocation records only access.
+
+Thirty-six native cases retain explicit limits around envelope/cleanup failures
+and unsigned-child signing. Go stages executables before envelope commits, so it
+can map an executable or ancestor that native never allocates after an envelope
+or child-cleanup failure. A native cleanup failure leaves the committed
+replacement's copied source access time; Go records a later replacement access.
+A deep dry run with an unsigned child maps the child natively, while Go can reject
+its on-disk seal before allocating. Shallow unsigned-child failure preserves
+access in both. The tests assert these separate outcomes without treating them
+as parity; output trees and external-link bytes still match in this corpus.

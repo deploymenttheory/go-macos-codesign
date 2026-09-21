@@ -1,6 +1,7 @@
 package codesign
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-func TestBundleExecutableReadAccessBounds(t *testing.T) {
+func TestBundleReadPreservesAccessUntilAllocation(t *testing.T) {
 	app := testBundle(t)
 	b, err := openAppBundle(app)
 	if err != nil {
@@ -28,14 +29,20 @@ func TestBundleExecutableReadAccessBounds(t *testing.T) {
 		return *info.Sys().(*syscall.Stat_t)
 	}
 	before := stat()
-	if _, err := b.readExecutable(b.executable, 1); !errors.Is(err, ErrUnsupported) {
+	if _, err := b.read(b.executable, 1); !errors.Is(err, ErrUnsupported) {
 		t.Fatalf("oversized executable: %v", err)
 	}
 	if after := stat(); after != before {
 		t.Fatal("rejected read recorded access")
 	}
+	if _, err := b.read(b.executable, maxFileSize); err != nil {
+		t.Fatal(err)
+	}
+	if after := stat(); after != before {
+		t.Fatal("planning read recorded allocation access")
+	}
 	started := time.Now()
-	if _, err := b.readExecutable(b.executable, maxFileSize); err != nil {
+	if _, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, bundle: b}, true); err != nil {
 		t.Fatal(err)
 	}
 	finished := time.Now()
@@ -46,6 +53,7 @@ func TestBundleExecutableReadAccessBounds(t *testing.T) {
 	}
 	before.Atimespec = after.Atimespec
 	if before != after {
-		t.Fatal("executable read changed unrelated metadata")
+		t.Fatal("allocation access changed unrelated metadata")
 	}
+	assertNoBundleStaging(t, app)
 }
