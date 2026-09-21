@@ -67,8 +67,11 @@ root, rejects non-regular entries and bounds the number of entries inspected.
 
 Stale directories and symlinks inside `_CodeSignature` are excluded from resource
 seals and rejected during cleanup after the executable commits, matching the
-native failure boundary. Removal deletes the regular CodeResources component
-before scanning stale entries. Dry-run signing succeeds without changing them;
+native failure boundary. Cleanup follows the pinned case-insensitive APFS order
+for supported ASCII names on every host: 22-bit name hash, then case-folded name
+comparison on collisions. It stops at the first non-regular entry. CodeResources
+participates in that order during removal; an earlier failure can retain it.
+Signing keeps the newly written envelope. Dry-run signing succeeds without changing stale entries;
 verification still rejects unexpected entries. Directory metadata is walked only
 for the existing bounded path and internal hard-link checks; file contents are not
 read and symlinks are never followed. Empty/populated directories and relative
@@ -76,12 +79,20 @@ internal, dangling and outside symlinks have independent native coverage.
 Cleanup failure retains earlier executable/envelope commits, removes remaining
 staging files, and stops later commits, including the parent after a child fails.
 
-This profile covers ordinary accessible stale entries. Non-regular CodeResources,
-special files, invalid names, unreadable subtrees and internal write aliases can
-still fail before mutation. Native named-component removal ordering beyond
-CodeResources, enumeration order among multiple stale entries, broader permission
-failures and raw diagnostics remain different or unverified. Nothing recursively
+Removal also defers rejection of a directory or symlink named CodeResources until
+cleanup, after replacing the main executable. Signing and verification retain
+their stricter envelope validation. Special files, invalid names, unreadable
+subtrees and internal write aliases can still fail before mutation. Case-sensitive
+APFS and other filesystem orders, broader permission failures and raw diagnostics
+remain different or unverified. Nothing recursively
 deletes directories or unlinks the rejected symlinks.
+
+Hashing and collision comparison use `go-apfs-v2/pkg/apfs`. The development slice
+requires [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106),
+which fixes concurrent first-use initialization in that API. The current v0.6.0
+pin is provisional for this slice: merge/release upstream and pin its published
+successor before merging codesign. No copied hashing implementation or local
+dependency replacement is committed.
 
 The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
@@ -131,8 +142,8 @@ not supported; sign a copy if rollback is required.
 
 ## Evidence
 
-`make research-writer` extracts nine complete Apple methods: `MachOEditor::commit`,
-its destructor, and seven BundleDiskRep metadata/component/removal/flush methods,
+`make research-writer` extracts ten complete Apple methods: `SecCodeSigner::Signer::remove`,
+`MachOEditor::commit`, its destructor, and seven BundleDiskRep metadata/component/removal/flush methods,
 with Clang for arm64 and x86_64. The [record](../spec/apple-writer.json)
 pins the Apple source, SDK headers and complete excerpts, and names every private
 interface shim. It records metadata copying before rename and temporary-file
@@ -140,6 +151,10 @@ cleanup. It also parses the complete `copyfile_stat` function on both targets,
 using a pinned private flag header and internal flag enum. Its state carrier and
 two helper interfaces are explicit declaration-only shims. This is source analysis,
 not execution of Apple's source.
+The signer removal method distinguishes the Mach-O allocate/commit path from the
+generic writer's canonical-slot removal loop. Mach-O commit flushes directly;
+the purge follows directory enumeration, including CodeResources. Private signer,
+disk-representation and smart-pointer interfaces are declaration-only shims.
 
 The directory follow-up adds 40 cases over eight layouts/selections and five
 operations, with complete native tree comparisons and checks for copied modes,
@@ -176,6 +191,16 @@ architectures. Failed operations do not add signed import artifacts; the existin
 Unit tests cover flush failure after executable commit, later staged-file cleanup,
 cancellation, directory replacement by a symlink, retained internal write-alias
 rejection, and unchanged verification policy.
+
+The ordered-cleanup matrix adds 278 independent native tree comparisons on arm64.
+The app cases put each of twenty names at the failure boundary, covering all named
+components, a name before CodeResources, two hash-collision pairs, opposite
+creation orders, signed/unsigned removal, re-signing, dry runs and verification.
+Six other layouts cover representative boundaries for removal and re-signing.
+Directory contents, symlink targets and external executable links remain intact;
+each record includes raw status/output, survivor names, identity and tree hashes.
+Unit tests cover the bounded directory snapshot and cancellation after an unlink.
+These failures add no signed imports; the existing 606/88 gate remains unchanged.
 
 Host acceptance compares all output bytes and inode outcomes for fifteen
 architecture/operation combinations, plus one in-place DMG case. Six newly

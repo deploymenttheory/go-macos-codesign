@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -157,7 +158,8 @@ func TestBundleCleanupRootAndCancellation(t *testing.T) {
 }
 
 // Even a changed CodeResources discovered at flush time must never be followed
-// or removed as a directory. Public scans already reject these write targets.
+// or removed as a directory. Signing scans already reject these write targets;
+// removal defers rejection until the post-commit purge.
 func TestBundleCleanupRejectsChangedEnvelope(t *testing.T) {
 	for _, kind := range []string{"directory", "symlink"} {
 		t.Run(kind, func(t *testing.T) {
@@ -186,5 +188,58 @@ func TestBundleCleanupRejectsChangedEnvelope(t *testing.T) {
 				t.Fatal("purge followed changed envelope")
 			}
 		})
+	}
+}
+
+func TestBundleCleanupEntryLimit(t *testing.T) {
+	app := testBundle(t)
+	meta := filepath.Join(app, "Contents/_CodeSignature")
+	for i := 0; i <= maxBundleEntries; i++ {
+		bundleFile(t, app, fmt.Sprintf("Contents/_CodeSignature/stale-%d", i), nil)
+	}
+	b, err := openAppBundle(app)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.close()
+	if err := b.purgeSignatureFiles(context.Background(), false); !errors.Is(err, ErrUnsupported) {
+		t.Fatal("oversized purge accepted", err)
+	}
+	entries, err := os.ReadDir(meta)
+	if err != nil || len(entries) != maxBundleEntries+1 {
+		t.Fatalf("entry limit must precede unlinks: %d: %v", len(entries), err)
+	}
+}
+
+type cancelAfterSignatureUnlink struct {
+	context.Context
+	path string
+}
+
+func (c cancelAfterSignatureUnlink) Err() error {
+	if _, err := os.Lstat(c.path); errors.Is(err, os.ErrNotExist) {
+		return context.Canceled
+	}
+	return nil
+}
+
+func TestBundleCleanupCancellationAfterUnlink(t *testing.T) {
+	app := testBundle(t)
+	for _, name := range []string{"n23", "CodeResources", "CodeDirectory"} {
+		bundleFile(t, app, "Contents/_CodeSignature/"+name, []byte(name))
+	}
+	b, err := openAppBundle(app)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.close()
+	ctx := cancelAfterSignatureUnlink{context.Background(), filepath.Join(app, "Contents/_CodeSignature/n23")}
+	if err := b.purgeSignatureFiles(ctx, false); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"CodeResources", "CodeDirectory"} {
+		if string(readTestFile(t, filepath.Join(app, "Contents/_CodeSignature", name))) != name {
+			t.Fatal("cancellation removed a later component", name)
+		}
 	}
 }

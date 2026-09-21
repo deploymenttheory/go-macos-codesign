@@ -229,8 +229,8 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
-		if strings.HasPrefix(rel, "_CodeSignature/") && name != b.resourcesPath() {
-			if strings.EqualFold(rel, "_CodeSignature/CodeResources") {
+		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature) {
+			if name != b.resourcesPath() && strings.EqualFold(rel, "_CodeSignature/CodeResources") {
 				return unsupported("noncanonical resource envelope filename: " + rel)
 			}
 			if !scope.signatureCleanup {
@@ -566,6 +566,7 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 	defer b.close()
 	scope := newBundleScan()
 	scope.signatureCleanup = true
+	scope.removingSignature = true
 	if _, _, err = b.scanTree(ctx, scope, 0, ""); err != nil {
 		return err
 	}
