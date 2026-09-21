@@ -149,9 +149,15 @@ unmaps it without reading mapped memory. This also works for empty files and
 read-only files whose ACL denies attribute writes. The filesystem supplies the
 timestamp; the API does not set one or change unrelated metadata. Other hosts
 report unsupported and retain their existing read/replacement policy.
-Standalone files, display/verification, envelope/resource access times, failed or
-shallow signing and broader filesystem/permission profiles remain outside this
-bounded access-time claim.
+Standalone Mach-O signing, re-signing, signed/unsigned removal and signed/unsigned
+dry runs also record the bounded source read. Replacements record a later access
+before commit; aliases select the physical file, leaving alias text and lexical
+decoys unchanged. Display and verification preserve standalone and bundle
+executable access times. Supported DMG operations retain ordinary reads and do not
+record mapped access. Native DMG dry runs modify bytes and modification time in
+place; Go preserves both. This difference remains open and is asserted separately
+from access-time equality. Envelope/resource access times, failed or shallow Mach-O
+signing and broader filesystem/permission profiles remain outside this claim.
 
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
@@ -257,6 +263,24 @@ access; both must fall within the operation. A unit regression enforces read bou
 before access recording. The original writer fails the new access-time regression.
 These Darwin metadata cases add no foreign import archives. Final per-commit
 validation with the released dependency is recorded in the implementation PR.
+
+Standalone access-time acceptance adds 216 Mach-O comparisons: three architectures,
+four operand forms (direct, relative alias, chain and parent alias), past/future
+access times and nine operations, including mode 0551 inputs and read-only
+controls. Both source and replacement access must fall within the operation, with
+replacement access later. The matrix checks hard-link bytes and identity, mode and
+ownership, alias text, lexical decoys, output byte equality and native strict
+verification. A sparse oversized-file regression rejects the read before mapping;
+ordinary reads preserve metadata. The merged implementation fails the new
+standalone signing regression.
+
+Another 168 comparisons cover bundle display, verbose display, verification and
+deep verification across seven layouts, three architectures and both timestamp
+profiles. All executable stat metadata and tree bytes remain unchanged. Eighty DMG
+comparisons cover five formats, both timestamp profiles and eight operations.
+All retain access time; 60 also match bytes, while 20 signed/unsigned dry-run cases
+assert the known native in-place write difference. Raw command results and each
+side's hashes remain in the attestations. These cases add no foreign import archives.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale

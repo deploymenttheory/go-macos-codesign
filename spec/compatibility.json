@@ -17,7 +17,7 @@
       "evidence": [
         "acceptance/parity_test.go"
       ],
-      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix. Darwin standalone access-time evidence covers 216 Mach-O cases plus 168 bundle read-only controls and 80 DMG cases using released APFS v0.8.0. Signing/removal/dry runs refresh Mach-O source access and give replacements a later access time; display/verification preserve executable stat metadata. DMG access is preserved; 20 DMG dry-run cases record native in-place byte/modification-time changes that Go does not reproduce. ACL inheritance and wider metadata profiles remain open."
     },
     {
       "id": "--architecture",
@@ -173,6 +173,8 @@
       "status": "partial",
       "manual": ".It Fl -remove-signature",
       "evidence": [
+        "acceptance/standalone_access_time_darwin_test.go",
+        "pkg/codesign/standalone_access_time_darwin_test.go",
         "acceptance/parity_test.go",
         "acceptance/layout_test.go",
         "spec/apple-bundle-layouts.json",
@@ -187,7 +189,7 @@
         "docs/file-writes.md",
         "testdata/removal/manifest.json"
       ],
-      "notes": "Native byte comparisons now cover 44 recorded/live standalone removal cases, eighteen complete bundle layouts and three mixed trees, without the earlier eight-byte padding exception. Symbol-table padding, LINKEDIT virtual-size preservation, universal alignment and up to seven trailing bytes match the tested native behavior. Nine re-signing cases require native byte equality and strict verification. Linux/Windows each export 44 removed outputs for native comparison. Malformed symbol ranges are rejected safely rather than reproducing native corruption. Legacy/FAT64/swapped forms, unusual layouts/unindexed padding, generic/detached representations and full diagnostic parity remain incomplete; see docs/removal.md."
+      "notes": "Native byte comparisons now cover 44 recorded/live standalone removal cases, eighteen complete bundle layouts and three mixed trees, without the earlier eight-byte padding exception. Symbol-table padding, LINKEDIT virtual-size preservation, universal alignment and up to seven trailing bytes match the tested native behavior. Nine re-signing cases require native byte equality and strict verification. Linux/Windows each export 44 removed outputs for native comparison. Malformed symbol ranges are rejected safely rather than reproducing native corruption. Legacy/FAT64/swapped forms, unusual layouts/unindexed padding, generic/detached representations and full diagnostic parity remain incomplete; see docs/removal.md. Darwin standalone access-time evidence covers 216 Mach-O cases plus 168 bundle read-only controls and 80 DMG cases using released APFS v0.8.0. Signing/removal/dry runs refresh Mach-O source access and give replacements a later access time; display/verification preserve executable stat metadata. DMG access is preserved; 20 DMG dry-run cases record native in-place byte/modification-time changes that Go does not reproduce. ACL inheritance and wider metadata profiles remain open."
     },
     {
       "id": "--requirements",
@@ -212,13 +214,15 @@
       "status": "partial",
       "manual": ".It Fl s, -sign Ar identity",
       "evidence": [
+        "acceptance/standalone_access_time_darwin_test.go",
+        "pkg/codesign/standalone_access_time_darwin_test.go",
         "acceptance/parity_test.go",
         "acceptance/hardlinks_test.go",
         "pkg/codesign/io_test.go",
         "spec/apple-writer.json",
         "docs/file-writes.md"
       ],
-      "notes": "Standalone Mach-O signing stages replacement through go-apfs-v2's shared metadata API, preserving other hard-link names. File aliases resolve physically before identifiers, display and writes, including link/..; alias entries remain unchanged. Bundle Mach-O writes also stage root-relative replacements; DMGs and existing resource envelopes remain in place. The 126-case bundle writer matrix checks external-link and complete-tree behavior. Fifteen hard-link cases, 150 Mach-O alias cases, ten DMG alias cases, 350 display comparisons and nine allocation-padding cases establish the bounded writer behavior alongside two-target Clang records. Re-signing preserves existing trailing allocation bytes. Darwin requires clone support and rejects protected/compressed files; wider metadata, bundle symlink and filesystem support remains incomplete. Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "Standalone Mach-O signing stages replacement through go-apfs-v2's shared metadata API, preserving other hard-link names. File aliases resolve physically before identifiers, display and writes, including link/..; alias entries remain unchanged. Bundle Mach-O writes also stage root-relative replacements; DMGs and existing resource envelopes remain in place. The 126-case bundle writer matrix checks external-link and complete-tree behavior. Fifteen hard-link cases, 150 Mach-O alias cases, ten DMG alias cases, 350 display comparisons and nine allocation-padding cases establish the bounded writer behavior alongside two-target Clang records. Re-signing preserves existing trailing allocation bytes. Darwin requires clone support and rejects protected/compressed files; wider metadata, bundle symlink and filesystem support remains incomplete. Native compatibility remains unproven outside the documented fixture matrix. Darwin standalone access-time evidence covers 216 Mach-O cases plus 168 bundle read-only controls and 80 DMG cases using released APFS v0.8.0. Signing/removal/dry runs refresh Mach-O source access and give replacements a later access time; display/verification preserve executable stat metadata. DMG access is preserved; 20 DMG dry-run cases record native in-place byte/modification-time changes that Go does not reproduce. ACL inheritance and wider metadata profiles remain open."
     },
     {
       "id": "--verbose",
@@ -252,6 +256,8 @@
       "status": "partial",
       "manual": ".It Fl -dryrun",
       "evidence": [
+        "acceptance/standalone_access_time_darwin_test.go",
+        "pkg/codesign/standalone_access_time_darwin_test.go",
         "acceptance/parity_test.go"
       ],
       "notes": "Native compatibility remains unproven outside the documented fixture matrix."

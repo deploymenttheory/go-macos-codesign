@@ -6,29 +6,33 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current signing-envelope failure slice
+## Current standalone access-time slice
 
-Signing now treats a directory at CodeResources as an envelope-write failure:
-earlier child commits survive, the affected executable remains unchanged, and
-dry runs skip the write. Signing and outer removal no longer read unused old
-child envelopes; write-only POSIX envelopes can be rewritten. Symlinked signing
-envelopes retain early rejection, and deep verification retains its required
-envelope reads and validation.
+Standalone Mach-O signing, re-signing, signed/unsigned removal and signed/unsigned
+dry runs refresh source access time on Darwin. Each replacement receives a later
+access time; source hard links retain bytes, identity and write timestamps.
+Physical alias resolution and private staging remain intact. The implementation
+uses released APFS v0.8.0, already pinned on `main`.
 
-The new acceptance matrix adds 104 portable directory/commit-order cases and
-20 POSIX read-only/write-only envelope cases. Windows explicitly skips POSIX
-permission probes. Native comparisons cover complete trees, output/status,
-executable inodes and external hard-link neighbours. The existing 606 signed
-imports and 88 removal comparisons remain required. Final per-commit CI and
-artifact results are recorded in this slice's PR; local tests alone do not
-establish Linux or Windows execution.
+The native matrix adds 216 standalone comparisons, 168 bundle read-only controls
+and 80 DMG access-time controls. Display and verification preserve executable
+metadata. DMG access time is unchanged, including 20 dry-run cases with an explicit
+remaining difference: native writes bytes and modification time in place, while
+Go preserves both. A sparse oversized-file regression rejects before mapping.
+[PR #42](https://github.com/deploymenttheory/go-macos-codesign/pull/42) records final
+per-commit validation; local tests alone do not establish portable execution.
 
-Merged [PR #35](https://github.com/deploymenttheory/go-macos-codesign/pull/35)
-validated the released APFS v0.6.1 pin. This slice needs no new APFS API or release.
-The [implementation plan](implementation_plan.md#delivery-status) and
-[file writes](file-writes.md) retain the remaining metadata, symlink, broader
-permission and diagnostic differences. D04/WP-02 and all inventory statuses remain
-partial or outstanding.
+Merged [PR #41](https://github.com/deploymenttheory/go-macos-codesign/pull/41)
+delivered 294 bundle access-time comparisons and APFS v0.8.0. Its audited merge,
+three-OS coverage, packaging and native imports are recorded in the
+[implementation plan](implementation_plan.md#merged-pr41). The retained suite also
+covers 210 executable creation-time cases, cleanup ordering, directory stat and
+signing-envelope failure profiles. The 606-import/88-removal gate remains required.
+
+Executable ACL inheritance, explicit signature-directory ACL copying, DMG dry-run
+writes and wider filesystem/permission profiles remain open in
+[file writes](file-writes.md). D04/WP-02 and the 88 inventory statuses remain partial
+or outstanding. This slice requires no new APFS API or release.
 
 ## Delivered milestones
 

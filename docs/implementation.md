@@ -5,10 +5,13 @@ The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
 The [detailed implementation plan](implementation_plan.md) expands this overview
-into a complete post-PR #25 backlog, with all 55 inventory entries mapped to
+into a complete post-PR #25 backlog, with all 88 inventory entries mapped to
 24 work packages, dependencies, native acceptance criteria and proposed PR slices.
-Work has resumed through D04 replacement, cleanup ordering, directory stat and
-envelope failure profiles. The expanded D01 inventory
+D04 replacement, cleanup ordering, directory stat, envelope failure and bundle
+creation/access-time profiles are merged through PR #41. The active slice extends
+access-time parity to standalone Mach-O using released APFS v0.8.0, with bundle
+read-only and DMG controls. ACL inheritance, explicit directory ACL copying and
+native DMG dry-run writes remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
 
@@ -47,16 +50,21 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 ## Next implementation sequence
 
-1. **Extend bundle compatibility:** retain the tested resource, nested Mach-O
+1. **Complete bounded filesystem profiles:** validate standalone access-time
+   behavior and retain the merged native writer matrices. Investigate supported
+   ACL APIs and wider permissions without relaxing private staging; keep DMG
+   dry-run writes explicit until independently implemented. Follow the detailed
+   [D04 delivery plan](implementation_plan.md#delivery-status).
+2. **Extend bundle compatibility:** retain the tested resource, nested Mach-O
    and recursive bundle/framework profiles while extending executable discovery,
    broader symlink/xattr policy and full strict
    verification. Expand the pinned source/Clang record and independent host
    comparisons for each added case.
-2. **Extend representations:** retain go-apfs-v2 as the DMG format dependency,
+3. **Extend representations:** retain go-apfs-v2 as the DMG format dependency,
    add bounded streaming for large images and broader image/policy cases, then
    detached and generic-file representations. Keep image codecs and filesystem
    handling in the APFS project; see the [integration boundary](dmg-integration.md).
-3. **Wider signature and policy compatibility:** add remaining requirement
+4. **Wider signature and policy compatibility:** add remaining requirement
    predicates, CodeDirectory/digest variants, preservation semantics, certificate
    and timestamp policy, and diagnostic parity with independent acceptance cases.
 

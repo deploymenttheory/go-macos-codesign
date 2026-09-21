@@ -1,7 +1,7 @@
 # DMG signing with go-apfs-v2
 
 DMG signing directly uses `github.com/deploymenttheory/go-apfs-v2/pkg/disk`, pinned
-to `v0.6.0`. Production reuses its exported
+to `v0.8.0`. Production reuses its exported
 `DMGFooter`, including the signature offset/length fields. This repository adds
 the signature adapter; it does not maintain another DMG reader, writer or codec.
 The same dependency now supplies the [standalone and root-relative file metadata APIs](file-writes.md).
@@ -50,6 +50,13 @@ are not atomic: I/O failures can leave partial output, and concurrent modificati
 is unsupported. Apple rejects `--remove-signature` for signed and unsigned DMGs
 on the baseline. The Go CLI/removal APIs likewise return unsupported and preserve
 the image; removal is not claimed as a native DMG feature.
+
+On the tested APFS profile, signing, re-signing, display, verification, rejected
+removal and dry runs preserve access time. Native dry runs change image bytes and
+modification time in place, including signed inputs; Go dry runs preserve both.
+This is an explicit compatibility gap. Eighty native comparisons cover five image
+profiles, past/future access times and eight operations, with the 20 dry-run cases
+asserting that difference. See [file-write evidence](file-writes.md).
 
 ## Evidence
 
