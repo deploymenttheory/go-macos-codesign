@@ -32,7 +32,7 @@ func TestBundleEnvelopeDirectory(t *testing.T) {
 							bundleWrite(t, path, "keep", []byte("retained directory contents\n"))
 						}
 						directoryBefore, err := os.Stat(path)
-						if err != nil {
+						if err != nil || !os.SameFile(directoryBefore, directoryBefore) {
 							t.Fatal(err)
 						}
 						bundleWrite(t, app, resource, []byte("changed resource\n"))
@@ -51,6 +51,11 @@ func TestBundleEnvelopeDirectory(t *testing.T) {
 							neighbours[i] = filepath.Join(dir, strings.ReplaceAll(name, "/", "-"))
 							if err := os.Link(p, neighbours[i]); err != nil {
 								t.Fatal(err)
+							}
+							other, err := os.Stat(neighbours[i])
+							// Resolve Windows file IDs before replacing their paths.
+							if err != nil || !os.SameFile(identities[i], other) {
+								t.Fatalf("initial executable link: %v", err)
 							}
 						}
 						before := layoutArchive(t, app)
@@ -157,10 +162,15 @@ func envelopeNestedCase(t *testing.T, exe, profile, position, operation string) 
 		if err := os.Link(main, filepath.Join(dir, filepath.Base(p)+"-neighbour")); err != nil {
 			t.Fatal(err)
 		}
+		other, err := os.Stat(filepath.Join(dir, filepath.Base(p)+"-neighbour"))
+		// Resolve Windows file IDs before replacing their paths.
+		if err != nil || !os.SameFile(originals[i], other) {
+			t.Fatalf("initial executable link: %v", err)
+		}
 		bundleWrite(t, p, "Contents/Resources/message.txt", []byte("changed resource\n"))
 	}
 	envelopeBefore, err := os.Stat(envelope)
-	if err != nil {
+	if err != nil || !os.SameFile(envelopeBefore, envelopeBefore) {
 		t.Fatal(err)
 	}
 	before := layoutArchive(t, app)

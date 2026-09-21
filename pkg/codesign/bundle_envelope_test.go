@@ -16,7 +16,7 @@ func TestEnvelopeDirectoryRetainsWriteAliasGuard(t *testing.T) {
 		main := filepath.Join(child, "Contents/MacOS/hello")
 		before := readTestFile(t, main)
 		st, err := os.Stat(main)
-		if err != nil {
+		if err != nil || !os.SameFile(st, st) {
 			t.Fatal(err)
 		}
 		alias := filepath.Join(app, bundleResourcesPath, "alias")
@@ -68,7 +68,7 @@ func TestEnvelopeSymlinksStillRejectBeforeWrites(t *testing.T) {
 				for i, p := range paths {
 					var err error
 					before[i], err = os.Stat(p)
-					if err != nil {
+					if err != nil || !os.SameFile(before[i], before[i]) {
 						t.Fatal(err)
 					}
 				}
