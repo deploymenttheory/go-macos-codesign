@@ -35,7 +35,7 @@ func TestBundleSignatureCleanupOrder(t *testing.T) {
 				for _, operation := range operations {
 					removing := strings.HasPrefix(operation, "remove")
 					if bad == "CodeResources" && !removing {
-						continue // signing-envelope directories have a separate commit-boundary matrix
+						continue // covered by TestBundleEnvelopeDirectory
 					}
 					t.Run(layout+"/"+bad+"/"+kind+"/"+operation, func(t *testing.T) {
 						execute := func(exe string) ([]byte, map[string]any) {

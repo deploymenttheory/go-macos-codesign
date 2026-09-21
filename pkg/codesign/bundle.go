@@ -240,12 +240,10 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err != nil {
 				return err
 			}
-			// Native flush rejects stale directories and links only after the
-			// executable commits. They are not resources: do not read file
-			// contents or resolve links. Walk directory metadata only to retain
-			// the bounded name and internal write-alias checks below.
-			// A signing envelope directory fails at its envelope write instead,
-			// after earlier child commits; dry runs never attempt that write.
+			// Exclude signature entries from resource seals. Walk directory
+			// metadata to enforce path bounds and internal write-alias checks.
+			// Reject directories at their envelope write or stale-file cleanup;
+			// dry runs skip both operations. Never follow signature symlinks.
 			if st.IsDir() {
 				return nil
 			}

@@ -8,9 +8,8 @@ import (
 	"testing"
 )
 
-// The envelope write precedes this bundle's executable commit, but follows
-// descendant commits. A directory at CodeResources is therefore a write failure,
-// not a reason to reject a dry run or roll back already committed children.
+// Check that envelope-write failures preserve this executable and earlier child
+// commits, while dry runs preserve the entire tree.
 func TestBundleEnvelopeDirectory(t *testing.T) {
 	for _, layout := range append([]string{"app"}, bundleLayouts...) {
 		for _, profile := range []string{"directory", "populated-directory"} {
@@ -60,8 +59,7 @@ func TestBundleEnvelopeDirectory(t *testing.T) {
 						switch operation {
 						case "dryrun", "dryrun-unsigned":
 							args = append(args, "--dryrun")
-							// A native dry run seals the on-disk child signatures. Unsigned
-							// descendants still fail sealing, independently of the envelope.
+							// Dry runs seal on-disk child signatures, so unsigned children fail.
 							if operation == "dryrun" || len(executables) == 1 {
 								statusWant = 0
 							}
@@ -119,9 +117,8 @@ func TestBundleEnvelopeDirectory(t *testing.T) {
 	}
 }
 
-// Two siblings expose an earlier successful commit and a later envelope failure.
-// The parent and failing child's executable must stay unchanged. The same
-// structure also exercises unreadable old envelopes and outer-only removal.
+// Use two siblings to distinguish earlier commits from the failed child and
+// parent. Compare complete trees and inode effects at each envelope boundary.
 func envelopeNestedCase(t *testing.T, exe, profile, position, operation string) ([]byte, map[string]any) {
 	t.Helper()
 	dir := t.TempDir()

@@ -154,10 +154,8 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 	}
 	scope.bytes += int64(len(data))
 	var resources []byte
-	// Only verification consumes the old child envelope. Signing constructs a
-	// new envelope or seals the existing executable; removal keeps child bytes.
-	// Reading it here would reject directories and write-only envelopes before
-	// their native commit boundary, including during non-mutating dry runs.
+	// Read child envelopes only to verify resource seals. Signing rebuilds
+	// envelopes or seals existing executables; removal preserves children.
 	if scope.recurse && !scope.signatureCleanup {
 		resources, err = child.read(child.resourcesPath(), min(maxBundlePlist, maxFileSize-scope.bytes))
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
