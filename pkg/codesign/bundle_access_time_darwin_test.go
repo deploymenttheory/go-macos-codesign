@@ -57,3 +57,56 @@ func TestBundleReadPreservesAccessUntilAllocation(t *testing.T) {
 	}
 	assertNoBundleStaging(t, app)
 }
+
+type cancelAfterBundleReplacement struct {
+	context.Context
+	path     string
+	original os.FileInfo
+}
+
+func (c cancelAfterBundleReplacement) Err() error {
+	current, err := os.Stat(c.path)
+	if err == nil && !os.SameFile(c.original, current) {
+		return context.Canceled
+	}
+	return nil
+}
+
+func TestBundleCleanupCancellationPreservesCopiedAccess(t *testing.T) {
+	app := testBundle(t)
+	path := filepath.Join(app, "Contents/MacOS/hello")
+	neighbour := filepath.Join(t.TempDir(), "neighbour")
+	if err := os.Link(path, neighbour); err != nil {
+		t.Fatal(err)
+	}
+	bundleFile(t, app, "Contents/_CodeSignature/stale", []byte("retain"))
+	if err := os.Chtimes(path, time.Unix(978307200, 234567890), time.Unix(946684800, 123456789)); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := cancelAfterBundleReplacement{context.Background(), path, before}
+	if err := Sign(ctx, app, SignOptions{}); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+	after, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, err := os.Stat(neighbour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if os.SameFile(before, after) || !os.SameFile(before, other) {
+		t.Fatal("unexpected cancellation commit boundary")
+	}
+	if after.Sys().(*syscall.Stat_t).Atimespec != other.Sys().(*syscall.Stat_t).Atimespec {
+		t.Fatal("cancelled cleanup refreshed replacement access")
+	}
+	if string(readTestFile(t, filepath.Join(app, "Contents/_CodeSignature/stale"))) != "retain" {
+		t.Fatal("cancelled cleanup removed a signature file")
+	}
+	assertNoBundleStaging(t, app)
+}

@@ -75,11 +75,16 @@ func TestWriterAST(t *testing.T) {
 		t.Fatal("both writer AST targets required")
 	}
 	for target, facts := range record.Targets {
-		if len(facts.Methods) != 15 {
+		if len(facts.Methods) != 16 {
 			t.Fatalf("missing complete writer methods for %s", target)
 		}
 		if facts.Methods["commit"].References["rename"] != 1 || facts.Methods["commit"].References["copy"] != 2 || facts.Methods["~MachOEditor"].References["remove"] != 1 {
 			t.Fatalf("missing writer control flow for %s", target)
+		}
+		for _, call := range []string{"remove", "edit", "sign", "resetValidity"} {
+			if facts.Methods["signer_sign"].References[call] != 1 {
+				t.Fatalf("missing signing controller control flow %s for %s", call, target)
+			}
 		}
 		for _, call := range []string{"mapFile", "writeFile", "munmap"} {
 			if facts.Methods["code_sign_allocate"].References[call] != 1 {

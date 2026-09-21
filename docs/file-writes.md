@@ -62,6 +62,10 @@ the original file identity again. A later I/O or cancellation failure can leave
 earlier commits in place; this is not whole-tree rollback. Removal replaces only
 the selected main executable and empties its signature directory, retaining the
 directory itself. Descendant signatures remain unchanged during outer removal.
+Replacement access is refreshed after its own cleanup succeeds. A cleanup failure
+retains the replacement's copied source access time; completed descendants retain
+their later access. Reopening the committed executable through the held root checks
+both its path identity and opened inode before recording access.
 
 For supported regular files in `_CodeSignature`, signing excludes old sidecars
 from resource seals and purges them after committing that bundle's main executable.
@@ -148,8 +152,9 @@ already-signed rejection and ancestors blocked by allocation failure retain thei
 access times. Outer removal records only the main executable's allocation; dry-run
 signing records eligible allocations without replacing inputs.
 Source hard links observe that read-access time while retaining their bytes,
-modification time and creation time. Each private replacement records a later
-access time before commit. The source read stays bounded and identity-checked;
+modification time and creation time. Each committed bundle replacement records a
+later access time after successful signature cleanup. Failed cleanup retains copied
+source access. The source read stays bounded and identity-checked;
 rejected oversized reads do not call the access recorder.
 
 Ordinary reads on the tested APFS volume leave access time unchanged. APFS records
@@ -226,7 +231,7 @@ using a pinned private flag header and internal flag enum. Its state carrier and
 two helper interfaces are explicit declaration-only shims. The complete allocation
 `mapFile` function adds Apple's read-only private mapping and three SDK mapping
 constants. Its error logger is a declaration-only shim. Both targets now record
-fifteen complete methods/functions and fifteen constants. The full `code_sign_allocate`
+sixteen complete methods/functions and fifteen constants. The full `code_sign_allocate`
 body adds input mapping before output creation. Public SDK declarations remain
 real; signature-space, endian and VM helpers are declarations, and the private
 `__os_free` macro uses a declaration-only cleanup attribute shim. Allocation records both
@@ -399,9 +404,26 @@ reads leave metadata unchanged and dry-run allocation records only access.
 Thirty-six native cases retain explicit limits around envelope/cleanup failures
 and unsigned-child signing. Go stages executables before envelope commits, so it
 can map an executable or ancestor that native never allocates after an envelope
-or child-cleanup failure. A native cleanup failure leaves the committed
-replacement's copied source access time; Go records a later replacement access.
+or child-cleanup failure. Cleanup failure leaves the committed replacement's copied
+source access time in both implementations; only successful cleanup triggers a
+later replacement access.
 A deep dry run with an unsigned child maps the child natively, while Go can reject
 its on-disk seal before allocating. Shallow unsigned-child failure preserves
 access in both. The tests assert these separate outcomes without treating them
 as parity; output trees and external-link bytes still match in this corpus.
+
+The replacement cleanup-access matrix adds 504 native comparisons across seven
+layouts, three architectures, past/future access times, stale directories and
+symlinks, unsigned/signed/read-only signing, signed/unsigned removal and dry runs.
+It checks complete trees, statuses, copied versus later access, executable and
+external-link identity, modes, creation/modification times and preserved neighbour
+bytes. Dry-run trees remain unchanged. Ten native-first regressions fail against
+the merged base implementation, with two dry-run controls passing.
+
+The complete `SecCodeSigner::sign` controller is included in the two-target writer
+AST: it calls `resetValidity` only after its signing/removal operation returns.
+Pinned `resetValidity` and `checkForSystemSignature` call sites are source-reviewed
+separately. Native observations establish the access-time boundary; the ordinary
+read/write in `MachOEditor::commit` alone does not establish a mapped-read refresh.
+Sixteen complete functions/methods and fifteen SDK constants are recorded. Private
+controller state, flags and validation helpers use declaration-only shims.

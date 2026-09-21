@@ -107,7 +107,7 @@ func TestBundleReplacementRejectsChangedTarget(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if err := p.commit(); err == nil {
+			if err := p.commit(context.Background()); err == nil {
 				t.Fatal("committed to a changed target")
 			}
 			if change == "replace" && string(readTestFile(t, filepath.Join(app, b.executable))) != "replacement by another writer" {
@@ -142,4 +142,57 @@ func TestBundleLaterCommitFailureRetainsEarlierCommit(t *testing.T) {
 		t.Fatal("incorrect partial-commit state")
 	}
 	assertNoBundleStaging(t, app)
+}
+
+func TestBundleCommittedAccessRejectsChangedTarget(t *testing.T) {
+	for _, change := range []string{"replace", "remove", "symlink", "closed-root"} {
+		t.Run(change, func(t *testing.T) {
+			app := testBundle(t)
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: []byte("committed"), bundle: b}, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer p.replacement.Close()
+			if err := p.commit(context.Background()); err != nil {
+				t.Fatal(err)
+			}
+			if err := p.replacement.Close(); err != nil {
+				t.Fatal(err)
+			}
+			if change == "closed-root" {
+				if err := b.root.Close(); err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				if err := b.root.Link(b.executable, "committed-inode"); err != nil {
+					t.Fatal(err)
+				}
+				if err := b.root.Remove(b.executable); err != nil {
+					t.Fatal(err)
+				}
+				switch change {
+				case "replace":
+					if err := b.root.WriteFile(b.executable, []byte("changed target"), 0600); err != nil {
+						t.Fatal(err)
+					}
+				case "symlink":
+					if err := b.root.Symlink("../../committed-inode", b.executable); err != nil {
+						t.Fatal(err)
+					}
+				}
+			}
+			if err := p.recordReadAccess(); err == nil {
+				t.Fatal("recorded access through a changed target")
+			}
+			if change == "replace" && string(readTestFile(t, filepath.Join(app, b.executable))) != "changed target" {
+				t.Fatal("changed target modified")
+			}
+			assertNoBundleStaging(t, app)
+		})
+	}
 }

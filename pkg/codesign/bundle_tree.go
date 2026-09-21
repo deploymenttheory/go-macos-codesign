@@ -184,7 +184,7 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 	if err != nil {
 		return nil, nil, err
 	}
-	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite}, bundleWrite{bundle: b, kind: bundleSignatureCleanup})
+	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupKeepResources})
 	var total int64
 	for i := range writes {
 		if writes[i].bundle == nil {

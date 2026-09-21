@@ -112,7 +112,7 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 									t.Fatalf("%s %s access outside operation", exe, name)
 								}
 								if replaced {
-									if copiedAccess && exe != binaryPath {
+									if copiedAccess {
 										if !at.Equal(sourceAt) {
 											t.Fatal("native cleanup failure did not retain copied source access")
 										}
@@ -126,7 +126,7 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 							if !writerBirth(other).Equal(writerBirth(originals[name])) || !replaced && !writerBirth(after).Equal(writerBirth(originals[name])) {
 								t.Fatal("uncommitted creation time changed")
 							}
-							access := map[string]any{"before": writerAccess(originals[name]), "after": at, "neighbour": sourceAt, "accessed": accessed, "native_accessed": nativeAccess, "known_read_difference": goAccess != nativeAccess, "native_replacement_copies_source_access": copiedAccess, "known_replacement_access_difference": copiedAccess}
+							access := map[string]any{"before": writerAccess(originals[name]), "after": at, "neighbour": sourceAt, "accessed": accessed, "native_accessed": nativeAccess, "known_read_difference": goAccess != nativeAccess, "native_replacement_copies_source_access": copiedAccess, "known_replacement_access_difference": false}
 							effects[name] = map[string]any{"access": access, "inode_replaced": replaced, "neighbour_preserved": true}
 							if !other.ModTime().Equal(originals[name].ModTime()) || !replaced && !after.ModTime().Equal(originals[name].ModTime()) {
 								t.Fatal("uncommitted modification time changed")
