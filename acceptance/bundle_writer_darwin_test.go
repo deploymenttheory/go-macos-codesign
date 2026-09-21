@@ -103,9 +103,13 @@ func TestBundleWriterNativeMetadata(t *testing.T) {
 					if !reflect.DeepEqual(commonBefore, commonAfter) {
 						t.Fatalf("%s %s executable metadata: %#v -> %#v", exe, operation, beforeMain, afterMain)
 					}
-					if exe == binaryPath || operation == "dryrun" {
+					if operation == "dryrun" {
 						if !reflect.DeepEqual(beforeMain, afterMain) {
 							t.Fatalf("source metadata not preserved: %#v -> %#v", beforeMain, afterMain)
+						}
+					} else if exe == binaryPath {
+						if beforeMain.ACL != afterMain.ACL {
+							t.Fatalf("source ACL not preserved: %#v -> %#v", beforeMain, afterMain)
 						}
 					} else if !strings.HasPrefix(afterMain.ACL, beforeMain.ACL) || !strings.Contains(afterMain.ACL, "inherited allow read") {
 						t.Fatalf("native ACL inheritance changed: %#v -> %#v", beforeMain, afterMain)
@@ -124,7 +128,7 @@ func TestBundleWriterNativeMetadata(t *testing.T) {
 					}
 					record[producer] = map[string]any{"argv": append(args, app), "stdout": out, "stderr": stderr, "exit": status, "before": beforeStat, "after": afterStat, "main_metadata_before": beforeMain, "main_metadata_after": afterMain, "existing_envelope_metadata": beforeEnvelope, "common_metadata_preserved": true, "source_acl_preserved": beforeMain.ACL == afterMain.ACL, "source_birthtime_preserved": beforeMain.Birth == afterMain.Birth}
 				}
-				record["remaining_differences"] = []string{"native executable ACL inheritance", "native executable creation-time behavior"}
+				record["remaining_differences"] = []string{"native executable ACL inheritance", "access-time behavior"}
 				attest(t, record)
 			})
 		}

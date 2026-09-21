@@ -110,9 +110,23 @@ The [implementation plan](implementation_plan.md#merged-pr35) records the final
 workflow and artifact evidence. No copied hashing implementation or local
 dependency replacement is committed.
 
-The first bundle slice does not reproduce every native metadata side effect.
-Native probes show Apple can add inherited executable-directory ACL entries and
-change creation time; our replacement preserves the original ACL and birth time.
+The bundle writer does not reproduce every native metadata side effect.
+Native probes show Apple can add inherited executable-directory ACL entries;
+our replacement preserves the original ACL. The creation-time integration uses
+the explicit `SetCreationTime` API proposed in [APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108),
+which still requires an upstream merge and published release before the final
+codesign dependency pin and CI gates. Local development validation uses an isolated
+module file; the committed dependency remains v0.6.1.
+
+On Darwin, rewritten bundle executables receive a new creation time capped by an
+earlier source modification time, matching native APFS observations. The timestamp
+is selected before staging and applied only to the private replacement. Dry runs,
+untouched descendants during outer removal, and existing envelope creation times
+remain unchanged. Linux/Windows retain their existing replacement metadata policy;
+the shared setter reports unsupported there. Standalone replacement still preserves
+its source creation time. Exact wall-clock timestamps differ between independent
+runs; tests assert the operation interval or exact source modification time.
+Access-time behavior and executable ACL inheritance remain outside this profile.
 Mode, owner/group, the tested xattr and supported flags survive both writers.
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
@@ -191,6 +205,15 @@ exports 84 signed archives for independent native verification. Fifteen native
 metadata profiles retain raw stat observations and ACL/xattr/flag results,
 including the differences above. Failure tests cover preparation before envelope
 creation, cancellation, changed target identity, partial commits and cleanup.
+
+Creation-time acceptance adds 210 macOS comparisons across seven layouts, three
+architectures, past/future source modification times and five operations. Each case
+compares complete native trees and checks executable/neighbor identity and timestamps;
+successful signatures receive native strict deep verification. Permission-denial
+and cancellation tests require unchanged originals, no envelope commit and no
+staging leaks. Both Clang targets record `ATTR_CMN_CRTIME` and `timespec` size, plus
+the complete metadata-copy and commit methods. These are local development results
+until the upstream API is released and codesign's final three-OS gates pass.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale

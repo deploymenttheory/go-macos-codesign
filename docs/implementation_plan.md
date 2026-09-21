@@ -793,6 +793,32 @@ No umbrella status changes. Other filesystem orders, signing-envelope symlinks,
 special files, broader permission/ACL failures and raw diagnostics remain open,
 alongside executable ACL/birth-time and explicit directory ACL differences.
 
+**Current executable creation-time slice (development integration):**
+
+- [x] Establish Darwin APFS behavior with 210 native comparisons: seven layouts,
+  three architectures, past/future modification times and five operations.
+  Rewritten executables receive a new creation time capped by the source
+  modification time; dry runs, external hard-link neighbors and existing envelopes
+  retain their creation times. Outer removal preserves descendant signatures.
+- [x] Prepare an explicit descriptor-based `hostmeta.SetCreationTime` primitive in
+  [APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108), preserving
+  replacement API defaults. Darwin sets nanosecond creation time; other hosts
+  return an unsupported error without changing their metadata policy.
+- [x] Pass [APFS final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35599205383)
+  on head `9b27bfd89d739e51440ac9f40a42b05f25f18219`: three-OS unit/image acceptance,
+  vet, the hash race regression and all six builds. The CI merge shares its tree.
+- [x] Apply the timestamp only to staged bundle executables; retain original-file
+  preservation and cleanup on metadata failure or cancellation. Extend both Clang
+  targets with the creation-time attribute and timestamp layout constants.
+- [x] Pass local `make verify`, lint and six CGO-disabled cross-builds against the
+  isolated APFS development API. Local coverage is 95.47% library, 99.53% CLI and
+  100% entry point; all 210 native creation-time trees and metadata policies match.
+- [ ] Merge and release the APFS API, then pin the published version in codesign.
+  The local integration uses a temporary module file; committed v0.6.1 has no setter.
+- [ ] Pass codesign's final three-OS, packaging, race/fuzz, native-import and artifact
+  audit gates with the released dependency. Keep ACL inheritance, access-time
+  behavior and broader permission/filesystem differences explicit.
+
 **Implementation tasks:**
 
 - [ ] Probe native first signing, re-signing, removal and dry runs separately for
