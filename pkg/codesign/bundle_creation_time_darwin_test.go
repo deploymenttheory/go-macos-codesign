@@ -74,3 +74,39 @@ func TestBundleCreationTimeCancellation(t *testing.T) {
 	}
 	assertNoBundleStaging(t, app)
 }
+
+func TestDryRunSkipsMetadataRestoration(t *testing.T) {
+	for _, bundle := range []bool{false, true} {
+		app := testBundle(t)
+		path := filepath.Join(app, "Contents/MacOS/hello")
+		if !bundle {
+			app = t.TempDir()
+			path = filepath.Join(app, "tool")
+			if err := os.WriteFile(path, fixture(t, "unsigned-arm64"), 0755); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if out, err := exec.Command("/bin/chmod", "+a", "everyone deny writeattr", path).CombinedOutput(); err != nil {
+			t.Fatalf("ACL: %v: %s", err, out)
+		}
+		t.Cleanup(func() { _ = exec.Command("/bin/chmod", "-N", path).Run() })
+		before := readTestFile(t, path)
+		operand := path
+		if bundle {
+			operand = app
+		}
+		if err := Sign(context.Background(), operand, SignOptions{DryRun: true}); err != nil {
+			t.Fatalf("dry-run metadata denial: %v", err)
+		}
+		if out, err := exec.Command("/usr/bin/codesign", "-fs", "-", "--dryrun", "--timestamp=none", operand).CombinedOutput(); err != nil {
+			t.Fatalf("native dry-run metadata denial: %v: %s", err, out)
+		}
+		if !bytes.Equal(readTestFile(t, path), before) {
+			t.Fatal("dry-run changed source")
+		}
+		if _, err := os.Stat(filepath.Join(app, bundleResourcesPath)); !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("dry-run wrote envelope: %v", err)
+		}
+		assertNoBundleStaging(t, app)
+	}
+}

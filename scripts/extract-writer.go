@@ -58,6 +58,10 @@ func main() {
 	unit := `#include <string>
 #include <cstdio>
 #include <set>
+#include <map>
+#include <cstdint>
+#include <cstdlib>
+#include <mach/machine.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -76,11 +80,11 @@ func main() {
 namespace CodesignWriterResearch {
 using std::string;
 struct UnixError { static void check(int); static void throwMe(); };
-struct UidGuard { bool seteuid(uid_t); };
+struct UidGuard { UidGuard(int = 0); bool seteuid(uid_t); };
 struct Copyfile { void set(unsigned int, void*); void operator()(const char*, const char*, copyfile_flags_t); };
-struct FD { operator int(); void read(void*, size_t, off_t); void write(const void*, size_t, off_t); };
-struct Writer { bool getPreserveAFSC(); void setPreserveAFSC(bool); void remove(); void flush(); };
-struct Universal {};
+struct FD { void open(const string&, int); operator int(); void read(void*, size_t, off_t); void write(const void*, size_t, off_t); };
+struct Writer { void component(int, CFDataRef); bool getPreserveAFSC(); void setPreserveAFSC(bool); void remove(); void flush(); };
+struct Universal { Universal(FD&); };
 struct cmpInfo { unsigned int compressionType; unsigned long long compressedSize; };
 int queryCompressionInfo(const char*, cmpInfo*);
 using CompressionQueueContext = void*;
@@ -107,7 +111,14 @@ struct BundleDiskRep {
  };
 };
 #define BUNDLEDISKREP_DIRECTORY "_CodeSignature"
+struct Architecture { Architecture(cpu_type_t, cpu_subtype_t); bool matches(const Architecture&) const; bool operator<(const Architecture&) const; };
+namespace LowLevelMemoryUtilities { size_t alignUp(size_t, size_t); }
+bool code_sign_deallocate(const char*, const char*, char*&);
+bool code_sign_allocate(const char*, const char*, unsigned int (^)(cpu_type_t, cpu_subtype_t), char*&);
+void secerror(const char*, ...);
 struct MachOEditor {
+  struct Arch { size_t blobSize; };
+  std::map<Architecture, Arch*> architecture;
   MachOEditor(Writer*, Universal&, int, string); ~MachOEditor(); void allocate(); void commit();
   std::string sourcePath, tempPath; FD mFd;
   Writer* writer; Universal* mNewCode; bool mTempMayExist;
@@ -120,8 +131,9 @@ struct DiskRep {
 };
 struct StaticCode { DiskRep* diskRep(); };
 struct SecCodeSigner { struct Signer {
- struct State { bool mDetached, mPreserveAFSC, mNoMachO; } state;
+ struct State { bool mDetached, mPreserveAFSC, mNoMachO, mDryRun; } state;
  DiskRep* rep; StaticCode* code; int digestAlgorithms(); void remove(SecCSFlags);
+ bool resourceDirectory; CFDataRef resourceDictData; void populate(DiskRep::Writer&);
 }; };
 enum MetadataConstants : unsigned long long {
  CloneACL = CLONE_ACL,
@@ -144,7 +156,13 @@ enum MetadataConstants : unsigned long long {
 	}
 	hashes["mapFile"] = hash(mapping)
 	unit += "\nvoid log_error(char*&, const char*, ...);\n" + string(mapping) + "\n"
-	for _, name := range []string{"~MachOEditor", "commit"} {
+	alignment := regexp.MustCompile(`(?m)^static const size_t csAlign = [0-9]+;`).Find(source)
+	if len(alignment) == 0 {
+		panic("missing allocation alignment")
+	}
+	hashes["csAlign"] = hash(alignment)
+	unit += "\n" + string(alignment) + "\n"
+	for _, name := range []string{"~MachOEditor", "allocate", "commit"} {
 		excerpt := regexp.MustCompile(`(?ms)^(?:void )?MachOEditor::` + regexp.QuoteMeta(name) + `\(\).*?^}`).Find(source)
 		if len(excerpt) == 0 {
 			panic("missing complete method " + name)
@@ -159,6 +177,12 @@ enum MetadataConstants : unsigned long long {
 	}
 	hashes["signer_remove"] = hash(remove)
 	unit += "\n" + string(remove) + "\n"
+	populate := regexp.MustCompile(`(?ms)^void SecCodeSigner::Signer::populate\(DiskRep::Writer &writer\).*?^}`).Find(signer)
+	if len(populate) == 0 {
+		panic("missing complete signer global populate method")
+	}
+	hashes["signer_populate"] = hash(populate)
+	unit += "\n" + string(populate) + "\n"
 	bundle := read(".research/apple/bundlediskrep.cpp")
 	for _, name := range []string{"createMeta", "metaPath", "component", "remove", "flush", "purgeMetaDirectory"} {
 		prefix := "BundleDiskRep::Writer::"
@@ -201,7 +225,7 @@ enum MetadataConstants : unsigned long long {
 	targets := map[string]any{}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		var ast node
-		must(json.Unmarshal(run(unit, "clang++", "-target", target, "-isysroot", sdk, "-std=c++17", "-x", "c++", "-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=CodesignWriterResearch", "-"), &ast))
+		must(json.Unmarshal(run(unit, "clang++", "-target", target, "-isysroot", sdk, "-std=c++17", "-fblocks", "-x", "c++", "-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=CodesignWriterResearch", "-"), &ast))
 		methods, constants := map[string]any{}, map[string]string{}
 		walk(ast, func(n node) {
 			if n.Kind == "EnumConstantDecl" && (n.Name == "CloneACL" || n.Name == "FileSecMagic" || n.Name == "NoACL" || n.Name == "FileSecSize" || n.Name == "AttrReferenceSize" || n.Name == "CreationTimeAttribute" || n.Name == "TimeSpecSize" || strings.HasPrefix(n.Name, "Directory") || strings.HasPrefix(n.Name, "Mapping")) {
@@ -211,7 +235,7 @@ enum MetadataConstants : unsigned long long {
 					}
 				})
 			}
-			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl" && n.Kind != "FunctionDecl") || hashes[n.Name] == "" && hashes["bundle_"+n.Name+"_0"] == "" {
+			if (n.Kind != "CXXMethodDecl" && n.Kind != "CXXDestructorDecl" && n.Kind != "FunctionDecl") || hashes[n.Name] == "" && hashes["bundle_"+n.Name+"_0"] == "" && hashes["signer_"+n.Name] == "" {
 				return
 			}
 			kinds, references := map[string]int{}, map[string]int{}
@@ -226,26 +250,26 @@ enum MetadataConstants : unsigned long long {
 			})
 			if kinds["CompoundStmt"] > 0 {
 				name := n.Name
-				if name == "remove" && strings.Contains(n.MangledName, "SecCodeSigner") {
-					name = "signer_remove"
+				if strings.Contains(n.MangledName, "SecCodeSigner") {
+					name = "signer_" + name
 				} else if hashes[name] == "" {
 					name = fmt.Sprintf("bundle_%s_%d", name, kinds["ParmVarDecl"])
 				}
 				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 12 || len(constants) != 15 {
+		if len(methods) != 14 || len(constants) != 15 {
 			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
 	}
 	headers := map[string]string{}
-	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h", "sys/mman.h"} {
+	for _, path := range []string{"sys/clonefile.h", "sys/attr.h", "sys/acl.h", "sys/kauth.h", "copyfile.h", "sys/stat.h", "sys/mount.h", "sys/mman.h", "mach/machine.h"} {
 		headers[path] = hash(read(filepath.Join(sdk, "usr/include", path)))
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope": "Ten complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
+		"scope": "Twelve complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove and global populate, MachOEditor allocate/commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. The allocation and global-populate bodies record temporary allocation cleanup and dry-run envelope suppression. Pinned signMachO source calls allocate even for dry runs; pinned buildResources dispatches nested work through LimitedAsync and waits for its group. Those two call sites are source-reviewed, not part of this AST extraction. The readable/searchable executable-directory profile compares modes 0755/0555 independently of executable modes 0755/0551, including first/last sibling allocation failures, outer failures, shallow signing, dry runs and removal. Go retains independent sibling commits and the failed bundle envelope, skips ancestors, and discards dry-run allocations without restoring metadata. Failed-parent and shallow executable access still differ because Go reads the complete plan first. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
 		"sources": map[string]any{
 			"codesign_alloc.cpp": map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/codesign_alloc.cpp", "sha256": hash(allocation)},
 			"signer.cpp":         map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signer.cpp", "sha256": hash(signer)},
@@ -259,5 +283,5 @@ enum MetadataConstants : unsigned long long {
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: ten writer methods, copyfile_stat and mapFile on two targets")
+	fmt.Println("Wrote spec/apple-writer.json: twelve writer methods, copyfile_stat and mapFile on two targets")
 }

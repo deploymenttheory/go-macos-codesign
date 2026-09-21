@@ -80,10 +80,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	if opts.DryRun {
-		return nil
-	}
-	return replaceFile(ctx, path, out)
+	return writeFile(ctx, path, out, opts.DryRun)
 }
 
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.

@@ -23,9 +23,16 @@ func readBounded(r io.Reader, limit int64) ([]byte, error) {
 }
 
 func replaceFile(ctx context.Context, path string, data []byte) error {
+	return writeFile(ctx, path, data, false)
+}
+
+func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error {
 	// Apple's UDIF writer updates the image in place; MachOEditor replaces its
 	// selected directory entry with a prepared copy, detaching every hard link.
 	if isDMG(data) {
+		if dryRun {
+			return ctx.Err()
+		}
 		return overwriteFile(ctx, path, data)
 	}
 	st, err := os.Lstat(path)
@@ -55,6 +62,11 @@ func replaceFile(ctx context.Context, path string, data []byte) error {
 		return err
 	}
 	defer replacement.Close()
+	// Mach-O dry runs require a temporary allocation but do not restore metadata
+	// or commit it. This checks directory permissions without touching source bytes.
+	if dryRun {
+		return errors.Join(ctx.Err(), replacement.Close())
+	}
 	f := replacement.File
 	if _, err := f.WriteAt(data, 0); err != nil {
 		return err

@@ -523,13 +523,10 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	if opts.DryRun {
-		return nil
-	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return commitBundleWrites(ctx, writes)
+	return applyBundleWrites(ctx, writes, opts.DryRun)
 }
 
 func (b *appBundle) write(ctx context.Context, name string, data []byte, create bool) error {

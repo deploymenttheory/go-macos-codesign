@@ -251,7 +251,8 @@ The legacy dictionary still includes Resources/.DS_Store; modern verification
 uses `files2`, so changing that omitted file does not invalidate the bundle.
 
 `--force` is required to replace a signed executable. `--dryrun` constructs the
-signature without creating signature directories or writing outputs.
+signature and checks executable allocation permission with a disposable temporary
+file, without creating signature directories or committing outputs.
 Construction errors, including timestamp-provider failures, precede mutation.
 Successful signing purges stale regular files from each rewritten bundle's
 `_CodeSignature` directory after committing its main executable, keeping the new
@@ -368,8 +369,10 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   [staged replacement through go-apfs-v2](file-writes.md), preserving external
   hard-link names and their original bytes. Existing CodeResources files retain
   their inode on signing and are unlinked on removal.
-- All executable replacements are staged before committing any bundle writes.
-  Preparation errors and cancellation before commit preserve the tree. Commits
+- Executable staging precedes bundle commits. Allocation permission failures
+  retain independent sibling commits and the affected bundle's envelope, while
+  preserving its executable, stale sidecars and all ancestor writes. Other
+  preparation errors and cancellation before commit preserve the tree. Commits
   remain descendant-first, with each envelope preceding its main executable.
   Later commit failures can leave earlier children or envelopes changed; the
   whole tree is not a transaction. Concurrent filesystem
