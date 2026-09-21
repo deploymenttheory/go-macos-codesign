@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Check Mach-O dry-run allocation permissions and discard temporary files without
+  restoring metadata. Match the readable/searchable executable-directory failure
+  profile: retain sibling commits and the failed bundle envelope, skip ancestor
+  writes, and preserve external hard links. Add 624 native POSIX comparisons,
+  Windows DACL failure tests, cancellation checks and expanded writer AST evidence.
+  Keep failed/shallow access-time and wider filesystem differences explicit.
+
 - Match Darwin standalone Mach-O access times for signing, re-signing, removal
   and dry runs using the released APFS v0.8.0 API. Preserve source hard-link bytes,
   aliases and read-only operation behavior; keep DMG reads unmapped. Add native

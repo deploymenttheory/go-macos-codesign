@@ -20,12 +20,23 @@ type preparedBundleExecutable struct {
 	replacement *hostmeta.RootReplacement
 }
 
-// Construct and stage every executable before the first resource or executable
-// commit. Commit order remains descendant-first, with each resource envelope
-// preceding its main executable. Later commit failures do not roll back earlier
-// writes; each Mach-O commit replaces only its selected directory entry.
-func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error) {
+type bundleAllocationError struct{ err error }
+
+func (e *bundleAllocationError) Error() string { return e.err.Error() }
+func (e *bundleAllocationError) Unwrap() error { return e.err }
+
+func commitBundleWrites(ctx context.Context, writes []bundleWrite) error {
+	return applyBundleWrites(ctx, writes, false)
+}
+
+// Stage executables before committing resource envelopes and replacements.
+// Allocation permission failures retain the affected envelope and independent
+// sibling commits, but prevent ancestor writes. Other preparation errors abort.
+func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (result error) {
 	prepared := make([]*preparedBundleExecutable, len(writes))
+	allocationErrors := make([]error, len(writes))
+	failed, blocked := map[*appBundle]bool{}, map[*appBundle]bool{}
+	var allocationErr error
 	defer func() {
 		for _, p := range prepared {
 			if p != nil {
@@ -34,17 +45,45 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 		}
 	}()
 	for i, write := range writes {
-		if write.kind == bundleMachOWrite {
-			p, err := prepareBundleExecutable(ctx, write)
-			if err != nil {
+		if write.kind != bundleMachOWrite {
+			continue
+		}
+		b := write.bundle
+		if write.name == b.executable {
+			for _, child := range b.children {
+				if failed[child] {
+					failed[b], blocked[b] = true, true
+				}
+			}
+			if blocked[b] {
+				continue
+			}
+		}
+		p, err := prepareBundleExecutable(ctx, write, dryRun)
+		if err != nil {
+			var allocation *bundleAllocationError
+			if !errors.As(err, &allocation) {
 				return err
 			}
-			prepared[i] = p
+			allocationErrors[i] = err
+			allocationErr = errors.Join(allocationErr, err)
+			failed[b] = true
+			if write.name != b.executable {
+				blocked[b] = true
+			}
+			continue
 		}
+		prepared[i] = p
+	}
+	if dryRun {
+		return allocationErr
 	}
 	for i, write := range writes {
 		if err := ctx.Err(); err != nil {
 			return err
+		}
+		if allocationErrors[i] != nil || blocked[write.bundle] && (write.kind != bundleMachOWrite || write.name == write.bundle.executable) {
+			continue
 		}
 		if p := prepared[i]; p != nil {
 			if err := p.commit(); err != nil {
@@ -53,8 +92,10 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 			continue
 		}
 		if write.kind == bundleSignatureCleanup {
-			if err := write.bundle.purgeSignatureFiles(ctx, true); err != nil {
-				return err
+			if !failed[write.bundle] {
+				if err := write.bundle.purgeSignatureFiles(ctx, true); err != nil {
+					return err
+				}
 			}
 			continue
 		}
@@ -65,7 +106,7 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 			return err
 		}
 	}
-	return nil
+	return allocationErr
 }
 
 // Copy root stat metadata into newly created signature directories. Leave
@@ -199,7 +240,7 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 	return nil
 }
 
-func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *preparedBundleExecutable, result error) {
+func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool) (_ *preparedBundleExecutable, result error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -229,6 +270,9 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *prepare
 	}
 	r, err := hostmeta.PrepareReplacementAt(source, root, filepath.Dir(write.name))
 	if err != nil {
+		if errors.Is(err, os.ErrPermission) {
+			return nil, &bundleAllocationError{err: err}
+		}
 		return nil, err
 	}
 	defer func() {
@@ -236,6 +280,9 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *prepare
 			result = errors.Join(result, r.Close())
 		}
 	}()
+	if dryRun {
+		return nil, errors.Join(ctx.Err(), r.Close())
+	}
 	if _, err := r.File.WriteAt(write.data, 0); err != nil {
 		return nil, err
 	}

@@ -90,7 +90,7 @@ func TestBundleReplacementRejectsChangedTarget(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer b.close()
-			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: []byte("new"), bundle: b})
+			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: []byte("new"), bundle: b}, false)
 			if err != nil {
 				t.Fatal(err)
 			}

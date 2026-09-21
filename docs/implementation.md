@@ -10,9 +10,11 @@ into a complete post-PR #25 backlog, with all 88 inventory entries mapped to
 D04 replacement, cleanup ordering, directory stat, envelope failure and bundle
 creation/access-time profiles are merged. PR #42 adds standalone Mach-O access-time
 parity with bundle read-only and DMG controls, retaining released APFS v0.8.0.
-The next bounded D04 slice establishes executable-directory permission and
-failure-order behavior before implementation. ACL inheritance, explicit directory
-ACL copying and native DMG dry-run writes remain open. The expanded D01 inventory
+The current D04 slice checks dry-run allocation permissions and retains independent
+sibling commits after executable allocation failures, with 624 POSIX comparisons.
+Final validation is recorded in the implementation PR. Inaccessible directories,
+failed/shallow access times, ACL inheritance/copying and native DMG dry-run writes
+remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
 
@@ -51,9 +53,9 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 ## Next implementation sequence
 
-1. **Complete bounded filesystem profiles:** establish executable-directory
-   permission/failure ordering while retaining the merged access-time and writer
-   matrices. Investigate supported ACL APIs without relaxing private staging;
+1. **Complete bounded filesystem profiles:** validate the readable/searchable
+   executable-directory profile and retain the merged access-time/writer matrices.
+   Investigate inaccessible directories and failed/shallow access-time ordering. Investigate supported ACL APIs without relaxing private staging;
    keep WP-17's DMG dry-run writes explicit until independently implemented.
    Follow the detailed [D04 delivery plan](implementation_plan.md#delivery-status).
 2. **Extend bundle compatibility:** retain the tested resource, nested Mach-O

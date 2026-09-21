@@ -6,39 +6,33 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Delivered standalone access-time profile
+## Current executable-directory slice
 
-Standalone Mach-O signing, re-signing, signed/unsigned removal and signed/unsigned
-dry runs refresh source access time on Darwin. Each replacement receives a later
-access time; source hard links retain bytes, identity and write timestamps.
-Physical alias resolution and private staging remain intact. The implementation
-uses released APFS v0.8.0, already pinned on `main`.
+Mach-O dry runs check executable-directory creation permission using a disposable
+private allocation, preserving input bytes and skipping metadata restoration.
+During signing, an allocation permission failure retains independent sibling
+commits and the failed bundle's resource envelope. Its executable and sidecars
+remain unchanged; ancestors do not commit. Removal remains outer-only.
 
-The native matrix adds 216 standalone comparisons, 168 bundle read-only controls
-and 80 DMG access-time controls. Display and verification preserve executable
-metadata. DMG access time is unchanged, including 20 dry-run cases with an explicit
-remaining difference: native writes bytes and modification time in place, while
-Go preserves both. A sparse oversized-file regression rejects before mapping.
-[PR #42](https://github.com/deploymenttheory/go-macos-codesign/pull/42) is merged as
-`8c7c68fc`, with the same tree as its tested head and CI merge. Final three-OS
-coverage, packaging, race/fuzz, lint and artifact audits pass. Apple verified all
-606 signed imports and matched all 88 removal outputs. The
-[implementation plan](implementation_plan.md#merged-pr42) records exact revisions
-and coverage; each production package remains above 95%.
+The matrix adds 624 POSIX cases across three architectures, seven operand/tree
+shapes, two directory modes and two executable modes. It compares complete native
+trees, exit status, replacement identity, external links, timestamps and cleanup.
+Windows uses DACL-denial unit tests instead of POSIX mode assertions. Cancellation
+and Darwin metadata-denial tests preserve dry-run inputs and remove staging.
+The writer AST now contains fourteen complete methods/functions on two targets.
 
-Merged [PR #41](https://github.com/deploymenttheory/go-macos-codesign/pull/41)
-delivered 294 bundle access-time comparisons and APFS v0.8.0. Its audited merge,
-three-OS coverage, packaging and native imports are recorded in the
-[implementation plan](implementation_plan.md#merged-pr41). The retained suite also
-covers 210 executable creation-time cases, cleanup ordering, directory stat and
-signing-envelope failure profiles. The 606-import/88-removal gate remains required.
+The implementation retains released APFS v0.8.0 and needs no upstream change.
+[PR #43](https://github.com/deploymenttheory/go-macos-codesign/pull/43) contains the
+preceding progress update; the implementation PR records final validation.
+PR #42's audited merge and 464 cases are in the
+[implementation plan](implementation_plan.md#merged-pr42). The 294 bundle access,
+210 creation-time and earlier writer matrices, plus the 606-import/88-removal gate,
+remain required.
 
-Executable ACL inheritance, explicit signature-directory ACL copying, DMG dry-run
-writes and wider filesystem/permission profiles remain open in
-[file writes](file-writes.md). D04/WP-02 and the 88 inventory statuses remain partial
-or outstanding. No new APFS API or release was required. The next bounded D04 slice
-establishes executable-directory permission and failure-order behavior before
-implementation, retaining private staging and held-root containment.
+Inaccessible directories, failed/shallow access-time ordering, wider asynchronous
+failure combinations, ACL inheritance/copying and DMG dry-run writes remain open.
+[file writes](file-writes.md) records these limits. D04/WP-02 and all 88 inventory
+statuses remain partial or outstanding.
 
 ## Delivered milestones
 

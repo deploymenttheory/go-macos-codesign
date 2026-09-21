@@ -3,7 +3,9 @@
 Standalone and bundle Mach-O signing, re-signing and signature removal prepare a new file,
 restore its metadata, sync and close it, and rename it over the selected name.
 Other hard-link names retain the original inode and bytes. Removing a signature
-from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
+from an unsigned Mach-O also replaces the inode. Mach-O dry runs allocate and
+remove a private temporary file to check directory creation permission. They
+preserve all names and contents and skip metadata restoration and commit.
 
 The filesystem implementation belongs to
 [`go-apfs-v2/pkg/hostmeta` in v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
@@ -47,9 +49,13 @@ updated or removed file's bytes respectively. New envelopes are created beneath
 the opened bundle root. Internal hard links to writable bundle files remain
 rejected by the structural scan.
 
-Bundle signing stages every executable replacement before any bundle write.
-Preparation and cancellation failures before commit preserve original names and
-contents and clean staging directories; executable reads can refresh access time.
+Bundle signing attempts executable staging before committing bundle writes.
+An executable allocation permission failure retains independent sibling commits
+and writes the failed bundle's resource envelope, then leaves that executable and
+its stale sidecars unchanged. Ancestor envelopes and executables remain unchanged.
+A failed bare nested helper likewise prevents its containing bundle from committing.
+Other preparation errors and cancellation before commit preserve original names
+and contents and clean staging directories; executable reads can refresh access time.
 Commits proceed descendant-first, with each
 resource envelope preceding its main executable. Each executable rename checks
 the original file identity again. A later I/O or cancellation failure can leave
@@ -197,15 +203,16 @@ Re-signing copies the original Mach-O slice before writing the new signature,
 matching Apple's allocation behavior. Existing bytes after the new SuperBlob
 remain within the new allocation; newly allocated bytes start at zero.
 
-Preparation failures and cancellation before commit preserve the selected file's
-and its neighbours' names, bytes and write timestamps; reads may refresh access
-time. Concurrent filesystem mutation and crash-durable transactions are
+Standalone preparation failures and cancellation before commit preserve the
+selected file's and its neighbours' names, bytes and write timestamps; reads may
+refresh access time. Bundle allocation failures retain the partial commits described above. Concurrent filesystem mutation and crash-durable transactions are
 not supported; sign a copy if rollback is required.
 
 ## Evidence
 
-`make research-writer` extracts ten complete Apple methods: `SecCodeSigner::Signer::remove`,
-`MachOEditor::commit`, its destructor, and seven BundleDiskRep metadata/component/removal/flush methods,
+`make research-writer` extracts twelve complete Apple methods: `SecCodeSigner::Signer::remove`
+and global `populate`, `MachOEditor::allocate`, `commit`, its destructor, and seven
+BundleDiskRep metadata/component/removal/flush methods,
 with Clang for arm64 and x86_64. The [record](../spec/apple-writer.json)
 pins the Apple source, SDK headers and complete excerpts, and names every private
 interface shim. It records metadata copying before rename and temporary-file
@@ -214,8 +221,12 @@ using a pinned private flag header and internal flag enum. Its state carrier and
 two helper interfaces are explicit declaration-only shims. The complete allocation
 `mapFile` function adds Apple's read-only private mapping and three SDK mapping
 constants. Its error logger is a declaration-only shim. Both targets now record
-twelve complete methods/functions and fifteen constants. This is source analysis,
-not execution of Apple's source.
+fourteen complete methods/functions and fifteen constants. Allocation records both
+sign/remove paths and temporary-file cleanup; global populate suppresses envelope
+writes during dry runs. Pinned `signMachO` calls allocation even for dry runs, and
+`buildResources` dispatches nested work through `LimitedAsync` before waiting for
+its group. Those two complete source bodies were reviewed but are not in this AST
+extraction. This is source analysis, not execution of Apple's source.
 The signer removal method distinguishes the Mach-O allocate/commit path from the
 generic writer's canonical-slot removal loop. Mach-O commit flushes directly;
 the purge follows directory enumeration, including CodeResources. Private signer,
@@ -347,3 +358,20 @@ descriptors. The shared API's cross-platform evidence is recorded in
 [merged APFS PR #100](https://github.com/deploymenttheory/go-apfs-v2/pull/100) and
 [root-relative PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102);
 a local compile is not treated as Windows or Linux execution evidence.
+
+The executable-directory matrix adds 624 POSIX comparisons: three architectures,
+seven operand/tree shapes, directory modes 0755/0555 and executable modes 0755/0551.
+It covers direct and aliased standalone files, parent/first-child/last-child failures,
+grandchildren and bare helpers; signing, re-signing, signed/unsigned removal, dry
+runs and shallow bundle signing. Complete output trees, exit status, inode effects,
+external-link bytes, timestamps, preserved modes and staging cleanup are checked.
+Linux output is compared with independently produced Apple results. Windows skips
+this POSIX mode matrix; unit tests use an actual DACL creation denial there.
+
+Native APFS asynchronous sibling completion is the observed profile; this does not
+claim every scheduling outcome, filesystem, inaccessible-directory behavior or raw
+diagnostic. Shallow signing and failed ancestor access times remain different:
+Go reads the full plan, while native avoids mapping those executables. The tests
+record and assert those differences. Dry-run cancellation and a Darwin ACL denying
+attribute writes check that temporary allocations are cleaned without committing
+or restoring metadata. Wider failures, competing errors and ACL inheritance remain open.

@@ -1,6 +1,7 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
   "excerpt_sha256": {
+    "allocate": "711de1101101b2f2cf342bd10f74d6650374272436dcd2a5037dfedb92464f49",
     "bundle_component_0": "2b95868fbc3e890f5ba9bb9e082c5dfee10c039e89ec67ce723749fd4491dfb9",
     "bundle_createMeta_0": "fa7c42350aa94094ad366df1ff28bf6b538928fb43c30b8074e08c5063f2026e",
     "bundle_flush_0": "d03905937ca6824bf29ac2ab111c862136445bc224e60ed60f2b0ee8b6214295",
@@ -11,15 +12,18 @@
     "cfInternalFlags": "e7fdf45f199b3a99064abf953bea60555adf26de26d7421ad2b3c8396bb72e6d",
     "commit": "cd38270eb44ea1adf21e033169404c10bb7cf65f800533163152546d405f761d",
     "copyfile_stat": "0626fb24e5a0bc0c0a2f9a06aa4a65d1889d7894233f7cac802a114cc882fdcc",
+    "csAlign": "b3c4d913aa1db4781ea4756a3d0669b9f0702060403176e18ffa5baec2c5c0bc",
     "mapFile": "9159b0e5d5b82bca5b3de567df42eb9820365cdaa20f1e056f8fe12ec3d8ab0b",
+    "signer_populate": "b576ac596cb85b795bce1fa48803147c83e84cc620194dd4635b8822fff801fe",
     "signer_remove": "21675d1a931928f625e014739341b9d0b211a9dd0d4882f7e6f63698bc9eaa3a",
     "~MachOEditor": "0d70cbae2b34e437c7c2e4af40f4be2f095717f12ca8c6db033d22cdd004c218"
   },
   "schema": 1,
-  "scope": "Ten complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
+  "scope": "Twelve complete verbatim writer methods plus copyfile_stat and allocation mapFile: SecCodeSigner::Signer::remove and global populate, MachOEditor allocate/commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply filesystem types, ACL/copy flags, ATTR_CMN_CRTIME, timespec size and mapping flags. The complete allocation mapFile uses a read-only private source mapping. Native APFS observations distinguish mapped-read access-time updates from ordinary reads; 294 comparisons cover signing, re-signing, read-only executables, outer removal and signed/outer-unsigned dry runs. Source hard links share read-access updates; rewritten executables receive a later access time, while outer removal leaves descendant access times unchanged. The shared APFS primitive maps one byte without accessing mapped memory; it does not require metadata-write permission. Private state, helpers, compression and error interfaces are declaration-only shims; private slot/error values describe control flow, not wire formats. Both targets include TARGET_OS_OSX compression branches. MachOEditor copies source metadata, refreshes access/modification times with a byte read/write, and renames the staged file. copyfile_stat copies modification/access times without explicitly copying creation time. Native APFS comparisons establish that a rewritten bundle executable receives a new creation time capped by an earlier source modification time; 210 cases cover seven layouts, three architectures, past/future times and five operations, including nested code and external hard links. Other evidence covers in-place envelopes, directory stat copying, stale-file purge, 278 APFS ASCII order cases, 104 envelope-directory cases and 20 POSIX permission cases. Removal follows directory order, and signing-envelope directory errors occur before the affected executable commit but after earlier children. Symlinked signing envelopes retain early rejection for containment. Standalone mapping and replacement access are covered by 216 native comparisons across three architectures, four operand forms, past/future timestamps and nine operations. Another 168 bundle display/verification comparisons preserve executable stat metadata; 80 DMG comparisons preserve access times. Twenty DMG dry-run cases explicitly record native in-place byte/modification-time changes while Go preserves both. The allocation and global-populate bodies record temporary allocation cleanup and dry-run envelope suppression. Pinned signMachO source calls allocate even for dry runs; pinned buildResources dispatches nested work through LimitedAsync and waits for its group. Those two call sites are source-reviewed, not part of this AST extraction. The readable/searchable executable-directory profile compares modes 0755/0555 independently of executable modes 0755/0551, including first/last sibling allocation failures, outer failures, shallow signing, dry runs and removal. Go retains independent sibling commits and the failed bundle envelope, skips ancestors, and discards dry-run allocations without restoring metadata. Failed-parent and shallow executable access still differ because Go reads the complete plan first. Explicit ACL copying/inheritance, DMG dry-run writes, envelope/resource access times, other filesystems, broader permissions, raw diagnostics and compression remain open.",
   "sdk": "MacOSX.sdk",
   "sdk_headers": {
     "copyfile.h": "56f4a00b83f21ac98c818876eb1b3a3eb246d0a7a31e95fddbd1fd21f7c79ff9",
+    "mach/machine.h": "00d57dcf5a8332ba5a759b447f8305b3ef8bf15a9025c142af04e13c2a5b14f5",
     "sys/acl.h": "9511f84f0abe1e108e10979900d4fea8567534aef78f0984f7050c49f6c29ff7",
     "sys/attr.h": "5118b9245bc932bc32dcc60084b1e40d70bb5479a360b31cdbf188ef866deefe",
     "sys/clonefile.h": "1efe4ef4241c360905ecc40092245334725a9f1b208be8886ce87e2538b89cbd",
@@ -74,6 +78,79 @@
         "TimeSpecSize": "16"
       },
       "methods": {
+        "allocate": {
+          "ast_kinds": {
+            "": 2,
+            "BinaryOperator": 7,
+            "BlockDecl": 1,
+            "BlockExpr": 1,
+            "CStyleCastExpr": 1,
+            "CXXBoolLiteralExpr": 3,
+            "CXXConstructExpr": 5,
+            "CXXForRangeStmt": 2,
+            "CXXMemberCallExpr": 10,
+            "CXXMethodDecl": 1,
+            "CXXNewExpr": 1,
+            "CXXOperatorCallExpr": 6,
+            "CXXThisExpr": 11,
+            "CallExpr": 11,
+            "CompoundStmt": 12,
+            "ConditionalOperator": 1,
+            "DeclRefExpr": 53,
+            "DeclStmt": 13,
+            "ExprWithCleanups": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 6,
+            "ImplicitCastExpr": 60,
+            "IntegerLiteral": 6,
+            "MemberExpr": 26,
+            "ParenExpr": 1,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 1,
+            "StringLiteral": 3,
+            "UnaryOperator": 2,
+            "VarDecl": 13
+          },
+          "references": {
+            "__begin1": 3,
+            "__begin3": 3,
+            "__end1": 1,
+            "__end3": 1,
+            "__range1": 2,
+            "__range3": 2,
+            "alignUp": 1,
+            "arch": 3,
+            "architecture": 2,
+            "begin": 2,
+            "blobSize": 7,
+            "c_str": 4,
+            "code_sign_allocate": 1,
+            "code_sign_deallocate": 1,
+            "cpusubtype": 1,
+            "cputype": 1,
+            "csAlign": 1,
+            "currentArch": 1,
+            "end": 2,
+            "errSecCSInternalError": 3,
+            "errorMessage": 6,
+            "first": 1,
+            "free": 2,
+            "mFd": 2,
+            "mNewCode": 1,
+            "mTempMayExist": 1,
+            "matches": 1,
+            "open": 1,
+            "operator!=": 2,
+            "operator*": 2,
+            "operator++": 2,
+            "removeSignature": 3,
+            "secerror": 3,
+            "second": 2,
+            "sourcePath": 2,
+            "tempPath": 3,
+            "throwMe": 3
+          }
+        },
         "bundle_component_2": {
           "ast_kinds": {
             "AttributedStmt": 1,
@@ -362,6 +439,7 @@
             "CStyleCastExpr": 2,
             "CXXBoolLiteralExpr": 3,
             "CXXConstructExpr": 4,
+            "CXXDefaultArgExpr": 1,
             "CXXMemberCallExpr": 15,
             "CXXMethodDecl": 1,
             "CXXOperatorCallExpr": 1,
@@ -373,7 +451,7 @@
             "GNUNullExpr": 9,
             "IfStmt": 6,
             "ImplicitCastExpr": 70,
-            "IntegerLiteral": 18,
+            "IntegerLiteral": 19,
             "MemberExpr": 32,
             "ParenExpr": 11,
             "StringLiteral": 3,
@@ -529,6 +607,30 @@
             "path": 4,
             "st_size": 2,
             "stat_buf": 3
+          }
+        },
+        "signer_populate": {
+          "ast_kinds": {
+            "BinaryOperator": 1,
+            "CXXMemberCallExpr": 1,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 3,
+            "CompoundStmt": 1,
+            "DeclRefExpr": 2,
+            "IfStmt": 1,
+            "ImplicitCastExpr": 4,
+            "MemberExpr": 5,
+            "ParmVarDecl": 1,
+            "UnaryOperator": 1
+          },
+          "references": {
+            "cdResourceDirSlot": 1,
+            "component": 1,
+            "mDryRun": 1,
+            "resourceDictData": 1,
+            "resourceDirectory": 1,
+            "state": 1,
+            "writer": 1
           }
         },
         "signer_remove": {
@@ -620,6 +722,79 @@
         "TimeSpecSize": "16"
       },
       "methods": {
+        "allocate": {
+          "ast_kinds": {
+            "": 2,
+            "BinaryOperator": 7,
+            "BlockDecl": 1,
+            "BlockExpr": 1,
+            "CStyleCastExpr": 1,
+            "CXXBoolLiteralExpr": 3,
+            "CXXConstructExpr": 5,
+            "CXXForRangeStmt": 2,
+            "CXXMemberCallExpr": 10,
+            "CXXMethodDecl": 1,
+            "CXXNewExpr": 1,
+            "CXXOperatorCallExpr": 6,
+            "CXXThisExpr": 11,
+            "CallExpr": 11,
+            "CompoundStmt": 12,
+            "ConditionalOperator": 1,
+            "DeclRefExpr": 53,
+            "DeclStmt": 13,
+            "ExprWithCleanups": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 6,
+            "ImplicitCastExpr": 60,
+            "IntegerLiteral": 6,
+            "MemberExpr": 26,
+            "ParenExpr": 1,
+            "ParmVarDecl": 2,
+            "ReturnStmt": 1,
+            "StringLiteral": 3,
+            "UnaryOperator": 2,
+            "VarDecl": 13
+          },
+          "references": {
+            "__begin1": 3,
+            "__begin3": 3,
+            "__end1": 1,
+            "__end3": 1,
+            "__range1": 2,
+            "__range3": 2,
+            "alignUp": 1,
+            "arch": 3,
+            "architecture": 2,
+            "begin": 2,
+            "blobSize": 7,
+            "c_str": 4,
+            "code_sign_allocate": 1,
+            "code_sign_deallocate": 1,
+            "cpusubtype": 1,
+            "cputype": 1,
+            "csAlign": 1,
+            "currentArch": 1,
+            "end": 2,
+            "errSecCSInternalError": 3,
+            "errorMessage": 6,
+            "first": 1,
+            "free": 2,
+            "mFd": 2,
+            "mNewCode": 1,
+            "mTempMayExist": 1,
+            "matches": 1,
+            "open": 1,
+            "operator!=": 2,
+            "operator*": 2,
+            "operator++": 2,
+            "removeSignature": 3,
+            "secerror": 3,
+            "second": 2,
+            "sourcePath": 2,
+            "tempPath": 3,
+            "throwMe": 3
+          }
+        },
         "bundle_component_2": {
           "ast_kinds": {
             "AttributedStmt": 1,
@@ -908,6 +1083,7 @@
             "CStyleCastExpr": 2,
             "CXXBoolLiteralExpr": 3,
             "CXXConstructExpr": 4,
+            "CXXDefaultArgExpr": 1,
             "CXXMemberCallExpr": 15,
             "CXXMethodDecl": 1,
             "CXXOperatorCallExpr": 1,
@@ -919,7 +1095,7 @@
             "GNUNullExpr": 9,
             "IfStmt": 6,
             "ImplicitCastExpr": 70,
-            "IntegerLiteral": 18,
+            "IntegerLiteral": 19,
             "MemberExpr": 32,
             "ParenExpr": 11,
             "StringLiteral": 3,
@@ -1077,6 +1253,30 @@
             "stat_buf": 3
           }
         },
+        "signer_populate": {
+          "ast_kinds": {
+            "BinaryOperator": 1,
+            "CXXMemberCallExpr": 1,
+            "CXXMethodDecl": 1,
+            "CXXThisExpr": 3,
+            "CompoundStmt": 1,
+            "DeclRefExpr": 2,
+            "IfStmt": 1,
+            "ImplicitCastExpr": 4,
+            "MemberExpr": 5,
+            "ParmVarDecl": 1,
+            "UnaryOperator": 1
+          },
+          "references": {
+            "cdResourceDirSlot": 1,
+            "component": 1,
+            "mDryRun": 1,
+            "resourceDictData": 1,
+            "resourceDirectory": 1,
+            "state": 1,
+            "writer": 1
+          }
+        },
         "signer_remove": {
           "ast_kinds": {
             "BinaryOperator": 1,
@@ -1148,5 +1348,5 @@
       }
     }
   },
-  "translation_unit_sha256": "ad3d116e576c2fd3bee1d0cf88d87e88a8338c247fec7b34bbd57b5596d7b0df"
+  "translation_unit_sha256": "310883b46b9947e58c7896dcb308401c672e6cde8ce07aaaf8a638c85aa90b14"
 }
