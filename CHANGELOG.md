@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Match Darwin bundle-executable creation time: use a new time capped by
+  the source modification time, preserving external hard-link neighbors, existing
+  envelopes and dry-run timestamps. Add 210 native comparisons and failure guards.
+  Use the released APFS v0.7.0 creation-time API.
+
 - Match signing-envelope directory failure timing: retain earlier child commits,
   stop before the affected executable, and allow non-mutating dry runs. Avoid
   reading unused old child envelopes during signing/removal, including write-only

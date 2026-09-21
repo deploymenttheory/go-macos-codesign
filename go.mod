@@ -9,7 +9,7 @@ replace github.com/deploymenttheory/go-macos-codesign/third_party/rc2 => ./third
 replace github.com/spf13/afero => ./third_party/afero
 
 require (
-	github.com/deploymenttheory/go-apfs-v2 v0.6.1
+	github.com/deploymenttheory/go-apfs-v2 v0.7.0
 	github.com/deploymenttheory/go-macos-codesign/third_party/rc2 v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0

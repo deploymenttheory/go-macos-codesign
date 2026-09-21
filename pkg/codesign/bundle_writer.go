@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/apfs"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
@@ -222,6 +223,10 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *prepare
 	if !os.SameFile(st, current) {
 		return nil, fmt.Errorf("bundle write target changed")
 	}
+	created := time.Now()
+	if st.ModTime().Before(created) {
+		created = st.ModTime()
+	}
 	r, err := hostmeta.PrepareReplacementAt(source, root, filepath.Dir(write.name))
 	if err != nil {
 		return nil, err
@@ -235,6 +240,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *prepare
 		return nil, err
 	}
 	if err := r.File.Truncate(int64(len(write.data))); err != nil {
+		return nil, err
+	}
+	// Darwin's new executable inherits an earlier source modification time as
+	// its creation time. Other hosts retain their replacement metadata policy.
+	if err := hostmeta.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostmeta.ErrCreationTimeUnsupported) {
 		return nil, err
 	}
 	if err := r.RestoreMetadata(); err != nil {
