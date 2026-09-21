@@ -240,6 +240,16 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err != nil {
 				return err
 			}
+			// Native flush rejects stale directories and links only after the
+			// executable commits. They are not resources: do not read file
+			// contents or resolve links. Walk directory metadata only to retain
+			// the bounded name and internal write-alias checks below.
+			if st.IsDir() {
+				return nil
+			}
+			if st.Mode()&os.ModeSymlink != 0 {
+				return nil
+			}
 			if !st.Mode().IsRegular() {
 				return unsupported("non-regular signature file: " + rel)
 			}

@@ -259,8 +259,11 @@ CodeResources. Successful removal strips the main signature and deletes all
 regular signature files, leaving the empty directory as Apple does; it also accepts
 an already unsigned supported bundle. Removal leaves descendant signatures alone.
 External hard links to purged files retain their bytes. Unexpected signature files
-still fail verification, and non-regular signature entries remain unsupported;
-[file-write evidence](file-writes.md) records the native failure-order differences.
+still fail verification. Stale directories and symlinks are rejected at cleanup,
+after executable replacement; dry-run signing retains them and succeeds. A child
+cleanup failure prevents the parent commit. Non-regular CodeResources and unsafe
+paths still fail before writes. [File-write evidence](file-writes.md) records the
+bounded failure profile and remaining diagnostic/permission differences.
 The [Mach-O removal fix](removal.md) trims symbol-table alignment
 padding and preserves virtual sizes. The layout tests now require complete native
 byte equality, including the executable, without the earlier eight-byte exception.

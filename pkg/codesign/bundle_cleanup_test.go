@@ -36,31 +36,36 @@ func TestBundleStaleFilesStillFailVerification(t *testing.T) {
 
 func TestBundleStaleFilesRejectWriteAliases(t *testing.T) {
 	for _, name := range []string{"Contents/MacOS/hello", bundleResourcesPath} {
-		t.Run(name, func(t *testing.T) {
-			app := testBundle(t)
-			bundleFile(t, app, bundleResourcesPath, []byte("old envelope"))
-			path := filepath.Join(app, name)
-			before := readTestFile(t, path)
-			neighbour := filepath.Join(t.TempDir(), "neighbour")
-			if err := os.WriteFile(neighbour, before, 0755); err != nil {
-				t.Fatal(err)
-			}
-			if err := os.Remove(path); err != nil {
-				t.Fatal(err)
-			}
-			for _, dst := range []string{path, filepath.Join(app, "Contents/_CodeSignature/obsolete")} {
-				if err := os.Link(neighbour, dst); err != nil {
+		for _, stale := range []string{"obsolete", "directory/alias"} {
+			t.Run(name+"/"+stale, func(t *testing.T) {
+				app := testBundle(t)
+				bundleFile(t, app, bundleResourcesPath, []byte("old envelope"))
+				path := filepath.Join(app, name)
+				before := readTestFile(t, path)
+				neighbour := filepath.Join(t.TempDir(), "neighbour")
+				if err := os.WriteFile(neighbour, before, 0755); err != nil {
 					t.Fatal(err)
 				}
-			}
-			if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, ErrUnsupported) {
-				t.Fatal("internal write alias accepted", err)
-			}
-			if !bytes.Equal(readTestFile(t, path), before) || !bytes.Equal(readTestFile(t, neighbour), before) {
-				t.Fatal("rejected signature changed a linked file")
-			}
-			assertNoBundleStaging(t, app)
-		})
+				if err := os.Remove(path); err != nil {
+					t.Fatal(err)
+				}
+				for _, dst := range []string{path, filepath.Join(app, "Contents/_CodeSignature", stale)} {
+					if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+						t.Fatal(err)
+					}
+					if err := os.Link(neighbour, dst); err != nil {
+						t.Fatal(err)
+					}
+				}
+				if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, ErrUnsupported) {
+					t.Fatal("internal write alias accepted", err)
+				}
+				if !bytes.Equal(readTestFile(t, path), before) || !bytes.Equal(readTestFile(t, neighbour), before) {
+					t.Fatal("rejected signature changed a linked file")
+				}
+				assertNoBundleStaging(t, app)
+			})
+		}
 	}
 }
 
@@ -148,5 +153,38 @@ func TestBundleCleanupRootAndCancellation(t *testing.T) {
 	b.root.Close()
 	if err := b.purgeSignatureFiles(context.Background(), false); err == nil {
 		t.Fatal("closed root accepted")
+	}
+}
+
+// Even a changed CodeResources discovered at flush time must never be followed
+// or removed as a directory. Public scans already reject these write targets.
+func TestBundleCleanupRejectsChangedEnvelope(t *testing.T) {
+	for _, kind := range []string{"directory", "symlink"} {
+		t.Run(kind, func(t *testing.T) {
+			app := testBundle(t)
+			bundleFile(t, app, "Contents/_CodeSignature/stale", []byte("retain"))
+			path := filepath.Join(app, bundleResourcesPath)
+			if kind == "directory" {
+				if err := os.Mkdir(path, 0755); err != nil {
+					t.Fatal(err)
+				}
+			} else if err := os.Symlink("stale", path); err != nil {
+				t.Fatal(err)
+			}
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			if err := b.purgeSignatureFiles(context.Background(), false); !errors.Is(err, ErrUnsupported) {
+				t.Fatal("changed envelope accepted", err)
+			}
+			if _, err := os.Lstat(path); err != nil {
+				t.Fatal("changed envelope removed", err)
+			}
+			if string(readTestFile(t, filepath.Join(app, "Contents/_CodeSignature/stale"))) != "retain" {
+				t.Fatal("purge followed changed envelope")
+			}
+		})
 	}
 }
