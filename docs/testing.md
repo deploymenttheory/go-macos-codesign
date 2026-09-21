@@ -97,6 +97,15 @@ Apple app fixtures on every OS. Tests also cover force/removal, dry runs and
 unchanged files after timestamp failure. Layout, path, XML and filesystem
 rejection cases run in unit tests. See [bundle scope](bundles.md).
 
+Signing-envelope acceptance adds 84 directory cases over seven layouts and six
+operations, plus 20 parent/child cases for commit order, shallow signing and
+outer-only removal. Twenty read-only/write-only envelope cases run on POSIX hosts;
+Windows explicitly skips those mode-bit probes. A host that bypasses the intended
+permission denial also skips. Complete trees, raw status/output, executable inodes
+and external hard-link neighbours are compared independently with Apple on macOS.
+Successful deep rewrites pass strict native verification after the test restores
+read access for inspection. The existing 606-import/88-removal gate is retained.
+
 Binary bundle metadata adds six native byte comparisons, thirty display cases,
 twelve ad-hoc/RSA strict-verification cases, four metadata mutations and one
 binary-resource-envelope case. Three Apple-signed fixtures preserve `plutil`

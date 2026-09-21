@@ -84,8 +84,8 @@ func nestedSeal(data []byte) (map[string]any, error) {
 		if sig.Directories[0].Flags&FlagAdhoc == 0 {
 			return nil, unsupported("nested certificate signature without explicit designated requirement")
 		}
-		// Match the arm64 baseline, independent of the OS executing Go. Remaining
-		// architecture hashes follow container order, just as the native oracle.
+		// Put arm64 first for consistent requirement text across hosts, then
+		// preserve container order for the remaining architecture hashes.
 		order := []int{selected}
 		for i := range r.Architectures {
 			if i != selected {
@@ -174,8 +174,7 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 			}
 		}
 		if opts.DryRun {
-			// Native dry runs construct a child signature, then seal the bytes
-			// still on disk. An unsigned on-disk child therefore fails sealing.
+			// Dry runs seal on-disk bytes because no child signature is committed.
 			data = original
 		}
 		seal, err := nestedSeal(data)

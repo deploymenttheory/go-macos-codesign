@@ -229,7 +229,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
-		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature) {
+		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature || scope.signatureCleanup && d.IsDir()) {
 			if name != b.resourcesPath() && strings.EqualFold(rel, "_CodeSignature/CodeResources") {
 				return unsupported("noncanonical resource envelope filename: " + rel)
 			}
@@ -240,10 +240,10 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err != nil {
 				return err
 			}
-			// Native flush rejects stale directories and links only after the
-			// executable commits. They are not resources: do not read file
-			// contents or resolve links. Walk directory metadata only to retain
-			// the bounded name and internal write-alias checks below.
+			// Exclude signature entries from resource seals. Walk directory
+			// metadata to enforce path bounds and internal write-alias checks.
+			// Reject directories at their envelope write or stale-file cleanup;
+			// dry runs skip both operations. Never follow signature symlinks.
 			if st.IsDir() {
 				return nil
 			}

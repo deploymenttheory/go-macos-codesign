@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Match signing-envelope directory failure timing: retain earlier child commits,
+  stop before the affected executable, and allow non-mutating dry runs. Avoid
+  reading unused old child envelopes during signing/removal, including write-only
+  POSIX envelopes. Add 104 portable and 20 POSIX native tree/permission comparisons;
+  retain symlink containment, internal alias checks and deep verification.
+
 - Copy canonical bundle-root stat metadata to newly created signature directories
   through go-apfs-v2 v0.6.0, including physical framework-version selection.
   Retain existing-directory metadata and record the remaining explicit ACL gap.

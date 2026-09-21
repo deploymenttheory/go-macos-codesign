@@ -75,9 +75,7 @@ func TestBundleWriterNativeMetadata(t *testing.T) {
 							t.Fatal(err)
 						}
 					}
-					// The current shared API preserves the source ACL; Apple's
-					// copyfile writer additionally inherits from this directory.
-					// Record that remaining difference rather than claiming parity.
+					// Measure source ACL preservation and directory inheritance separately.
 					mustRun(t, "/bin/chmod", "+a", "everyone allow read,file_inherit,directory_inherit", filepath.Dir(main))
 					if operation == "readonly" {
 						if err := os.Chmod(main, 0551); err != nil {
