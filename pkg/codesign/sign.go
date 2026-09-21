@@ -3,10 +3,13 @@ package codesign
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"math/bits"
 	"os"
 	"time"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
 )
 
 // maxFileSize bounds in-memory operations. Larger files fail explicitly.
@@ -16,6 +19,10 @@ const maxFileSize = 1 << 30
 const defaultCMSSize = 18000
 
 func readFile(path string) ([]byte, error) {
+	return readFileWithAccess(path, false)
+}
+
+func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -32,7 +39,17 @@ func readFile(path string) ([]byte, error) {
 		return nil, unsupported("file exceeds 1 GiB memory limit")
 	}
 	// Read through a bounded reader; a concurrent growing file cannot defeat Stat.
-	return readBounded(f, maxFileSize)
+	data, err := readBounded(f, maxFileSize)
+	if err != nil {
+		return nil, err
+	}
+	// Native Mach-O signing maps its input; UDIF and read-only operations do not.
+	if recordAccess && !isDMG(data) {
+		if err := hostmeta.RecordReadAccess(f); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+			return nil, err
+		}
+	}
+	return data, nil
 }
 
 // Sign constructs complete signatures before writing a Mach-O, supported app
@@ -45,7 +62,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if bundle {
 		return signBundle(ctx, path, opts)
 	}
-	data, err := readFile(path)
+	data, err := readFileWithAccess(path, true)
 	if err != nil {
 		return err
 	}
@@ -328,7 +345,7 @@ func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptio
 	if bundle {
 		return removeBundle(ctx, path, opts)
 	}
-	data, err := readFile(path)
+	data, err := readFileWithAccess(path, true)
 	if err != nil {
 		return err
 	}

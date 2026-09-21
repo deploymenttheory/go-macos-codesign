@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Match Darwin standalone Mach-O access times for signing, re-signing, removal
+  and dry runs using the released APFS v0.8.0 API. Preserve source hard-link bytes,
+  aliases and read-only operation behavior; keep DMG reads unmapped. Add native
+  timestamp, identity and byte comparisons plus an oversized-read regression.
+
 - Match the bounded Darwin bundle-executable access-time profile for signing,
   re-signing, outer removal and dry runs. Record source and replacement reads
   through APFS, preserving external-link bytes and untouched descendants on

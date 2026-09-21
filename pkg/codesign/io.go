@@ -2,6 +2,7 @@ package codesign
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -62,6 +63,9 @@ func replaceFile(ctx context.Context, path string, data []byte) error {
 		return err
 	}
 	if err := replacement.RestoreMetadata(); err != nil {
+		return err
+	}
+	if err := hostmeta.RecordReadAccess(f); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
 		return err
 	}
 	if err := f.Sync(); err != nil {
