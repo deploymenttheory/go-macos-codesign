@@ -1,12 +1,15 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-20 after [PR #29](https://github.com/deploymenttheory/go-macos-codesign/pull/29)
+Status: updated 2026-09-21 after [PR #29](https://github.com/deploymenttheory/go-macos-codesign/pull/29)
 and [PR #30](https://github.com/deploymenttheory/go-macos-codesign/pull/30) merged.
 D01/D02's initial evidence, D04 bundle Mach-O replacement and regular stale
 signature-file cleanup are on `main`; D03's shared API shipped in APFS v0.5.0.
 The current native-import gate is 606 signed artifacts and 88 removal comparisons.
-The next production work remains D04 executable ACL/creation-time behavior,
-new signature-directory security and broader cleanup failures, followed by D05.
+The active D04 follow-up implements new signature-directory stat metadata, using
+[APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104). It remains
+development work until that API is released, pinned and codesign's three-OS CI
+passes. Executable ACL/creation-time behavior, explicit directory ACL copying and
+broader cleanup failures remain open, followed by D05.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
@@ -456,7 +459,10 @@ directory and retains it. Internal write-target hard links remain rejected.
 - [ ] Establish creation modes/inheritance for newly created signature files,
   versus metadata restoration for existing files. Do not clone metadata from an
   unrelated bundle file merely to populate a new envelope. Apple source's new
-  signature-directory security copying remains unimplemented.
+  signature-directory stat copying is implemented in the current development
+  branch against APFS PR #104, pending release/pinning and three-OS codesign CI.
+  Copying explicit source ACL entries and subsequent envelope inheritance remain
+  unimplemented; the destination's existing/inherited ACL is retained.
 - [ ] Complete signature-file cleanup beyond the merged regular-file profile.
   Native sign/removal can replace the executable before rejecting directories or
   symlinks; native dry runs can succeed. Go retains early rejection for these
@@ -1728,12 +1734,12 @@ row will always fit one PR. Split further by observed behavior when necessary.
 Each implementation slice includes tests, documentation and inventory updates;
 none leaves independent acceptance for a later “testing PR.”
 
-| Slice | Status after PR #30 | Scope and first reviewable result | Dependency / gate |
+| Slice | Status after PR #30 and current development | Scope and first reviewable result | Dependency / gate |
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
 | D02 | Writer and regular-file cleanup corpora merged; wider metadata/failures open | Native bundle writer/metadata probe corpus, including hard links and failure states | D01; isolate existing behavior before changing it |
-| D03 | Root-relative API released in APFS v0.5.0 | Any missing APFS root-relative replacement/metadata primitive with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
-| D04 | Mach-O replacement and regular stale-file cleanup merged; wider metadata/failures open | One bundle write class at a time uses the proven replacement contract | D02/D03; compare bytes, aliases, ACLs and inodes on all OSes |
+| D03 | Root-relative API released in APFS v0.5.0; directory-stat API in APFS PR #104 | Missing shared metadata primitives with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
+| D04 | Mach-O replacement and regular cleanup merged; directory-stat integration tested locally in a workspace | New signature-directory stat profile; explicit ACL copying and broader metadata/failures remain open | Release/pin APFS PR #104, then codesign three-OS CI and artifact audit |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -1761,6 +1767,33 @@ next slice from the new `main`, carry only needed work, and link its dependent
 upstream release. Do not accumulate unrelated feature packages in one long branch.
 
 ### Next implementation work after PR #30
+
+The `fix/bundle-directory-security` branch starts from PR #30's merged `3ad9e15`
+and carries the saved PR #29/#30 documentation update. Its bounded profile is:
+
+- [x] Add shared `CopyDirectoryStat` in APFS PR #104, with caller-owned directory
+  handles and explicit platform/failure contracts. This does not copy ACL entries,
+  xattrs, streams or directory contents and does not change replacement contracts.
+- [x] Integrate only newly created signature directories locally through an
+  external Go workspace; versioned frameworks use their selected physical root.
+  Existing directories, dry runs and removal retain their previous behavior.
+- [x] Add 40 directory cases, eight native security profiles, cancellation/held-root
+  and failure-before-commit tests, and complete `copyfile_stat` AST evidence on
+  both Clang targets. Local `make verify` passes: library 4,057/4,252 (95.41%),
+  CLI 423/425 (99.53%), entry point 1/1. This is local macOS development evidence.
+- [ ] Finish upstream three-OS CI, obtain merge/release approval, publish the APFS
+  API through Release Please, then pin the actual release here. The current
+  `go.mod` remains v0.5.0 and cannot build this development branch without its
+  external workspace.
+- [ ] Run and audit codesign's three-OS producers, six-target packages and unchanged
+  606-import/88-removal gate against the released pin before requesting merge.
+
+Native explicit ACL copying, destination envelope inheritance from those entries,
+broader permissions/failure order, and executable ACL/birth-time differences remain
+open. The supported x/sys Darwin API has no ACL reader; the implementation does
+not add raw syscalls, native binding directives or a helper fallback. Failed stat
+copying can leave an empty or partially updated directory before its envelope and
+executable commit. No feature or work-package status is upgraded to fully verified.
 
 1. Continue D04/WP-02 with independent probes for the observed executable ACL and
    creation-time differences, new signature-directory security and cleanup beyond

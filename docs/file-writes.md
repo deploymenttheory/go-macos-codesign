@@ -14,6 +14,12 @@ in v0.5.0, which this module pins. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
+The directory-stat follow-up on this development branch additionally requires
+`CopyDirectoryStat` from [APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104).
+It is tested locally with an external Go workspace. The dependency must be
+released and pinned before this branch can build without that workspace or merge;
+`go.mod` still records the released v0.5.0 replacement baseline.
+
 On macOS the new replacement path uses the supported x/sys libSystem wrappers
 `Fclonefileat`, `Setattrlist` and `Fchflags`, with CGO disabled. Its private staging
 directory has inherited ACLs cleared before cloning so destination inheritance
@@ -69,8 +75,29 @@ The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
 change creation time; our replacement preserves the original ACL and birth time.
 Mode, owner/group, the tested xattr and supported flags survive both writers.
-Apple source also copies security metadata when creating the signature directory;
-that behavior remains unimplemented here.
+New signature directories copy the canonical bundle root's stat metadata through
+APFS. A versioned framework uses the selected physical version directory, including
+when selected through the framework root. Only successful creation triggers the
+copy; existing directory metadata stays intact. Dry runs and removal do not create
+directories. Source xattrs and directory contents are not copied.
+
+Darwin copies owner/group, mode, nanosecond access/modification times and supported
+BSD flags, dropping source tracked/protected flags and privileged mode bits on
+nosuid volumes. Other source flags and unsupported destination flags are rejected.
+Linux copies owner/group, mode and times (kernel 5.8+); its inode flags and birth
+time are outside this profile. Windows copies ordinary attributes and times while
+retaining destination security descriptors, creation time and streams.
+
+Apple's full `COPYFILE_SECURITY` also combines explicit source ACL entries with
+inherited destination entries. Our directory-stat profile retains the destination
+ACL but does not copy explicit source entries; subsequent CodeResources ACL
+inheritance therefore also differs. Linux mode updates can change a POSIX ACL mask.
+The current supported Darwin Go/x/sys API has no ACL reader; no native binding or
+raw syscall was introduced to bypass that boundary. Apple ignores some metadata
+copy errors, whereas this API returns them. Failure after directory creation can
+leave an empty or partially updated directory, before its envelope/executable
+commit. Creation time is not explicitly copied; Darwin can lower it when an older
+modification time is applied. Later directory writes change its timestamps normally.
 Compressed/protected files, wider permissions and failure order remain open.
 
 Standalone file symlinks resolve to the physical target before reading, deriving
@@ -97,7 +124,21 @@ its destructor, and seven BundleDiskRep metadata/component/removal/flush methods
 with Clang for arm64 and x86_64. The [record](../spec/apple-writer.json)
 pins the Apple source, SDK headers and complete excerpts, and names every private
 interface shim. It records metadata copying before rename and temporary-file
-cleanup. This is source analysis, not execution of Apple's source.
+cleanup. It also parses the complete `copyfile_stat` function on both targets,
+using a pinned private flag header and internal flag enum. Its state carrier and
+two helper interfaces are explicit declaration-only shims. This is source analysis,
+not execution of Apple's source.
+
+The directory follow-up adds 40 cases over eight layouts/selections and five
+operations, with complete native tree comparisons and checks for copied modes,
+existing-directory identity and dry-run absence. Eight macOS security profiles
+record owner/group, BSD flags, raw times, xattrs, directory ACLs and subsequent
+envelope inheritance. They assert the explicit-source-ACL difference rather than
+claiming full security parity. Unit tests cover held roots with pathname decoys,
+cancellation, metadata failure before executable commit and staging cleanup.
+The existing 606-import/88-removal gate remains unchanged; these new metadata
+observations do not represent additional foreign artifacts or completed three-OS
+codesign evidence until the released dependency is pinned and CI passes.
 
 Bundle acceptance adds 126 comparisons across seven layouts, three architectures
 and six operations, including nested helpers/apps, external executable/envelope
