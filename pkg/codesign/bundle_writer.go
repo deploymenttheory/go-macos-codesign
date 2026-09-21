@@ -143,6 +143,24 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("bundle signature directory changed")
 	}
+	if !keepResources {
+		// The resource component is removed before native's final stale-file
+		// scan, even if that scan subsequently rejects a non-regular entry.
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		info, err := root.Lstat("CodeResources")
+		if err == nil {
+			if !info.Mode().IsRegular() {
+				return unsupported("non-regular signature file: CodeResources")
+			}
+			if err := root.Remove("CodeResources"); err != nil {
+				return err
+			}
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+	}
 	dir, err := root.Open(".")
 	if err != nil {
 		return err

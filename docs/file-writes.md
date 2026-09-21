@@ -65,11 +65,23 @@ Verification still rejects unexpected signature files; accepting them for cleanu
 does not relax verification. Cleanup stays beneath an opened metadata-directory
 root, rejects non-regular entries and bounds the number of entries inspected.
 
-Directories and symlinks inside `_CodeSignature` remain unsupported during the
-initial scan. Native sign/removal can commit the executable before rejecting
-these entries, and native dry runs can succeed; Go rejects them before writes.
-This failure-order difference is recorded by acceptance tests. Cleanup failures
-after a commit do not roll it back or commit later prepared executables.
+Stale directories and symlinks inside `_CodeSignature` are excluded from resource
+seals and rejected during cleanup after the executable commits, matching the
+native failure boundary. Removal deletes the regular CodeResources component
+before scanning stale entries. Dry-run signing succeeds without changing them;
+verification still rejects unexpected entries. Directory metadata is walked only
+for the existing bounded path and internal hard-link checks; file contents are not
+read and symlinks are never followed. Empty/populated directories and relative
+internal, dangling and outside symlinks have independent native coverage.
+Cleanup failure retains earlier executable/envelope commits, removes remaining
+staging files, and stops later commits, including the parent after a child fails.
+
+This profile covers ordinary accessible stale entries. Non-regular CodeResources,
+special files, invalid names, unreadable subtrees and internal write aliases can
+still fail before mutation. Native named-component removal ordering beyond
+CodeResources, enumeration order among multiple stale entries, broader permission
+failures and raw diagnostics remain different or unverified. Nothing recursively
+deletes directories or unlinks the rejected symlinks.
 
 The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
@@ -154,7 +166,13 @@ three architectures and five operations. It includes named and unknown stale
 files, hidden files, external hard links, deep signing and outer-only removal.
 Each foreign producer exports another 42 cleaned signed archives; independent
 Apple import verification now requires 606 signed artifacts in total. Eight
-directory/symlink profiles record the non-regular rejection difference explicitly.
+directory/symlink profiles were the starting evidence for the failure-order change.
+The expanded corpus now compares 210 complete trees across seven layouts, five
+stale entry types and six operations on arm64, plus four nested child-failure/dry-run
+cases. It records raw output/status, before/after hashes, replacement identity and
+external-neighbour preservation. The regular writer corpus retains all three
+architectures. Failed operations do not add signed import artifacts; the existing
+606-import/88-removal gate remains in place.
 Unit tests cover flush failure after executable commit, later staged-file cleanup,
 cancellation, directory replacement by a symlink, retained internal write-alias
 rejection, and unchanged verification policy.

@@ -17,7 +17,7 @@ type bundleScan struct {
 	bytes             int64
 	recurse           bool
 	verifyVersions    bool
-	signatureCleanup  bool // permit stale regular signature files during writes
+	signatureCleanup  bool // exclude stale entries; defer directory/symlink rejection to flush
 	seen              map[string]bool
 	regular, writable map[string]os.FileInfo
 }
