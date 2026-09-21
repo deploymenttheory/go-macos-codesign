@@ -264,8 +264,13 @@ after executable replacement; dry-run signing retains them and succeeds. A child
 cleanup failure prevents the parent commit. Cleanup follows case-insensitive APFS
 ASCII name-hash order, including name comparisons on collisions. Removal rejects
 non-regular CodeResources after executable replacement, when that entry is reached;
-an earlier failure can leave a regular envelope intact. Signing retains early
-rejection of non-regular envelopes; unsafe paths still fail before writes.
+an earlier failure can leave a regular envelope intact. A signing envelope
+directory fails at its write, before that bundle's executable commit but after
+earlier child commits; dry runs preserve it and do not attempt the write.
+Signing/removal avoid reading unused old child envelopes, allowing write-only
+envelopes to be rewritten on POSIX hosts. Symlinked signing envelopes, unsafe
+paths and internal write aliases still fail before writes. Verification retains
+its required envelope reads and validation.
 [File-write evidence](file-writes.md) records the upstream release gate, the
 bounded failure profile and remaining diagnostic/permission differences.
 The [Mach-O removal fix](removal.md) trims symbol-table alignment

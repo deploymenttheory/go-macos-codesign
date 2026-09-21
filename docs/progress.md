@@ -6,22 +6,29 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current directory-metadata follow-up
+## Current signing-envelope failure slice
 
-New signature directories copy canonical bundle-root stat metadata through the
-released APFS v0.6.0 API. Versioned frameworks use the selected physical version
-root. Existing directories retain their metadata; source xattrs and explicit ACL
-entries are outside this copy profile. The exact platform and failure limits are
-in [file writes](file-writes.md).
+Signing now treats a directory at CodeResources as an envelope-write failure:
+earlier child commits survive, the affected executable remains unchanged, and
+dry runs skip the write. Signing and outer removal no longer read unused old
+child envelopes; write-only POSIX envelopes can be rewritten. Symlinked signing
+envelopes retain early rejection, and deep verification retains its required
+envelope reads and validation.
 
-[APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104) is merged and
-[its final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598)
-passed Linux, macOS and Windows execution plus six CGO-disabled builds. Codesign
-pins the published [v0.6.0 release](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0).
-Local verification adds 40 directory cases and eight native security profiles,
-with 95.41% library coverage; [codesign PR #31](https://github.com/deploymenttheory/go-macos-codesign/pull/31)
-is running the released-pin CI and artifact audit. The [implementation plan](implementation_plan.md#delivery-status) retains
-the remaining ACL/birth-time and broader failure profiles explicitly.
+The new acceptance matrix adds 104 portable directory/commit-order cases and
+20 POSIX read-only/write-only envelope cases. Windows explicitly skips POSIX
+permission probes. Native comparisons cover complete trees, output/status,
+executable inodes and external hard-link neighbours. The existing 606 signed
+imports and 88 removal comparisons remain required. Final per-commit CI and
+artifact results are recorded in this slice's PR; local tests alone do not
+establish Linux or Windows execution.
+
+Merged [PR #35](https://github.com/deploymenttheory/go-macos-codesign/pull/35)
+validated the released APFS v0.6.1 pin. This slice needs no new APFS API or release.
+The [implementation plan](implementation_plan.md#delivery-status) and
+[file writes](file-writes.md) retain the remaining metadata, symlink, broader
+permission and diagnostic differences. D04/WP-02 and all inventory statuses remain
+partial or outstanding.
 
 ## Delivered milestones
 

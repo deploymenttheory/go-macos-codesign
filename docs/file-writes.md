@@ -80,8 +80,19 @@ Cleanup failure retains earlier executable/envelope commits, removes remaining
 staging files, and stops later commits, including the parent after a child fails.
 
 Removal also defers rejection of a directory or symlink named CodeResources until
-cleanup, after replacing the main executable. Signing and verification retain
-their stricter envelope validation. Special files, invalid names, unreadable
+cleanup, after replacing the main executable. During signing, a directory named
+CodeResources fails when its envelope write is attempted, before that bundle's
+main executable commits. Earlier child commits survive; later commits stop.
+Dry runs do not attempt the write and retain the directory. Signing and removal
+do not read old child envelopes: signing constructs a replacement or seals the
+existing child executable, and outer removal preserves child signatures. On
+POSIX hosts, a write-only envelope can therefore be rewritten, while a read-only
+envelope fails at its write. Existing envelope modes and inodes are retained.
+Verification still reads and validates the envelopes it needs.
+
+Signing still rejects symlinked envelopes before writes. Native probes can follow
+those links and mutate their targets before cleanup fails; this implementation
+retains its no-follow and containment boundary. Special files, invalid names, unreadable
 subtrees and internal write aliases can still fail before mutation. Case-sensitive
 APFS and other filesystem orders, broader permission failures and raw diagnostics
 remain different or unverified. Nothing recursively
@@ -206,6 +217,21 @@ Directory contents, symlink targets and external executable links remain intact;
 each record includes raw status/output, survivor names, identity and tree hashes.
 Unit tests cover the bounded directory snapshot and cancellation after an unlink.
 These failures add no signed imports; the existing 606/88 gate remains unchanged.
+
+The signing-envelope matrix adds 84 complete native comparisons on arm64 across
+seven layouts, empty/populated envelope directories and six operations, including
+signed/unsigned dry runs, force policy and verification. Another 20 nested cases
+cover parent/child failure order, shallow signing and outer-only removal. Twenty
+POSIX permission cases compare read-only and write-only envelopes at the parent
+and child boundaries. The permission cases run on Linux/macOS and explicitly skip
+Windows, whose access controls are not modeled by POSIX mode bits; hosts that
+bypass the requested denial also skip instead of counting a pass. The records
+include complete trees, raw outputs/status, inode effects and external-neighbour
+preservation. Successful deep writes also pass native strict deep verification.
+The existing 606 signed-import/88 removal gate remains unchanged; these cases
+extend filesystem observations and tree comparisons, not foreign archive counts.
+Unit checks retain internal alias rejection beneath envelope directories,
+symlink-target preservation, staging cleanup and strict deep verification.
 
 Host acceptance compares all output bytes and inode outcomes for fifteen
 architecture/operation combinations, plus one in-place DMG case. Six newly

@@ -35,7 +35,7 @@ func TestBundleSignatureCleanupOrder(t *testing.T) {
 				for _, operation := range operations {
 					removing := strings.HasPrefix(operation, "remove")
 					if bad == "CodeResources" && !removing {
-						continue // non-regular signing targets retain stricter early rejection
+						continue // signing-envelope directories have a separate commit-boundary matrix
 					}
 					t.Run(layout+"/"+bad+"/"+kind+"/"+operation, func(t *testing.T) {
 						execute := func(exe string) ([]byte, map[string]any) {
@@ -138,7 +138,7 @@ func TestBundleSignatureCleanupOrder(t *testing.T) {
 							return after, map[string]any{"argv": append(args, app), "stdout": out, "stderr": stderr, "exit": status, "inode_replaced": mutated, "before_sha256": hash(before), "tree_sha256": hash(after), "remaining": remaining, "neighbour_preserved": true}
 						}
 						got, record := execute(binaryPath)
-						evidence := map[string]any{"producer": runtime.GOOS, "layout": layout, "bad_name": bad, "profile": kind, "operation": operation, "go": record, "native_compared": runtime.GOOS == "darwin", "filesystem_profile": "case-insensitive APFS, ASCII names", "remaining_differences": []string{"other filesystem orders", "non-regular signing envelopes", "raw diagnostics and broader permissions"}}
+						evidence := map[string]any{"producer": runtime.GOOS, "layout": layout, "bad_name": bad, "profile": kind, "operation": operation, "go": record, "native_compared": runtime.GOOS == "darwin", "filesystem_profile": "case-insensitive APFS, ASCII names", "remaining_differences": []string{"other filesystem orders", "symlinked signing envelopes", "raw diagnostics and broader permissions"}}
 						if runtime.GOOS == "darwin" {
 							want, native := execute(apple(t))
 							nativeEqual(t, "complete ordered cleanup failure tree", got, want)

@@ -229,7 +229,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
-		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature) {
+		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature || scope.signatureCleanup && d.IsDir()) {
 			if name != b.resourcesPath() && strings.EqualFold(rel, "_CodeSignature/CodeResources") {
 				return unsupported("noncanonical resource envelope filename: " + rel)
 			}
@@ -244,6 +244,8 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			// executable commits. They are not resources: do not read file
 			// contents or resolve links. Walk directory metadata only to retain
 			// the bounded name and internal write-alias checks below.
+			// A signing envelope directory fails at its envelope write instead,
+			// after earlier child commits; dry runs never attempt that write.
 			if st.IsDir() {
 				return nil
 			}
