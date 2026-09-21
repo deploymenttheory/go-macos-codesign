@@ -8,7 +8,7 @@ for stale directories and symlinks, plus case-insensitive APFS ASCII cleanup
 ordering and signing-envelope directory/permission failures, are on `main`.
 Signing rejects envelope directories at the envelope write and avoids unused old
 child-envelope reads during signing or removal. Symlinked signing envelopes retain
-early rejection. Released APFS v0.6.1 remains pinned without a local replace/workspace.
+early rejection. PR #37 uses released APFS v0.6.1 without a local replace/workspace.
 
 PR #37 passed three-OS execution, packaging, race/fuzz, independent Apple import
 verification and the final artifact audit; its actual merge matches the audited
@@ -18,6 +18,13 @@ native-import gate remains 606 signed artifacts and 88 removal comparisons.
 Executable ACL/creation-time behavior, explicit signature-directory ACL copying
 and wider filesystem/permission failures remain open. D04/WP-02 is not complete.
 The original PR #25 baseline below remains historical. Releases still require approval.
+
+The current D04 slice matches Darwin bundle-executable creation time through the
+released APFS v0.7.0 API. Its 210 native comparisons cover past/future modification
+times, nested code, external hard links and dry runs. APFS PR #108 is merged and
+released; codesign pins the published module directly. Final codesign CI and artifact
+validation belong to this implementation PR. ACL inheritance/copying, access-time
+behavior and wider permission/filesystem profiles remain open.
 
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
 eight blocked and zero fully verified. No feature status was upgraded merely
@@ -793,14 +800,14 @@ No umbrella status changes. Other filesystem orders, signing-envelope symlinks,
 special files, broader permission/ACL failures and raw diagnostics remain open,
 alongside executable ACL/birth-time and explicit directory ACL differences.
 
-**Current executable creation-time slice (development integration):**
+**Current executable creation-time slice, with APFS v0.7.0:**
 
 - [x] Establish Darwin APFS behavior with 210 native comparisons: seven layouts,
   three architectures, past/future modification times and five operations.
   Rewritten executables receive a new creation time capped by the source
   modification time; dry runs, external hard-link neighbors and existing envelopes
   retain their creation times. Outer removal preserves descendant signatures.
-- [x] Prepare an explicit descriptor-based `hostmeta.SetCreationTime` primitive in
+- [x] Release an explicit descriptor-based `hostmeta.SetCreationTime` primitive from
   [APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108), preserving
   replacement API defaults. Darwin sets nanosecond creation time; other hosts
   return an unsupported error without changing their metadata policy.
@@ -810,14 +817,13 @@ alongside executable ACL/birth-time and explicit directory ACL differences.
 - [x] Apply the timestamp only to staged bundle executables; retain original-file
   preservation and cleanup on metadata failure or cancellation. Extend both Clang
   targets with the creation-time attribute and timestamp layout constants.
-- [x] Pass local `make verify`, lint and six CGO-disabled cross-builds against the
-  isolated APFS development API. Local coverage is 95.47% library, 99.53% CLI and
-  100% entry point; all 210 native creation-time trees and metadata policies match.
-- [ ] Merge and release the APFS API, then pin the published version in codesign.
-  The local integration uses a temporary module file; committed v0.6.1 has no setter.
-- [ ] Pass codesign's final three-OS, packaging, race/fuzz, native-import and artifact
-  audit gates with the released dependency. Keep ACL inheritance, access-time
-  behavior and broader permission/filesystem differences explicit.
+- [x] Merge APFS PR #108 as `4e9d024c904c7cf08cc0cdf028a486b22d2c210b` and publish
+  [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
+  Pin its released module/checksums in codesign without a local replace or workspace.
+- [ ] Validate the released pin locally and in final three-OS CI, including coverage,
+  lint, packaging, race/fuzz, native imports and all 210 creation-time comparisons.
+  Audit the final artifacts and confirm the actual merge shares the tested tree.
+  Keep ACL inheritance, access-time and broader filesystem differences explicit.
 
 **Implementation tasks:**
 
@@ -874,7 +880,7 @@ are documented. Standalone alias/hard-link and DMG behavior remain regression ga
 **Touchpoints:** [bundle.go](../pkg/codesign/bundle.go),
 [bundle_tree.go](../pkg/codesign/bundle_tree.go),
 [bundle_writer.go](../pkg/codesign/bundle_writer.go), [io.go](../pkg/codesign/io.go),
-[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/hostmeta).
+[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
 
 <a id="wp-03"></a>
 ## WP-03: Bundle discovery, path identity and layout coverage
@@ -1580,12 +1586,12 @@ Unrepresentable host filesystem behavior remains an explicit compatibility limit
 **Touchpoints:** [io.go](../pkg/codesign/io.go),
 [bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
 [types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md),
-[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/hostmeta).
+[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/hostmeta).
 
 <a id="wp-17"></a>
 ## WP-17: Wider APFS-backed DMG support and streaming
 
-**Starting point:** codesign directly reuses APFS v0.6.1's UDIF model. Its own
+**Starting point:** codesign directly reuses APFS v0.7.0's UDIF model. Its own
 adapter currently accepts a single-segment version-4 image, flags equal to one,
 a resource plist, bounded non-overlapping ranges and a 1 GiB in-memory profile.
 APFS supporting a broader image format does not mean this signing adapter already
@@ -1634,7 +1640,7 @@ through its public API; no copied disk-image implementation is introduced.
 **Touchpoints:** [dmg.go](../pkg/codesign/dmg.go),
 [io.go](../pkg/codesign/io.go), [DMG guide](dmg-integration.md),
 [DMG evidence](../spec/apple-dmg.json),
-[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/disk).
+[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.7.0/pkg/disk).
 
 <a id="wp-18"></a>
 ## WP-18: Hybrid/PQC signatures, native signature slots and detached certificates
@@ -2117,8 +2123,8 @@ none leaves independent acceptance for a later “testing PR.”
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
 | D02 | Writer, regular cleanup, directory-stat, stale-entry failure, APFS ordering and envelope corpora merged | PR #37 adds 104 portable envelope-directory cases and 20 POSIX permission cases; remaining metadata/failure profiles need evidence | D01; final three-OS and artifact gates passed, with POSIX cases explicitly skipped on Windows |
-| D03 | Root-relative/directory-stat APIs and name-hash race fix released and consumed | PR #35 pins published APFS v0.6.1 and passes final CI/artifact validation | Current integration gate complete; any further shared primitive needs its own upstream release |
-| D04 | Replacement, regular cleanup, directory-stat, stale-entry failure, APFS ordering and envelope failure profiles merged; wider metadata/failures open | Resolve executable ACL/birth-time behavior, explicit directory ACL copying and remaining permission/failure profiles | Released APFS v0.6.1; PR #37 final CI/artifact audit complete |
+| D03 | Root-relative/directory-stat APIs and name-hash race fix consumed; creation-time setter released | Current slice pins APFS v0.7.0, containing merged PR #108 | Final codesign validation on the released pin belongs to this implementation PR |
+| D04 | Replacement, cleanup, directory-stat, ordering and envelope profiles merged; creation-time slice implemented here | Match Darwin executable creation time; retain open ACL, access-time and wider permission profiles | Released APFS v0.7.0; final codesign CI/artifact audit required before merge |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -2189,12 +2195,11 @@ not add raw syscalls, native binding directives or a helper fallback. Failed sta
 copying can leave an empty or partially updated directory before its envelope and
 executable commit. No feature or work-package status is upgraded to fully verified.
 
-1. Investigate remaining permission/ACL failures and executable creation-time
-   behavior as separate bounded D04/WP-02 profiles. Retain PR #37's 104 portable
-   and 20 POSIX envelope cases, the 278 ordering and 214 stale-entry failure
-   comparisons, and all previous writer/metadata matrices. Symlinked signing
-   envelopes retain the documented containment difference. The envelope profile
-   and APFS v0.6.1 integration are complete.
+1. Finish the current creation-time slice's release-backed validation and artifact
+   audit, retaining its 210 native comparisons and every merged writer matrix.
+   Then investigate remaining permission/ACL and access-time behavior as separate
+   bounded D04/WP-02 profiles. Symlinked signing envelopes retain the documented
+   containment difference. APFS PR #108 and v0.7.0 publication are complete.
 2. If a required general metadata primitive is missing, extend APFS upstream and
    consume its next released API before integrating the dependent writer change.
    Do not repeat the delivered root-relative staging or directory-stat APIs, or
