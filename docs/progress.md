@@ -11,7 +11,9 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 Bundle planning uses ordinary bounded reads. Source access is recorded immediately
 before executable allocation, preserving timestamps on shallow children, preserved
 signed descendants, already-signed rejection and allocation-blocked ancestors.
-All 624 directory cases now require matching native read-access effects; 252 new
+The 624 directory cases require matching access effects for dispatched work. Native
+undispatched siblings are recorded separately and must retain their complete subtree
+and executable metadata; Go completes independent siblings. Another 252 new
 native cases cover selective signing and rejection across seven layouts, three
 architectures and past/future timestamps.
 

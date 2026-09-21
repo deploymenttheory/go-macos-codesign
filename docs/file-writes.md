@@ -376,10 +376,16 @@ external-link bytes, timestamps, preserved modes and staging cleanup are checked
 Linux output is compared with independently produced Apple results. Windows skips
 this POSIX mode matrix; unit tests use an actual DACL creation denial there.
 
-Native APFS asynchronous sibling completion is the observed profile; this does not
-claim every scheduling outcome, filesystem, inaccessible-directory behavior or raw
-diagnostic. Access recording occurs at allocation, so all 624 cases now require
-native read-access parity, including shallow children and blocked ancestors. Dry-run cancellation and a Darwin ACL denying
+Native dispatch can leave an independent sibling unstarted after another child
+fails. The pinned [exception-aware dispatcher](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/dispatch.cpp)
+checks for a pending exception before enqueueing and before executing a block. The
+matrix records this scheduling difference from Go sibling completion: skipped
+siblings must retain their entire initial subtree, inode and timestamps, and every
+other tree member must match Go. Complete member manifests accompany this outcome.
+Access recording occurs at allocation, so dispatched work requires matching access
+effects, including shallow children and blocked ancestors. Other scheduling outcomes,
+filesystems, inaccessible-directory behavior and raw diagnostics remain unproven.
+Dry-run cancellation and a Darwin ACL denying
 attribute writes check that temporary allocations are cleaned without committing
 or restoring metadata. Wider failures, competing errors and ACL inheritance remain open.
 

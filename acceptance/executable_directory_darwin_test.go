@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+func executableDirectoryUnaccessed(before, after os.FileInfo) bool {
+	return os.SameFile(before, after) && writerAccess(before).Equal(writerAccess(after))
+}
+
 func executableDirectoryAccess(t *testing.T, before, after, neighbour os.FileInfo, accessed bool, started, finished time.Time) map[string]any {
 	t.Helper()
 	at, other := writerAccess(after), writerAccess(neighbour)

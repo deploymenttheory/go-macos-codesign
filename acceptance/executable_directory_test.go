@@ -1,9 +1,15 @@
 package acceptance
 
 import (
+	"archive/tar"
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -24,11 +30,27 @@ func TestExecutableDirectoryPermissions(t *testing.T) {
 					}
 					for _, operation := range operations {
 						t.Run(fmt.Sprintf("%s/%s/%s/%04o/%s", arch, shape, profile, mode, operation), func(t *testing.T) {
-							got, record := executableDirectoryCase(t, binaryPath, arch, shape, profile, operation, mode)
+							_, got, record := executableDirectoryCase(t, binaryPath, arch, shape, profile, operation, mode)
 							evidence := map[string]any{"producer": runtime.GOOS, "architecture": arch, "shape": shape, "profile": profile, "executable_mode": fmt.Sprintf("%04o", mode), "operation": operation, "go": record, "native_compared": runtime.GOOS == "darwin", "filesystem_profile": "POSIX readable and searchable executable directories"}
 							if runtime.GOOS == "darwin" {
-								want, native := executableDirectoryCase(t, apple(t), arch, shape, profile, operation, mode)
-								nativeEqual(t, "complete executable-directory result", got, want)
+								before, want, native := executableDirectoryCase(t, apple(t), arch, shape, profile, operation, mode)
+								skipped := native["undispatched_siblings"].([]string)
+								if len(skipped) == 0 {
+									nativeEqual(t, "complete executable-directory result", got, want)
+								} else {
+									prior, portable, observed := executableDirectoryManifest(t, before), executableDirectoryManifest(t, got), executableDirectoryManifest(t, want)
+									if !reflect.DeepEqual(executableDirectoryExpectedManifest(prior, portable, skipped), observed) {
+										t.Fatal("native tree differs beyond undispatched siblings")
+									}
+									evidence["undispatched_sibling_manifests"] = map[string]any{"before": prior, "go": portable, "native": observed}
+									for _, name := range skipped {
+										for _, side := range []map[string]any{record, native} {
+											access := side["executables"].(map[string]any)[name].(map[string]any)["access"].(map[string]any)
+											access["native_accessed"], access["known_difference"] = false, true
+										}
+									}
+								}
+								evidence["complete_tree_bytes_equal"] = bytes.Equal(got, want)
 								if record["before_sha256"] != native["before_sha256"] {
 									t.Fatal("different initial trees")
 								}
@@ -43,7 +65,7 @@ func TestExecutableDirectoryPermissions(t *testing.T) {
 	}
 }
 
-func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation string, mode os.FileMode) ([]byte, map[string]any) {
+func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation string, mode os.FileMode) ([]byte, []byte, map[string]any) {
 	t.Helper()
 	standalone := shape == "standalone" || shape == "alias"
 	dry := strings.Contains(operation, "dryrun")
@@ -203,6 +225,7 @@ func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation 
 		t.Fatal(err)
 	}
 	effects := map[string]any{}
+	undispatched := []string{}
 	for _, name := range names {
 		ancestor := name == "main" && bad != "main" || shape == "grandchild" && name == "A"
 		rewritten := !dry && (!failure || name != bad && !ancestor)
@@ -218,8 +241,14 @@ func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation 
 			t.Fatal(err)
 		}
 		old := originals[name]
+		// Apple's exception-aware dispatcher can leave an independent sibling unstarted.
+		skipped := exe != binaryPath && failure && !removing && !shallow && !ancestor && name != bad && (name == "A" || name == "B") && executableDirectoryUnaccessed(old, after)
+		if skipped {
+			rewritten = false
+			undispatched = append(undispatched, name)
+		}
 		if os.SameFile(old, after) == rewritten || !os.SameFile(old, other) {
-			t.Fatalf("%s replacement: want %v", name, rewritten)
+			t.Fatalf("%s %s replacement: want %v", exe, name, rewritten)
 		}
 		if after.Mode() != old.Mode() || other.Mode() != old.Mode() || !other.ModTime().Equal(old.ModTime()) {
 			t.Fatalf("mode or source modification time changed: %s", name)
@@ -232,6 +261,9 @@ func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation 
 			accessed = name == "main"
 		}
 		if failure && !removing && !shallow && ancestor {
+			accessed = false
+		}
+		if skipped {
 			accessed = false
 		}
 		effect := map[string]any{"inode_replaced": rewritten, "neighbour_preserved": true}
@@ -273,5 +305,80 @@ func executableDirectoryCase(t *testing.T, exe, arch, shape, profile, operation 
 			mustRun(t, apple(t), "--verify", "--strict", "--deep", operand)
 		}
 	}
-	return after, map[string]any{"argv": append(args, operand), "stdout": out, "stderr": stderr, "exit": status, "started": started, "finished": finished, "before_sha256": hash(before), "tree_sha256": hash(after), "executables": effects, "directory_mode_preserved": true, "staging_removed": true}
+	return before, after, map[string]any{"argv": append(args, operand), "stdout": out, "stderr": stderr, "exit": status, "started": started, "finished": finished, "before_sha256": hash(before), "tree_sha256": hash(after), "executables": effects, "undispatched_siblings": undispatched, "directory_mode_preserved": true, "staging_removed": true}
+}
+
+func executableDirectoryManifest(t *testing.T, archive []byte) map[string]string {
+	t.Helper()
+	result := map[string]string{}
+	r := tar.NewReader(bytes.NewReader(archive))
+	for {
+		h, err := r.Next()
+		if errors.Is(err, io.EOF) {
+			return result
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		data, err := io.ReadAll(r)
+		if err != nil {
+			t.Fatal(err)
+		}
+		header, err := json.Marshal(h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result[h.Name] = hash(append(header, data...))
+	}
+}
+
+func executableDirectoryExpectedManifest(before, signed map[string]string, undispatched []string) map[string]string {
+	result := make(map[string]string, len(signed))
+	for name, digest := range signed {
+		result[name] = digest
+	}
+	for _, sibling := range undispatched {
+		prefix := "Contents/PlugIns/" + sibling + ".app"
+		for name := range result {
+			if name == prefix || strings.HasPrefix(name, prefix+"/") {
+				delete(result, name)
+			}
+		}
+		for name, digest := range before {
+			if name == prefix || strings.HasPrefix(name, prefix+"/") {
+				result[name] = digest
+			}
+		}
+	}
+	return result
+}
+
+func TestExecutableDirectoryUndispatchedComparison(t *testing.T) {
+	reference := apple(t)
+	makeTree := func() string {
+		app := filepath.Join(t.TempDir(), "Example.app")
+		for _, name := range []string{"", "Contents/PlugIns/A.app", "Contents/PlugIns/B.app"} {
+			bundleFixture(t, filepath.Join(app, name), "arm64")
+		}
+		return app
+	}
+	portable, native := makeTree(), makeTree()
+	before := executableDirectoryManifest(t, layoutArchive(t, native))
+	for _, name := range []string{"A", "B"} {
+		mustRun(t, binaryPath, "-fs", "-", "--timestamp=none", filepath.Join(portable, "Contents/PlugIns", name+".app"))
+	}
+	mustRun(t, reference, "-fs", "-", "--timestamp=none", filepath.Join(native, "Contents/PlugIns/B.app"))
+	expected := executableDirectoryExpectedManifest(before, executableDirectoryManifest(t, layoutArchive(t, portable)), []string{"A"})
+	if !reflect.DeepEqual(expected, executableDirectoryManifest(t, layoutArchive(t, native))) {
+		t.Fatal("complete native tree with an untouched sibling differs")
+	}
+	for _, name := range []string{"Contents/Resources/message.txt", "Contents/PlugIns/A.app/Contents/Resources/message.txt", "Contents/PlugIns/B.app/Contents/Resources/message.txt"} {
+		path := filepath.Join(native, name)
+		original := nativeRead(t, path)
+		bundleWrite(t, native, name, []byte("unexpected mutation\n"))
+		if reflect.DeepEqual(expected, executableDirectoryManifest(t, layoutArchive(t, native))) {
+			t.Fatalf("accepted mutation outside the allowed completion outcome: %s", name)
+		}
+		bundleWrite(t, native, name, original)
+	}
 }

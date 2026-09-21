@@ -14,11 +14,14 @@ artifact audit pass. Its actual merge matches the tested tree. Apple verifies al
 The active D04/WP-02 slice on `fix/bundle-access-order` moves bundle source access
 recording from planning to executable allocation. Preserved descendants, shallow
 children, already-signed rejection and ancestors blocked by allocation failure now
-retain access times. The 624-case directory matrix no longer allows its 216 read-
+retain access times. The 624-case directory matrix no longer allows its 216 planning-read
 access differences; 252 additional native cases cover selective signing and
 rejection across seven layouts, three architectures and past/future timestamps.
 Thirty-six failure-boundary cases record the remaining envelope/cleanup and
-unsigned-child dry-run differences. Final validation is recorded in the implementation PR.
+unsigned-child dry-run differences. Native exception-aware dispatch can leave an
+independent sibling unstarted after another child fails; the matrix records that
+scheduling difference and verifies the complete untouched subtree. Final validation
+is recorded in the implementation PR.
 
 Inaccessible-directory discovery/removal, broader failure ordering, executable ACL
 inheritance and explicit signature-directory ACL copying remain open. Supported
@@ -1071,7 +1074,8 @@ remain open alongside executable ACL inheritance and access-time behavior.
 - [x] Keep ordinary planning reads unmapped; record source access on the held
   descriptor immediately before allocation. Preserve bounds, identity checks,
   private staging, existing cancellation behavior and released APFS v0.8.0.
-- [x] Require read-access parity in all 624 directory cases. Add 252 selective
+- [x] Require read-access parity for dispatched work in all 624 directory cases;
+  explicitly verify native undispatched siblings remain wholly unchanged. Add 252 selective
   signing/rejection cases and 36 explicit failure-boundary cases, retaining the
   294 bundle-access and 464 standalone/read-only/DMG controls.
 - [x] Extract the complete native allocator on both Clang targets, recording input
@@ -2488,8 +2492,10 @@ The dependency remains released APFS v0.8.0; all native and portable gates pass.
 reads while constructing signatures and records source access only when an
 executable reaches allocation. No additional APFS API or release is required.
 
-1. Complete the selective bundle-access gates. All 624 directory cases now assert
-   matching access effects, including the 216 formerly divergent cases. Add 252
+1. Complete the selective bundle-access gates. All 624 directory cases assert
+   matching access effects for dispatched work, including the 216 planning-read
+   differences. Native undispatched siblings retain explicit scheduling differences,
+   with complete subtree and metadata checks. Add 252
    native comparisons for shallow signing, preserved children and already-signed
    rejection, plus 36 cases that explicitly retain later-failure differences.
 2. Retain the 464 PR #42 controls, 294 bundle access-time cases, 210 creation-time

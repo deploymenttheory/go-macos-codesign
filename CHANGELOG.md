@@ -4,8 +4,8 @@
 
 - Record bundle executable access at allocation instead of during planning.
   Preserve access times for shallow/preserved children, already-signed rejection
-  and ancestors blocked by allocation failures. Require access parity in all 624
-  directory cases; add 252 selective-access and 36 explicit failure-boundary cases.
+  and ancestors blocked by allocation failures. Require matching access for dispatched work in the 624
+  directory cases, with explicit native undispatched-sibling outcomes; add 252 selective-access and 36 explicit failure-boundary cases.
   Retain the documented envelope/cleanup and unsigned-child dry-run differences.
 
 - Check Mach-O dry-run allocation permissions and discard temporary files without
