@@ -14,6 +14,13 @@ The merged failure profile adds 214 native comparisons; it does not close D04.
 Further writer profiles precede D05. This slice required no new APFS API or release.
 The original PR #25 baseline below remains historical. Releases still require approval.
 
+The current follow-up prepares D04's case-insensitive APFS ASCII cleanup-order
+profile, with 278 new native comparisons and complete signer-removal AST evidence.
+It corrects the earlier CodeResources-first assumption. Its shared hashing API
+needs the concurrency fix in [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106).
+The codesign v0.6.0 pin remains provisional for this follow-up; upstream release,
+the new pin and final codesign CI/artifact audit are required before integration.
+
 The current inventory retains 88 obligations: 25 partial, 55 not implemented,
 eight blocked and zero fully verified. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
@@ -563,8 +570,10 @@ copying remains outside that profile. Internal write-target hard links remain re
 
 - [x] Defer stale directory/symlink rejection until cleanup after executable commit;
   exclude them from resource seals, retain dry-run trees and strict verification.
-- [x] Remove the regular CodeResources component before the removal stale scan.
-  Keep rejected entries, link targets and external hard-link neighbours intact.
+- [x] Remove the regular CodeResources component before the removal stale scan
+  for the original one-stale-entry corpus. The follow-up below supersedes this
+  implementation assumption for multiple entries. Keep rejected entries, link
+  targets and external hard-link neighbours intact.
 - [x] Expand the original eight observations into 210 complete native comparisons:
   seven layouts, five entry types and six operations; add four nested child-failure
   cases proving earlier child commits survive and the parent remains unchanged.
@@ -581,6 +590,28 @@ entries and broader permission failures remain open. Non-regular envelopes,
 special files, unreadable subtrees and unsafe names/aliases can still fail early.
 The final validation and artifact audit are complete for PR #33's tested tree.
 The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
+
+**Current D04 follow-up, awaiting upstream release and final integration:**
+
+- [x] Establish native case-insensitive APFS ASCII enumeration order, including
+  equal-hash names of different case/length and opposite creation orders.
+- [x] Parse complete `SecCodeSigner::Signer::remove` on both Clang targets. The
+  Mach-O path calls allocate/commit and flushes directly; generic removal alone
+  invokes the canonical-slot loop. CodeResources has no special removal priority.
+- [x] Implement bounded ordered cleanup through APFS's public hash/comparison API.
+  Reject non-regular removal envelopes when reached after executable replacement;
+  retain early signing validation, containment, bounds and write-alias rejection.
+- [x] Add 278 native tree comparisons across seven layouts, with cancellation and
+  entry-limit unit tests. Retain all merged writer/metadata/failure corpora.
+- [ ] Merge/release [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
+  and replace the provisional v0.6.0 pin with that published release. The APFS
+  regression reproduces the old race in a fresh process and passes after the fix.
+- [ ] Complete final codesign three-OS execution/coverage, package, race/fuzz,
+  606-import/88-removal and actual-final-commit artifact audit after the release pin.
+
+No umbrella status changes. Other filesystem orders, non-regular signing
+envelopes, special files, broader permissions and raw diagnostics remain open,
+alongside executable ACL/birth-time and explicit directory ACL differences.
 
 **Implementation tasks:**
 
@@ -606,8 +637,9 @@ The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
   unimplemented; the destination's existing/inherited ACL is retained.
 - [ ] Complete signature-file cleanup beyond the regular-file and bounded stale
   directory/symlink failure profiles. PR #33 matches post-replacement
-  rejection and successful dry runs for the latter. Native named-component removal,
-  multiple-entry enumeration, special files, broader permissions and raw diagnostic
+  rejection and successful dry runs for the latter. The current follow-up covers
+  APFS ASCII named-component ordering and awaits its upstream release pin. Other
+  filesystem orders, special files, broader permissions and raw diagnostic
   parity remain open; retain stricter bounds and internal write-alias rejection.
 - [ ] Investigate safe non-cloning filesystem support on Darwin, including HFS+,
   and compressed/protected inputs. Measure native behavior and leave unsupported
@@ -1880,7 +1912,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
 | D02 | Writer, regular cleanup, directory-stat and stale-entry failure corpora merged; wider metadata/failures open | Native bundle writer/metadata probe corpus, including hard links and failure states | D01; isolate existing behavior before changing it |
 | D03 | Root-relative API released in APFS v0.5.0; directory-stat API released in APFS v0.6.0 | Missing shared metadata primitives with upstream tests | D02 demonstrates a real API gap; release APFS before consumption |
-| D04 | Mach-O replacement, regular cleanup, directory-stat and stale-entry failure profiles merged; wider metadata/failures open | Post-commit directory/symlink rejection, successful dry runs and child-failure ordering delivered; ACL/birth-time and wider cleanup behavior remain | PR #33 passed three-OS CI and final artifact audit; each remaining profile needs its own evidence |
+| D04 | Mach-O replacement, regular cleanup, directory-stat and stale-entry failure profiles merged; wider metadata/failures open | Post-commit failure profile delivered; APFS ASCII cleanup-order follow-up has 278 native cases and awaits APFS PR #106 release/pin | PR #33 audit complete; follow-up requires final codesign CI/audit after the new dependency pin |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -1930,9 +1962,11 @@ not add raw syscalls, native binding directives or a helper fallback. Failed sta
 copying can leave an empty or partially updated directory before its envelope and
 executable commit. No feature or work-package status is upgraded to fully verified.
 
-1. Continue D04/WP-02 with independent probes for executable ACL/creation-time
-   differences, explicit directory ACL copying and remaining named-component,
-   permission and failure-order behavior. Split these into separately evidenced
+1. Finish the prepared D04/WP-02 APFS ASCII cleanup-order slice after APFS PR #106
+   is merged/released and its release is pinned. Run final codesign gates and audit
+   the final artifacts. Then continue independent probes for executable ACL/creation-time
+   differences, explicit directory ACL copying and remaining filesystem-order,
+   permission and failure behavior. Split these into separately evidenced
    changes; retain PR #33's 214 failure comparisons alongside the executable,
    envelope, regular-cleanup and directory-stat matrices. Do not repeat the merged
    stale-directory/symlink failure-timing implementation.

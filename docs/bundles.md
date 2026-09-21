@@ -261,8 +261,12 @@ an already unsigned supported bundle. Removal leaves descendant signatures alone
 External hard links to purged files retain their bytes. Unexpected signature files
 still fail verification. Stale directories and symlinks are rejected at cleanup,
 after executable replacement; dry-run signing retains them and succeeds. A child
-cleanup failure prevents the parent commit. Non-regular CodeResources and unsafe
-paths still fail before writes. [File-write evidence](file-writes.md) records the
+cleanup failure prevents the parent commit. Cleanup follows case-insensitive APFS
+ASCII name-hash order, including name comparisons on collisions. Removal rejects
+non-regular CodeResources after executable replacement, when that entry is reached;
+an earlier failure can leave a regular envelope intact. Signing retains early
+rejection of non-regular envelopes; unsafe paths still fail before writes.
+[File-write evidence](file-writes.md) records the upstream release gate, the
 bounded failure profile and remaining diagnostic/permission differences.
 The [Mach-O removal fix](removal.md) trims symbol-table alignment
 padding and preserves virtual sizes. The layout tests now require complete native

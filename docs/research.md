@@ -288,14 +288,24 @@ replacement separately from these discovery tests.
 
 ## Writer and native-option research
 
-`make research-writer` now extracts nine complete methods on both targets: the
-MachOEditor commit/destructor and BundleDiskRep metadata-path, directory-creation,
+`make research-writer` now extracts ten complete methods on both targets: the
+Signer removal method, MachOEditor commit/destructor and BundleDiskRep metadata-path, directory-creation,
 component-write, remove overloads, flush and stale-file purge methods. The
 [record](../spec/apple-writer.json) pins verbatim excerpts and SDK headers. Real
 SDK open/copyfile constants establish in-place envelope writes and metadata copy;
 private interface/slot/error shims do not establish wire values. Native tests
 independently establish bundle executable replacement, envelope inode retention
 and unlink-on-removal. Regular stale-file cleanup is delivered in PR #30.
+
+The complete `SecCodeSigner::Signer::remove` shows that Mach-O removal uses
+allocate/commit and flushes without entering the generic writer's canonical-slot
+remove loop. The 278-case cleanup-order corpus independently establishes the
+case-insensitive APFS ASCII order, including hash collisions and a failure before
+CodeResources. It supersedes the earlier assumption that CodeResources is always
+removed first. The production adapter reuses APFS's public hashing/comparison API;
+[APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106) fixes its
+concurrent first-use race. Other filesystems and non-regular signing envelopes
+remain outside the new claim.
 
 The directory-stat follow-up also parses the complete `copyfile_stat` function
 and its internal flag enum from copyfile revision
@@ -309,6 +319,7 @@ execute `copyfile(COPYFILE_STAT)` as a test-only metadata oracle.
 To refresh the additional research inputs before `make research-writer`:
 
 ```sh
+curl -fsSL https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp -o .research/apple/signer.cpp
 curl -fsSL https://raw.githubusercontent.com/apple-oss-distributions/copyfile/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile.c -o .research/apple/copyfile.c
 curl -fsSL https://raw.githubusercontent.com/apple-oss-distributions/copyfile/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile_private.h -o .research/apple/copyfile_private.h
 ```

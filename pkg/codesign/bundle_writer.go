@@ -7,7 +7,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/apfs"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
 )
 
@@ -143,58 +145,61 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("bundle signature directory changed")
 	}
-	if !keepResources {
-		// The resource component is removed before native's final stale-file
-		// scan, even if that scan subsequently rejects a non-regular entry.
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-		info, err := root.Lstat("CodeResources")
-		if err == nil {
-			if !info.Mode().IsRegular() {
-				return unsupported("non-regular signature file: CodeResources")
-			}
-			if err := root.Remove("CodeResources"); err != nil {
-				return err
-			}
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return err
-		}
-	}
 	dir, err := root.Open(".")
 	if err != nil {
 		return err
 	}
 	defer dir.Close()
-	for count := 0; ; count++ {
+	// Native Mach-O removal reaches the writer's flush directly, without its
+	// canonical-slot remove loop. Reproduce the pinned case-insensitive APFS
+	// directory order on every host, including name comparisons on hash ties.
+	// Read at most one more than our limit; never buffer an unbounded directory.
+	entries, err := dir.ReadDir(maxBundleEntries + 1)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return err
+	}
+	if len(entries) > maxBundleEntries {
+		return unsupported("signature directory entry count limit")
+	}
+	type signatureEntry struct {
+		name string
+		hash uint32
+	}
+	ordered := make([]signatureEntry, len(entries))
+	for i, entry := range entries {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		entries, err := dir.ReadDir(1)
-		if errors.Is(err, io.EOF) {
-			return nil
+		ordered[i] = signatureEntry{entry.Name(), apfs.CalculateNameHash([]byte(entry.Name()), true)}
+	}
+	slices.SortFunc(ordered, func(a, b signatureEntry) int {
+		if a.hash < b.hash {
+			return -1
 		}
-		if err != nil {
+		if a.hash > b.hash {
+			return 1
+		}
+		return apfs.CompareNamesWithUTF8([]byte(a.name), []byte(b.name), true)
+	})
+	for _, entry := range ordered {
+		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if count >= maxBundleEntries {
-			return unsupported("signature directory entry count limit")
-		}
-		entry := entries[0].Name()
-		info, err := root.Lstat(entry)
+		info, err := root.Lstat(entry.name)
 		if err != nil {
 			return err
 		}
 		if !info.Mode().IsRegular() {
-			return unsupported("non-regular signature file: " + entry)
+			return unsupported("non-regular signature file: " + entry.name)
 		}
-		if keepResources && entry == "CodeResources" {
+		if keepResources && entry.name == "CodeResources" {
 			continue
 		}
-		if err := root.Remove(entry); err != nil {
+		if err := root.Remove(entry.name); err != nil {
 			return err
 		}
 	}
+	return nil
 }
 
 func prepareBundleExecutable(ctx context.Context, write bundleWrite) (_ *preparedBundleExecutable, result error) {

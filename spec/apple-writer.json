@@ -11,10 +11,11 @@
     "cfInternalFlags": "e7fdf45f199b3a99064abf953bea60555adf26de26d7421ad2b3c8396bb72e6d",
     "commit": "cd38270eb44ea1adf21e033169404c10bb7cf65f800533163152546d405f761d",
     "copyfile_stat": "0626fb24e5a0bc0c0a2f9a06aa4a65d1889d7894233f7cac802a114cc882fdcc",
+    "signer_remove": "21675d1a931928f625e014739341b9d0b211a9dd0d4882f7e6f63698bc9eaa3a",
     "~MachOEditor": "0d70cbae2b34e437c7c2e4af40f4be2f095717f12ca8c6db033d22cdd004c218"
   },
   "schema": 1,
-  "scope": "Nine complete verbatim methods plus copyfile_stat: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; the non-regular cleanup corpus now covers rejection after executable replacement, resource-component removal before stale scanning, dry-run preservation and child failure stopping a parent commit. Broader permissions, named-component failure ordering, raw diagnostics, compression and creation ACL equivalence remain open.",
+  "scope": "Ten complete verbatim methods plus copyfile_stat: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private signer state, code/disk representation, smart pointer, writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; the non-regular cleanup corpus now covers rejection after executable replacement, case-insensitive APFS ASCII cleanup order, including hash collisions and non-regular removal envelopes, dry-run preservation and child failure stopping a parent commit. Signer::remove selects MachOEditor allocate/commit for Mach-O code and calls the canonical-slot remove loop only for other representations. Mach-O commit flushes directly; all sidecars, including CodeResources, follow directory order on removal. The native order corpus covers 278 trees; other filesystems, non-regular signing envelopes, broader permissions, raw diagnostics, compression and creation ACL equivalence remain open.",
   "sdk": "MacOSX.sdk",
   "sdk_headers": {
     "copyfile.h": "56f4a00b83f21ac98c818876eb1b3a3eb246d0a7a31e95fddbd1fd21f7c79ff9",
@@ -37,6 +38,10 @@
     "copyfile_private.h": {
       "sha256": "8ac427e2c1dbe0ca92cfe2fbf114df90fd747f3fbe25c2a4919ff941a1be81c5",
       "url": "https://github.com/apple-oss-distributions/copyfile/blob/9f91eb6ced021952278816cdc76ad68da8631ccb/copyfile_private.h"
+    },
+    "signer.cpp": {
+      "sha256": "83c1cd525934c0b7d0c5f08322b02e347a5cbf9f521a67edd36023387a8559a2",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp"
     },
     "signerutils.cpp": {
       "sha256": "2f352abf90941bca654b31bee3a44a75499abc22da4362601920c0ff6301c699",
@@ -473,6 +478,53 @@
             "st_mode": 1,
             "st_mtimespec": 1,
             "st_uid": 1
+          }
+        },
+        "signer_remove": {
+          "ast_kinds": {
+            "BinaryOperator": 1,
+            "CXXBindTemporaryExpr": 1,
+            "CXXConstructExpr": 2,
+            "CXXMemberCallExpr": 12,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 2,
+            "CXXThisExpr": 12,
+            "CallExpr": 1,
+            "CompoundStmt": 5,
+            "ConditionalOperator": 1,
+            "DeclRefExpr": 10,
+            "DeclStmt": 3,
+            "ExprWithCleanups": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 19,
+            "MemberExpr": 27,
+            "ParmVarDecl": 1,
+            "UnaryOperator": 1,
+            "VarDecl": 3
+          },
+          "references": {
+            "allocate": 1,
+            "code": 1,
+            "commit": 1,
+            "digestAlgorithms": 1,
+            "diskRep": 1,
+            "editor": 2,
+            "errSecCSNotSupported": 1,
+            "fat": 2,
+            "flush": 1,
+            "mDetached": 1,
+            "mNoMachO": 1,
+            "mPreserveAFSC": 2,
+            "mainExecutableImage": 1,
+            "mainExecutablePath": 1,
+            "operator-\u003e": 2,
+            "remove": 1,
+            "rep": 6,
+            "setPreserveAFSC": 1,
+            "state": 4,
+            "throwMe": 1,
+            "writer": 5
           }
         },
         "~MachOEditor": {
@@ -929,6 +981,53 @@
             "st_uid": 1
           }
         },
+        "signer_remove": {
+          "ast_kinds": {
+            "BinaryOperator": 1,
+            "CXXBindTemporaryExpr": 1,
+            "CXXConstructExpr": 2,
+            "CXXMemberCallExpr": 12,
+            "CXXMethodDecl": 1,
+            "CXXOperatorCallExpr": 2,
+            "CXXThisExpr": 12,
+            "CallExpr": 1,
+            "CompoundStmt": 5,
+            "ConditionalOperator": 1,
+            "DeclRefExpr": 10,
+            "DeclStmt": 3,
+            "ExprWithCleanups": 1,
+            "GNUNullExpr": 1,
+            "IfStmt": 3,
+            "ImplicitCastExpr": 19,
+            "MemberExpr": 27,
+            "ParmVarDecl": 1,
+            "UnaryOperator": 1,
+            "VarDecl": 3
+          },
+          "references": {
+            "allocate": 1,
+            "code": 1,
+            "commit": 1,
+            "digestAlgorithms": 1,
+            "diskRep": 1,
+            "editor": 2,
+            "errSecCSNotSupported": 1,
+            "fat": 2,
+            "flush": 1,
+            "mDetached": 1,
+            "mNoMachO": 1,
+            "mPreserveAFSC": 2,
+            "mainExecutableImage": 1,
+            "mainExecutablePath": 1,
+            "operator-\u003e": 2,
+            "remove": 1,
+            "rep": 6,
+            "setPreserveAFSC": 1,
+            "state": 4,
+            "throwMe": 1,
+            "writer": 5
+          }
+        },
         "~MachOEditor": {
           "ast_kinds": {
             "CXXDeleteExpr": 1,
@@ -953,5 +1052,5 @@
       }
     }
   },
-  "translation_unit_sha256": "1c9c2781a7cc752243bff8bd9a00f3f96f5e9fe4a674574e6f098dcfe275dc02"
+  "translation_unit_sha256": "c38f0dbafd364d6fd93fda39a9b8d5f65a5e689db9a6bd361fb5b1c89378e253"
 }

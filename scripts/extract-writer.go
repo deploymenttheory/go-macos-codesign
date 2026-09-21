@@ -36,10 +36,10 @@ func run(input, name string, args ...string) []byte {
 }
 
 type node struct {
-	Kind, Name, Opcode string
-	Value              any
-	Inner              []node
-	ReferencedDecl     *node
+	Kind, Name, Opcode, MangledName string
+	Value                           any
+	Inner                           []node
+	ReferencedDecl                  *node
 }
 
 func walk(n node, f func(node)) {
@@ -78,7 +78,7 @@ struct UnixError { static void check(int); static void throwMe(); };
 struct UidGuard { bool seteuid(uid_t); };
 struct Copyfile { void set(unsigned int, void*); void operator()(const char*, const char*, copyfile_flags_t); };
 struct FD { operator int(); void read(void*, size_t, off_t); void write(const void*, size_t, off_t); };
-struct Writer { bool getPreserveAFSC(); void flush(); };
+struct Writer { bool getPreserveAFSC(); void setPreserveAFSC(bool); void remove(); void flush(); };
 struct Universal {};
 struct cmpInfo { unsigned int compressionType; unsigned long long compressedSize; };
 int queryCompressionInfo(const char*, cmpInfo*);
@@ -89,7 +89,7 @@ void FinishCompressionAndCleanUp(CompressionQueueContext);
 extern CFStringRef kAFSCCompressionTypes;
 void secinfo(const char*, const char*, ...);
 struct MacOSError { static void throwMe(int); };
-constexpr int errSecCSInternalError = -67050;
+constexpr int errSecCSInternalError = -67050, errSecCSNotSupported = -67051;
 constexpr int errSecCSBadBundleFormat = -67049, errSecCSUnsealedAppRoot = -67048;
 enum {cdResourceDirSlot=3, cdSlotCount=12, cdSignatureSlot=0x10000, writerLastResort=1};
 struct CodeDirectory { using SpecialSlot=int; static const char* canonicalSlotName(int); };
@@ -107,10 +107,21 @@ struct BundleDiskRep {
 };
 #define BUNDLEDISKREP_DIRECTORY "_CodeSignature"
 struct MachOEditor {
-  ~MachOEditor(); void commit();
+  MachOEditor(Writer*, Universal&, int, string); ~MachOEditor(); void allocate(); void commit();
   std::string sourcePath, tempPath; FD mFd;
   Writer* writer; Universal* mNewCode; bool mTempMayExist;
 };
+using SecCSFlags = unsigned int;
+template<class T> struct RefPointer { RefPointer(T*); T* operator->(); };
+struct DiskRep {
+ using Writer = CodesignWriterResearch::Writer;
+ Writer* writer(); Universal* mainExecutableImage(); string mainExecutablePath();
+};
+struct StaticCode { DiskRep* diskRep(); };
+struct SecCodeSigner { struct Signer {
+ struct State { bool mDetached, mPreserveAFSC, mNoMachO; } state;
+ DiskRep* rep; StaticCode* code; int digestAlgorithms(); void remove(SecCSFlags);
+}; };
 enum MetadataConstants : unsigned long long {
  CloneACL = CLONE_ACL,
  FileSecMagic = KAUTH_FILESEC_MAGIC,
@@ -128,6 +139,13 @@ enum MetadataConstants : unsigned long long {
 		hashes[name] = hash(excerpt)
 		unit += "\n" + string(excerpt) + "\n"
 	}
+	signer := read(".research/apple/signer.cpp")
+	remove := regexp.MustCompile(`(?ms)^void SecCodeSigner::Signer::remove\(SecCSFlags flags\).*?^}`).Find(signer)
+	if len(remove) == 0 {
+		panic("missing complete signer remove method")
+	}
+	hashes["signer_remove"] = hash(remove)
+	unit += "\n" + string(remove) + "\n"
 	bundle := read(".research/apple/bundlediskrep.cpp")
 	for _, name := range []string{"createMeta", "metaPath", "component", "remove", "flush", "purgeMetaDirectory"} {
 		prefix := "BundleDiskRep::Writer::"
@@ -195,13 +213,15 @@ enum MetadataConstants : unsigned long long {
 			})
 			if kinds["CompoundStmt"] > 0 {
 				name := n.Name
-				if hashes[name] == "" {
+				if name == "remove" && strings.Contains(n.MangledName, "SecCodeSigner") {
+					name = "signer_remove"
+				} else if hashes[name] == "" {
 					name = fmt.Sprintf("bundle_%s_%d", name, kinds["ParmVarDecl"])
 				}
 				methods[name] = map[string]any{"ast_kinds": kinds, "references": references}
 			}
 		})
-		if len(methods) != 10 || len(constants) != 10 {
+		if len(methods) != 11 || len(constants) != 10 {
 			panic(fmt.Sprintf("incomplete AST: %d methods, %d constants", len(methods), len(constants)))
 		}
 		targets[target] = map[string]any{"methods": methods, "metadata_constants": constants}
@@ -212,8 +232,9 @@ enum MetadataConstants : unsigned long long {
 	}
 	record := map[string]any{
 		"schema": 1, "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
-		"scope": "Nine complete verbatim methods plus copyfile_stat: MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; the non-regular cleanup corpus now covers rejection after executable replacement, resource-component removal before stale scanning, dry-run preservation and child failure stopping a parent commit. Broader permissions, named-component failure ordering, raw diagnostics, compression and creation ACL equivalence remain open.",
+		"scope": "Ten complete verbatim methods plus copyfile_stat: SecCodeSigner::Signer::remove, MachOEditor commit/destructor and BundleDiskRep createMeta, metaPath, component, both remove overloads, flush and purgeMetaDirectory. Real SDK declarations supply file/ACL/copy flags, filesystem types and CoreFoundation. Private signer state, code/disk representation, smart pointer, writer, file, scanner, compression, error and path-conversion interfaces are declaration-only shims. Slot numbers, private error values and writer attributes are shim values used only for control-flow analysis, not wire-format evidence. Both targets include the TARGET_OS_OSX compression branches. AST evidence records clone/copy-before-rename, in-place O_TRUNC envelope writes, creation/inherited security, unlink and stale-file purge. The complete copyfile_stat function and cfInternalFlags enum come from pinned copyfile source; its private state carrier and two helper interfaces are declaration-only shims. Flag masks come from the pinned private header and SDK declarations. Native acceptance covers directory creation/reuse, selected physical framework roots and the explicit source ACL copying gap; regular stale signature files now have a separate native cleanup matrix; the non-regular cleanup corpus now covers rejection after executable replacement, case-insensitive APFS ASCII cleanup order, including hash collisions and non-regular removal envelopes, dry-run preservation and child failure stopping a parent commit. Signer::remove selects MachOEditor allocate/commit for Mach-O code and calls the canonical-slot remove loop only for other representations. Mach-O commit flushes directly; all sidecars, including CodeResources, follow directory order on removal. The native order corpus covers 278 trees; other filesystems, non-regular signing envelopes, broader permissions, raw diagnostics, compression and creation ACL equivalence remain open.",
 		"sources": map[string]any{
+			"signer.cpp":         map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signer.cpp", "sha256": hash(signer)},
 			"copyfile.c":         map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile.c", "sha256": hash(copySource)},
 			"copyfile_private.h": map[string]string{"url": "https://github.com/apple-oss-distributions/copyfile/blob/" + copyRevision + "/copyfile_private.h", "sha256": hash(copyHeader)},
 			"signerutils.cpp":    map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/signerutils.cpp", "sha256": hash(source)},
@@ -224,5 +245,5 @@ enum MetadataConstants : unsigned long long {
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-writer.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote spec/apple-writer.json: nine writer methods and copyfile_stat on two targets")
+	fmt.Println("Wrote spec/apple-writer.json: ten writer methods and copyfile_stat on two targets")
 }
