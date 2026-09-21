@@ -6,11 +6,11 @@ Other hard-link names retain the original inode and bytes. Removing a signature
 from an unsigned Mach-O also replaces the inode. Dry runs preserve all names.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.6.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.0/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostmeta` in v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.6.1/pkg/hostmeta).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.6.0. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.6.1. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
@@ -87,12 +87,15 @@ APFS and other filesystem orders, broader permission failures and raw diagnostic
 remain different or unverified. Nothing recursively
 deletes directories or unlinks the rejected symlinks.
 
-Hashing and collision comparison use `go-apfs-v2/pkg/apfs`. The development slice
-requires [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106),
-which fixes concurrent first-use initialization in that API. The current v0.6.0
-pin is provisional for this slice: merge/release upstream and pin its published
-successor before merging codesign. No copied hashing implementation or local
-dependency replacement is committed.
+Hashing and collision comparison use `go-apfs-v2/pkg/apfs`. Codesign PR #34 merged
+with v0.6.0 still pinned. This follow-up consumes
+[v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.1), which
+fixes the API's concurrent first-use initialization through
+[APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106), released by
+[PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107). Hash values and
+public signatures are unchanged. The dependency commit requires its own final
+codesign CI/artifact audit. No copied hashing implementation or local dependency
+replacement is committed.
 
 The first bundle slice does not reproduce every native metadata side effect.
 Native probes show Apple can add inherited executable-directory ACL entries and
