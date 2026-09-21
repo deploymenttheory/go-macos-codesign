@@ -9,10 +9,9 @@ import (
 	"testing"
 )
 
-// Observed from native APFS enumeration and codesign failures, independently of
-// the production hash API. n23 precedes CodeResources. Both collision pairs
-// require name comparison; n100200/N22934 differ in case and length, with raw
-// ASCII order opposite to the observed case-folded order.
+// Keep expected APFS order independent of the production hash API. n23 precedes
+// CodeResources; collision pairs require name comparison. n100200/N22934 have
+// opposite ASCII and case-folded order, distinguishing the tie-break rules.
 var signatureCleanupOrder = []string{
 	"n23", "CodeResources", "n100200", "N22934", "collision-17818", "collision-30606",
 	"CodeDirectory", "CodeEntitlements", "CodeTopDirectory", "CodeSignature",

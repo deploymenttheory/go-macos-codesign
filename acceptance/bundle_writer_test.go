@@ -30,8 +30,8 @@ func writerBundle(t *testing.T, dir, kind, arch string) (app, main, envelope, re
 	return
 }
 
-// Compare bytes and inode effects separately. Equal signatures alone miss the
-// old writer's mutation of every external hard-link name.
+// Compare bytes and inode effects separately to detect mutations through
+// external hard links even when the selected executable's signature is correct.
 func TestBundleWriterParity(t *testing.T) {
 	for _, kind := range append([]string{"app"}, bundleLayouts...) {
 		for _, arch := range []string{"arm64", "x86_64", "universal"} {

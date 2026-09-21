@@ -166,8 +166,7 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 	return &nestedAppResource{bundle: child, files: files, files2: files2, data: data, resources: resources}, nil
 }
 
-// forceMain replaces this executable without changing whether already signed
-// descendants are preserved. Native deep signing distinguishes these choices.
+// forceMain controls this executable; opts.Force controls signed descendants.
 func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files2 map[string]any, opts SignOptions, forceMain bool) ([]byte, []bundleWrite, error) {
 	writes, err := prepareNestedAt(ctx, files2, opts, b.base)
 	if err != nil {

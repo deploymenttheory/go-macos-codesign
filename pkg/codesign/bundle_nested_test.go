@@ -70,7 +70,7 @@ func TestNestedSeals(t *testing.T) {
 			t.Fatal("invalid child verified")
 		}
 	}
-	// A SHA-1-only directory is outside this phase's nested profile.
+	// Nested seals require SHA-256 CodeDirectories.
 	r, _ := InspectBytes(data)
 	off := int(r.Architectures[0].SignatureOffset)
 	cd := int(be.Uint32(data[off+16:])) + off

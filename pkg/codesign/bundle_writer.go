@@ -67,9 +67,8 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) (result error
 	return nil
 }
 
-// Native createMeta copies the canonical bundle root's security only when mkdir
-// creates the signature directory. The shared stat profile covers mode, owner,
-// times and supported flags; copying explicit Darwin ACL entries remains open.
+// Copy root stat metadata into newly created signature directories. Leave
+// existing directories unchanged; explicit ACL entries are not copied.
 func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -115,9 +114,8 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 	return hostmeta.CopyDirectoryStat(source, target)
 }
 
-// Apple flushes the metadata directory after committing the main executable.
-// Only regular files are supported; unlink them without following links or
-// replacing or rewriting any hard-link neighbours. Keep the directory itself.
+// Purge regular signature files after executable commit. Keep the directory and
+// preserve hard-link neighbours by unlinking entries without following symlinks.
 func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -150,10 +148,8 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 		return err
 	}
 	defer dir.Close()
-	// Native Mach-O removal reaches the writer's flush directly, without its
-	// canonical-slot remove loop. Reproduce the pinned case-insensitive APFS
-	// directory order on every host, including name comparisons on hash ties.
-	// Read at most one more than our limit; never buffer an unbounded directory.
+	// Use case-insensitive APFS order so partial cleanup leaves the same entries
+	// on every host. Read one extra entry to detect overflow with bounded memory.
 	entries, err := dir.ReadDir(maxBundleEntries + 1)
 	if err != nil && !errors.Is(err, io.EOF) {
 		return err
