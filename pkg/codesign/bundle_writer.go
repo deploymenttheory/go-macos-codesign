@@ -21,7 +21,10 @@ type preparedBundleExecutable struct {
 	replacement *hostmeta.RootReplacement
 }
 
-type bundleAllocationError struct{ err error }
+type bundleAllocationError struct {
+	err      error
+	original os.FileInfo
+}
 
 func (e *bundleAllocationError) Error() string { return e.err.Error() }
 func (e *bundleAllocationError) Unwrap() error { return e.err }
@@ -35,7 +38,7 @@ func commitBundleWrites(ctx context.Context, writes []bundleWrite) error {
 // sibling commits, but prevent ancestor writes. Other preparation errors abort.
 func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (result error) {
 	prepared := make([]*preparedBundleExecutable, len(writes))
-	allocationErrors := make([]error, len(writes))
+	allocationErrors := make([]*bundleAllocationError, len(writes))
 	failed, blocked := map[*appBundle]bool{}, map[*appBundle]bool{}
 	var allocationErr error
 	defer func() {
@@ -66,7 +69,7 @@ func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (
 			if !errors.As(err, &allocation) {
 				return err
 			}
-			allocationErrors[i] = err
+			allocationErrors[i] = allocation
 			allocationErr = errors.Join(allocationErr, err)
 			failed[b] = true
 			if write.name != b.executable {
@@ -83,7 +86,13 @@ func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if allocationErrors[i] != nil || blocked[write.bundle] && (write.kind != bundleMachOWrite || write.name == write.bundle.executable) {
+		if blocked[write.bundle] && (write.kind != bundleMachOWrite || write.name == write.bundle.executable) {
+			continue
+		}
+		if allocation := allocationErrors[i]; allocation != nil {
+			if err := recordBundleReadAccess(write.bundle.root, write.name, allocation.original); err != nil {
+				return errors.Join(allocationErr, err)
+			}
 			continue
 		}
 		if p := prepared[i]; p != nil {
@@ -257,10 +266,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if !os.SameFile(st, current) {
 		return nil, fmt.Errorf("bundle write target changed")
 	}
-	// Native allocation maps the source before trying to create its output.
-	// Recording here leaves preserved descendants and blocked ancestors untouched.
-	if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
-		return nil, err
+	// Dry runs reach allocation without writing envelopes or committing children.
+	if dryRun {
+		if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+			return nil, err
+		}
 	}
 	created := time.Now()
 	if st.ModTime().Before(created) {
@@ -269,7 +279,7 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	r, err := hostmeta.PrepareReplacementAt(source, root, filepath.Dir(write.name))
 	if err != nil {
 		if errors.Is(err, os.ErrPermission) {
-			return nil, &bundleAllocationError{err: err}
+			return nil, &bundleAllocationError{err: err, original: st}
 		}
 		return nil, err
 	}
@@ -312,6 +322,15 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 }
 
 func (p *preparedBundleExecutable) commit(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if err := p.copySourceAccess(); err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	root := p.write.bundle.root
 	current, err := root.Lstat(p.write.name)
 	if err != nil {
@@ -334,28 +353,65 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 // Refresh the committed inode only after its signature cleanup succeeds.
 // Failed cleanup retains the replacement's copied source access time.
 func (p *preparedBundleExecutable) recordReadAccess() error {
+	return recordBundleReadAccess(p.write.bundle.root, p.write.name, p.staged)
+}
+
+// Defer source access until preceding envelope writes and descendant cleanup
+// succeed. Copy its exact time into the private replacement before rename.
+func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 	root := p.write.bundle.root
-	current, err := root.Lstat(p.write.name)
+	source, err := openBundleExecutable(root, p.write.name, p.original)
 	if err != nil {
 		return err
 	}
-	if !os.SameFile(p.staged, current) {
-		return fmt.Errorf("committed bundle executable changed")
+	defer func() { result = errors.Join(result, source.Close()) }()
+	target, err := openBundleExecutable(root, p.replacement.Path, p.staged)
+	if err != nil {
+		return err
 	}
-	file, err := root.Open(p.write.name)
+	defer func() { result = errors.Join(result, target.Close()) }()
+	if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		return err
+	}
+	if err := hostmeta.CopyAccessTime(source, target); err != nil {
+		if errors.Is(err, hostmeta.ErrAccessTimeUnsupported) {
+			return nil
+		}
+		return err
+	}
+	return target.Sync()
+}
+
+func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) error {
+	file, err := openBundleExecutable(root, name, expected)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	current, err = file.Stat()
-	if err != nil {
-		return err
-	}
-	if !os.SameFile(p.staged, current) {
-		return fmt.Errorf("committed bundle executable changed")
-	}
 	if err := hostmeta.RecordReadAccess(file); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
 		return err
 	}
 	return file.Close()
+}
+
+func openBundleExecutable(root *os.Root, name string, expected os.FileInfo) (*os.File, error) {
+	current, err := root.Lstat(name)
+	if err != nil {
+		return nil, err
+	}
+	if !os.SameFile(expected, current) {
+		return nil, fmt.Errorf("bundle executable changed")
+	}
+	file, err := root.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	current, err = file.Stat()
+	if err != nil {
+		return nil, errors.Join(err, file.Close())
+	}
+	if !os.SameFile(expected, current) {
+		return nil, errors.Join(fmt.Errorf("bundle executable changed"), file.Close())
+	}
+	return file, nil
 }

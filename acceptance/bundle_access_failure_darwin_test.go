@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,8 +13,12 @@ import (
 func TestBundleAccessFailureBoundaries(t *testing.T) {
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		for _, profile := range []string{"past", "future"} {
-			for _, failure := range []string{"parent-envelope", "child-envelope", "parent-cleanup", "child-cleanup", "unsigned-dryrun", "unsigned-shallow"} {
+			for _, failure := range []string{"parent-envelope", "child-envelope", "parent-cleanup", "child-cleanup", "unsigned-dryrun", "unsigned-shallow", "parent-envelope-allocation", "child-envelope-allocation", "child-cleanup-parent-allocation"} {
 				t.Run(arch+"/"+profile+"/"+failure, func(t *testing.T) {
+					boundary := strings.TrimSuffix(failure, "-allocation")
+					if boundary == "child-cleanup-parent" {
+						boundary = "child-cleanup"
+					}
 					execute := func(exe string) ([]byte, map[string]any) {
 						t.Helper()
 						dir := t.TempDir()
@@ -27,11 +32,11 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 							bundleWrite(t, path, "Contents/Resources/message.txt", []byte("changed resource\n"))
 						}
 						bad := app
-						if strings.HasPrefix(failure, "child-") {
+						if strings.HasPrefix(boundary, "child-") {
 							bad = child
 						}
 						switch {
-						case strings.HasSuffix(failure, "envelope"):
+						case strings.HasSuffix(boundary, "envelope"):
 							path := filepath.Join(bad, "Contents/_CodeSignature/CodeResources")
 							if err := os.Remove(path); err != nil {
 								t.Fatal(err)
@@ -39,12 +44,31 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 							if err := os.Mkdir(path, 0755); err != nil {
 								t.Fatal(err)
 							}
-						case strings.HasSuffix(failure, "cleanup"):
+						case strings.HasSuffix(boundary, "cleanup"):
 							if err := os.Mkdir(filepath.Join(bad, "Contents/_CodeSignature/stale"), 0755); err != nil {
 								t.Fatal(err)
 							}
 						default:
 							mustRun(t, exe, "--remove-signature", child)
+						}
+						if strings.HasSuffix(failure, "-allocation") {
+							allocationApp := bad
+							if failure == "child-cleanup-parent-allocation" {
+								allocationApp = app
+							}
+							restricted := filepath.Join(allocationApp, "Contents/MacOS")
+							if err := os.Chmod(restricted, 0555); err != nil {
+								t.Fatal(err)
+							}
+							t.Cleanup(func() { _ = os.Chmod(restricted, 0755) })
+							probe := filepath.Join(restricted, "permission-probe")
+							if err := os.Mkdir(probe, 0700); !errors.Is(err, os.ErrPermission) {
+								if err == nil {
+									_ = os.Remove(probe)
+									t.Skip("host bypasses allocation permission denial")
+								}
+								t.Fatal(err)
+							}
 						}
 						paths, neighbours := map[string]string{}, map[string]string{}
 						originals := map[string]os.FileInfo{}
@@ -73,10 +97,10 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 							originals[name] = st
 						}
 						args := []string{"-fs", "-", "--timestamp=none"}
-						if failure != "unsigned-shallow" {
+						if boundary != "unsigned-shallow" {
 							args = append(args, "--deep")
 						}
-						if failure == "unsigned-dryrun" {
+						if boundary == "unsigned-dryrun" {
 							args = append(args, "--dryrun")
 						}
 						started := time.Now()
@@ -95,18 +119,18 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 							if err != nil {
 								t.Fatal(err)
 							}
-							nativeAccess := failure == "parent-cleanup" || name == "child" && failure != "child-envelope" && failure != "unsigned-shallow"
-							goAccess := !strings.HasPrefix(failure, "unsigned-")
+							nativeAccess := boundary == "parent-cleanup" || name == "child" && boundary != "child-envelope" && boundary != "unsigned-shallow"
+							goAccess := nativeAccess && boundary != "unsigned-dryrun"
 							accessed := nativeAccess
 							if exe == binaryPath {
 								accessed = goAccess
 							}
-							replaced := failure == "parent-cleanup" || name == "child" && (failure == "parent-envelope" || failure == "child-cleanup")
+							replaced := boundary == "parent-cleanup" || name == "child" && (boundary == "parent-envelope" || boundary == "child-cleanup")
 							if os.SameFile(originals[name], after) == replaced || !os.SameFile(originals[name], other) {
 								t.Fatalf("%s %s replacement want %t", exe, name, replaced)
 							}
 							at, sourceAt := writerAccess(after), writerAccess(other)
-							copiedAccess := name == "main" && failure == "parent-cleanup" || name == "child" && failure == "child-cleanup"
+							copiedAccess := name == "main" && boundary == "parent-cleanup" || name == "child" && boundary == "child-cleanup"
 							if accessed {
 								if at.Before(started) || at.After(finished) || sourceAt.Before(started) || sourceAt.After(finished) {
 									t.Fatalf("%s %s access outside operation", exe, name)

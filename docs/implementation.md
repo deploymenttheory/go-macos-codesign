@@ -13,10 +13,11 @@ parity with bundle read-only and DMG controls, retaining released APFS v0.8.0.
 PR #44 delivers dry-run allocation checks and independent sibling commits after
 allocation failures, with 624 POSIX comparisons. PR #45 records bundle source
 access at allocation, preserving shallow/preserved children and blocked ancestors.
-The current D04 slice refreshes replacement access only after successful signature
-cleanup, with 504 native cases and retained failure-boundary evidence.
-Inaccessible directories, envelope/cleanup source-access ordering, unsigned-child dry
-runs, ACL inheritance/copying and native DMG dry-run writes remain open. The expanded D01 inventory
+PR #46 refreshes replacement access only after successful cleanup, with 504 native
+cases. The current D04 slice defers source access past envelope writes and child
+cleanup while retaining private preparation. Released APFS v0.9.0 copies the exact
+source access into staged replacements; 54 failure-boundary cases cover the scope.
+Inaccessible directories, unsigned-child deep dry runs, ACL inheritance/copying and native DMG dry-run writes remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
 

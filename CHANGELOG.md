@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Defer bundle source access until preceding envelope writes and child cleanup
+  succeed. Copy exact source access into private staged replacements through
+  released APFS v0.9.0. Preserve preparation-error guarantees and record allocation
+  denial reads at execution; extend native failure coverage to 54 cases and add
+  staging-identity/cancellation guards. Unsigned-child deep dry runs remain open.
+
 - Refresh a committed bundle executable's access time only after signature cleanup
   succeeds. Cleanup failures retain copied source access for signing and removal;
   completed descendants retain later access. Add 504 native comparisons and
