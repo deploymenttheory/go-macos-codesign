@@ -12,6 +12,54 @@ import (
 	"testing"
 )
 
+type removeExecutableAfterEnvelope struct {
+	context.Context
+	envelope, executable string
+	removed              bool
+}
+
+func (c *removeExecutableAfterEnvelope) Err() error {
+	if _, err := os.Stat(c.envelope); err == nil && !c.removed {
+		if err := os.Chmod(filepath.Dir(c.executable), 0755); err != nil {
+			return err
+		}
+		if err := os.Remove(c.executable); err != nil {
+			return err
+		}
+		c.removed = true
+	}
+	return c.Context.Err()
+}
+
+func TestBundleAllocationFailureRetainsSourceReadError(t *testing.T) {
+	app := testBundle(t)
+	b, err := openAppBundle(app)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.close()
+	path := filepath.Join(app, b.executable)
+	neighbour := filepath.Join(t.TempDir(), "neighbour")
+	before := readTestFile(t, path)
+	if err := os.Link(path, neighbour); err != nil {
+		t.Fatal(err)
+	}
+	denyExecutableDirectoryCreation(t, filepath.Dir(path))
+	ctx := &removeExecutableAfterEnvelope{Context: context.Background(), envelope: filepath.Join(app, b.resourcesPath()), executable: path}
+	writes := []bundleWrite{
+		{name: b.resourcesPath(), data: []byte("committed envelope"), bundle: b, kind: bundleResourceWrite},
+		{name: b.executable, data: []byte("uncommitted executable"), bundle: b},
+	}
+	err = commitBundleWrites(ctx, writes)
+	if !ctx.removed || !errors.Is(err, os.ErrPermission) || !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("allocation and deferred source errors: %v", err)
+	}
+	if !bytes.Equal(readTestFile(t, neighbour), before) || string(readTestFile(t, ctx.envelope)) != "committed envelope" {
+		t.Fatal("deferred source failure changed prior output")
+	}
+	assertNoBundleStaging(t, app)
+}
+
 // Deny creation only in the test directory, retaining source read/traverse access.
 func denyExecutableDirectoryCreation(t *testing.T, path string) {
 	t.Helper()
