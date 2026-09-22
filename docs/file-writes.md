@@ -8,11 +8,11 @@ remove a private temporary file to check directory creation permission. They
 preserve all names and contents and skip metadata restoration and commit.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostmeta` in v0.9.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.9.0/pkg/hostmeta).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.8.0. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.9.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
@@ -141,20 +141,26 @@ Mode, owner/group, the tested xattr and supported flags survive both writers.
 
 Access-time recording uses `RecordReadAccess` from
 [merged APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110),
-released and pinned as [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0).
+released in v0.8.0 and retained in the v0.9.0 pin.
 The published metadata implementation matches the tested upstream API. No APFS
 module replacement or development workspace is required.
 
 On Darwin, bundle planning uses ordinary bounded reads. Source access is recorded
-on the held descriptor immediately before executable allocation, including a
-permission-denied allocation attempt. Shallow children, preserved signed descendants,
+on the held descriptor when execution reaches that executable, after its envelope
+write and completed descendants. Private preparation does not record mapped reads.
+A permission-denied allocation attempt records access at the same execution
+boundary, provided an earlier envelope/cleanup failure has not stopped it. Shallow children, preserved signed descendants,
 already-signed rejection and ancestors blocked by allocation failure retain their
 access times. Outer removal records only the main executable's allocation; dry-run
 signing records eligible allocations without replacing inputs.
 Source hard links observe that read-access time while retaining their bytes,
 modification time and creation time. Each committed bundle replacement records a
 later access time after successful signature cleanup. Failed cleanup retains copied
-source access. The source read stays bounded and identity-checked;
+source access. `CopyAccessTime` from released APFS v0.9.0 copies the deferred
+source read's exact timestamp into the staged replacement before rename. Source
+and staging identity are checked through the held root; the copy preserves target
+modification/creation times and requires metadata-write permission. Cancellation
+is checked before access and again before rename. The source read stays bounded and identity-checked;
 rejected oversized reads do not call the access recorder.
 
 Ordinary reads on the tested APFS volume leave access time unchanged. APFS records
@@ -172,8 +178,7 @@ record mapped access. Native DMG dry runs modify bytes and modification time in
 place; Go preserves both. This difference remains open and is asserted separately
 from access-time equality. Envelope/resource access times, standalone pre-allocation
 failures and broader filesystem/permission profiles remain outside this claim.
-Bundle envelope/cleanup failures and unsigned-child dry runs retain the explicit
-access differences described below.
+Unsigned-child deep dry runs retain the explicit access difference described below.
 
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
@@ -401,12 +406,15 @@ times unchanged. Tests retain complete-tree, inode, hard-link, modification/crea
 time and operation-interval checks. A unit regression verifies bounded planning
 reads leave metadata unchanged and dry-run allocation records only access.
 
-Thirty-six native cases retain explicit limits around envelope/cleanup failures
-and unsigned-child signing. Go stages executables before envelope commits, so it
-can map an executable or ancestor that native never allocates after an envelope
-or child-cleanup failure. Cleanup failure leaves the committed replacement's copied
-source access time in both implementations; only successful cleanup triggers a
-later replacement access.
+Fifty-four native cases cover envelope/cleanup failures and unsigned-child signing.
+The matrix retains 36 cases and adds 18 combinations with allocation denial.
+Envelope failure leaves its executable unread; child-cleanup failure leaves its
+ancestors unread, even when preparation already attempted allocation. Cleanup
+failure leaves the committed replacement's copied source access time in both
+implementations; only successful cleanup triggers a later replacement access.
+Eighteen native-first regressions fail against the prior writer. Unit tests protect
+source metadata during preparation, exact copied access, staging identity and
+cancellation before access or rename.
 A deep dry run with an unsigned child maps the child natively, while Go can reject
 its on-disk seal before allocating. Shallow unsigned-child failure preserves
 access in both. The tests assert these separate outcomes without treating them

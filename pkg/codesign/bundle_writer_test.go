@@ -196,3 +196,96 @@ func TestBundleCommittedAccessRejectsChangedTarget(t *testing.T) {
 		})
 	}
 }
+
+func TestBundleSourceAccessRejectsChangedStaging(t *testing.T) {
+	for _, change := range []string{"replace", "remove", "symlink"} {
+		t.Run(change, func(t *testing.T) {
+			app := testBundle(t)
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			before := readTestFile(t, filepath.Join(app, b.executable))
+			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: []byte("new"), bundle: b}, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer p.replacement.Close()
+			if err := b.root.Link(p.replacement.Path, "staged-inode"); err != nil {
+				t.Fatal(err)
+			}
+			if err := b.root.Remove(p.replacement.Path); err != nil {
+				t.Fatal(err)
+			}
+			switch change {
+			case "replace":
+				if err := b.root.WriteFile(p.replacement.Path, []byte("changed"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			case "symlink":
+				if err := b.root.Symlink("../hello", p.replacement.Path); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := p.commit(context.Background()); err == nil {
+				t.Fatal("committed changed staging")
+			}
+			after, err := b.root.Stat(b.executable)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !os.SameFile(p.original, after) || !bytes.Equal(readTestFile(t, filepath.Join(app, b.executable)), before) {
+				t.Fatal("changed staging replaced source")
+			}
+			if change == "symlink" {
+				if err := b.root.Remove(p.replacement.Path); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := p.replacement.Close(); err != nil {
+				t.Fatal(err)
+			}
+			assertNoBundleStaging(t, app)
+		})
+	}
+}
+
+func TestPreparedBundleCommitCancellation(t *testing.T) {
+	for _, phase := range []string{"before-access", "before-rename"} {
+		t.Run(phase, func(t *testing.T) {
+			app := testBundle(t)
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			before := readTestFile(t, filepath.Join(app, b.executable))
+			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: []byte("uncommitted"), bundle: b}, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer p.replacement.Close()
+			var ctx context.Context = &cancelBeforeRename{Context: context.Background()}
+			if phase == "before-access" {
+				canceled, cancel := context.WithCancel(context.Background())
+				cancel()
+				ctx = canceled
+			}
+			if err := p.commit(ctx); !errors.Is(err, context.Canceled) {
+				t.Fatal(err)
+			}
+			after, err := b.root.Stat(b.executable)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !os.SameFile(p.original, after) || !bytes.Equal(readTestFile(t, filepath.Join(app, b.executable)), before) {
+				t.Fatal("cancelled commit replaced source")
+			}
+			if err := p.replacement.Close(); err != nil {
+				t.Fatal(err)
+			}
+			assertNoBundleStaging(t, app)
+		})
+	}
+}
