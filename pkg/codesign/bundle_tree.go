@@ -167,10 +167,16 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 }
 
 // forceMain controls this executable; opts.Force controls signed descendants.
+// Dry-run seal errors retain reached child allocations with their owning roots.
 func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files2 map[string]any, opts SignOptions, forceMain bool) ([]byte, []bundleWrite, error) {
 	writes, err := prepareNestedAt(ctx, files2, opts, b.base)
+	for i := range writes {
+		if writes[i].bundle == nil {
+			writes[i].bundle = b
+		}
+	}
 	if err != nil {
-		return nil, nil, err
+		return nil, writes, err
 	}
 	opts.InfoPlist, opts.Resources = b.info, encodeBundleResources(files, files2)
 	if len(opts.Resources) > maxBundlePlist {
@@ -187,9 +193,6 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupKeepResources})
 	var total int64
 	for i := range writes {
-		if writes[i].bundle == nil {
-			writes[i].bundle = b
-		}
 		total += int64(len(writes[i].data))
 	}
 	if total > maxFileSize {

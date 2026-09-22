@@ -503,6 +503,11 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	}
 	_, writes, err := b.planSignature(ctx, data, files, files2, opts, opts.Force)
 	if err != nil {
+		if opts.DryRun && len(writes) != 0 {
+			if allocationErr := applyBundleWrites(ctx, writes, true); allocationErr != nil {
+				return allocationErr
+			}
+		}
 		return err
 	}
 	if err := ctx.Err(); err != nil {

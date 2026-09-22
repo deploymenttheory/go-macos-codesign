@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Allocate reached unsigned children during deep dry runs before reporting an
+  unchanged on-disk seal failure. Preserve bytes, envelopes and ancestor access;
+  prioritize allocation errors and clean up on cancellation. Add 72 native cases
+  and twelve portable allocation/permission/cancellation cases.
+
 - Defer bundle source access until preceding envelope writes and child cleanup
   succeed. Copy exact source access into private staged replacements through
   released APFS v0.9.0. Preserve preparation-error guarantees and record allocation

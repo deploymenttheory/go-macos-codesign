@@ -167,9 +167,11 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 						}
 					}
 					data, err = SignBytes(ctx, data, child)
-					staged = []bundleWrite{{name: base + name, data: data}}
+					if err == nil {
+						staged = []bundleWrite{{name: base + name, data: data}}
+					}
 				}
-				if err != nil {
+				if err != nil && (!opts.DryRun || len(staged) == 0) {
 					return nil, fmt.Errorf("nested %s: %w", name, err)
 				}
 				for _, w := range staged {
@@ -179,6 +181,9 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 					return nil, unsupported("nested signature output exceeds 1 GiB")
 				}
 				writes = append(writes, staged...)
+				if err != nil {
+					return writes, fmt.Errorf("nested %s: %w", name, err)
+				}
 			}
 		}
 		if opts.DryRun {
@@ -187,6 +192,10 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 		}
 		seal, err := nestedSeal(data)
 		if err != nil {
+			if opts.DryRun {
+				// Allocation precedes reading the unchanged on-disk child seal.
+				return writes, fmt.Errorf("nested %s: %w", name, err)
+			}
 			return nil, fmt.Errorf("nested %s: %w", name, err)
 		}
 		files[name] = seal
