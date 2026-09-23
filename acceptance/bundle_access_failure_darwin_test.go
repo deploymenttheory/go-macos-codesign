@@ -120,7 +120,7 @@ func TestBundleAccessFailureBoundaries(t *testing.T) {
 								t.Fatal(err)
 							}
 							nativeAccess := boundary == "parent-cleanup" || name == "child" && boundary != "child-envelope" && boundary != "unsigned-shallow"
-							goAccess := nativeAccess && boundary != "unsigned-dryrun"
+							goAccess := nativeAccess
 							accessed := nativeAccess
 							if exe == binaryPath {
 								accessed = goAccess

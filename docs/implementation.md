@@ -14,10 +14,13 @@ PR #44 delivers dry-run allocation checks and independent sibling commits after
 allocation failures, with 624 POSIX comparisons. PR #45 records bundle source
 access at allocation, preserving shallow/preserved children and blocked ancestors.
 PR #46 refreshes replacement access only after successful cleanup, with 504 native
-cases. The current D04 slice defers source access past envelope writes and child
+cases. PR #47 defers source access past envelope writes and child
 cleanup while retaining private preparation. Released APFS v0.9.0 copies the exact
 source access into staged replacements; 54 failure-boundary cases cover the scope.
-Inaccessible directories, unsigned-child deep dry runs, ACL inheritance/copying and native DMG dry-run writes remain open. The expanded D01 inventory
+The current slice allocates reached unsigned children before dry-run seal failure,
+with 72 native cases and allocation/cancellation guards. Inaccessible directories,
+broader planning/sibling failures, ACL inheritance/copying and native DMG dry-run
+writes remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
 
@@ -57,9 +60,9 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 ## Next implementation sequence
 
 1. **Complete bounded filesystem profiles:** validate replacement access after
-   signature cleanup and retain the merged metadata/writer matrices. Address source
-   access around later commit failures and unsigned-child dry runs, then
-   inaccessible-directory behavior.
+   signature cleanup and retain the merged metadata/writer matrices. Complete
+   unsigned-child dry-run allocation validation, then inaccessible-directory
+   behavior and broader planning/sibling failures.
    Investigate supported ACL APIs without relaxing private staging;
    keep WP-17's DMG dry-run writes explicit until independently implemented.
    Follow the detailed [D04 delivery plan](implementation_plan.md#delivery-status).

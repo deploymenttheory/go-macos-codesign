@@ -415,10 +415,14 @@ implementations; only successful cleanup triggers a later replacement access.
 Eighteen native-first regressions fail against the prior writer. Unit tests protect
 source metadata during preparation, exact copied access, staging identity and
 cancellation before access or rename.
-A deep dry run with an unsigned child maps the child natively, while Go can reject
-its on-disk seal before allocating. Shallow unsigned-child failure preserves
-access in both. The tests assert these separate outcomes without treating them
-as parity; output trees and external-link bytes still match in this corpus.
+A deep dry run allocates the reached unsigned child before rejecting its unchanged
+on-disk seal. Allocation failures take precedence over seal errors; cancellation
+removes private staging. A 72-case native matrix covers helpers, child bundles and
+grandchildren across three architectures, past/future access, deep/force/shallow
+operations and allocation denial. Bytes, inodes, write times and ancestors remain
+unchanged. Shallow unsigned-child failure preserves access in both. The corpus
+covers one descendant chain; broader planning and asynchronous sibling outcomes
+remain open. All 54 failure-boundary cases require source/replacement access parity.
 
 The replacement cleanup-access matrix adds 504 native comparisons across seven
 layouts, three architectures, past/future access times, stale directories and
