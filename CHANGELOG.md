@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add `--extract-certificates[=PREFIX]` for display-time export of supported CMS
+  chains as leaf-first DER, with native prefix/overwrite/partial-write behavior,
+  architecture selection and continuation. Expose owned DER in library metadata
+  while omitting it from JSON. Add 115 portable cases, two Mac cases and two-target
+  Clang accessor evidence; retain wider chain/slot and diagnostic limits.
+
 - Emit native replacement-signature notices once per top-level forced signing
   operand, including dry runs and later failures. Preserve operand spelling and
   multi-target order; reject invalid page sizes before notices. Add the optional

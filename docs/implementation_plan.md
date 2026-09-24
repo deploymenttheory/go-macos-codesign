@@ -1,19 +1,21 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-24 after [PR #49](https://github.com/deploymenttheory/go-macos-codesign/pull/49) merged.
+Status: updated 2026-09-24 after [PR #50](https://github.com/deploymenttheory/go-macos-codesign/pull/50) merged.
 The [merged DMG dry-run slice](#merged-pr49) delivers native unsigned in-place
 components, recovery and 140 foreign-output comparisons. The
 [merged unsigned-child slice](#merged-pr48) closes the bounded single-chain
 dry-run allocation/access differences. Released APFS v0.9.0 remains the shared
 metadata dependency; private staging and preparation-error guarantees are retained.
 
-The active WP-20 slice on `fix/signing-diagnostics` closes the replacement-notice
-omission for supported inputs. It adds one notice per forced, signed top-level
-operand before construction and later failures, with native operand spelling,
-dry-run and continuation behavior. A path-only library callback keeps presentation
-in the CLI; byte APIs remain silent. The matrix includes 92 portable cases and
-eight native failure/continuation cases; all 70 DMG dry-run cases now require exact
-diagnostics. The malformed-signature repair/rejection difference is retained.
+The [merged notice slice](#merged-pr50) closes the replacement-notice omission
+for supported inputs, with 92 portable and eight Mac cases. All 70 DMG dry-run
+cases require exact diagnostics. The active WP-20 slice on
+`feat/extract-certificates` adds display-time DER extraction from the existing
+CMS metadata chain. It covers optional prefixes, leaf-first/root-inclusive order,
+overwrite and partial-write behavior, architecture selection and multiple targets.
+The matrix includes 115 portable cases and two Mac-specific cases. Extraction is
+descriptive and does not establish trust. Unsupported CMS, additional signature
+slots, host-chain augmentation and broader extraction interactions remain open.
 Final per-commit validation and artifact results belong to the implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
@@ -28,8 +30,9 @@ remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
-The current inventory retains 88 obligations: 25 partial, 55 not implemented,
-eight blocked and zero fully verified. No feature status was upgraded merely
+The current inventory retains 88 obligations: 26 partial, 54 not implemented,
+eight blocked and zero fully verified. Certificate extraction moves to partial
+on implementation and independent native evidence. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
@@ -38,7 +41,8 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42),
 [PR #43/#44 evidence](#merged-pr44), [PR #45 evidence](#merged-pr45),
 [PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
-[PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49) and the
+[PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
+[PR #50 evidence](#merged-pr50) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -745,7 +749,40 @@ comparisons, four permission cases and six complete native methods extracted
 through Clang on both targets. Certificate DMG path dry runs remain unsupported
 because the four recorded native probes terminate by signal. `SignBytes` retains
 its complete-signature construction contract. The notice omission recorded at
-this historical commit is addressed by the current WP-20 slice, not by PR #49.
+this historical commit is addressed by PR #50.
+
+<a id="merged-pr50"></a>
+### Merged milestone: PR #50 (2026-09-24)
+
+Actual merge `1514835fea8bcc8a868d6e12a85ebfaa3138f2ca`, tested head
+`9407e52b87e71e50e557e865723b90f125c8ea67` and CI merge
+`3b232afbb703f89a2d7b7659710a0e6e2dfaa1c8` share tree
+`9e5a2fca4901af9669e47cd9288d19d0faa11ced`. The
+[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36003971588)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36003971466)
+passed. Downloaded coverage reports establish:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 4,201/4,408 (95.30%) | 422/430 (98.14%) | 1/1 (100%) |
+| Windows 2025 | 4,197/4,408 (95.21%) | 422/430 (98.14%) | 1/1 (100%) |
+| macOS / Xcode 27 | 4,205/4,408 (95.39%) | 428/430 (99.53%) | 1/1 (100%) |
+
+The audit checked 604 source hashes per OS, seventeen expected Windows text
+conversions, twelve archive/SBOM checksums and six packaged CGO-disabled binaries
+with released APFS v0.9.0 and the CI merge revision. All 80 Linux and 80 Windows
+notice-lifecycle output hashes match independently native-compared Mac results.
+All 92 portable notice records, eight Mac failure records and 70 exact-diagnostic
+DMG dry-run records are present. Native checks pass for 140 unsigned DMGs,
+606 signed imports and 88 removals; race/fuzz and packaging also pass.
+
+The local full suite encountered three existing native chain-signing setup
+failures (`errSecInternalComponent`) before Go comparison, also reproduced with
+merged-baseline production sources. Hosted Mac CI passed those unchanged cases;
+no tests were skipped or weakened. The cause of the local failure is unproven.
+The notice profile leaves malformed signature repair/rejection, mixed-signature
+universals, complete verbosity and OS-error wording outstanding. No inventory
+status was upgraded in PR #50.
 
 ### Completion criteria
 
@@ -897,7 +934,7 @@ plan. The work-package column maps every existing entry to remaining work.
 | `--dryrun` | partial | WP-02/WP-05/WP-13/WP-20: all write forms, identity/TSA effects and failures |
 | `--entitlements` | partial | WP-08/WP-20: full typed input/output, missing slots and failure behavior |
 | `--enforce-constraint-validity` | not-implemented | WP-14: strict constraint validation during signing and default warning behavior |
-| `--extract-certificates` | not-implemented | WP-20/WP-12/WP-18: chain order, DER bytes, filenames and multiple signatures |
+| `--extract-certificates` | partial | WP-20/WP-12/WP-18: supported CMS chain DER/order, prefixes and output lifecycle covered; wider CMS/chains, host augmentation, signature slots and full option/error interactions remain |
 | `--file-list` | not-implemented | WP-20/WP-02/WP-04: accurate reported files for signing and display, append/overwrite/failure semantics |
 | `--ignore-resources` | not-implemented | WP-04: native scope of resource suppression without bypassing executable integrity |
 | `--keychain` | blocked | WP-22/WP-11: native identity lookup, search lists, preferences and authorization |
@@ -1373,6 +1410,10 @@ ASCII names and reject case collisions and Windows-reserved components.
 - [ ] Probe root/intermediate/final symlinks, absolute/relative/chained targets,
   `link/..`, broken/cyclic links, trailing separators and moved bundles. Record
   which paths select an object and which paths native diagnostics display.
+  `TestCertificateExtractionBundleAliasDifference` now records a concrete gap:
+  bundle inputs under a symlinked parent retain that parent in Go's `Executable=`
+  line while native display resolves it physically. Both extract identical DER.
+  Preserve the explicit difference test until path discovery closes this profile.
 - [ ] Add Unicode names, composed/decomposed forms and case-sensitive versus
   case-insensitive lookup tests. Do not use simplistic lowercasing as a substitute
   for native filesystem name equivalence.
@@ -2269,17 +2310,44 @@ does not prove CLI compatibility.
   plus eight Mac failure/continuation cases. Reject non-power-of-two page sizes
   before processing targets. All 70 DMG dry-run cases require exact diagnostics.
   Extend the path AST to six complete functions with Apple's published `note`.
-- [ ] Complete final three-OS/coverage, native-import, race/fuzz, packaging and
-  downloaded-artifact gates for the current notice slice. Do not upgrade any of
-  the 88 statuses. Retain malformed-signature repair/rejection, mixed-signature
+- [x] Complete final three-OS/coverage, native-import, race/fuzz, packaging and
+  downloaded-artifact gates for the notice slice in [PR #50](#merged-pr50).
+  Retain all 88 statuses at that milestone. Malformed-signature repair/rejection, mixed-signature
   universal selection, linker-signature no-force handling, verbose completion
   output and full OS error wording as separate outstanding work.
 - [ ] Replace the current fixed English UTC date approximation with an explicit
   native locale/timezone contract. Test fixed baseline locale first; retain other
   localized/native-version outputs as separate unproven profiles until evidenced.
-- [ ] Implement `--extract-certificates`: DER bytes, chain ordering, default/custom
-  prefixes, numbering, root inclusion, existing files, multiple targets and partial
-  failures. Extraction must not imply that the certificate chain is trusted.
+- [x] Implement bounded `--extract-certificates[=PREFIX]` display extraction using
+  owned DER copies from existing CMS metadata. Cover default `codesign`, empty
+  and custom prefixes, last-value wins, zero-based leaf-first numbering and
+  included roots. Keep optional values attached: a separate word is an operand.
+  Preserve normal display and shared architecture selection; ad-hoc signatures
+  produce no files. Extraction does not establish code integrity or trust.
+- [x] Match measured output lifecycle: truncate existing files in place, preserve
+  existing modes/inodes, follow symlink/hard-link targets, retain stale higher
+  indices and successful earlier writes, stop on failure unless `--continue`,
+  and let later operands overwrite the same prefix. Compare exact English
+  missing-parent/directory/permission errors; leave other OS errors explicit.
+- [x] Add 96 format/identity/prefix cases, eight lifecycle cases, three multiple
+  target cases, five signature-state/architecture cases and three ignored-operation
+  cases. Add two Mac cases for permission denial and the remaining bundle-parent
+  alias display difference. Extend the two-target path AST to eight complete
+  functions with `SecStaticCode::signature` and `SecStaticCode::certificates`.
+- [ ] Complete final per-commit three-OS coverage, native-import, race/fuzz,
+  packaging and downloaded-artifact gates for certificate extraction. Keep
+  `--extract-certificates` partial after these bounded gates pass.
+- [ ] Extend extraction to unsupported CMS forms/algorithms, incomplete or
+  ambiguous chains, native host/keychain chain augmentation, detached/generic
+  representations and additional signature slots through WP-12/WP-15/WP-18.
+  Test corrupt CMS/CodeDirectory boundaries, unavailable issuers and native trust
+  policy effects without weakening explicit-trust verification APIs.
+- [ ] Complete extraction interactions with entitlements, requirements, constraints,
+  all verbosity/locales and architecture defaults. Existing entitlement display
+  suppresses native `Executable=` and colon-prefix warning lines; combined
+  certificate/entitlement extraction retains that diagnostic gap. Bundle-parent
+  aliases also retain a physical-path display difference (WP-03). Output paths
+  that alias inputs and wider filesystem failures require separate native evidence.
 - [ ] Implement `--file-list`: discover exact native signing/display contents,
   file order, path spelling, newline/output destination and append/overwrite rules.
   Track actual affected files; listing every scanned file is not a substitute.
@@ -2738,22 +2806,25 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #49
+### Active implementation work after PR #50
 
-`fix/signing-diagnostics` starts from actual merge
-`bd67bddbf59c9af23a5e03065ff175fcb310c72d` and retains released APFS v0.9.0.
+`feat/extract-certificates` starts from actual merge
+`1514835fea8bcc8a868d6e12a85ebfaa3138f2ca` and retains released APFS v0.9.0.
 
-1. Close the bounded replacement-notice omission exposed by PR #49: raw stderr,
-   operand spelling, one top-level notice, dry runs and later failure ordering.
+1. Deliver bounded certificate extraction through existing CMS metadata, with
+   owned DER, native filenames/order, display, overwrite/partial-write semantics
+   and independent native comparisons. Keep unsupported chain/slot contexts open.
 2. Preserve byte APIs and existing writer matrices. Complete local and
    three-OS/native-import/artifact gates, retaining the existing 140 unsigned
-   DMGs, 606 signed imports and 88 removals. Record malformed signatures and OS
-   error-text differences separately instead of weakening exact-output assertions.
+   DMGs, 606 signed imports and 88 removals. Audit extracted DER hashes across
+   producers against native-compared Mac records. Record bundle alias and combined
+   entitlement diagnostic differences separately from exact-output profiles.
 3. Address inaccessible-directory discovery/removal, broader planning failures
    and asynchronous sibling outcomes in subsequent D04 slices. Keep ACL
    inheritance/copying, other filesystems and raw diagnostics explicit.
 4. Continue D05 path/layout and D06 resource/xattr work separately. Preserve all
-   88 inventory statuses; this profile does not complete D04/WP-02.
+   88 inventory obligations; only certificate extraction advances to partial.
+   This profile does not complete D04/WP-02 or WP-20.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,

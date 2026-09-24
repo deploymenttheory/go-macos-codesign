@@ -155,8 +155,12 @@ type Signature struct {
 // checked, without asserting CA trust or a trusted signing timestamp.
 type CertificateMetadata struct {
 	Authorities []CertificateInfo
-	SigningTime time.Time
-	Timestamp   *TimestampInfo `json:",omitempty"`
+	// Certificates contains owned DER copies in the same leaf-first order as
+	// Authorities. It is descriptive CMS data, not a trust result. JSON reports
+	// omit certificate bytes; callers can explicitly export them when needed.
+	Certificates [][]byte `json:"-"`
+	SigningTime  time.Time
+	Timestamp    *TimestampInfo `json:",omitempty"`
 }
 
 // Architecture contains one observed signature. For Mach-O it represents a

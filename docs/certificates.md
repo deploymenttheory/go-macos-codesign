@@ -130,6 +130,64 @@ and `Timestamp` when a supported token is present, otherwise `Signed Time`. Time
 display uses a fixed English UTC format, so localized native date output is not yet
 reproduced. Unsupported or damaged CMS displays `Authority=(unavailable)`.
 
+## Certificate extraction
+
+```sh
+# Writes codesign0, codesign1, ... in the working directory:
+macoscodesign -d --extract-certificates ./hello
+
+# Writes chain-0, chain-1, ... in an existing directory:
+macoscodesign -d --extract-certificates=export/chain- ./Example.app
+
+# An empty attached prefix writes 0, 1, ...:
+macoscodesign -d --extract-certificates= ./Example.dmg
+```
+
+The optional prefix must be attached with `=`. A separate word is another input
+operand. Repeated options use the last prefix; a final bare option resets it to
+`codesign`. Extraction applies to display and is ignored for signing, verification
+and removal, matching the measured native behavior. Ordinary display output is
+retained. `--architecture` selects the same slice as display; the current portable
+default prefers arm64, then the first slice. Native defaults on other host
+architectures remain unproven.
+
+Files contain exact DER certificates, numbered from zero in leaf-first chain
+order, including an embedded root when present. No root or missing issuer is
+downloaded or supplied from a system keychain. The source is the existing
+`Signature.CertificateMetadata.Certificates` field, whose byte slices are owned
+copies in the same order as `Authorities`. JSON reports omit DER bytes;
+`-d --json --extract-certificates=PREFIX` still writes the files as a portable
+extension.
+
+Extraction is descriptive, not a code-integrity or trust verdict. Modified code
+pages still permit extraction. Ad-hoc signatures produce no files. Unsupported
+or corrupted CMS for which inspection cannot supply metadata also produces no
+files; normal display can still succeed. Unsigned inputs fail display. Existing
+explicit-trust verification APIs retain their separate checks.
+
+Outputs are written sequentially with ordinary file writes. Existing files are
+truncated in place, retaining their inode/mode and following symlinks or hard links.
+New files request mode 0644 subject to the host's permissions/umask. Parent
+directories are not created. Stale higher-numbered files remain. A write failure
+retains earlier writes; the next operand is reached only with `--continue`.
+Multiple operands use the same prefix, so later certificates overwrite earlier
+indices. There is no atomic rollback or automatic cleanup of exported files.
+
+The native matrix covers arm64/x86_64/universal Mach-O, a Contents app, a versioned
+framework and a compressed DMG with ad-hoc/RSA/P-256/three-certificate identities.
+It compares DER to independent PEM fixtures and Apple's extraction, plus raw
+stdout/stderr/exit status. Additional cases cover existing files, links, permission
+and partial-write failures, multiple operands and CMS/page mutations.
+
+Remaining differences include unsupported CMS algorithms/representations,
+incomplete/ambiguous chains, native host-chain augmentation, detached signatures,
+additional signature slots, broader filesystem errors and output paths aliasing
+inputs. Bundle inputs reached through a symlinked parent retain an existing
+`Executable=` path difference; the Mac regression records both exact outputs.
+Combined entitlement/certificate extraction writes both, but existing entitlement
+display still omits native `Executable=` and colon-prefix warning lines.
+These interactions prevent a complete extraction-parity claim.
+
 ## Evidence and remaining parity work
 
 The host acceptance test signs RSA/P-256/P-384/P-521 cases for arm64, x86_64, and

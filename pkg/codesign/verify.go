@@ -98,7 +98,7 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CertificateMetadata{Authorities: chain.Authorities, SigningTime: info.SigningTime, Timestamp: info.Timestamp}, nil
+	return &CertificateMetadata{Authorities: chain.Authorities, Certificates: chain.Certificates, SigningTime: info.SigningTime, Timestamp: info.Timestamp}, nil
 }
 
 func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {

@@ -1,17 +1,23 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
   "excerpt_sha256": {
+    "certificates": "fdea719656c6591102021613ecde1bd0acae81ffc9808909b7b2d11b28969a9b",
     "cleanPath": "abc00ae214602433b521d8e5ab85bc88c19101ff28a850cd223a8c9d280d38af",
     "copyCanonicalPath": "281322c1f5832adcb66fa503b58d48f32e695889430b1d982702ffd91aba8094",
     "mainExecutablePath": "d64654d1ff263618ef9e4470b3d7937ecbda8bf8ede920883e8a80675fd61e6d",
     "note": "15b4c9e13efbab56d3f8818bd2da55964f46a7401a41394a18d66cd6b1288675",
     "recommendedIdentifier": "0cfd7d953f6b7d0d2426a3d3fb90910926791e5d7cf853898a50af1b58f7ef8d",
+    "signature": "9e5145081cd5a536b44a91dbb065869a12860ece29152d5403a5266b45920956",
     "staticCodePath": "e3fa395650c22f4ecb764f9c914b246ab215e00b6a27fca715fa42acfb251251"
   },
   "schema": 1,
-  "scope": "Six complete verbatim function bodies: CLI cleanPath/staticCodePath/note plus SingleDiskRep canonical path, executable path and identifier. Real SDK declarations supply realpath, PATH_MAX, stdio/variadic functions, CoreFoundation and public Security APIs/constants. Private error, Architecture, CFRef, CFTempURL, dictionary helper and SingleDiskRep interfaces are declaration-only shims; verbose is an extern declaration. AST records realpath before static-code creation, common path storage for display and identifier, and verbosity-gated stderr notices with a trailing newline. The current CLI signing call site is not published by the pinned source: replacement-notice timing, count, path spelling and conditions are established separately by native acceptance, not inferred from this helper. This driver does not execute Apple source or compile all Security. Production uses pure Go path resolution and go-apfs-v2 metadata writes, with no Apple runtime or SDK dependency.",
+  "scope": "Eight complete verbatim function bodies: CLI cleanPath/staticCodePath/note, three SingleDiskRep path/identifier methods and SecStaticCode signature/certificates accessors. Real SDK declarations supply realpath, PATH_MAX, stdio/variadic functions, CoreFoundation and public Security APIs/constants. Private error, Architecture, CFRef, CFTempURL, dictionary helper, disk-representation and static-code interfaces are declaration-only shims; verbose is an extern declaration. AST records physical-path resolution, verbosity-gated stderr notices, signature component retrieval and directory validation before returning a certificate chain. It does not extract validateDirectory, signingInformation or the unpublished current CLI signing/display call sites. Native acceptance independently establishes replacement notices and certificate extraction filenames, bytes, order and failures. Production uses pure Go path resolution, CMS/certificate decoding and go-apfs-v2 metadata writes, with no Apple runtime or SDK dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
+    "StaticCode.cpp": {
+      "sha256": "c770611cd6a9de47ddef4652dbf105a6bd165e62ef3a2ad614762a035a546581",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp"
+    },
     "cs_utils.cpp": {
       "sha256": "a0ebc6f31fda06331fa336384d97c811c7af8390da47f7181c293d843bba0ebb",
       "url": "https://github.com/apple-oss-distributions/security_systemkeychain/blob/2b4c65b1074521e9c1dd2c8dc7fbf45dd775ec70/src/cs_utils.cpp"
@@ -23,6 +29,21 @@
   },
   "targets": {
     "arm64-apple-macos27": {
+      "certificates": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CompoundStmt": 1,
+          "ImplicitCastExpr": 1,
+          "MemberExpr": 2,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mCertChain": 1,
+          "validateDirectory": 1
+        }
+      },
       "cleanPath": {
         "ast_kinds": {
           "CXXConstructExpr": 1,
@@ -120,6 +141,30 @@
           "mPath": 1
         }
       },
+      "signature": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 11,
+          "MemberExpr": 10,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "errSecCSUnsigned": 1,
+          "mRep": 1,
+          "mSignature": 4,
+          "operator const __CFData *": 3,
+          "signature": 1,
+          "take": 1,
+          "throwMe": 1
+        }
+      },
       "staticCodePath": {
         "ast_kinds": {
           "BinaryOperator": 1,
@@ -170,6 +215,21 @@
       }
     },
     "x86_64-apple-macos27": {
+      "certificates": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CompoundStmt": 1,
+          "ImplicitCastExpr": 1,
+          "MemberExpr": 2,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "mCertChain": 1,
+          "validateDirectory": 1
+        }
+      },
       "cleanPath": {
         "ast_kinds": {
           "CXXConstructExpr": 1,
@@ -268,6 +328,30 @@
           "mPath": 1
         }
       },
+      "signature": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 11,
+          "MemberExpr": 10,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "errSecCSUnsigned": 1,
+          "mRep": 1,
+          "mSignature": 4,
+          "operator const __CFData *": 3,
+          "signature": 1,
+          "take": 1,
+          "throwMe": 1
+        }
+      },
       "staticCodePath": {
         "ast_kinds": {
           "BinaryOperator": 1,
@@ -318,5 +402,5 @@
       }
     }
   },
-  "translation_unit_sha256": "10a4e56de3e5316f3ddd3ae86fda1e6b5917334a4bc056176c00124576d2a048"
+  "translation_unit_sha256": "f6d8b617e81e505710aef0c57b28cfbacafbb94f80a0f949d08f6eea327d63b0"
 }

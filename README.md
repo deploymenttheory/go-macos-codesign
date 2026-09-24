@@ -90,6 +90,9 @@ macoscodesign --verify ./Example.dmg
 macoscodesign -s certificate.pem --key private-key.pem --timestamp=none ./hello
 macoscodesign --verify --trust certificate.pem ./hello
 
+# Extract the embedded chain as certificate-0, certificate-1, ... (DER):
+macoscodesign -d --extract-certificates=certificate- ./hello
+
 # PKCS#12 identity with an Apple timestamp and explicit verification trust:
 macoscodesign -fs identity.p12 --password-file password.txt --timestamp ./hello
 macoscodesign --verify --trust-root code-root.pem --timestamp-root apple ./hello
@@ -104,6 +107,11 @@ Forced replacement prints `<operand>: replacing existing signature` to stderr,
 including during dry runs and before later failures. This notice does not indicate
 success; see [signing diagnostics](docs/signing-diagnostics.md) for the tested scope
 and optional path-only `SignOptions.OnReplace` library callback.
+
+Certificate extraction uses the default prefix `codesign` when no `=PREFIX` is
+given. Existing outputs are overwritten; a later failure retains earlier writes.
+Extraction does not establish trust. See the [extraction contract](docs/certificates.md#certificate-extraction)
+for chain ordering, supported inputs and remaining limits.
 
 Signing accepts the ad-hoc identity `-`, a PEM file, or a PKCS#12 file. A combined certificate
 and private-key PEM file can be passed directly to `-s`; separate files use

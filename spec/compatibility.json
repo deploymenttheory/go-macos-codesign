@@ -376,10 +376,17 @@
     },
     {
       "id": "--extract-certificates",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -extract-certificates Ar prefix",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "evidence": [
+        "acceptance/extract_certificates_test.go",
+        "acceptance/extract_certificates_darwin_test.go",
+        "internal/cli/extract_certificates_test.go",
+        "pkg/codesign/certificate_metadata_test.go",
+        "spec/apple-paths.json",
+        "docs/certificates.md"
+      ],
+      "notes": "Display exports owned DER from supported CMS metadata in leaf-first order, including an embedded root. Optional attached/default/empty prefixes, shared architecture selection, overwrite/link/stale-file behavior, partial failures, multiple targets and ignored sign/verify/remove applicability have 115 portable and two Mac cases. Extraction does not establish integrity or trust; modified pages still extract and unreadable CMS yields no files. Broader CMS/chains, native host-chain augmentation, signature slots, detached/generic representations, output aliases to inputs and full error/option interactions remain incomplete. Existing bundle-parent alias paths and combined entitlement display retain explicit diagnostic differences."
     },
     {
       "id": "--file-list",
