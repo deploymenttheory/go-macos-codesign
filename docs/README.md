@@ -10,6 +10,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | --- | --- |
 | [Progress](progress.md) | Milestones, tested commit/workflow, coverage and maintenance checklist |
 | [CLI/build quick start](../README.md) | GoReleaser, common operations and library entry points |
+| [Signing diagnostics](signing-diagnostics.md) | Replacement notices, callback timing, native comparisons and remaining output gaps |
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |

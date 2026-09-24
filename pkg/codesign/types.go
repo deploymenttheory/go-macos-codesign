@@ -42,6 +42,12 @@ type SignOptions struct {
 	BundleVersion string
 	Identifier    string
 	Force         bool
+	// OnReplace is called synchronously by Sign when Force selects an existing,
+	// readable signature on the top-level input, before signature construction.
+	// It is a notice of an attempted replacement, not a success notification, and
+	// also applies to dry runs. Nested signatures and SignBytes do not call it.
+	// The callback must not modify the input or signing options.
+	OnReplace func()
 	// Deep signs supported nested Mach-O files, apps, plug-ins and frameworks before sealing
 	// their parent, from the deepest children outwards.
 	// Existing child signatures, except linker signatures, are retained unless

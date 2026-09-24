@@ -380,7 +380,7 @@ acceptance also uses its encoder and existing native APFS/HFS+ fixtures.
 
 ### Standalone path resolution
 
-`make research-paths` extracts five complete functions into
+`make research-paths` extracts six complete functions into
 [spec/apple-paths.json](../spec/apple-paths.json). Apple's CLI
 [`cleanPath` and `staticCodePath`](https://github.com/apple-oss-distributions/security_systemkeychain/blob/2b4c65b1074521e9c1dd2c8dc7fbf45dd775ec70/src/cs_utils.cpp)
 call `realpath` before creating the static code object. Three
@@ -390,6 +390,12 @@ Download the pinned `cs_utils.cpp` and `singlediskrep.cpp` to `.research/apple`
 before reproduction. The driver uses real SDK CoreFoundation/Security and libc
 declarations, with explicit private interface shims. It records complete excerpt
 and source hashes and both target ASTs; it does not execute Apple source.
+
+The same pinned CLI source supplies the complete `note` helper. Real stdio and
+variadic declarations establish its verbosity gate, stderr output and trailing
+newline. The current signing call site is not published; the
+[replacement-notice tests](signing-diagnostics.md) independently establish its
+conditions, count, operand spelling and failure ordering on the host binary.
 
 Independent host tests establish physical-path selection, default identifiers,
 unchanged aliases, `link/..` behavior and exact display output. They also exposed

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Emit native replacement-signature notices once per top-level forced signing
+  operand, including dry runs and later failures. Preserve operand spelling and
+  multi-target order; reject invalid page sizes before notices. Add the optional
+  path-only `SignOptions.OnReplace` callback, 92 portable cases, eight native
+  failure/continuation cases and two-target notice-helper AST evidence. Existing
+  DMG dry-run tests now require exact diagnostics; broader error/verbosity and
+  malformed-signature parity remain open.
+
 - Match native ad-hoc DMG dry runs: update the image in place with components but
   no CodeDirectory, leaving it unsigned even after forced re-signing. Recognize
   that state for inspection, verification and recovery without force. Preserve

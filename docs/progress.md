@@ -6,7 +6,19 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current ad-hoc DMG dry-run slice
+## Current signing-notice slice
+
+Forced signing now emits the native replacement notice once per top-level operand,
+including dry runs and later failures. The optional `SignOptions.OnReplace`
+callback keeps presentation in the CLI and byte APIs silent. Invalid page sizes
+are rejected before notices. The new matrix adds 92 portable cases and eight Mac
+failure/continuation cases; all 70 retained DMG dry-run cases now require exact
+diagnostics. Six complete Apple path/notice functions have two-target Clang records.
+[Signing diagnostics](signing-diagnostics.md) separates these results from remaining
+verbosity, malformed-signature and OS-error differences. Final per-commit CI and
+artifact validation belong to the implementation PR.
+
+## Merged ad-hoc DMG dry-run slice
 
 Ad-hoc DMG path dry runs now write native requirements/CMS components and optional
 entitlements without a CodeDirectory. This changes bytes and modification time in
@@ -19,16 +31,19 @@ seven option profiles. All 80 existing DMG access/metadata cases now require byt
 equality; four additional cases cover write permissions. Expanded Clang evidence
 extracts the complete native architecture-agnostic signer on both targets. CI adds
 140 unsigned Linux/Windows output comparisons, separate from valid signed imports.
-Final per-commit validation is recorded in the implementation PR.
+Final per-commit validation is recorded in
+[merged PR #49](https://github.com/deploymenttheory/go-macos-codesign/pull/49).
 
-Full local verification passes with library coverage 4,190/4,393 (95.38%), CLI
-423/425 (99.53%) and entry point 1/1. golangci-lint and all six GoReleaser builds
-pass. These are local results; completed CI and foreign-output evidence must be
-checked separately for the final PR commit.
+PR #49 passed all three OS jobs, lint, six-target packaging, race/fuzz and native
+imports. Library coverage is 95.29% on Linux, 95.20% on Windows and 95.38% on Mac;
+CLI coverage exceeds 98% and the entry point is 100% on each. All 601 source hashes
+per OS and packaged binary/checksum evidence were audited. The actual merge shares
+the tested tree; [the plan](implementation_plan.md#merged-pr49) records exact commits.
 
 The native certificate dry-run probe terminates by signal before writing. Four
 public RSA/P-256 observations are pinned; Go returns unsupported before writing
-or calling a TSA. The CLI's missing replacement notice remains a measured gap.
+or calling a TSA. The current slice closes the measured replacement-notice omission
+for supported inputs; full CLI diagnostic parity remains open.
 
 Merged [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48)
 delivers unsigned-child dry-run allocation, 72 native cases and twelve portable

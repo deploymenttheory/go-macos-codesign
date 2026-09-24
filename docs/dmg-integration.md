@@ -68,7 +68,8 @@ to preview a DMG signature without filesystem mutation can use that API.
 Certificate-backed DMG path dry runs return `ErrUnsupported` before invoking the
 timestamp provider or writing. The recorded native RSA/P-256 probes terminate
 with memory faults and preserve input; the project does not reproduce that crash.
-The existing CLI omission of the native replacement notice also remains explicit.
+Forced signing and dry runs now emit the native replacement notice for already
+signed inputs; [diagnostic limits](signing-diagnostics.md) remain explicit.
 
 Eighty native access/metadata cases now require byte equality, including the twenty
 dry runs. Seventy additional cases cover five image profiles, unsigned/signed inputs,

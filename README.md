@@ -100,6 +100,11 @@ leaves it unsigned, including when replacing an existing signature with `--force
 Use the construction-only `SignBytes` API for a preview without path writes.
 Certificate DMG path dry runs are unsupported; see [DMG behavior](docs/dmg-integration.md).
 
+Forced replacement prints `<operand>: replacing existing signature` to stderr,
+including during dry runs and before later failures. This notice does not indicate
+success; see [signing diagnostics](docs/signing-diagnostics.md) for the tested scope
+and optional path-only `SignOptions.OnReplace` library callback.
+
 Signing accepts the ad-hoc identity `-`, a PEM file, or a PKCS#12 file. A combined certificate
 and private-key PEM file can be passed directly to `-s`; separate files use
 `--key`. These are portable extensions, not native keychain-name lookup.
