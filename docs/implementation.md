@@ -21,9 +21,13 @@ PR #48 allocates reached unsigned children before dry-run seal failure, with
 72 native cases and allocation/cancellation guards. Merged PR #49 matches
 ad-hoc DMG dry-run writes and unsigned recovery, with 70 lifecycle cases and all
 80 existing DMG metadata comparisons. Certificate DMG dry runs fail explicitly
-instead of reproducing native crashes. The current WP-20 slice adds native
+instead of reproducing native crashes. Merged PR #50 adds native
 replacement notices, operand spelling and failure ordering, with 92 portable and
 eight Mac cases. [Diagnostic limits](signing-diagnostics.md) remain explicit.
+The current WP-20 slice adds [certificate extraction](certificates.md#certificate-extraction)
+with 115 portable and two Mac cases, reusing the supported CMS metadata chain.
+Only `--extract-certificates` moves to partial; wider chains, additional signature
+slots, host augmentation and full extraction/diagnostic interactions remain open.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

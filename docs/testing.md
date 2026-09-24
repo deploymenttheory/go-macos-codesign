@@ -253,6 +253,32 @@ repair/rejection difference, and checks notice ordering separately from the
 remaining OS-error wording. Linux/Windows results are checked against the same
 expected strings; Mac independently compares native output and complete bytes.
 
+### Certificate extraction
+
+`TestCertificateExtraction` adds 96 cases: six formats × four identities × four
+prefix/display modes. DER bytes must match both independent PEM certificates and
+native extraction, including a three-certificate chain with its root. Display
+stdout/stderr/status are compared without normalization; source trees remain
+unchanged. Temporary input roots are resolved physically before creating fixtures.
+
+Eight output-lifecycle cases cover in-place truncation/mode preservation, stale
+indices, missing parents, first/later directory failures, symlink/hard-link writes
+and repeated prefixes. Three multiple-target cases compare overwrite and
+stop/continue behavior. Five signature-state cases cover unsigned inputs, changed
+pages, damaged CMS and explicit universal-slice selection. Three cases prove the
+option is ignored for signing, verification and removal. These 115 cases run on
+all producers, recording certificate/output hashes for artifact comparison.
+
+Two Mac cases independently exercise read-only output failure and the existing
+bundle-parent alias display difference. The latter requires each tool's exact
+known path and identical DER, and attests the remaining difference explicitly.
+It is excluded from claims of exact display parity. CLI units cover optional-value
+parsing, distinct-slice selection, JSON omission and unknown OS errors. Library
+tests compare four certificate algorithms to independent PEM fixtures and prove
+returned DER ownership. Extraction does not imply page validity or CA trust.
+
+### Recorded certificate DMG dry-run failures
+
 The opt-in `TestRecordDMGCertificateDryRunFailure` records four native RSA/P-256
 memory-fault cases in [a pinned record](../spec/apple-dmg-dryrun-certificate.json).
 It uses only public test identities in disposable keychains. Ordinary CI validates

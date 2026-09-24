@@ -28,6 +28,8 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	extractCertificates                                                                  bool
+	certificatePrefix                                                                    string
 	entitlements                                                                         string
 	bundleVersion                                                                        string
 	forceLibrary                                                                         bool
@@ -60,6 +62,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
+				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				return nil
 			}
 			opts, err := parse(argv)
@@ -212,6 +215,12 @@ func parse(args []string) (options, error) {
 				}
 			case "display":
 				err = setOperation("display")
+			case "extract-certificates":
+				o.extractCertificates = true
+				o.certificatePrefix = "codesign"
+				if has {
+					o.certificatePrefix = attached
+				}
 			case "verify":
 				err = setOperation("verify")
 			case "remove-signature":
@@ -508,12 +517,13 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			if err == nil {
 				if o.entitlements != "" {
 					err = extractEntitlements(stdout, report, o)
-					break
-				}
-				if o.json {
+				} else if o.json {
 					err = json.NewEncoder(stdout).Encode(report)
 				} else {
 					err = display(stderr, report, o)
+				}
+				if err == nil && o.extractCertificates {
+					err = extractCertificates(report, o)
 				}
 			}
 		}
@@ -594,12 +604,12 @@ func display(w io.Writer, r *codesign.Report, o options) error {
 	return err
 }
 
-func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
+func displayArchitecture(r *codesign.Report, name string) (*codesign.Architecture, error) {
 	var selected *codesign.Architecture
 	for i := range r.Architectures {
 		a := &r.Architectures[i]
-		if o.architecture != "" {
-			if a.Name == o.architecture {
+		if name != "" {
+			if a.Name == name {
 				selected = a
 				break
 			}
@@ -608,10 +618,18 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 		}
 	}
 	if selected == nil {
-		return fmt.Errorf("architecture %q not present", o.architecture)
+		return nil, fmt.Errorf("architecture %q not present", name)
 	}
 	if selected.Signature == nil {
-		return codesign.ErrUnsigned
+		return nil, codesign.ErrUnsigned
+	}
+	return selected, nil
+}
+
+func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
+	selected, err := displayArchitecture(r, o.architecture)
+	if err != nil {
+		return err
 	}
 	d := selected.Signature.Directories[0]
 	executable := r.Path

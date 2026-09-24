@@ -6,7 +6,24 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current signing-notice slice
+## Current certificate-extraction slice
+
+Display accepts `--extract-certificates[=PREFIX]` and writes supported CMS chains
+as leaf-first DER files, including an embedded root. It reuses owned certificate
+metadata without adding a trust decision or a platform dependency. Default/empty
+prefixes, in-place overwrite, preserved stale files, partial failures, multiple
+targets and architecture selection have independent native comparisons. The new
+matrix has 115 portable cases and two Mac-specific cases; the latter retain the
+existing bundle-parent alias display difference explicitly. Eight complete Apple
+path/notice/CMS-accessor functions have two-target Clang records.
+
+[Certificate extraction](certificates.md#certificate-extraction) documents the
+write contract and remaining chain, signature-slot, entitlement-display and
+filesystem limits. Only this inventory entry advances to partial: 26 partial,
+54 not implemented, eight blocked and zero fully verified. Final per-commit CI
+and artifact validation belong to the implementation PR.
+
+## Merged signing-notice slice
 
 Forced signing now emits the native replacement notice once per top-level operand,
 including dry runs and later failures. The optional `SignOptions.OnReplace`
@@ -15,8 +32,16 @@ are rejected before notices. The new matrix adds 92 portable cases and eight Mac
 failure/continuation cases; all 70 retained DMG dry-run cases now require exact
 diagnostics. Six complete Apple path/notice functions have two-target Clang records.
 [Signing diagnostics](signing-diagnostics.md) separates these results from remaining
-verbosity, malformed-signature and OS-error differences. Final per-commit CI and
-artifact validation belong to the implementation PR.
+verbosity, malformed-signature and OS-error differences.
+
+[PR #50](https://github.com/deploymenttheory/go-macos-codesign/pull/50) passed all
+three OS jobs, lint, six-target packaging, race/fuzz and native imports. Library
+coverage is 95.30% on Linux, 95.21% on Windows and 95.39% on Mac; CLI coverage
+exceeds 98% and the entry point is 100%. The audit checked 604 source hashes per
+OS, all 80 lifecycle output hashes per foreign producer against native-compared
+Mac records, packaged binaries and twelve checksums. The actual merge shares the
+audited tree; [the plan](implementation_plan.md#merged-pr50) records exact commits
+and the local native chain-setup failure that did not recur in hosted CI.
 
 ## Merged ad-hoc DMG dry-run slice
 
@@ -42,7 +67,7 @@ the tested tree; [the plan](implementation_plan.md#merged-pr49) records exact co
 
 The native certificate dry-run probe terminates by signal before writing. Four
 public RSA/P-256 observations are pinned; Go returns unsupported before writing
-or calling a TSA. The current slice closes the measured replacement-notice omission
+or calling a TSA. PR #50 closes the measured replacement-notice omission
 for supported inputs; full CLI diagnostic parity remains open.
 
 Merged [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48)

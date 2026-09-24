@@ -104,7 +104,7 @@ func TestStandalonePathAST(t *testing.T) {
 		t.Fatal("both path AST targets required")
 	}
 	for target, facts := range record.Targets {
-		if len(facts) != 6 || facts["cleanPath"].References["realpath"] != 1 || facts["staticCodePath"].References["cleanPath"] != 1 || facts["staticCodePath"].References["SecStaticCodeCreateWithPathAndAttributes"] != 1 || facts["recommendedIdentifier"].References["canonicalIdentifier"] != 1 || facts["note"].References["vfprintf"] != 1 || facts["note"].References["fprintf"] != 1 || facts["note"].References["verbose"] != 1 {
+		if len(facts) != 8 || facts["cleanPath"].References["realpath"] != 1 || facts["staticCodePath"].References["cleanPath"] != 1 || facts["staticCodePath"].References["SecStaticCodeCreateWithPathAndAttributes"] != 1 || facts["recommendedIdentifier"].References["canonicalIdentifier"] != 1 || facts["note"].References["vfprintf"] != 1 || facts["note"].References["fprintf"] != 1 || facts["note"].References["verbose"] != 1 || facts["certificates"].References["validateDirectory"] != 1 || facts["signature"].References["take"] != 1 {
 			t.Fatalf("missing path resolution/identifier control flow for %s: %+v", target, facts)
 		}
 	}
