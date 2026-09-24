@@ -316,8 +316,10 @@ unsigned/signed inputs, unsigned display/verification and recovery without force
 Each foreign producer exports those 70 images for exact native comparison, adding
 140 unsigned dry-run imports independently of the existing 606 signed artifacts.
 Four native permission cases cover file-write denial and allowed in-place writes
-through an unwritable parent directory. The replacement-notice diagnostic gap is
-captured explicitly; raw results and output hashes remain in the attestations.
+through an unwritable parent directory. Replacement notices now match for supported
+inputs; raw results and output hashes remain in the attestations. The
+[signing-diagnostic matrix](signing-diagnostics.md) covers notice timing before
+failures while retaining broader error-text differences.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale

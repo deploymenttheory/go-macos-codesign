@@ -348,6 +348,10 @@ func parseFlags(s string) (uint32, error) {
 }
 
 func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
+	if o.operation == "sign" && o.pageSize != 0 && o.pageSize&(o.pageSize-1) != 0 {
+		fmt.Fprintln(stderr, "page size must be a power of two")
+		return 1
+	}
 	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
 		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
@@ -481,6 +485,9 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		var err error
 		switch o.operation {
 		case "sign":
+			signOpts.OnReplace = func() {
+				fmt.Fprintf(stderr, "%s: replacing existing signature\n", path)
+			}
 			err = codesign.Sign(ctx, path, signOpts)
 		case "remove":
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})

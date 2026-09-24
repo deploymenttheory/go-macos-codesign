@@ -1,17 +1,20 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-24 after [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48) merged.
-The [merged unsigned-child slice](#merged-pr48) closes the remaining single-chain
+Status: updated 2026-09-24 after [PR #49](https://github.com/deploymenttheory/go-macos-codesign/pull/49) merged.
+The [merged DMG dry-run slice](#merged-pr49) delivers native unsigned in-place
+components, recovery and 140 foreign-output comparisons. The
+[merged unsigned-child slice](#merged-pr48) closes the bounded single-chain
 dry-run allocation/access differences. Released APFS v0.9.0 remains the shared
 metadata dependency; private staging and preparation-error guarantees are retained.
 
-The active WP-17 slice on `fix/dmg-dry-run` implements native ad-hoc DMG dry-run
-writes: components without a CodeDirectory replace the signature in place, leaving
-the image unsigned. It retains the construction-only `SignBytes` contract and
-rejects certificate DMG path dry runs instead of reproducing native memory faults.
-The new matrix includes 70 lifecycle cases, four permission cases, all 80 existing
-DMG metadata comparisons and 140 foreign-output checks in CI. Final per-commit
-validation and artifact results belong to the implementation PR.
+The active WP-20 slice on `fix/signing-diagnostics` closes the replacement-notice
+omission for supported inputs. It adds one notice per forced, signed top-level
+operand before construction and later failures, with native operand spelling,
+dry-run and continuation behavior. A path-only library callback keeps presentation
+in the CLI; byte APIs remain silent. The matrix includes 92 portable cases and
+eight native failure/continuation cases; all 70 DMG dry-run cases now require exact
+diagnostics. The malformed-signature repair/rejection difference is retained.
+Final per-commit validation and artifact results belong to the implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -20,7 +23,8 @@ siblings unstarted; the directory matrix checks their complete untouched subtree
 Inaccessible-directory discovery/removal, broader failure ordering, executable ACL
 inheritance and explicit signature-directory ACL copying remain open. Supported
 wrappers lack an ACL reader; cloning a parent also clones its children. Certificate
-DMG dry-run semantics and the CLI replacement-notice difference remain unresolved.
+DMG dry-run semantics and wider CLI verbosity/error/architecture-selection behavior
+remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
@@ -34,7 +38,7 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42),
 [PR #43/#44 evidence](#merged-pr44), [PR #45 evidence](#merged-pr45),
 [PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
-[PR #48 delivery](#merged-pr48) and the
+[PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -711,6 +715,37 @@ envelopes, inodes and ancestor access remain unchanged. Seventy-two native cases
 and twelve portable cases cover the single-descendant-chain profile. All 54
 retained failure-boundary cases now require matching source/replacement access.
 Broader planning and asynchronous sibling behavior remain open.
+
+<a id="merged-pr49"></a>
+### Merged milestone: PR #49 (2026-09-24)
+
+Actual merge `bd67bddbf59c9af23a5e03065ff175fcb310c72d`, tested head
+`e11a86beb41e3b6e656a16349b15515cead1a73f` and CI merge
+`12c79e28930a62a73c75eec0853ac43c566337c1` share tree
+`df024ed1d94cae706794d4349a8e6c2a34d697a9`. The
+[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35999356525)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35999356699)
+passed. Downloaded coverage reports establish:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 4,186/4,393 (95.29%) | 417/425 (98.12%) | 1/1 (100%) |
+| Windows 2025 | 4,182/4,393 (95.20%) | 417/425 (98.12%) | 1/1 (100%) |
+| macOS / Xcode 27 | 4,190/4,393 (95.38%) | 423/425 (99.53%) | 1/1 (100%) |
+
+The audit checked all 601 source hashes per OS, allowing seventeen expected
+Windows text conversions; twelve archive/SBOM checksums; and six packaged binaries
+with CGO disabled, released APFS v0.9.0 and the tested CI merge revision. All 70
+Linux and 70 Windows dry-run hashes match independently native-compared Mac output.
+Downstream native checks pass for 140 unsigned DMGs, 606 valid signed artifacts
+and 88 removal comparisons; race/fuzz and six-target packaging also pass.
+
+The delivered profile covers 70 DMG lifecycle cases, all 80 DMG access/metadata
+comparisons, four permission cases and six complete native methods extracted
+through Clang on both targets. Certificate DMG path dry runs remain unsupported
+because the four recorded native probes terminate by signal. `SignBytes` retains
+its complete-signature construction contract. The notice omission recorded at
+this historical commit is addressed by the current WP-20 slice, not by PR #49.
 
 ### Completion criteria
 
@@ -2064,10 +2099,12 @@ handles that format.
   Components without a CodeDirectory leave the image unsigned. Four native
   permission cases and portable cancellation/malformed-input checks cover failure
   preservation. `SignBytes` still returns a full signature without path mutation.
-- [ ] Complete final per-commit three-OS, 140 foreign dry-run output comparisons,
-  packaging and artifact gates for this slice. Certificate path dry runs are
+- [x] Complete final per-commit three-OS, 140 foreign dry-run output comparisons,
+  packaging and artifact gates for PR #49; [the merged evidence](#merged-pr49)
+  records commits, checks and downloaded artifacts. Certificate path dry runs are
   unsupported: four pinned native public-identity probes terminate by signal.
-  Retain that safe divergence and the existing missing CLI replacement notice.
+  Retain that safe divergence. The bounded CLI replacement notice is handled
+  separately by WP-20; broader diagnostic parity remains open.
   Broader failure ordering, streaming and codec expansion remain separate work.
 - [ ] Retain native rejection of DMG `--remove-signature` on the recorded baseline;
   implementing a custom remover would be an extension, not closing a parity gap.
@@ -2224,6 +2261,19 @@ does not prove CLI compatibility.
 - [ ] Match canonical/physical path reporting, quoting, ordering, stdout versus
   stderr, trailing newlines and exit codes. Preserve PR #25's physical-target
   display/default-identifier behavior for standalone aliases.
+- [x] Add the bounded replacement-signature notice: one stderr line per signed,
+  forced top-level operand, native operand spelling, dry-run notices and notices
+  before later failures. Keep the library silent by default through an optional
+  path-only callback; retain byte API behavior and APFS source-access boundaries.
+  Add 80 lifecycle, seven signature-state and five operand/multiple-target cases,
+  plus eight Mac failure/continuation cases. Reject non-power-of-two page sizes
+  before processing targets. All 70 DMG dry-run cases require exact diagnostics.
+  Extend the path AST to six complete functions with Apple's published `note`.
+- [ ] Complete final three-OS/coverage, native-import, race/fuzz, packaging and
+  downloaded-artifact gates for the current notice slice. Do not upgrade any of
+  the 88 statuses. Retain malformed-signature repair/rejection, mixed-signature
+  universal selection, linker-signature no-force handling, verbose completion
+  output and full OS error wording as separate outstanding work.
 - [ ] Replace the current fixed English UTC date approximation with an explicit
   native locale/timezone contract. Test fixed baseline locale first; retain other
   localized/native-version outputs as separate unproven profiles until evidenced.
@@ -2587,7 +2637,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Ad-hoc dry-run slice in progress; wider representations outstanding | Native in-place unsigned components and recovery, then additional APFS-backed representations | Current slice retains APFS v0.9.0; streaming needs D09 and new APIs need upstream releases |
+| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.9.0 retained; streaming needs D09 and new APIs need upstream releases |
 | D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
 | D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
 | D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
@@ -2682,16 +2732,23 @@ passes. Release PR #113 published v0.9.0 at
 `985912043393298d6964be2c0915e49de00b3960`; released hostmeta sources match the
 tested implementation.
 
-### Active implementation work after PR #48
+### Completed PR #49 delivery
 
-`fix/dmg-dry-run` starts from actual merge
-`4871006110da1693583317611b3ebd4e579775f0` and retains released APFS v0.9.0.
+Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image comparisons
+are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
+Released APFS v0.9.0 remains pinned.
 
-1. Close the bounded ad-hoc DMG dry-run difference in WP-17: native components,
-   unsigned inspection/verification, repeated operations and recovery without force.
-2. Preserve the byte API and existing writer matrices. Complete local and
-   three-OS/native-import/artifact gates, with 140 separately checked unsigned
-   outputs. Retain native certificate crashes as documented unsupported behavior.
+### Active implementation work after PR #49
+
+`fix/signing-diagnostics` starts from actual merge
+`bd67bddbf59c9af23a5e03065ff175fcb310c72d` and retains released APFS v0.9.0.
+
+1. Close the bounded replacement-notice omission exposed by PR #49: raw stderr,
+   operand spelling, one top-level notice, dry runs and later failure ordering.
+2. Preserve byte APIs and existing writer matrices. Complete local and
+   three-OS/native-import/artifact gates, retaining the existing 140 unsigned
+   DMGs, 606 signed imports and 88 removals. Record malformed signatures and OS
+   error-text differences separately instead of weakening exact-output assertions.
 3. Address inaccessible-directory discovery/removal, broader planning failures
    and asynchronous sibling outcomes in subsequent D04 slices. Keep ACL
    inheritance/copying, other filesystems and raw diagnostics explicit.

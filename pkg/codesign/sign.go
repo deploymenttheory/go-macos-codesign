@@ -56,6 +56,9 @@ func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
 // disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
 // matching codesign; see SignOptions.DryRun.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return err
@@ -67,6 +70,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
+	notifyReplacement(data, opts)
 	if opts.Identifier == "" {
 		if isDMG(data) {
 			opts.Identifier, err = dmgIdentifier(path, data, opts.Identity == nil)
@@ -82,6 +86,26 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	return writeFile(ctx, path, out, opts.DryRun)
+}
+
+// A replacement notice describes a readable signature, not its validity. Reuse
+// inspection without verifying pages, certificate trust, or resource seals.
+// A malformed or unsupported signature supplies no notification; the signer
+// retains responsibility for the operation's error and supported input profile.
+func notifyReplacement(data []byte, opts SignOptions) {
+	if !opts.Force || opts.OnReplace == nil {
+		return
+	}
+	r, err := InspectBytes(data)
+	if err != nil {
+		return
+	}
+	for _, arch := range r.Architectures {
+		if arch.Signature != nil {
+			opts.OnReplace()
+			return
+		}
+	}
 }
 
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.

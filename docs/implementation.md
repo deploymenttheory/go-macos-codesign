@@ -18,10 +18,12 @@ cases. PR #47 defers source access past envelope writes and child
 cleanup while retaining private preparation. Released APFS v0.9.0 copies the exact
 source access into staged replacements; 54 failure-boundary cases cover the scope.
 PR #48 allocates reached unsigned children before dry-run seal failure, with
-72 native cases and allocation/cancellation guards. The current WP-17 slice matches
+72 native cases and allocation/cancellation guards. Merged PR #49 matches
 ad-hoc DMG dry-run writes and unsigned recovery, with 70 lifecycle cases and all
 80 existing DMG metadata comparisons. Certificate DMG dry runs fail explicitly
-instead of reproducing native crashes; replacement notices still differ.
+instead of reproducing native crashes. The current WP-20 slice adds native
+replacement notices, operand spelling and failure ordering, with 92 portable and
+eight Mac cases. [Diagnostic limits](signing-diagnostics.md) remain explicit.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

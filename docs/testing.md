@@ -233,8 +233,8 @@ the separate live Apple timestamp check and its opt-in command.
 `TestDMGDryRun` runs 70 cases on every OS, covering five image profiles, signed and
 unsigned inputs, seven option combinations, repeated dry runs and subsequent real
 signing without force. The Mac compares complete bytes against native and requires
-both tools to report the dry-run image unsigned. Raw diagnostics retain the existing
-missing Go replacement notice as an explicit difference. `TestDMGAccessTime` now
+both tools to report the dry-run image unsigned. Raw diagnostics now match exactly,
+including signed-input replacement notices. `TestDMGAccessTime` now
 requires all 80 byte comparisons, including the 20 formerly divergent dry runs.
 Four Mac permission cases distinguish file-write denial from parent-directory
 creation denial. Portable unit tests cover unsigned-container bounds, cancellation,
@@ -245,6 +245,13 @@ Linux and Windows each export 70 `dryrun-dmg-*.dmg` artifacts. The downstream
 independent native output and checks that native verification/display reject it
 as unsigned. These outputs are separate from the 606 valid signed imports and
 88 removal comparisons; unsigned output is the expected native dry-run result.
+
+The [signing-notice matrix](signing-diagnostics.md) adds 92 portable cases and
+eight Mac-only failure/continuation cases. It compares exact raw diagnostics for
+91 successful/supported-rejection profiles, records the malformed-signature
+repair/rejection difference, and checks notice ordering separately from the
+remaining OS-error wording. Linux/Windows results are checked against the same
+expected strings; Mac independently compares native output and complete bytes.
 
 The opt-in `TestRecordDMGCertificateDryRunFailure` records four native RSA/P-256
 memory-fault cases in [a pinned record](../spec/apple-dmg-dryrun-certificate.json).

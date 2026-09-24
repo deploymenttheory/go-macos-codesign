@@ -4,11 +4,12 @@
     "cleanPath": "abc00ae214602433b521d8e5ab85bc88c19101ff28a850cd223a8c9d280d38af",
     "copyCanonicalPath": "281322c1f5832adcb66fa503b58d48f32e695889430b1d982702ffd91aba8094",
     "mainExecutablePath": "d64654d1ff263618ef9e4470b3d7937ecbda8bf8ede920883e8a80675fd61e6d",
+    "note": "15b4c9e13efbab56d3f8818bd2da55964f46a7401a41394a18d66cd6b1288675",
     "recommendedIdentifier": "0cfd7d953f6b7d0d2426a3d3fb90910926791e5d7cf853898a50af1b58f7ef8d",
     "staticCodePath": "e3fa395650c22f4ecb764f9c914b246ab215e00b6a27fca715fa42acfb251251"
   },
   "schema": 1,
-  "scope": "Five complete verbatim function bodies: CLI cleanPath/staticCodePath plus SingleDiskRep canonical path, executable path and identifier. Real SDK declarations supply realpath, PATH_MAX, CoreFoundation and public Security APIs/constants. Private error, Architecture, CFRef, CFTempURL, dictionary helper and SingleDiskRep interfaces are declaration-only shims. AST records realpath before static-code creation and common path storage for display and identifier; it does not execute Apple source or compile all Security. Native acceptance independently tests aliases and physical-parent resolution. Production uses pure Go filepath resolution and go-apfs-v2 metadata writes, with no Apple runtime or SDK dependency.",
+  "scope": "Six complete verbatim function bodies: CLI cleanPath/staticCodePath/note plus SingleDiskRep canonical path, executable path and identifier. Real SDK declarations supply realpath, PATH_MAX, stdio/variadic functions, CoreFoundation and public Security APIs/constants. Private error, Architecture, CFRef, CFTempURL, dictionary helper and SingleDiskRep interfaces are declaration-only shims; verbose is an extern declaration. AST records realpath before static-code creation, common path storage for display and identifier, and verbosity-gated stderr notices with a trailing newline. The current CLI signing call site is not published by the pinned source: replacement-notice timing, count, path spelling and conditions are established separately by native acceptance, not inferred from this helper. This driver does not execute Apple source or compile all Security. Production uses pure Go path resolution and go-apfs-v2 metadata writes, with no Apple runtime or SDK dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
     "cs_utils.cpp": {
@@ -72,6 +73,32 @@
         },
         "references": {
           "mPath": 1
+        }
+      },
+      "note": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CallExpr": 4,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 11,
+          "ParmVarDecl": 2,
+          "StringLiteral": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "__builtin_va_end": 1,
+          "__builtin_va_start": 1,
+          "__stderrp": 2,
+          "args": 3,
+          "format": 2,
+          "fprintf": 1,
+          "level": 1,
+          "verbose": 1,
+          "vfprintf": 1
         }
       },
       "recommendedIdentifier": {
@@ -195,6 +222,33 @@
           "mPath": 1
         }
       },
+      "note": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 1,
+          "CallExpr": 4,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 13,
+          "ParmVarDecl": 2,
+          "StringLiteral": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "__builtin_va_end": 1,
+          "__builtin_va_start": 1,
+          "__stderrp": 2,
+          "args": 3,
+          "format": 2,
+          "fprintf": 1,
+          "level": 1,
+          "verbose": 1,
+          "vfprintf": 1
+        }
+      },
       "recommendedIdentifier": {
         "ast_kinds": {
           "CXXBindTemporaryExpr": 1,
@@ -264,5 +318,5 @@
       }
     }
   },
-  "translation_unit_sha256": "385692f15531d6dd93167e71090f3809cb57ea4aacfbf97589d2bd11ab9c82e2"
+  "translation_unit_sha256": "10a4e56de3e5316f3ddd3ae86fda1e6b5917334a4bc056176c00124576d2a048"
 }

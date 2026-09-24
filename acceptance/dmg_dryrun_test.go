@@ -78,13 +78,11 @@ func TestDMGDryRun(t *testing.T) {
 						if state == "signed" {
 							expectedNativeError = path + ": replacing existing signature\n"
 						}
-						// The existing CLI has no replacement notice for any format.
-						// Record this exact gap; do not normalize away arbitrary output.
-						if out != "" || wantOut != "" || stderr != "" || wantErr != expectedNativeError || status != wantStatus {
+						if out != "" || wantOut != "" || stderr != expectedNativeError || wantErr != expectedNativeError || status != wantStatus {
 							t.Fatalf("native dry-run diagnostics: Go %d %q %q, Apple %d %q %q", status, out, stderr, wantStatus, wantOut, wantErr)
 						}
 						diagnostics["native_stdout"], diagnostics["native_stderr"] = wantOut, wantErr
-						diagnostics["replacement_notice_missing"] = state == "signed"
+						diagnostics["replacement_notice_missing"] = false
 						nativeEqual(t, "DMG dry run", got, nativeRead(t, path))
 						assertUnsignedDMG(t, apple(t), path)
 					}

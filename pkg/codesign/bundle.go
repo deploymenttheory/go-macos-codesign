@@ -491,6 +491,14 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	defer b.close()
+	if opts.Force && opts.OnReplace != nil {
+		// The CLI notice precedes resource traversal, including failures there.
+		// Read only the selected main executable through the existing root. Do
+		// not inspect resources or record a mapped source access during this peek.
+		if data, err := b.read(b.executable, maxFileSize); err == nil {
+			notifyReplacement(data, opts)
+		}
+	}
 	scope := newBundleScan()
 	scope.signatureCleanup = true
 	files, files2, err := b.scanTree(ctx, scope, 0, "")
