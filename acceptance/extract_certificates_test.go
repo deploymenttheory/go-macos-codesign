@@ -183,15 +183,17 @@ func TestCertificateExtractionOutputLifecycle(t *testing.T) {
 				}
 				out, stderr, status := run(t, exe, append(args, path)...)
 				failure := mode == "missing-parent" || strings.HasPrefix(mode, "directory-")
+				wantStatus := 0
 				wantErr := "Executable=" + path + "\n"
 				if failure {
+					wantStatus = 1
 					message := "Is a directory"
 					if mode == "missing-parent" {
 						message = "No such file or directory"
 					}
 					wantErr += path + ": " + message + "\n"
 				}
-				if out != "" || stderr != wantErr || (status != 0) != failure {
+				if out != "" || stderr != wantErr || status != wantStatus {
 					t.Fatalf("%s: exit=%d stdout=%q stderr=%q", exe, status, out, stderr)
 				}
 				if !failure || mode == "directory-one" {
@@ -259,14 +261,16 @@ func TestCertificateExtractionMultipleTargets(t *testing.T) {
 					args = append(args, "--continue")
 				}
 				out, stderr, status := run(t, exe, append(args, first, second)...)
+				wantStatus := 0
 				wantErr := "Executable=" + first + "\n"
 				if mode != "success" {
+					wantStatus = 1
 					wantErr += first + ": Is a directory\n"
 				}
 				if mode != "stop" {
 					wantErr += "Executable=" + second + "\n"
 				}
-				if out != "" || stderr != wantErr || (status != 0) != (mode != "success") {
+				if out != "" || stderr != wantErr || status != wantStatus {
 					t.Fatalf("%s: %d %q %q", exe, status, out, stderr)
 				}
 				want := leaf[0]
@@ -338,7 +342,11 @@ func TestCertificateExtractionSignatureState(t *testing.T) {
 			var goErr string
 			for i, exe := range programs {
 				out, stderr, status := run(t, exe, append(args, path)...)
-				if out != "" || (status != 0) != (mode == "unsigned") {
+				wantStatus := 0
+				if mode == "unsigned" {
+					wantStatus = 1
+				}
+				if out != "" || status != wantStatus {
 					t.Fatalf("%s: %d %q %q", exe, status, out, stderr)
 				}
 				if i == 0 {
