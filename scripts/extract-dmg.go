@@ -51,8 +51,9 @@ func walk(n node, visit func(node)) {
 
 func main() {
 	dmg, disk := read(".research/apple/diskimagerep.cpp"), read(".research/apple/diskrep.cpp")
+	signer := read(".research/apple/signer.cpp")
 	excerpts := map[string][]byte{}
-	for _, method := range []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier"} {
+	for _, method := range []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier", "signArchitectureAgnostic"} {
 		source := dmg
 		class := "DiskImageRep::"
 		if method == "flush" {
@@ -60,6 +61,9 @@ func main() {
 		}
 		if method == "canonicalIdentifier" {
 			source, class = disk, "DiskRep::"
+		}
+		if method == "signArchitectureAgnostic" {
+			source, class = signer, "SecCodeSigner::Signer::"
 		}
 		pattern := `(?ms)^[a-zA-Z_:]+ ` + regexp.QuoteMeta(class+method) + `\(.*?\n}`
 		excerpts[method] = regexp.MustCompile(pattern).Find(source)
@@ -73,7 +77,15 @@ func main() {
 #include <cstring>
 #include <cassert>
 #include <string>
+#include <set>
+#include <map>
 using std::string;
+using CFDataRef = void*; using CFDictionaryRef = void*; using CFArrayRef = void*;
+template<class T> struct CFRef {CFRef(T); operator T();};
+template<class T> struct RefPointer {RefPointer(T*); operator T*(); T* operator->(); T& operator*();};
+struct Requirement {struct Context {};};
+struct CodeDirectory {struct Builder {Builder(int);CodeDirectory* build();};};
+struct InternalRequirements {void operator()(void*,int,const Requirement::Context&);};
 template<class T> T n2h(T);
 template<class T> T h2n(T);
 enum {kUDIFSignature=0x6b6f6c79,errSecCSBadDiskImageFormat=1};
@@ -85,14 +97,31 @@ struct EmbeddedSignatureBlob {static EmbeddedSignatureBlob* readBlob(FileDesc&,s
 struct Maker {static EmbeddedSignatureBlob* make();};
 struct UnixError {static void throwMe(int);};
 struct MacOSError {static void throwMe(int);};
-struct DiskRep {static std::string canonicalIdentifier(const std::string&);};
+struct DiskRep {
+ static std::string canonicalIdentifier(const std::string&);
+ struct Writer {void setPreserveAFSC(bool);void component(int,CFDataRef);void signature(CFDataRef);void flush();};
+ Writer* writer();template<class T> int defaultRequirements(void*,T&);
+ size_t signingBase();size_t signingLimit();size_t execSegBase(void*);size_t execSegLimit(void*);CFDataRef identification();
+};
+struct CodeDirectorySet {void add(CodeDirectory*);void populate(DiskRep::Writer*);CFDictionaryRef hashDict();CFArrayRef hashList();const CodeDirectory* primary();};
+struct DetachedBlobWriter : DiskRep::Writer {template<class T> DetachedBlobWriter(T&);};
+enum {preEncryptMainArch=0,kSecCodeSignatureRuntime=0x10000,cdIdentificationSlot=0x10001};
+struct SecCodeSigner {struct Signer {
+ struct State {bool mDetached,mPreserveAFSC,mDryRun;uint32_t mRuntimeVersionOverride;} state;
+ DiskRep* rep;void* requirements;uint32_t cdFlags;size_t archAgnosticPageSize;std::map<int,int> preEncryptHashMaps;
+ const std::set<int>& digestAlgorithms();
+ void populate(DiskRep::Writer&);
+ void populate(CodeDirectory::Builder&,DiskRep::Writer&,InternalRequirements&,size_t,size_t,bool,size_t,size_t,size_t,unsigned,const int&,uint32_t,bool);
+ CFDataRef signCodeDirectory(const CodeDirectory*,CFDictionaryRef,CFArrayRef);
+ void signArchitectureAgnostic(const Requirement::Context&);
+};};
 struct DiskImageRep {
  UDIFFileHeader mHeader; const EmbeddedSignatureBlob* mSigningData;size_t mHeaderOffset,mEndOfDataOffset;
  FileDesc& fd();static bool readHeader(FileDesc&,UDIFFileHeader&);void setup();size_t signingLimit();
  struct Writer {const EmbeddedSignatureBlob* mSigningData;DiskImageRep* rep;FileDesc& fd();void flush();};
 };
 ` + string(version)
-	order := []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier"}
+	order := []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier", "signArchitectureAgnostic"}
 	for _, name := range order {
 		unit += "\n" + string(excerpts[name])
 	}
@@ -131,15 +160,15 @@ struct DiskImageRep {
 		targets[target] = methods
 	}
 	sources, hashes := map[string]any{}, map[string]string{}
-	for name, data := range map[string][]byte{"diskimagerep.cpp": dmg, "diskrep.cpp": disk} {
+	for name, data := range map[string][]byte{"diskimagerep.cpp": dmg, "diskrep.cpp": disk, "signer.cpp": signer} {
 		sources[name] = map[string]string{"url": "https://github.com/apple-oss-distributions/Security/blob/" + revision + "/OSX/libsecurity_codesigning/lib/" + name, "sha256": hash(data)}
 	}
 	for name, data := range excerpts {
 		hashes[name] = hash(data)
 	}
-	result := map[string]any{"schema": 1, "scope": "Five verbatim Apple methods with explicit interface, error-code and UDIF header shims. Source AST facts only; shim layouts do not establish wire offsets. Production reuses go-apfs-v2/disk.DMGFooter.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "udif_version_declaration": string(version), "targets": targets}
+	result := map[string]any{"schema": 1, "scope": "Six verbatim Apple methods, including complete signArchitectureAgnostic, with explicit interface, signer-state, CoreFoundation, error-code and UDIF header shims. Source AST facts only; shim layouts and private constants do not establish wire offsets. Production reuses go-apfs-v2/disk.DMGFooter. The architecture-agnostic signer suppresses CodeDirectory addition/population during dry runs but still supplies other components and calls signature/flush. Native ad-hoc probes confirm requirements/empty CMS and optional entitlement blobs are written without a CodeDirectory, leaving the image unsigned. The source-reviewed per-architecture populate and CMS identity methods are not extracted by this driver. Native certificate dry-run termination is recorded separately; production returns an unsupported error instead of emulating a crash.", "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sources": sources, "excerpt_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "udif_version_declaration": string(version), "targets": targets}
 	out, err := json.MarshalIndent(result, "", "  ")
 	must(err)
-	must(os.WriteFile("spec/apple-dmg.json", append(out, '\n'), 0644))
+	must(os.WriteFile("spec/apple-dmg.json", append(out, '\n'), 0o644))
 	fmt.Println("Wrote spec/apple-dmg.json: two-target UDIF signing AST")
 }

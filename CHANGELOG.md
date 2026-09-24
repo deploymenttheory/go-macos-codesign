@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Match native ad-hoc DMG dry runs: update the image in place with components but
+  no CodeDirectory, leaving it unsigned even after forced re-signing. Recognize
+  that state for inspection, verification and recovery without force. Preserve
+  the construction-only `SignBytes` contract; reject certificate DMG path dry runs
+  rather than reproduce native crashes. Add 70 portable/native lifecycle cases,
+  four permission cases, two-target Clang evidence and 140 foreign-output checks;
+  require byte equality for all 80 existing DMG metadata cases.
+
 - Allocate reached unsigned children during deep dry runs before reporting an
   unchanged on-disk seal failure. Preserve bytes, envelopes and ancestor access;
   prioritize allocation errors and clean up on cancellation. Add 72 native cases

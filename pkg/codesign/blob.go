@@ -56,6 +56,12 @@ func rangeOK(off, size, total uint64) bool { return off <= total && size <= tota
 
 // ParseSignature validates blob bounds before exposing any indexed data.
 func ParseSignature(data []byte) (*Signature, error) {
+	return parseSignature(data, false)
+}
+
+// UDIF dry runs can leave a structurally valid container without any directory.
+// Only the DMG reader permits that unsigned state; other callers stay strict.
+func parseSignature(data []byte, allowUnsigned bool) (*Signature, error) {
 	if len(data) < 12 || be.Uint32(data) != MagicSignature {
 		return nil, malformed("signature SuperBlob")
 	}
@@ -101,7 +107,7 @@ func ParseSignature(data []byte) (*Signature, error) {
 			return nil, malformed("overlapping signature blobs")
 		}
 	}
-	if !seen[0] {
+	if !seen[0] && (!allowUnsigned || len(s.Directories) != 0) {
 		return nil, malformed("missing primary CodeDirectory")
 	}
 	return s, nil

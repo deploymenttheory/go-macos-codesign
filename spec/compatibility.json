@@ -313,6 +313,12 @@
       "status": "partial",
       "manual": ".It Fl -dryrun",
       "evidence": [
+        "acceptance/dmg_dryrun_test.go",
+        "acceptance/dmg_dryrun_darwin_test.go",
+        "pkg/codesign/dmg_dryrun_test.go",
+        "spec/apple-dmg.json",
+        "spec/apple-dmg-dryrun-certificate.json",
+        "docs/dmg-integration.md",
         "acceptance/standalone_access_time_darwin_test.go",
         "pkg/codesign/standalone_access_time_darwin_test.go",
         "acceptance/parity_test.go",
@@ -559,10 +565,14 @@
     {
       "id": "dmg",
       "status": "partial",
-      "notes": "A pinned direct go-apfs-v2/pkg/disk dependency supplies DMGFooter. Single-segment UDIF v4 signing, inspection and verification preserve payload bytes and bind the canonical trailer in slot 6. Forty ad-hoc native byte/display comparisons, fifteen ad-hoc/RSA/P-256 native signature and hdiutil checks, five native fixtures, matched-time RSA equality, local TSA tests and a live Apple timestamp establish the tested profile. Native-unsupported removal returns an error without mutation. Encrypted/segmented images, large-image streaming, detached signatures, additional digests, stapled-ticket/notarization policy and full option/diagnostic parity remain incomplete.",
+      "notes": "A pinned direct go-apfs-v2/pkg/disk dependency supplies DMGFooter. Single-segment UDIF v4 signing, inspection and verification preserve payload bytes and bind the canonical trailer in slot 6. Forty ad-hoc native byte/display comparisons, fifteen ad-hoc/RSA/P-256 native signature and hdiutil checks, five native fixtures, matched-time RSA equality, local TSA tests and a live Apple timestamp establish the tested profile. Ad-hoc path dry runs now flush requirements/empty CMS and optional entitlements without a CodeDirectory, leaving an unsigned image in place. Seventy lifecycle cases, four native permission cases and all 80 access/metadata comparisons cover the bounded profile; CI compares 140 foreign dry-run images independently. SignBytes remains construction-only. Certificate path dry runs return unsupported instead of reproducing the recorded native memory faults; replacement notices still differ. Native-unsupported removal preserves input. Encrypted/segmented images, streaming, detached signatures, additional digests, notarization policy and full option/diagnostic parity remain incomplete.",
       "evidence": [
         "pkg/codesign/dmg.go",
         "pkg/codesign/dmg_test.go",
+        "pkg/codesign/dmg_dryrun_test.go",
+        "acceptance/dmg_dryrun_test.go",
+        "acceptance/dmg_dryrun_darwin_test.go",
+        "spec/apple-dmg-dryrun-certificate.json",
         "acceptance/dmg_test.go",
         "spec/apple-dmg.json",
         "testdata/dmg/manifest.json",

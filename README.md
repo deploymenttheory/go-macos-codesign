@@ -95,6 +95,11 @@ macoscodesign -fs identity.p12 --password-file password.txt --timestamp ./hello
 macoscodesign --verify --trust-root code-root.pem --timestamp-root apple ./hello
 ```
 
+For DMGs, native-compatible ad-hoc `--dryrun` changes the image in place and
+leaves it unsigned, including when replacing an existing signature with `--force`.
+Use the construction-only `SignBytes` API for a preview without path writes.
+Certificate DMG path dry runs are unsupported; see [DMG behavior](docs/dmg-integration.md).
+
 Signing accepts the ad-hoc identity `-`, a PEM file, or a PKCS#12 file. A combined certificate
 and private-key PEM file can be passed directly to `-s`; separate files use
 `--key`. These are portable extensions, not native keychain-name lookup.

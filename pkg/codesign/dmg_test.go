@@ -158,16 +158,20 @@ func TestDMGPathsAndTimestampFailure(t *testing.T) {
 	ctx := context.Background()
 	data := testDMG(t)
 	path := filepath.Join(t.TempDir(), "Example.dmg")
-	if err := os.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := Sign(ctx, path, SignOptions{DryRun: true}); err != nil {
 		t.Fatal(err)
 	}
 	got, err := os.ReadFile(path)
-	if err != nil || !bytes.Equal(got, data) {
-		t.Fatal("dry run changed input", err)
+	if err != nil || bytes.Equal(got, data) {
+		t.Fatal("dry run did not write native unsigned components", err)
 	}
+	if _, err := Verify(ctx, path, VerifyOptions{}); !errors.Is(err, ErrUnsigned) {
+		t.Fatal("dry-run components treated as signed", err)
+	}
+	data = got
 	failure := errors.New("TSA unavailable")
 	opts := SignOptions{Identity: testIdentity(t, "rsa"), Timestamp: &TimestampOptions{TrustedRoots: AppleTimestampRoots(), Provider: func(context.Context, []byte) ([]byte, error) { return nil, failure }}}
 	if err := Sign(ctx, path, opts); !errors.Is(err, failure) {
@@ -188,7 +192,7 @@ func TestDMGPathsAndTimestampFailure(t *testing.T) {
 	}
 	bad := testDMG(t)
 	be.PutUint32(bad[len(bad)-512+4:], 99)
-	if err := os.WriteFile(path, bad, 0644); err != nil {
+	if err := os.WriteFile(path, bad, 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := Sign(ctx, path, SignOptions{}); err == nil {
@@ -197,7 +201,13 @@ func TestDMGPathsAndTimestampFailure(t *testing.T) {
 }
 
 func FuzzDMG(f *testing.F) {
-	f.Add(testDMG(f))
+	input := testDMG(f)
+	f.Add(input)
+	dry, err := signBytes(context.Background(), input, SignOptions{Identifier: "fuzz"}, true)
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(dry)
 	f.Add([]byte("koly"))
 	f.Fuzz(func(t *testing.T, data []byte) {
 		if len(data) > 1<<20 {
@@ -224,10 +234,14 @@ func TestDMGClangFacts(t *testing.T) {
 		t.Fatal("UDIF version or Clang target facts missing")
 	}
 	for target, methods := range facts.Targets {
-		for _, name := range []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier"} {
+		for _, name := range []string{"readHeader", "setup", "signingLimit", "flush", "canonicalIdentifier", "signArchitectureAgnostic"} {
 			if _, ok := methods[name]; !ok {
 				t.Fatal(target, name)
 			}
+		}
+		agnostic := methods["signArchitectureAgnostic"].Members
+		if agnostic["mDryRun"] != 2 || agnostic["flush"] != 1 || agnostic["signature"] != 1 || agnostic["add"] != 1 {
+			t.Fatal(target, "missing architecture-agnostic dry-run control flow")
 		}
 		for _, name := range []string{"setup", "flush"} {
 			for _, member := range []string{"fUDIFCodeSignOffset", "fUDIFCodeSignLength"} {

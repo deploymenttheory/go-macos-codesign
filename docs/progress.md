@@ -1,23 +1,41 @@
 # Project progress
 
-Updated 2026-09-22. This page describes the implementation in this branch and
+Updated 2026-09-24. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current unsigned-child dry-run slice
+## Current ad-hoc DMG dry-run slice
 
-Deep dry runs allocate a reached unsigned child before its unchanged on-disk seal
-fails. Helpers, child bundles and grandchildren retain their bytes and inodes;
-ancestor executables remain unread. Allocation errors take precedence over seal
-errors, and cancellation removes staging without creating envelopes.
+Ad-hoc DMG path dry runs now write native requirements/CMS components and optional
+entitlements without a CodeDirectory. This changes bytes and modification time in
+place and leaves the image unsigned, including after forced replacement of a
+valid signature. Repeated dry runs and subsequent signing work without force.
+`SignBytes` remains construction-only and returns a complete signature.
 
-A 72-case native matrix covers three architectures, past/future access, force and
-shallow controls, and allocation denial. All 54 retained failure-boundary cases
-now require matching source and replacement access. Twelve portable cases cover
-allocation, permission precedence, shallow denial and cancellation. Final per-commit
-validation is recorded in the implementation PR.
+A 70-case lifecycle matrix covers five image formats, signed/unsigned inputs and
+seven option profiles. All 80 existing DMG access/metadata cases now require byte
+equality; four additional cases cover write permissions. Expanded Clang evidence
+extracts the complete native architecture-agnostic signer on both targets. CI adds
+140 unsigned Linux/Windows output comparisons, separate from valid signed imports.
+Final per-commit validation is recorded in the implementation PR.
+
+Full local verification passes with library coverage 4,190/4,393 (95.38%), CLI
+423/425 (99.53%) and entry point 1/1. golangci-lint and all six GoReleaser builds
+pass. These are local results; completed CI and foreign-output evidence must be
+checked separately for the final PR commit.
+
+The native certificate dry-run probe terminates by signal before writing. Four
+public RSA/P-256 observations are pinned; Go returns unsupported before writing
+or calling a TSA. The CLI's missing replacement notice remains a measured gap.
+
+Merged [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48)
+delivers unsigned-child dry-run allocation, 72 native cases and twelve portable
+failure/cancellation controls. All 54 failure-boundary cases require matching
+source/replacement access. Its [required CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294132)
+passed; [the plan](implementation_plan.md#merged-pr48) identifies the tested and
+merged commits without claiming a new artifact audit of that historical run.
 
 Merged [PR #47](https://github.com/deploymenttheory/go-macos-codesign/pull/47)
 defers source access until execution reaches each executable and pins released
@@ -26,8 +44,8 @@ race/fuzz, 606 signed imports and 88 removals pass. The
 [implementation plan](implementation_plan.md#merged-pr47) records exact evidence.
 
 Inaccessible directories, broader planning and asynchronous sibling failures,
-ACL inheritance/copying and DMG dry-run writes remain open. The new dry-run corpus
-covers a single descendant chain; sibling scheduling is not claimed equivalent.
+ACL inheritance/copying remain open. The merged bundle dry-run corpus covers a
+single descendant chain; sibling scheduling is not claimed equivalent.
 [File writes](file-writes.md) records the limits. All 88 inventory statuses and
 D04/WP-02 remain partial or outstanding.
 

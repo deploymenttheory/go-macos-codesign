@@ -335,13 +335,25 @@ does not establish feature semantics or full equivalence.
 ## DMG research and direct library reuse
 
 `make research-dmg` runs `scripts/extract-dmg.go` against pinned Apple
-`diskimagerep.cpp` and `diskrep.cpp`. It extracts complete trailer-reading/setup,
-signing-limit, signature-writing and canonical-identifier methods through Clang
+`diskimagerep.cpp`, `diskrep.cpp` and `signer.cpp`. It extracts six complete methods:
+trailer reading/setup, signing limit, signature writing, canonical identifiers
+and architecture-agnostic signing with its dry-run control flow through Clang
 for both targets. [spec/apple-dmg.json](../spec/apple-dmg.json) records method
 ASTs, source/excerpt hashes and explicit header/interface shims. Those shims do
 not establish UDIF wire offsets; production uses go-apfs-v2's `disk.DMGFooter`.
-Download the two sources from the URLs in that record into `.research/apple`
+Download the three sources from the URLs in that record into `.research/apple`
 before reproducing the extraction.
+
+The complete architecture-agnostic signer skips CodeDirectory addition/population
+during dry runs but still flushes its writer. Native ad-hoc probes establish the
+resulting unsigned components and footer, including optional entitlements and
+requirements. Per-architecture populate and identity CMS code are source-reviewed
+but not included in this extraction. Four opt-in native certificate probes record
+memory-fault termination with unchanged input in
+[apple-dmg-dryrun-certificate.json](../spec/apple-dmg-dryrun-certificate.json);
+production uses a bounded unsupported error. Existing writer-research scope text
+records the historical PR #42/46 differences; the current DMG record and acceptance
+tests supersede its ad-hoc dry-run gap. No new APFS codec or metadata copier is added.
 
 Native comparisons establish canonical trailer hashing with a blinded signature
 length, unpaged hashing, exact signature framing and unsupported image removal.

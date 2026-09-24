@@ -56,12 +56,15 @@ func parseDMG(data []byte) (*dmgImage, error) {
 			return nil, malformed("UDIF signature bounds")
 		}
 		var err error
-		m.signature, err = ParseSignature(data[h.CodeSignatureOffset:end])
+		m.signature, err = parseSignature(data[h.CodeSignatureOffset:end], true)
 		if err != nil {
 			return nil, err
 		}
 		if uint64(m.signature.Length) != h.CodeSignatureLength {
 			return nil, malformed("UDIF signature padding")
+		}
+		if len(m.signature.Directories) == 0 {
+			m.signature = nil // Native dry-run components do not make the image signed.
 		}
 		end = h.CodeSignatureOffset
 	}
@@ -118,7 +121,7 @@ func dmgIdentifier(path string, data []byte, adhoc bool) (string, error) {
 	return name, nil
 }
 
-func signDMG(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
+func signDMG(ctx context.Context, data []byte, opts SignOptions, dryRun bool) ([]byte, error) {
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return nil, unsupported("external special-slot overrides for disk images")
 	}
@@ -128,6 +131,11 @@ func signDMG(ctx context.Context, data []byte, opts SignOptions) ([]byte, error)
 	}
 	if m.signature != nil && !opts.Force {
 		return nil, ErrSigned
+	}
+	if dryRun && opts.Identity != nil {
+		// The reference crashes before writing when it attempts CMS over the absent
+		// dry-run CodeDirectory. Keep a bounded error instead of emulating that bug.
+		return nil, unsupported("certificate-signed DMG dry run")
 	}
 	page := int(opts.PageSize)
 	if page != 0 && (page < 2 || page&(page-1) != 0 || page > maxFileSize) {
@@ -219,7 +227,10 @@ func signDMG(ctx context.Context, data []byte, opts SignOptions) ([]byte, error)
 			}
 		}
 	}
-	blobs = append(blobs, Blob{Slot: SlotDirectory, Data: cd}, Blob{Slot: SlotCMS, Data: blob(MagicCMS, cms)})
+	if !dryRun {
+		blobs = append(blobs, Blob{Slot: SlotDirectory, Data: cd})
+	}
+	blobs = append(blobs, Blob{Slot: SlotCMS, Data: blob(MagicCMS, cms)})
 	sig := superblob(MagicSignature, blobs)
 	if len(m.content)+len(sig)+dmgFooterSize > maxFileSize {
 		return nil, unsupported("signed disk image exceeds memory limit")

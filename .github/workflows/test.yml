@@ -63,7 +63,7 @@ jobs:
           pattern: signed-*
           path: artifacts/import
       - name: Apple verifies imported signatures and compares removal bytes
-        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal)$'
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns)$'
         env:
           CGO_ENABLED: '0'
           MACOSCODESIGN_REQUIRE_APPLE: '1'

@@ -52,8 +52,9 @@ func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
 	return data, nil
 }
 
-// Sign constructs complete signatures before writing a Mach-O, supported app
-// bundle, or UDIF disk image to path.
+// Sign constructs output before writing a Mach-O, supported app bundle, or UDIF
+// disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
+// matching codesign; see SignOptions.DryRun.
 func Sign(ctx context.Context, path string, opts SignOptions) error {
 	path, bundle, err := resolveCodePath(path)
 	if err != nil {
@@ -76,7 +77,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 			return err
 		}
 	}
-	out, err := SignBytes(ctx, data, opts)
+	out, err := signBytes(ctx, data, opts, opts.DryRun)
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,12 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 }
 
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.
+// DryRun is a path-operation option and does not suppress the returned signature.
 func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
+	return signBytes(ctx, data, opts, false)
+}
+
+func signBytes(ctx context.Context, data []byte, opts SignOptions, dmgDryRun bool) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -112,7 +118,7 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 		return nil, unsupported("code signing flags")
 	}
 	if isDMG(data) {
-		return signDMG(ctx, data, opts)
+		return signDMG(ctx, data, opts, dmgDryRun)
 	}
 	c, err := parseContainer(data)
 	if err != nil {

@@ -30,9 +30,8 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	// Apple's UDIF writer updates the image in place; MachOEditor replaces its
 	// selected directory entry with a prepared copy, detaching every hard link.
 	if isDMG(data) {
-		if dryRun {
-			return ctx.Err()
-		}
+		// Native UDIF dry runs still flush their components and trailer in place.
+		// The signer omits the CodeDirectory in that case, leaving unsigned code.
 		return overwriteFile(ctx, path, data)
 	}
 	st, err := os.Lstat(path)
