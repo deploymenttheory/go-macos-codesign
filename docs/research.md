@@ -397,6 +397,12 @@ newline. The current signing call site is not published; the
 [replacement-notice tests](signing-diagnostics.md) independently establish its
 conditions, count, operand spelling and failure ordering on the host binary.
 
+The directory-parent slice reuses the same complete `cleanPath`/`staticCodePath`
+evidence. Its 108 native comparisons establish physical parent selection and raw
+display independently; no additional private declaration is treated as executable
+evidence. Go generalizes the existing framework-directory resolver, retaining
+the narrower final-root alias policy and resource/write containment rules.
+
 The pinned Security `StaticCode.cpp` supplies the complete
 `SecStaticCode::signature` and `SecStaticCode::certificates` accessors. Their ASTs
 record retrieving the CMS component and calling `validateDirectory()` before

@@ -6,6 +6,30 @@ cryptographic code on Linux, macOS and Windows. Apple tools and Clang are used
 only for research and acceptance testing. Plain nested Mach-O files and supported
 bundle layouts can be nested recursively. Full native bundle policy remains incomplete.
 
+## Directory operands and parent aliases
+
+Directory inputs resolve their parent components physically before lexical
+cleanup. An app under `alias/Example.app` therefore displays the executable under
+the physical parent. `link/../Example.app` selects the link target's parent,
+including on Windows, preserving a different bundle at the lexical neighbour.
+Signing, verification, display/extraction, dry runs and removal use the same
+directory resolver; aliases themselves remain unchanged. APFS still owns the
+existing staged writes and host metadata behavior.
+
+For a versioned framework root, display retains the selected `Versions/Current`
+spelling beneath that physical root. Direct `Versions/Current` input instead
+uses its validated physical version as the standalone resource boundary.
+Final bundle-root symlinks remain unsupported, including operands with trailing
+separators or `/.`; only the validated structural Current exception is accepted.
+Internal resource and write-alias restrictions are unchanged.
+
+The 108-case matrix covers nine app/bundle/framework forms, three architectures
+and physical/relative/chained/`link/..` operands. Native comparisons require exact
+signing/removal trees, five raw display levels, dry-run preservation, unchanged
+aliases and untouched lexical-neighbour trees. The certificate-extraction alias
+case additionally requires exact physical display and DER. Wider root-alias,
+Unicode/case, inaccessible-directory and filesystem behavior remain incomplete.
+
 ## Supported layout
 
 ```text

@@ -64,7 +64,7 @@ func openAppBundle(path string) (*appBundle, error) {
 }
 
 func openAppBundleVersion(path, version string) (*appBundle, error) {
-	path, err := resolveFrameworkCurrent(path)
+	path, err := resolveBundleDirectory(path)
 	if err != nil {
 		return nil, err
 	}

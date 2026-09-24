@@ -225,7 +225,11 @@ func TestAppleBundleLayouts(t *testing.T) {
 						if err != nil {
 							t.Fatal(err)
 						}
-						if wc != gc || strings.ReplaceAll(got, portable, "<bundle>") != strings.ReplaceAll(want, resolved, "<bundle>") {
+						resolvedGo, err := filepath.EvalSymlinks(portable)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if wc != gc || strings.ReplaceAll(got, resolvedGo, "<bundle>") != strings.ReplaceAll(want, resolved, "<bundle>") {
 							t.Fatalf("display %s\nGo: %s\nApple: %s", option, got, want)
 						}
 					}

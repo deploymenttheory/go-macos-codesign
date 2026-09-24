@@ -24,10 +24,14 @@ ad-hoc DMG dry-run writes and unsigned recovery, with 70 lifecycle cases and all
 instead of reproducing native crashes. Merged PR #50 adds native
 replacement notices, operand spelling and failure ordering, with 92 portable and
 eight Mac cases. [Diagnostic limits](signing-diagnostics.md) remain explicit.
-The current WP-20 slice adds [certificate extraction](certificates.md#certificate-extraction)
+PR #51 adds [certificate extraction](certificates.md#certificate-extraction)
 with 115 portable and two Mac cases, reusing the supported CMS metadata chain.
 Only `--extract-certificates` moves to partial; wider chains, additional signature
 slots, host augmentation and full extraction/diagnostic interactions remain open.
+Its Mac CI exposed the existing localized-date gap. The current WP-03 slice
+records the two observed date profiles explicitly and closes bundle-parent
+path selection/display through the shared directory resolver. Another 108
+portable/native cases retain root-alias restrictions and framework boundaries.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

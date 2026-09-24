@@ -6,22 +6,43 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current certificate-extraction slice
+## Current bundle-parent path slice
+
+Bundle directory parents now resolve physically before lexical cleanup, sharing
+the existing framework-directory resolver. This closes the extraction display
+gap and ensures `link/..` selects the physical neighbour on Windows. Final bundle
+root aliases remain unsupported; structural Current validation and internal
+containment rules are retained. A 108-case matrix covers nine layouts, three
+architectures and four operand forms, with native signing/removal bytes, five
+display levels, verification, dry-run preservation and unchanged aliases/decoys.
+See [bundle directory operands](bundles.md#directory-operands-and-parent-aliases).
+
+The branch also records the hosted Mac's known verbose certificate date profile
+explicitly, retaining raw outputs and marking that date difference. Final
+three-OS and artifact evidence belongs to the implementation PR; no inventory
+status changes in this slice.
+
+## Merged certificate-extraction slice
 
 Display accepts `--extract-certificates[=PREFIX]` and writes supported CMS chains
 as leaf-first DER files, including an embedded root. It reuses owned certificate
 metadata without adding a trust decision or a platform dependency. Default/empty
 prefixes, in-place overwrite, preserved stale files, partial failures, multiple
 targets and architecture selection have independent native comparisons. The new
-matrix has 115 portable cases and two Mac-specific cases; the latter retain the
-existing bundle-parent alias display difference explicitly. Eight complete Apple
+matrix has 115 portable cases and two Mac-specific cases; the current path slice
+upgrades the bundle-parent alias case to require identical display. Certificate verbose
+cases also record the hosted Mac's native date-format difference using two exact
+observed profiles, without normalizing actual output. Eight complete Apple
 path/notice/CMS-accessor functions have two-target Clang records.
 
 [Certificate extraction](certificates.md#certificate-extraction) documents the
 write contract and remaining chain, signature-slot, entitlement-display and
-filesystem limits. Only this inventory entry advances to partial: 26 partial,
-54 not implemented, eight blocked and zero fully verified. Final per-commit CI
-and artifact validation belong to the implementation PR.
+filesystem limits. PR #51 moved only extraction to partial: 26 partial,
+54 not implemented, eight blocked and zero fully verified. Its final PR workflow
+passed Linux, Windows, packaging and race/fuzz, but Mac failed on the native date
+profile and imports were skipped. [The plan](implementation_plan.md#merged-pr51)
+records the exact merged revision and validation limits. The current slice must
+establish passing combined evidence; the merge alone does not establish it.
 
 ## Merged signing-notice slice
 

@@ -24,7 +24,7 @@ func TestCertificateExtractionPermission(t *testing.T) {
 	attest(t, map[string]any{"native_compared": true, "output_preserved": true, "exact_diagnostics": true})
 }
 
-func TestCertificateExtractionBundleAliasDifference(t *testing.T) {
+func TestCertificateExtractionBundleParentAlias(t *testing.T) {
 	dir := extractionDirectory(t)
 	t.Chdir(dir)
 	if err := os.Mkdir("physical", 0755); err != nil {
@@ -33,18 +33,13 @@ func TestCertificateExtractionBundleAliasDifference(t *testing.T) {
 	path, certs := certificateExtractionInput(t, filepath.Join(dir, "physical"), "app", "rsa")
 	layoutLink(t, dir, "alias", "physical")
 	operand := filepath.Join(dir, "alias", filepath.Base(path))
-	wantGo := "Executable=" + filepath.Join(operand, "Contents/MacOS/hello") + "\n"
-	wantNative := "Executable=" + filepath.Join(path, "Contents/MacOS/hello") + "\n"
-	for i, exe := range []string{binaryPath, apple(t)} {
+	want := "Executable=" + filepath.Join(path, "Contents/MacOS/hello") + "\n"
+	for _, exe := range []string{binaryPath, apple(t)} {
 		out, stderr, status := run(t, exe, "-d", "--extract-certificates=cert", operand)
-		want := wantGo
-		if i == 1 {
-			want = wantNative
-		}
 		if out != "" || status != 0 || stderr != want {
 			t.Fatal(exe, status, out, stderr)
 		}
 		nativeEqual(t, "alias certificate", nativeRead(t, "cert0"), certs[0])
 	}
-	attest(t, map[string]any{"go_stderr": wantGo, "native_stderr": wantNative, "native_compared": true, "certificate_byte_equal": true, "remaining_bundle_parent_alias_difference": true})
+	attest(t, map[string]any{"stderr": want, "native_compared": true, "certificate_byte_equal": true, "exact_display": true})
 }

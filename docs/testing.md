@@ -258,8 +258,16 @@ expected strings; Mac independently compares native output and complete bytes.
 `TestCertificateExtraction` adds 96 cases: six formats × four identities × four
 prefix/display modes. DER bytes must match both independent PEM certificates and
 native extraction, including a three-certificate chain with its root. Display
-stdout/stderr/status are compared without normalization; source trees remain
+stdout/stderr/status are retained without normalization; source trees remain
 unchanged. Temporary input roots are resolved physically before creating fixtures.
+Certificate verbose display has two explicit native date profiles at the fixed
+fixture time: local `24 Sep 2026 at 12:00:00` and hosted
+`Sep 24, 2026 at 12:00:00\u202fPM` (U+202F before PM). Go retains its documented
+fixed English UTC form. The hosted profile requires the complete expected output
+with exactly that date line; every other character must match. Its eighteen
+certificate/verbose records retain both raw outputs, mark `exact_display: false`
+and record `remaining_date_profile_difference: true`. They establish extraction
+and the other display fields, not localized-date parity. Any other drift fails.
 
 Eight output-lifecycle cases cover in-place truncation/mode preservation, stale
 indices, missing parents, first/later directory failures, symlink/hard-link writes
@@ -269,13 +277,32 @@ pages, damaged CMS and explicit universal-slice selection. Three cases prove the
 option is ignored for signing, verification and removal. These 115 cases run on
 all producers, recording certificate/output hashes for artifact comparison.
 
-Two Mac cases independently exercise read-only output failure and the existing
-bundle-parent alias display difference. The latter requires each tool's exact
-known path and identical DER, and attests the remaining difference explicitly.
-It is excluded from claims of exact display parity. CLI units cover optional-value
-parsing, distinct-slice selection, JSON omission and unknown OS errors. Library
+Two Mac cases independently exercise read-only output failure and bundle-parent
+alias extraction. The latter now requires identical physical display paths and
+DER after the shared directory resolver fix. CLI units cover optional-value
+parsing, distinct-slice selection, JSON omission and unknown OS errors. Existing
+output identity is captured through `File.Stat` before fixture renames; Windows
+path-based `Stat` otherwise loads identity lazily after the path changes. Library
 tests compare four certificate algorithms to independent PEM fixtures and prove
 returned DER ownership. Extraction does not imply page validity or CA trust.
+
+### Bundle directory-parent aliases
+
+`TestBundleParentAliases` adds 108 cases: nine layouts × three architectures ×
+four operands (physical, relative parent alias, chained parent alias, `link/..`).
+Each tool operates on a reset fixture at exactly the same pathname, so its five
+display levels and sign/verify/dry-run/remove stdout/stderr/status require raw
+equality. Complete signed/removed trees, dry-run preservation, unchanged alias
+text and untouched lexical-neighbour trees are checked. The Mac also strictly
+verifies Go's output; other producers retain signing/removal hashes for comparison
+to native-compared Mac records. Six new app/extension regressions fail against
+the merged baseline before the resolver change.
+
+Library tests retain direct framework selection/Current safety, final root-alias
+rejection (including suffixes), relative directory inputs, missing parents and
+volume roots. Older comparisons using different temporary input names now resolve
+both fixture prefixes symmetrically; their only substitution remains the exact
+fixture prefix. The new same-path matrix performs no substitution.
 
 ### Recorded certificate DMG dry-run failures
 
