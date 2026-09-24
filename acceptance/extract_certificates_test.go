@@ -150,7 +150,18 @@ func TestCertificateExtractionOutputLifecycle(t *testing.T) {
 					if err := os.WriteFile(prefix+"0", bytes.Repeat([]byte("old"), 1000), 0600); err != nil {
 						t.Fatal(err)
 					}
-					original = accessFileInfo(t, prefix+"0")
+					// File.Stat captures Windows identity immediately. Path-based
+					// Stat loads it lazily and would inspect the new symlink after
+					// this fixture renames the original output below.
+					file, err := os.Open(prefix + "0")
+					if err != nil {
+						t.Fatal(err)
+					}
+					original, err = file.Stat()
+					closeErr := file.Close()
+					if err != nil || closeErr != nil {
+						t.Fatal(err, closeErr)
+					}
 					if mode == "hardlink" {
 						if err := os.Link(prefix+"0", filepath.Join(outDir, "neighbour")); err != nil {
 							t.Fatal(err)
@@ -201,8 +212,9 @@ func TestCertificateExtractionOutputLifecycle(t *testing.T) {
 				}
 				if original != nil {
 					current := accessFileInfo(t, prefix+"0")
-					if !os.SameFile(original, current) || original.Mode() != current.Mode() {
-						t.Fatal("existing certificate inode/mode changed")
+					same := os.SameFile(original, current)
+					if !same || original.Mode() != current.Mode() {
+						t.Fatalf("existing certificate changed: same_file=%t before_mode=%v after_mode=%v before=%+v after=%+v", same, original.Mode(), current.Mode(), original.Sys(), current.Sys())
 					}
 				}
 				if mode == "hardlink" || mode == "symlink" {
