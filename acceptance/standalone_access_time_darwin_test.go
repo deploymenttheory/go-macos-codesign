@@ -130,8 +130,8 @@ func compareStandaloneAccess(t *testing.T, input []byte, alias, profile, operati
 		after, other, decoyAfter := accessStat(t, f.target), accessStat(t, f.neighbour), accessStat(t, f.decoy)
 		accessed := !dmg && operation != "display" && operation != "verify"
 		rewritten := accessed && !strings.HasPrefix(operation, "dryrun")
-		nativeDMGDryRun := dmg && strings.HasPrefix(operation, "dryrun") && exe == apple(t)
-		inPlace := dmg && (operation == "sign" || operation == "resign" || nativeDMGDryRun)
+		dmgDryRun := dmg && strings.HasPrefix(operation, "dryrun")
+		inPlace := dmg && (operation == "sign" || operation == "resign" || dmgDryRun)
 		at, neighbourAt := writerAccess(after), writerAccess(other)
 		if accessed {
 			for _, value := range []time.Time{at, neighbourAt} {
@@ -154,8 +154,8 @@ func compareStandaloneAccess(t *testing.T, input []byte, alias, profile, operati
 				t.Fatal("mode or ownership changed")
 			}
 		}
-		if nativeDMGDryRun && (after.ModTime().Before(started) || after.ModTime().After(finished) || !writerBirth(after).Equal(writerBirth(before))) {
-			t.Fatal("native DMG dry run did not retain creation time and refresh modification time")
+		if dmgDryRun && (after.ModTime().Before(started) || after.ModTime().After(finished) || !writerBirth(after).Equal(writerBirth(before))) {
+			t.Fatal("DMG dry run did not retain creation time and refresh modification time")
 		}
 		if !inPlace && (!other.ModTime().Equal(before.ModTime()) || !writerBirth(other).Equal(writerBirth(before))) {
 			t.Fatalf("%s source write timestamps changed: mtime %v -> %v, birth %v -> %v", exe, before.ModTime(), other.ModTime(), writerBirth(before), writerBirth(other))
@@ -183,24 +183,19 @@ func compareStandaloneAccess(t *testing.T, input []byte, alias, profile, operati
 		}
 		switch operation {
 		case "sign", "readonly", "resign", "dryrun", "display", "verify":
-			if !nativeDMGDryRun {
+			if !dmgDryRun {
 				mustRun(t, apple(t), "--verify", "--strict", f.target)
 			}
+		}
+		if dmgDryRun {
+			assertUnsignedDMG(t, apple(t), f.target)
 		}
 		return result, map[string]any{"argv": args, "stdout": out, "stderr": stderr, "exit": status, "started": started, "finished": finished, "before_access": seed, "after_access": at, "neighbour_access": neighbourAt, "accessed": accessed, "inode_replaced": rewritten, "in_place": inPlace, "aliases_preserved": true, "decoy_preserved": true, "output_sha256": hash(result)}
 	}
 	got, record := execute(binaryPath)
 	want, native := execute(apple(t))
-	knownDifference := ""
-	if dmg && strings.HasPrefix(operation, "dryrun") {
-		if bytes.Equal(got, want) {
-			t.Fatal("expected native DMG dry-run write difference")
-		}
-		knownDifference = "Native DMG dry run modifies bytes and modification time in place; Go preserves both."
-	} else {
-		nativeEqual(t, "access-time output", got, want)
-	}
-	attest(t, map[string]any{"alias": alias, "profile": profile, "operation": operation, "dmg": dmg, "byte_equal": bytes.Equal(got, want), "known_difference": knownDifference, "go": record, "native": native, "native_compared": true, "filesystem_profile": "Darwin APFS standalone access time"})
+	nativeEqual(t, "access-time output", got, want)
+	attest(t, map[string]any{"alias": alias, "profile": profile, "operation": operation, "dmg": dmg, "byte_equal": bytes.Equal(got, want), "go": record, "native": native, "native_compared": true, "filesystem_profile": "Darwin APFS standalone access time"})
 }
 
 func TestBundleReadOnlyAccessTime(t *testing.T) {

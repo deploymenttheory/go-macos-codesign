@@ -44,24 +44,43 @@ without Mach-O allocation padding. Runtime metadata, supported requirements and
 forced library entitlements use the shared options. Entitlements are omitted by
 default for images, matching the tested native behavior.
 
-`--force` replaces an existing signature. Dry runs and construction failures,
-including timestamp errors, preserve input bytes. Writes retain the inode and
+`--force` replaces an existing signature. Construction failures, including
+timestamp errors, preserve input bytes. Writes retain the inode and
 are not atomic: I/O failures can leave partial output, and concurrent modification
 is unsupported. Apple rejects `--remove-signature` for signed and unsigned DMGs
 on the baseline. The Go CLI/removal APIs likewise return unsupported and preserve
 the image; removal is not claimed as a native DMG feature.
 
 On the tested APFS profile, signing, re-signing, display, verification, rejected
-removal and dry runs preserve access time. Native dry runs change image bytes and
-modification time in place, including signed inputs; Go dry runs preserve both.
-This is an explicit compatibility gap. Eighty native comparisons cover five image
-profiles, past/future access times and eight operations, with the 20 dry-run cases
-asserting that difference. See [file-write evidence](file-writes.md).
+removal and dry runs preserve access time. Ad-hoc `--dryrun` now matches native:
+it writes requirements, an empty CMS wrapper and optional forced entitlements,
+but omits the CodeDirectory. **It changes the image and leaves it unsigned.**
+With `--force`, this also replaces a previously valid signature. The inode,
+hard links, creation time and access time are retained; modification time changes.
+Display and verification report unsigned, and subsequent dry runs or real signing
+can proceed without force. This is a behavior change from the previous Go release's
+non-writing DMG dry runs. Mach-O/bundle dry runs still preserve signature bytes.
+
+`SignBytes` remains a construction-only API: it ignores the path-only `DryRun`
+option, leaves input untouched and returns a complete signature. Callers needing
+to preview a DMG signature without filesystem mutation can use that API.
+
+Certificate-backed DMG path dry runs return `ErrUnsupported` before invoking the
+timestamp provider or writing. The recorded native RSA/P-256 probes terminate
+with memory faults and preserve input; the project does not reproduce that crash.
+The existing CLI omission of the native replacement notice also remains explicit.
+
+Eighty native access/metadata cases now require byte equality, including the twenty
+dry runs. Seventy additional cases cover five image profiles, unsigned/signed inputs,
+seven metadata/option combinations, repeated dry runs and re-signing. Four native
+permission cases distinguish file-write denial from an unwritable parent directory.
+See [file-write evidence](file-writes.md) and [testing](testing.md).
 
 ## Evidence
 
-- `make research-dmg` extracts five complete Apple methods through Clang on both
-  architectures: trailer reading/setup, signing limit, writing and identifiers.
+- `make research-dmg` extracts six complete Apple methods through Clang on both
+  architectures: trailer reading/setup, signing limit, writing, identifiers and
+  architecture-agnostic signing with its dry-run branches.
   [The record](../spec/apple-dmg.json) pins sources/excerpts and identifies shims.
   Wire representation comes from the APFS library, not the shim layout.
 - Forty native ad-hoc cases cover five input profiles and eight option

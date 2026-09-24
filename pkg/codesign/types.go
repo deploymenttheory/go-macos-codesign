@@ -47,7 +47,11 @@ type SignOptions struct {
 	// Existing child signatures, except linker signatures, are retained unless
 	// Force is also set.
 	Deep bool
-	// DryRun constructs the signature and checks the input without writing path.
+	// DryRun checks a Mach-O or bundle without committing signature bytes. For
+	// path-based ad-hoc DMG signing, native codesign instead writes components
+	// without a CodeDirectory in place, leaving the image unsigned (also replacing
+	// an existing signature with Force). Certificate DMG dry runs are unsupported.
+	// SignBytes ignores this path-only option and returns a complete signature.
 	DryRun                   bool
 	Flags                    uint32
 	PageSize                 uint32
@@ -63,7 +67,8 @@ type SignOptions struct {
 	SigningTime time.Time
 	// Timestamp obtains and validates an RFC 3161 token for each Mach-O
 	// architecture or for the single UDIF signature.
-	// DryRun still calls the provider because it constructs complete signatures.
+	// Mach-O/bundle dry runs still call the provider to construct signatures.
+	// Certificate DMG path dry runs are rejected before calling the provider.
 	Timestamp *TimestampOptions
 	teamID    string
 }

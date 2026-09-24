@@ -17,10 +17,13 @@ PR #46 refreshes replacement access only after successful cleanup, with 504 nati
 cases. PR #47 defers source access past envelope writes and child
 cleanup while retaining private preparation. Released APFS v0.9.0 copies the exact
 source access into staged replacements; 54 failure-boundary cases cover the scope.
-The current slice allocates reached unsigned children before dry-run seal failure,
-with 72 native cases and allocation/cancellation guards. Inaccessible directories,
-broader planning/sibling failures, ACL inheritance/copying and native DMG dry-run
-writes remain open. The expanded D01 inventory
+PR #48 allocates reached unsigned children before dry-run seal failure, with
+72 native cases and allocation/cancellation guards. The current WP-17 slice matches
+ad-hoc DMG dry-run writes and unsigned recovery, with 70 lifecycle cases and all
+80 existing DMG metadata comparisons. Certificate DMG dry runs fail explicitly
+instead of reproducing native crashes; replacement notices still differ.
+Inaccessible directories, broader planning/sibling failures and ACL
+inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
 [file writes](file-writes.md) describe the evidence and remaining differences.
 
@@ -61,10 +64,10 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 
 1. **Complete bounded filesystem profiles:** validate replacement access after
    signature cleanup and retain the merged metadata/writer matrices. Complete
-   unsigned-child dry-run allocation validation, then inaccessible-directory
-   behavior and broader planning/sibling failures.
+   the ad-hoc DMG dry-run gates, then inaccessible-directory behavior and broader
+   planning/sibling failures.
    Investigate supported ACL APIs without relaxing private staging;
-   keep WP-17's DMG dry-run writes explicit until independently implemented.
+   keep certificate DMG dry runs and diagnostic differences explicit.
    Follow the detailed [D04 delivery plan](implementation_plan.md#delivery-status).
 2. **Extend bundle compatibility:** retain the tested resource, nested Mach-O
    and recursive bundle/framework profiles while extending executable discovery,

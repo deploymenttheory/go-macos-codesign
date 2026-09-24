@@ -1,0 +1,91 @@
+{
+  "cases": [
+    {
+      "algorithm": "rsa",
+      "arguments": [
+        "--keychain",
+        "\u003ctemporary-public-test-keychain\u003e",
+        "-fs",
+        "Public codesign test identity rsa",
+        "--timestamp=none",
+        "--dryrun",
+        "\u003ctemporary-image\u003e"
+      ],
+      "bytes_inode_mtime_preserved": true,
+      "exit": -1,
+      "identity_sha256": "2771106f0a0b55f07f8c4cd41e2fc114edc99ffb7205c32a84c313fe1eae0955",
+      "input_sha256": "d7d1ad06e42097988eab31fd56f54391d0da36100129141f0d8d01c1517407d1",
+      "output": "",
+      "signal": "bus error",
+      "signal_number": 10,
+      "state": "unsigned"
+    },
+    {
+      "algorithm": "rsa",
+      "arguments": [
+        "--keychain",
+        "\u003ctemporary-public-test-keychain\u003e",
+        "-fs",
+        "Public codesign test identity rsa",
+        "--timestamp=none",
+        "--dryrun",
+        "\u003ctemporary-image\u003e"
+      ],
+      "bytes_inode_mtime_preserved": true,
+      "exit": -1,
+      "identity_sha256": "2771106f0a0b55f07f8c4cd41e2fc114edc99ffb7205c32a84c313fe1eae0955",
+      "input_sha256": "808f86822ec03f1510c54cd2053b20be38ece77495e578b479a482bf63086ae7",
+      "output": "\u003ctemporary-image\u003e: replacing existing signature\n",
+      "signal": "bus error",
+      "signal_number": 10,
+      "state": "signed"
+    },
+    {
+      "algorithm": "p256",
+      "arguments": [
+        "--keychain",
+        "\u003ctemporary-public-test-keychain\u003e",
+        "-fs",
+        "Public codesign test identity p256",
+        "--timestamp=none",
+        "--dryrun",
+        "\u003ctemporary-image\u003e"
+      ],
+      "bytes_inode_mtime_preserved": true,
+      "exit": -1,
+      "identity_sha256": "7353065c38f7c1a2eb2116b993b160a0db7a382b0faa90e1b10cd0e68e0fdcbb",
+      "input_sha256": "d7d1ad06e42097988eab31fd56f54391d0da36100129141f0d8d01c1517407d1",
+      "output": "",
+      "signal": "bus error",
+      "signal_number": 10,
+      "state": "unsigned"
+    },
+    {
+      "algorithm": "p256",
+      "arguments": [
+        "--keychain",
+        "\u003ctemporary-public-test-keychain\u003e",
+        "-fs",
+        "Public codesign test identity p256",
+        "--timestamp=none",
+        "--dryrun",
+        "\u003ctemporary-image\u003e"
+      ],
+      "bytes_inode_mtime_preserved": true,
+      "exit": -1,
+      "identity_sha256": "7353065c38f7c1a2eb2116b993b160a0db7a382b0faa90e1b10cd0e68e0fdcbb",
+      "input_sha256": "808f86822ec03f1510c54cd2053b20be38ece77495e578b479a482bf63086ae7",
+      "output": "\u003ctemporary-image\u003e: replacing existing signature\n",
+      "signal": "bus error",
+      "signal_number": 10,
+      "state": "signed"
+    }
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "driver": "acceptance/dmg_dryrun_darwin_test.go",
+  "driver_sha256": "2d368d279706043222db6d0957bfff8bbeea1cf3f8b59896ed5fae4c64820c11",
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "recorded_at": "2026-09-24T12:18:44.376086Z",
+  "schema": 1,
+  "scope": "Opt-in native certificate DMG dry-run failure observations. Public test identities only. Production returns ErrUnsupported before writing rather than emulating native memory faults; certificate dry-run parity remains unimplemented."
+}

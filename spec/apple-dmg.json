@@ -5,10 +5,11 @@
     "flush": "1fe529dc839b494a7fbb0083f98f40e8e4057aed18d346fcf8ccdfed7af46527",
     "readHeader": "4908933678d89f4f71d454b7dd97c72e029f0700c2ed4af7fbc51d7ec7428fc2",
     "setup": "b0d4c0a6027398cb8b9eb92a9036373a98b18c6ff92fbd7c4c30d4b75a64f6e6",
+    "signArchitectureAgnostic": "ab9957efdd0258463b9f6e2ad73de6c90dd85889fb85cdf623b5278159af1c48",
     "signingLimit": "934b7ed943cfd384baab169e304e53d1b55d8fb4b3a17477466635705177bb43"
   },
   "schema": 1,
-  "scope": "Five verbatim Apple methods with explicit interface, error-code and UDIF header shims. Source AST facts only; shim layouts do not establish wire offsets. Production reuses go-apfs-v2/disk.DMGFooter.",
+  "scope": "Six verbatim Apple methods, including complete signArchitectureAgnostic, with explicit interface, signer-state, CoreFoundation, error-code and UDIF header shims. Source AST facts only; shim layouts and private constants do not establish wire offsets. Production reuses go-apfs-v2/disk.DMGFooter. The architecture-agnostic signer suppresses CodeDirectory addition/population during dry runs but still supplies other components and calls signature/flush. Native ad-hoc probes confirm requirements/empty CMS and optional entitlement blobs are written without a CodeDirectory, leaving the image unsigned. The source-reviewed per-architecture populate and CMS identity methods are not extracted by this driver. Native certificate dry-run termination is recorded separately; production returns an unsupported error instead of emulating a crash.",
   "sources": {
     "diskimagerep.cpp": {
       "sha256": "ca424f5b65da6534d332bcc64277bdf0133442e63586ed5cd8b01c3f125165df",
@@ -17,6 +18,10 @@
     "diskrep.cpp": {
       "sha256": "b09b8e6eaff18664910185e3fe10b1cc07bded1c98fd5038a2fdd0ad8a5a461f",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/diskrep.cpp"
+    },
+    "signer.cpp": {
+      "sha256": "83c1cd525934c0b7d0c5f08322b02e347a5cbf9f521a67edd36023387a8559a2",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp"
     }
   },
   "targets": {
@@ -186,6 +191,78 @@
           "=": 7,
           "==": 1,
           "||": 2
+        }
+      },
+      "signArchitectureAgnostic": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 2,
+          "CXXBoolLiteralExpr": 2,
+          "CXXConstructExpr": 9,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 31,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXOperatorCallExpr": 11,
+          "CXXThisExpr": 26,
+          "CompoundStmt": 3,
+          "ConditionalOperator": 2,
+          "DeclRefExpr": 39,
+          "DeclStmt": 10,
+          "ExprWithCleanups": 2,
+          "ForStmt": 1,
+          "GNUNullExpr": 3,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 55,
+          "IntegerLiteral": 2,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 56,
+          "ParenExpr": 2,
+          "ParmVarDecl": 1,
+          "UnaryOperator": 4,
+          "VarDecl": 10
+        },
+        "members": {
+          "add": 1,
+          "archAgnosticPageSize": 1,
+          "begin": 1,
+          "build": 1,
+          "cdFlags": 1,
+          "component": 1,
+          "defaultRequirements": 1,
+          "digestAlgorithms": 3,
+          "end": 1,
+          "execSegBase": 1,
+          "execSegLimit": 1,
+          "flush": 1,
+          "hashDict": 1,
+          "hashList": 1,
+          "identification": 1,
+          "mDetached": 2,
+          "mDryRun": 2,
+          "mPreserveAFSC": 2,
+          "mRuntimeVersionOverride": 1,
+          "operator DiskRep::Writer *": 1,
+          "operator void *": 4,
+          "populate": 3,
+          "preEncryptHashMaps": 1,
+          "primary": 1,
+          "rep": 7,
+          "requirements": 1,
+          "setPreserveAFSC": 1,
+          "signCodeDirectory": 1,
+          "signature": 1,
+          "signingBase": 1,
+          "signingLimit": 1,
+          "size": 1,
+          "state": 7,
+          "writer": 1
+        },
+        "operators": {
+          "!": 2,
+          "\u0026": 1,
+          "*": 2,
+          "-": 1
         }
       },
       "signingLimit": {
@@ -371,6 +448,78 @@
           "||": 2
         }
       },
+      "signArchitectureAgnostic": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 2,
+          "CXXBoolLiteralExpr": 2,
+          "CXXConstructExpr": 9,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 31,
+          "CXXMethodDecl": 1,
+          "CXXNewExpr": 1,
+          "CXXOperatorCallExpr": 11,
+          "CXXThisExpr": 26,
+          "CompoundStmt": 3,
+          "ConditionalOperator": 2,
+          "DeclRefExpr": 39,
+          "DeclStmt": 10,
+          "ExprWithCleanups": 2,
+          "ForStmt": 1,
+          "GNUNullExpr": 3,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 55,
+          "IntegerLiteral": 2,
+          "MaterializeTemporaryExpr": 2,
+          "MemberExpr": 56,
+          "ParenExpr": 2,
+          "ParmVarDecl": 1,
+          "UnaryOperator": 4,
+          "VarDecl": 10
+        },
+        "members": {
+          "add": 1,
+          "archAgnosticPageSize": 1,
+          "begin": 1,
+          "build": 1,
+          "cdFlags": 1,
+          "component": 1,
+          "defaultRequirements": 1,
+          "digestAlgorithms": 3,
+          "end": 1,
+          "execSegBase": 1,
+          "execSegLimit": 1,
+          "flush": 1,
+          "hashDict": 1,
+          "hashList": 1,
+          "identification": 1,
+          "mDetached": 2,
+          "mDryRun": 2,
+          "mPreserveAFSC": 2,
+          "mRuntimeVersionOverride": 1,
+          "operator DiskRep::Writer *": 1,
+          "operator void *": 4,
+          "populate": 3,
+          "preEncryptHashMaps": 1,
+          "primary": 1,
+          "rep": 7,
+          "requirements": 1,
+          "setPreserveAFSC": 1,
+          "signCodeDirectory": 1,
+          "signature": 1,
+          "signingBase": 1,
+          "signingLimit": 1,
+          "size": 1,
+          "state": 7,
+          "writer": 1
+        },
+        "operators": {
+          "!": 2,
+          "\u0026": 1,
+          "*": 2,
+          "-": 1
+        }
+      },
       "signingLimit": {
         "ast_kinds": {
           "CXXMethodDecl": 1,
@@ -387,6 +536,6 @@
       }
     }
   },
-  "translation_unit_sha256": "592e168abfbb95fd999edc4258fe7aa69701dc3ff6484e0fc589082cf9e665a5",
+  "translation_unit_sha256": "24a46ef3c4483e46b8bac2820c26ae59f08725640502de141ce9a5c786369ddd",
   "udif_version_declaration": "static const int32_t udifVersion = 4;"
 }

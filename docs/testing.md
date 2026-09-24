@@ -230,6 +230,33 @@ Bounds/tampering, replacement, dry runs, native-unsupported removal and TSA
 failure preservation are covered. [DMG support](dmg-integration.md) records
 the separate live Apple timestamp check and its opt-in command.
 
+`TestDMGDryRun` runs 70 cases on every OS, covering five image profiles, signed and
+unsigned inputs, seven option combinations, repeated dry runs and subsequent real
+signing without force. The Mac compares complete bytes against native and requires
+both tools to report the dry-run image unsigned. Raw diagnostics retain the existing
+missing Go replacement notice as an explicit difference. `TestDMGAccessTime` now
+requires all 80 byte comparisons, including the 20 formerly divergent dry runs.
+Four Mac permission cases distinguish file-write denial from parent-directory
+creation denial. Portable unit tests cover unsigned-container bounds, cancellation,
+failed construction, certificate rejection and the unchanged `SignBytes` contract.
+
+Linux and Windows each export 70 `dryrun-dmg-*.dmg` artifacts. The downstream
+`TestVerifyImportedDMGDryRuns` requires all 140, compares each complete image with
+independent native output and checks that native verification/display reject it
+as unsigned. These outputs are separate from the 606 valid signed imports and
+88 removal comparisons; unsigned output is the expected native dry-run result.
+
+The opt-in `TestRecordDMGCertificateDryRunFailure` records four native RSA/P-256
+memory-fault cases in [a pinned record](../spec/apple-dmg-dryrun-certificate.json).
+It uses only public test identities in disposable keychains. Ordinary CI validates
+the record's driver/baseline provenance and the Go unsupported-error behavior;
+it does not repeatedly trigger those native crashes. To reproduce that research:
+
+```sh
+MACOSCODESIGN_RECORD_DMG_DRYRUN=1 go test ./acceptance \
+  -run '^TestRecordDMGCertificateDryRunFailure$' -count=1
+```
+
 The `xcode-27` hosted runner is selected because its documented image uses macOS
 27. Every run records the actual host and `codesign` hash; that rolling preview
 image is not assumed identical to the local baseline. Output drift fails the

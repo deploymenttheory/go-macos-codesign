@@ -1,23 +1,26 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-22 after [PR #47](https://github.com/deploymenttheory/go-macos-codesign/pull/47) merged.
-Source access now occurs when execution reaches the executable, after its envelope
-write and descendant cleanup. APFS v0.9.0 copies that access time into the private
-replacement. [Verified delivery](#merged-pr47) records the tested tree and gates.
+Status: updated 2026-09-24 after [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48) merged.
+The [merged unsigned-child slice](#merged-pr48) closes the remaining single-chain
+dry-run allocation/access differences. Released APFS v0.9.0 remains the shared
+metadata dependency; private staging and preparation-error guarantees are retained.
 
-The active D04/WP-02 slice on `fix/unsigned-child-dry-run` addresses allocation
-before an unsigned child's unchanged on-disk seal rejects a deep dry run. Private
-staging, bounds, identity checks and preparation-error guarantees remain required.
+The active WP-17 slice on `fix/dmg-dry-run` implements native ad-hoc DMG dry-run
+writes: components without a CodeDirectory replace the signature in place, leaving
+the image unsigned. It retains the construction-only `SignBytes` contract and
+rejects certificate DMG path dry runs instead of reproducing native memory faults.
+The new matrix includes 70 lifecycle cases, four permission cases, all 80 existing
+DMG metadata comparisons and 140 foreign-output checks in CI. Final per-commit
+validation and artifact results belong to the implementation PR.
 
-The merged corpus includes 504 cleanup-access cases and 54 failure-boundary cases.
-Forty-eight failure cases match source and replacement access; six unsigned-child
-deep dry runs retain a source-access difference. Native dispatch can leave independent
+The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
+cases with source/replacement access assertions. Native dispatch can leave independent
 siblings unstarted; the directory matrix checks their complete untouched subtree.
 
 Inaccessible-directory discovery/removal, broader failure ordering, executable ACL
 inheritance and explicit signature-directory ACL copying remain open. Supported
-wrappers lack an ACL reader; cloning a parent also clones its children. Native DMG
-dry runs still change bytes and modification time while Go preserves both.
+wrappers lack an ACL reader; cloning a parent also clones its children. Certificate
+DMG dry-run semantics and the CLI replacement-notice difference remain unresolved.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
@@ -30,7 +33,8 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #36/#37 evidence](#merged-pr37), [PR #39 evidence](#merged-pr39),
 [PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42),
 [PR #43/#44 evidence](#merged-pr44), [PR #45 evidence](#merged-pr45),
-[PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47) and the
+[PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
+[PR #48 delivery](#merged-pr48) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -689,6 +693,25 @@ Rerunning only failed jobs on the same commit passed in attempt two, including
 native imports; no test or code was weakened. The cause of the native failure is
 unproven. Local evidence uses macOS build 26A428; hosted evidence uses 26A5406e.
 
+<a id="merged-pr48"></a>
+### Merged milestone: PR #48 (2026-09-23)
+
+PR #48 merged as `4871006110da1693583317611b3ebd4e579775f0`; its tested head is
+`b540add7b4298467b8c3b75796e60692d019e74e`. The
+[completed required workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294132)
+passed all three producer jobs, packaging, native imports and race/fuzz;
+[golangci-lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294098)
+also passed. These are verified workflow statuses; this entry does not claim a
+new independent download/audit of that historical run's artifacts.
+
+The implementation allocates reached unsigned helpers, child bundles and
+grandchildren before their unchanged on-disk seal rejects a deep dry run.
+Allocation errors take precedence, cancellation cleans staging, and bytes,
+envelopes, inodes and ancestor access remain unchanged. Seventy-two native cases
+and twelve portable cases cover the single-descendant-chain profile. All 54
+retained failure-boundary cases now require matching source/replacement access.
+Broader planning and asynchronous sibling behavior remain open.
+
 ### Completion criteria
 
 Completion has several separate meanings:
@@ -961,7 +984,8 @@ replacement receives a later access time after its signature cleanup succeeds;
 cleanup failure retains copied source access. Source hard links retain bytes and write
 timestamps. Standalone signing/removal/dry runs also record source access and later
 replacement access. Display/verification preserve executable metadata; supported
-DMG operations retain ordinary reads. Native DMG dry-run writes remain unmatched.
+DMG operations retain ordinary reads. The current WP-17 slice matches ad-hoc DMG
+dry-run writes; certificate path dry runs remain explicitly unsupported.
 
 **Delivered in PR #27 and APFS PR #102/v0.5.0:**
 
@@ -1222,14 +1246,15 @@ remain open alongside executable ACL inheritance and access-time behavior.
   lint, race/fuzz, native imports/removals and exact-artifact auditing. Confirm the
   actual merge shares the [audited tree](#merged-pr47).
 
-**Current unsigned-child dry-run slice:**
+**Delivered unsigned-child dry-run slice in PR #48:**
 
 - [x] Measure helper, child and grandchild allocation before unsigned-seal failure,
   including force, shallow controls and allocation denial.
 - [x] Retain reached dry-run allocations through nested seal failures without
   committing bytes, envelopes or ancestor executables.
-- [ ] Validate cancellation, allocation-error precedence, bounds and root ownership;
-  complete local, three-OS, packaging and native-import gates.
+- [x] Validate cancellation, allocation-error precedence, bounds and root ownership;
+  required three-OS, packaging and native-import CI passed. See the exact
+  [PR #48 delivery record](#merged-pr48) and its evidence boundary.
 
 **Implementation tasks:**
 
@@ -1241,7 +1266,7 @@ remain open alongside executable ACL inheritance and access-time behavior.
 - [ ] Extend executable-directory permission and failure ordering beyond the
   current readable/searchable 0755/0555 profile. Inaccessible directories still
   expose discovery/removal differences. Allocation-blocked ancestors and shallow descendants are covered by the current
-  access slice. Unsigned-child dry runs retain explicit differences; wider asynchronous failure combinations,
+  access slice. Single-chain unsigned-child dry runs are covered; wider asynchronous failure combinations,
   other filesystems and raw diagnostic parity remain unproven.
 - [ ] Include internal/external hard links, read-only files, inherited directory
   ACLs, signed/unsigned inputs and an existing signature directory. Do not assume
@@ -2033,11 +2058,17 @@ handles that format.
   cannot be signed or verified.
 - [ ] Complete identifier, page-size, digest, preservation, entitlement, timestamp,
   architecture-option applicability and detached-signature behavior per image form.
-- [ ] Resolve the DMG dry-run write difference recorded in PR #42: all 20 seeded
-  cases preserve access time, but native changes bytes and modification time in
-  place while Go preserves both. Establish allocation/footer effects, signed-input
-  validity, operation ordering, cancellation and failure behavior before changing
-  the existing policy. Keep this separate from streaming or codec expansion.
+- [x] Implement the bounded ad-hoc DMG dry-run write profile from PR #42. The
+  current slice requires all 80 metadata cases to match bytes, including twenty
+  dry runs; 70 lifecycle cases cover options, repeated operations and recovery.
+  Components without a CodeDirectory leave the image unsigned. Four native
+  permission cases and portable cancellation/malformed-input checks cover failure
+  preservation. `SignBytes` still returns a full signature without path mutation.
+- [ ] Complete final per-commit three-OS, 140 foreign dry-run output comparisons,
+  packaging and artifact gates for this slice. Certificate path dry runs are
+  unsupported: four pinned native public-identity probes terminate by signal.
+  Retain that safe divergence and the existing missing CLI replacement notice.
+  Broader failure ordering, streaming and codec expansion remain separate work.
 - [ ] Retain native rejection of DMG `--remove-signature` on the recorded baseline;
   implementing a custom remover would be an extension, not closing a parity gap.
 - [ ] Keep disk-image signature validation separate from filesystem mountability,
@@ -2539,9 +2570,9 @@ none leaves independent acceptance for a later “testing PR.”
 | Slice | Current status | Scope and first reviewable result | Dependency / gate |
 | --- | --- | --- | --- |
 | D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
-| D02 | Corpora through executable-directory permissions merged | PR #47 adds source-access ordering; unsigned-child dry runs are in progress | Final released-dependency CI/artifact gates pass for the delivered profile |
+| D02 | Corpora through unsigned-child allocation merged | PR #48 closes the single-chain dry-run allocation/access profile; broader failures remain | Final released-dependency CI/artifact gates for each delivered profile |
 | D03 | Access-time copy API released as APFS v0.9.0 | Released API integration merged in PR #47 | Additional reusable metadata APIs require their own upstream release |
-| D04 | Executable-directory permissions and partial commits merged | Source access around envelope/child failures is merged; unsigned-child dry runs are in progress | Preserve private staging and supported APIs; final native/CI gates for each profile |
+| D04 | Source access and unsigned-child allocation merged | Inaccessible directories, broader planning/sibling failures and ACL inheritance remain | Preserve private staging and supported APIs; final native/CI gates for each profile |
 | D05 | Outstanding increment | Native Unicode/case/path handling and one additional bundle layout profile | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
@@ -2556,7 +2587,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Outstanding increment | Additional DMG representations, one APFS-backed profile at a time | D09; upstream release first if any new API is needed |
+| D19 | Ad-hoc dry-run slice in progress; wider representations outstanding | Native in-place unsigned components and recovery, then additional APFS-backed representations | Current slice retains APFS v0.9.0; streaming needs D09 and new APIs need upstream releases |
 | D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
 | D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
 | D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
@@ -2651,18 +2682,19 @@ passes. Release PR #113 published v0.9.0 at
 `985912043393298d6964be2c0915e49de00b3960`; released hostmeta sources match the
 tested implementation.
 
-### Active implementation work after PR #47
+### Active implementation work after PR #48
 
-`fix/unsigned-child-dry-run` starts from actual merge
-`253667b102275878321be8b7d6b79ce35768a434` and retains released APFS v0.9.0.
+`fix/dmg-dry-run` starts from actual merge
+`4871006110da1693583317611b3ebd4e579775f0` and retains released APFS v0.9.0.
 
-1. Address unsigned-child deep dry-run allocation and error precedence. Compare
-   helper, child and grandchild trees; preserve bytes, envelopes and ancestors.
-2. Retain all existing writer matrices, private staging and preparation-error
-   guarantees; complete local and CI/artifact gates for the changed profile.
+1. Close the bounded ad-hoc DMG dry-run difference in WP-17: native components,
+   unsigned inspection/verification, repeated operations and recovery without force.
+2. Preserve the byte API and existing writer matrices. Complete local and
+   three-OS/native-import/artifact gates, with 140 separately checked unsigned
+   outputs. Retain native certificate crashes as documented unsupported behavior.
 3. Address inaccessible-directory discovery/removal, broader planning failures
-   and asynchronous sibling outcomes in subsequent slices. Keep ACL
-   inheritance/copying, other filesystems and DMG dry-run writes explicit.
+   and asynchronous sibling outcomes in subsequent D04 slices. Keep ACL
+   inheritance/copying, other filesystems and raw diagnostics explicit.
 4. Continue D05 path/layout and D06 resource/xattr work separately. Preserve all
    88 inventory statuses; this profile does not complete D04/WP-02.
 

@@ -59,8 +59,11 @@ file is changed, including with ad-hoc signing.
 receives signature octets for each architecture and returns a ContentInfo token.
 The library authenticates the token against explicit TSA roots before embedding
 it as the sole unsigned CMS attribute. Failed acquisition or validation returns
-no signed output and leaves the input file unchanged. A dry run constructs the
-complete signature, including calling the provider.
+no signed output and leaves the input file unchanged. A Mach-O/bundle dry run
+constructs the complete signature, including calling the provider. Certificate
+DMG path dry runs are explicitly unsupported and do not call the provider; see
+[DMG dry-run behavior](dmg-integration.md). `SignBytes` still constructs complete
+signatures regardless of the path-only dry-run option.
 
 ```go
 exchange, err := codesign.NewHTTPTimestampExchange(codesign.AppleTimestampURL, 0)

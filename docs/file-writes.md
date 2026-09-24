@@ -174,11 +174,13 @@ dry runs also record the bounded source read. Replacements record a later access
 before commit; aliases select the physical file, leaving alias text and lexical
 decoys unchanged. Display and verification preserve standalone and bundle
 executable access times. Supported DMG operations retain ordinary reads and do not
-record mapped access. Native DMG dry runs modify bytes and modification time in
-place; Go preserves both. This difference remains open and is asserted separately
-from access-time equality. Envelope/resource access times, standalone pre-allocation
+record mapped access. Ad-hoc DMG dry runs now modify bytes and modification time in
+place like native, leaving requirements/CMS components without a CodeDirectory.
+The result is unsigned, including after forced replacement of a valid signature.
+Certificate DMG dry runs return unsupported rather than reproducing the observed
+native memory fault. Envelope/resource access times, standalone pre-allocation
 failures and broader filesystem/permission profiles remain outside this claim.
-Unsigned-child deep dry runs retain the explicit access difference described below.
+PR #48 closes the single-chain unsigned-child deep dry-run access difference.
 
 New signature directories copy the canonical bundle root's stat metadata through
 APFS. A versioned framework uses the selected physical version directory, including
@@ -307,9 +309,15 @@ Another 168 comparisons cover bundle display, verbose display, verification and
 deep verification across seven layouts, three architectures and both timestamp
 profiles. All executable stat metadata and tree bytes remain unchanged. Eighty DMG
 comparisons cover five formats, both timestamp profiles and eight operations.
-All retain access time; 60 also match bytes, while 20 signed/unsigned dry-run cases
-assert the known native in-place write difference. Raw command results and each
-side's hashes remain in the attestations. These cases add no foreign import archives.
+All retain access time and now match bytes, including twenty signed/unsigned dry
+runs. These also require unchanged creation time/inode/hard links and refreshed
+modification time. A separate 70-case DMG dry-run matrix covers metadata/options,
+unsigned/signed inputs, unsigned display/verification and recovery without force.
+Each foreign producer exports those 70 images for exact native comparison, adding
+140 unsigned dry-run imports independently of the existing 606 signed artifacts.
+Four native permission cases cover file-write denial and allowed in-place writes
+through an unwritable parent directory. The replacement-notice diagnostic gap is
+captured explicitly; raw results and output hashes remain in the attestations.
 
 The signature cleanup matrix adds 105 complete tree comparisons: seven layouts,
 three architectures and five operations. It includes named and unknown stale
