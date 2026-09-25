@@ -390,10 +390,18 @@
     },
     {
       "id": "--file-list",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -file-list Ar path",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "evidence": [
+        "acceptance/file_list_test.go",
+        "acceptance/file_list_lifecycle_test.go",
+        "acceptance/file_list_darwin_test.go",
+        "internal/cli/file_list_test.go",
+        "pkg/codesign/file_list_test.go",
+        "spec/apple-file-list.json",
+        "docs/file-lists.md"
+      ],
+      "notes": "Native signing/display file lists for supported representations: absolute paths, executable-first ordering, framework dot spelling, append/stdout destinations, aliases, multi-target and fatal output-open failures after prior side effects. 76 representation and 17 lifecycle cases compare exact CLI output; three report-API cases compare external metadata selection while CLI inspection still rejects extra signature files. One Mac permission case and six explicitly divergent native crash profiles retain raw outputs and mutation checks. Signed DMG dry runs use the pre-signing report while leaving native unsigned components. Removal+file-list is rejected before mutation; unsigned dry runs return an error and fresh DMG signing succeeds instead of crashing. Go checks write/close errors ignored by native stdio. Output/input aliases, special/full streams, external CLI layouts, other slots/representations, all OS diagnostics and extraction interactions remain outstanding."
     },
     {
       "id": "--ignore-resources",

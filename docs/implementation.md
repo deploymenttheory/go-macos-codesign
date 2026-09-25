@@ -28,10 +28,13 @@ PR #51 adds [certificate extraction](certificates.md#certificate-extraction)
 with 115 portable and two Mac cases, reusing the supported CMS metadata chain.
 Only `--extract-certificates` moves to partial; wider chains, additional signature
 slots, host augmentation and full extraction/diagnostic interactions remain open.
-Its Mac CI exposed the existing localized-date gap. The current WP-03 slice
+Its Mac CI exposed the existing localized-date gap. PR #52
 records the two observed date profiles explicitly and closes bundle-parent
 path selection/display through the shared directory resolver. Another 108
 portable/native cases retain root-alias restrictions and framework boundaries.
+The active D08/WP-20 slice adds [signature file lists](file-lists.md), with
+96 portable and seven Mac records covering successful output, report-only external
+metadata and explicit native crash differences. Only `--file-list` moves to partial.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

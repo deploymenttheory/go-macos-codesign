@@ -28,6 +28,8 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	fileList                                                                             bool
+	fileListPath                                                                         string
 	extractCertificates                                                                  bool
 	certificatePrefix                                                                    string
 	entitlements                                                                         string
@@ -63,6 +65,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
+				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
 				return nil
 			}
 			opts, err := parse(argv)
@@ -155,7 +158,7 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
-			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout":
+			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list":
 				if has {
 					val = attached
 				} else {
@@ -165,6 +168,8 @@ func parse(args []string) (options, error) {
 					return o, err
 				}
 				switch name {
+				case "file-list":
+					o.fileList, o.fileListPath = true, val
 				case "sign":
 					err = setOperation("sign")
 					o.identity = val
@@ -489,15 +494,34 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		}
 		o.testRequirement = string(b)
 	}
+	if o.fileList && o.operation == "remove" {
+		fmt.Fprintln(stderr, "macoscodesign: unsupported operation: --file-list with signature removal")
+		return 1
+	}
 	status := 0
 	for _, path := range o.paths {
 		var err error
 		switch o.operation {
 		case "sign":
+			var report *codesign.Report
+			if o.fileList && o.dryrun {
+				// Native uses the pre-signing representation. A DMG dry run
+				// writes unsigned components, so inspecting it afterwards loses
+				// the signature even when the original was signed.
+				report, _ = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
+			}
 			signOpts.OnReplace = func() {
 				fmt.Fprintf(stderr, "%s: replacing existing signature\n", path)
 			}
 			err = codesign.Sign(ctx, path, signOpts)
+			if err == nil && o.fileList {
+				if report == nil {
+					report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
+				}
+				if err == nil {
+					err = outputFileList(stdout, report, o)
+				}
+			}
 		case "remove":
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
@@ -525,9 +549,17 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				if err == nil && o.extractCertificates {
 					err = extractCertificates(report, o)
 				}
+				if err == nil && o.fileList {
+					err = outputFileList(stdout, report, o)
+				}
 			}
 		}
 		if err != nil {
+			var outputError *fileListOutputError
+			if errors.As(err, &outputError) {
+				fmt.Fprintln(stderr, outputError)
+				return 1 // Native fopen failure terminates even with --continue.
+			}
 			fmt.Fprintf(stderr, "%s: %s\n", path, diagnostic(err))
 			if errors.Is(err, codesign.ErrRequirement) && status == 0 {
 				status = 3
@@ -605,25 +637,7 @@ func display(w io.Writer, r *codesign.Report, o options) error {
 }
 
 func displayArchitecture(r *codesign.Report, name string) (*codesign.Architecture, error) {
-	var selected *codesign.Architecture
-	for i := range r.Architectures {
-		a := &r.Architectures[i]
-		if name != "" {
-			if a.Name == name {
-				selected = a
-				break
-			}
-		} else if selected == nil || a.Name == "arm64" {
-			selected = a
-		}
-	}
-	if selected == nil {
-		return nil, fmt.Errorf("architecture %q not present", name)
-	}
-	if selected.Signature == nil {
-		return nil, codesign.ErrUnsigned
-	}
-	return selected, nil
+	return r.SelectArchitecture(name)
 }
 
 func renderDisplay(w io.Writer, r *codesign.Report, o options) error {

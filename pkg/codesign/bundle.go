@@ -22,6 +22,7 @@ type BundleInfo struct {
 	ResourceVersion int
 	ResourceRules   int
 	ResourceFiles   int
+	signaturePath   string // relative spelling used by the native file list
 }
 
 type appBundle struct {
@@ -398,6 +399,10 @@ func (b *appBundle) annotate(r *Report, resources []byte) {
 		executable = "Versions/" + b.selection + "/" + strings.TrimPrefix(executable, b.base)
 	}
 	r.Bundle = &BundleInfo{Executable: filepath.Join(b.path, filepath.FromSlash(executable)), InfoEntries: b.entries}
+	r.Bundle.signaturePath = b.base + "_CodeSignature"
+	if b.version != "" {
+		r.Bundle.signaturePath = "Versions/" + b.selection + "/./_CodeSignature"
+	}
 	if m, err := decodeBundlePlist(resources); err == nil {
 		if files, ok := m["files2"].(map[string]any); ok {
 			r.Bundle.ResourceVersion = 2
