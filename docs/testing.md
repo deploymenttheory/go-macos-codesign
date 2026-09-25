@@ -407,3 +407,32 @@ It follows the reference project's App-token/PAT and append-release pattern.
 Local `actionlint`, `goreleaser check` and snapshot packaging validate configuration
 and builds. They do not establish publishing or keyless-signing success. Remote
 workflow success must be reported from an actual GitHub Actions run.
+
+## Signature file lists
+
+[File-list behavior](file-lists.md) is tested by 96 portable records:
+
+- `TestFileList`: 76 representation cases, each exercising signing, display,
+  replacement and signed dry run; full input trees, raw stdout/stderr, append
+  contents and framework dot spelling are checked against native at the same path.
+- `TestFileListOutputLifecycle`: 17 cases cover creation/append, preserved output
+  mode/inode, symlink/hard-link destinations, last-value selection, output-open
+  failures, multiple operands, continuation, preceding certificate extraction,
+  unsigned input and ignored verification.
+- `TestFileListExternalComponents`: three report-API comparisons establish
+  existing-file ordering and embedded-component exclusion. CLI inspection's
+  rejection of extra signature files remains explicit.
+
+Mac adds one permission case and six explicit native-crash differences. The
+latter are attested as remaining differences, never successful parity. DMG dry
+runs compare their actual unsigned bytes and use the pre-signing report for the
+list. Known-error fixtures retain exact raw output; no diagnostic normalization
+is used. Foreign artifact comparison replaces only the fixture root and path
+separator in the already independently checked path records, and compares
+signing/replacement/dry-run tree hashes unchanged.
+
+The six-function, two-target AST driver is `scripts/extract-file-list.go`, run by
+`make research-paths`; its output is `spec/apple-file-list.json`. Unit tests also
+cover byte-only reports, absent/unsigned architecture selection, JSON companion
+files, invalid destinations and writer failures. Current-commit coverage, CI and
+artifact audit results belong to the implementation PR, not the previous merge.

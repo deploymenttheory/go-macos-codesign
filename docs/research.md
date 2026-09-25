@@ -437,3 +437,22 @@ truth-like strings and integers are not equivalent to boolean true.
 Further research must pin source revisions, extract C++ declarations/control
 flow where available, record unavailable private dependencies, and add independent
 host cases before extending the compatibility claims.
+
+### Signature file selection and output
+
+`make research-paths` also runs the Go
+[file-list extraction driver](../scripts/extract-file-list.go), producing
+[six-function AST evidence](../spec/apple-file-list.json) for both Apple targets.
+The pinned sources provide complete `writeFileList`, `DiskRep::modifiedFiles`,
+`BundleDiskRep::modifiedFiles`, `checkModifiedFile`, `metaPath` and
+`CodeDirectory::canonicalSlotName` bodies. Filename macros come verbatim from
+`codedirectory.h`; the entire header and each source/excerpt are hashed. Real SDK
+stdio, access/F_OK and CoreFoundation declarations accompany explicitly stated
+private-interface and slot-value shims. No current CLI call site is claimed.
+
+The extracted control flow supplies executable-first ordering, embedded-component
+exclusion, existence-based metadata selection, append-mode forwarding, fatal open
+errors and unchecked stdio write/close results. Independent native tests establish
+actual option precedence, framework dot spelling, extraction ordering and crash
+profiles. [File-list documentation](file-lists.md) retains unsupported external
+CLI layouts and differences rather than treating the AST as complete equivalence.

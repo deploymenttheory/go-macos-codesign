@@ -57,6 +57,7 @@ research-inventory:
 
 research-paths:
 	go run scripts/extract-paths.go
+	go run scripts/extract-file-list.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

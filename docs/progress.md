@@ -1,12 +1,25 @@
 # Project progress
 
-Updated 2026-09-24. This page describes the implementation in this branch and
+Updated 2026-09-25. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current bundle-parent path slice
+## Current file-list slice
+
+Signing/display now support native ordered `--file-list PATH` output, append and
+stdout destinations, framework dot spelling, fatal output-open errors, preceding
+signing/extraction effects and signed DMG dry-run reports. The matrix adds 76
+representation and 17 CLI lifecycle cases plus three library/native external
+component comparisons. Mac adds permission handling and six explicitly divergent
+native crash profiles. Six complete Apple functions have two-target Clang ASTs.
+[File-list limits](file-lists.md) preserve external CLI-layout restrictions and
+unproven interactions. Only `--file-list` moves to partial: 27 partial, 53 not
+implemented, eight blocked, zero verified. Current-commit gates belong to the PR.
+
+## Merged bundle-parent path slice
+
 
 Bundle directory parents now resolve physically before lexical cleanup, sharing
 the existing framework-directory resolver. This closes the extraction display
@@ -17,10 +30,16 @@ architectures and four operand forms, with native signing/removal bytes, five
 display levels, verification, dry-run preservation and unchanged aliases/decoys.
 See [bundle directory operands](bundles.md#directory-operands-and-parent-aliases).
 
-The branch also records the hosted Mac's known verbose certificate date profile
-explicitly, retaining raw outputs and marking that date difference. Final
-three-OS and artifact evidence belongs to the implementation PR; no inventory
-status changes in this slice.
+[PR #52](https://github.com/deploymenttheory/go-macos-codesign/pull/52) passed all
+three OS jobs, native imports, race/fuzz, lint and packaging. Its actual merge
+matches the independently audited CI tree. Coverage is 95.31% library / 98.70%
+CLI on Linux, 95.22% / 98.70% on Windows and 95.40% / 99.57% on Mac; the entry point
+is 100% everywhere. The audit checked 611 source hashes per OS, all 108 parent
+signing/removal hashes and 96 DER sets per foreign producer, 606 signed imports,
+88 removals, 140 DMG dry-run imports, six packaged binaries and twelve checksums.
+The hosted verbose-date profile remains an explicit difference; parent-alias
+extraction display is now exact. [The plan](implementation_plan.md#merged-pr52)
+records the revisions and complete combined gates.
 
 ## Merged certificate-extraction slice
 
@@ -41,8 +60,8 @@ filesystem limits. PR #51 moved only extraction to partial: 26 partial,
 54 not implemented, eight blocked and zero fully verified. Its final PR workflow
 passed Linux, Windows, packaging and race/fuzz, but Mac failed on the native date
 profile and imports were skipped. [The plan](implementation_plan.md#merged-pr51)
-records the exact merged revision and validation limits. The current slice must
-establish passing combined evidence; the merge alone does not establish it.
+records the exact merged revision and validation limits. PR #52 subsequently established the passing combined gates, retaining the
+localized-date difference explicitly.
 
 ## Merged signing-notice slice
 

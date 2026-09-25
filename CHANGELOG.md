@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add `--file-list PATH` for native ordered signing/display lists, append/stdout
+  output, framework dot spelling and fatal output-open errors after preceding
+  side effects. Reuse shared architecture selection and pre-signing reports for
+  signed DMG dry runs. Add 96 portable and seven Mac records plus six-function
+  Clang evidence; external CLI layouts, native crash differences and broader
+  filesystem/option interactions remain explicit.
+
 - Resolve bundle directory parents before lexical cleanup through the shared
   framework resolver. Match native physical display and `link/..` selection while
   retaining final-root alias restrictions and Current validation. Add 108 portable/

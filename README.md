@@ -34,6 +34,11 @@ Main-executable paths such as `Example.app/Contents/MacOS/hello` select the
 enclosing bundle, including its resource seal. Framework executable aliases
 select the resolved physical version. Helpers remain standalone files.
 
+Display and signing support [`--file-list PATH`](docs/file-lists.md), appending
+absolute signature-file paths or writing them to stdout with `-`. The list
+describes the selected outer representation; deep signing does not enumerate
+all nested writes. Output failures retain preceding signing/extraction effects.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:
