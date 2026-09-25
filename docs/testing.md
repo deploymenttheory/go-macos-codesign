@@ -457,3 +457,11 @@ hash checks; CI now runs ten fuzz targets. The six-function two-target
 [Clang record](../spec/apple-entitlement-extraction.json) documents source and
 private-interface limits. Coverage, native acceptance and downloaded artifact
 checks apply to each final commit, not merely the preceding merged milestone.
+
+The entitlement hard-link case exposed an archive-helper failure on Windows:
+`DirEntry.Info` supplied a stale size after an append through another link, so
+the tar writer rejected the actual bytes as too long. The shared acceptance
+archive helper now reads each regular file once and uses that captured content's
+length and bytes together. This follows the documented
+[NTFS directory-entry behavior](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions)
+and retains the separate real inode/mode assertions. Production writes are unchanged.

@@ -106,10 +106,6 @@ func layoutArchive(t *testing.T, bundle string, exclude ...string) []byte {
 		if p == bundle {
 			return nil
 		}
-		st, err := d.Info()
-		if err != nil {
-			return err
-		}
 		rel, err := filepath.Rel(bundle, p)
 		if err != nil {
 			return err
@@ -119,7 +115,8 @@ func layoutArchive(t *testing.T, bundle string, exclude ...string) []byte {
 				return nil
 			}
 		}
-		h := &tar.Header{Name: filepath.ToSlash(rel), Mode: 0644, Typeflag: tar.TypeReg, Size: st.Size()}
+		var contents []byte
+		h := &tar.Header{Name: filepath.ToSlash(rel), Mode: 0644, Typeflag: tar.TypeReg}
 		switch {
 		case d.IsDir():
 			h.Typeflag, h.Mode, h.Size = tar.TypeDir, 0755, 0
@@ -132,8 +129,11 @@ func layoutArchive(t *testing.T, bundle string, exclude ...string) []byte {
 		default:
 			// Keep executable bits portable; signature verification is independent
 			// of these bits, but the extracted Mach-O files should be runnable.
-			data := nativeRead(t, p)
-			if len(data) >= 4 && (bytes.Equal(data[:4], []byte{0xcf, 0xfa, 0xed, 0xfe}) || bytes.Equal(data[:4], []byte{0xca, 0xfe, 0xba, 0xbe})) {
+			// Windows directory entries can retain a stale size after a write
+			// through another hard link. Archive the bytes actually read once.
+			contents = nativeRead(t, p)
+			h.Size = int64(len(contents))
+			if len(contents) >= 4 && (bytes.Equal(contents[:4], []byte{0xcf, 0xfa, 0xed, 0xfe}) || bytes.Equal(contents[:4], []byte{0xca, 0xfe, 0xba, 0xbe})) {
 				h.Mode = 0755
 			}
 		}
@@ -141,7 +141,7 @@ func layoutArchive(t *testing.T, bundle string, exclude ...string) []byte {
 			return err
 		}
 		if h.Typeflag == tar.TypeReg {
-			_, err = w.Write(nativeRead(t, p))
+			_, err = w.Write(contents)
 			return err
 		}
 		return nil
