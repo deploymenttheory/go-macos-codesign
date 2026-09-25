@@ -13,7 +13,7 @@ an explicit difference; parent-alias extraction display now matches exactly.
 three-OS, native-import and packaging gates. The active D08/WP-08/WP-20 increment
 on `fix/entitlement-extraction` corrects entitlement display: DER-first compact XML,
 typed text, diagnostics, append files, consumed colon prefixes, slot integrity,
-architecture selection and certificate/file-list ordering. It adds 91 cases and
+architecture selection and certificate/file-list ordering. It adds 90 cases and
 six complete Apple functions with two-target Clang evidence. The
 [extraction contract](entitlement-extraction.md) separates the implemented profile
 from remaining DER/CMS/slot/locale/filesystem work. Current-commit gates and
@@ -1775,7 +1775,7 @@ extraction and interaction coverage, not simply adding a DER encoder.
   Limit parser input/depth/value count and add direct DER fuzzing.
 - [x] Match append destinations, colon consumption across operands, absent outputs,
   empty argument, file-open/exit-65 failures, architecture selection, normal display,
-  certificate-first and file-list-last ordering in the 91-case bounded matrix.
+  certificate-first and file-list-last ordering in the 90-case bounded matrix.
 - [x] Record six complete Apple functions in two-target Clang ASTs, with explicit
   shims and the unavailable CoreEntitlements implementation/current CLI boundaries.
 - [ ] Complete final-commit local/three-OS/packaging/native-import and downloaded

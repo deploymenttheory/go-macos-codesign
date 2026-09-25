@@ -472,7 +472,7 @@ and current CLI call sites are not represented as recovered source.
 
 Native probes establish typed dumps, compact reconstructed XML, append output,
 colon consumption across operands, warnings and certificate/extraction/file-list
-ordering. Ninety native cases retain raw results, including correctly bound
+ordering. Eighty-nine native cases retain raw results, including correctly bound
 malformed DER and invalid component-hash distinctions. Existing signing XML
 preservation remains separate from display reconstruction. The
 [extraction contract](entitlement-extraction.md) keeps unproven versions, types,

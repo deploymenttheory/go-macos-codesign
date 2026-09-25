@@ -441,9 +441,9 @@ artifact audit results belong to the implementation PR, not the previous merge.
 ## Entitlement extraction
 
 `TestEntitlementExtraction`, `TestEntitlementOutputLifecycle`,
-`TestEntitlementSignatureState` and `TestEntitlementArchitectureSelection` add 91
-portable records: 44 value/representation cases, 26 destination/interaction cases,
-18 component mutations and three architecture selections. Mac requires 90 raw
+`TestEntitlementSignatureState` and `TestEntitlementArchitectureSelection` add 90
+portable records: 44 value/representation cases, 25 destination/interaction cases,
+18 component mutations and three architecture selections. Mac requires 89 raw
 native comparisons; the remaining JSON interaction is an explicit extension.
 Inputs are preserved, actual link inode/mode retention is checked, and outputs,
 exits and deterministic input/output hashes are attested. Absolute file-list

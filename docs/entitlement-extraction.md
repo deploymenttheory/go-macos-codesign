@@ -70,9 +70,9 @@ those errors; equivalence for short/full/blocked streams is not claimed.
 
 ## Evidence and remaining work
 
-[Native acceptance](../acceptance/entitlement_extraction_test.go) records 91 cases:
-44 representation/value/output cases, 26 lifecycle/interaction cases, 18 slot-state
-cases and three universal architecture selections. Ninety cases compare raw native
+[Native acceptance](../acceptance/entitlement_extraction_test.go) records 90 cases:
+44 representation/value/output cases, 25 lifecycle/interaction cases, 18 slot-state
+cases and three universal architecture selections. Eighty-nine cases compare raw native
 stdout/stderr/exit status and output bytes on Mac; the JSON case records the
 portable extension. Every case checks input preservation. Link lifecycle tests
 also check actual inode and mode retention; deterministic archives preserve

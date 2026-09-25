@@ -11,7 +11,7 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 Display now reconstructs compact XML from DER, emits the native typed text dump,
 checks component binding and preserves normal diagnostics. It matches append
 files, consumed colon prefixes, malformed-data exit distinctions, architecture
-selection and certificate/file-list ordering. The 91-case matrix includes 90
+selection and certificate/file-list ordering. The 90-case matrix includes 89
 native comparisons and one portable JSON interaction. Six complete Apple
 functions have two-target Clang evidence; a tenth fuzz target exercises the DER
 reader directly. [The contract](entitlement-extraction.md) records bounds and
