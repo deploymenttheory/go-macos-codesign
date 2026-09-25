@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Correct entitlement extraction with bounded DER-first reconstruction, typed text,
+  native XML/warnings, append destinations, consumed colon prefixes, component
+  binding and certificate/file-list ordering. Reuse bounded plist decoding and
+  shared architecture selection. Add 91 acceptance cases, two-target Clang evidence
+  for six Apple functions and direct DER fuzzing. Keep signing XML preservation and
+  explicit unsupported version/type/alternate-directory boundaries.
+
+
 - Add `--file-list PATH` for native ordered signing/display lists, append/stdout
   output, framework dot spelling and fatal output-open errors after preceding
   side effects. Reuse shared architecture selection and pre-signing reports for

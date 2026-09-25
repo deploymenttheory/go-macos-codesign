@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-25 after [PR #52](https://github.com/deploymenttheory/go-macos-codesign/pull/52) merged.
+Status: updated 2026-09-25 after [PR #53](https://github.com/deploymenttheory/go-macos-codesign/pull/53) merged.
 Released APFS v0.9.0 remains the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -9,17 +9,15 @@ closes bundle-parent path selection/display and establishes the combined passing
 three-OS, native-import and artifact gates. Localized certificate dates remain
 an explicit difference; parent-alias extraction display now matches exactly.
 
-The active D08/WP-20 slice on `feat/file-list` adds native ordered signature-file
-lists for supported signing/display representations. It covers append/stdout,
-framework dot spelling, aliases, fatal output-open errors after signing or
-certificate extraction, multiple operands and pre-signing reports for signed DMG
-dry runs. Another 76 representation and 17 lifecycle cases compare raw CLI output;
-three report-API cases establish external component selection while retaining
-CLI inspection's rejection of extra signature files. Mac adds one permission
-case and six explicit native-crash differences. Six complete Apple functions and
-verbatim filename macros have two-target Clang evidence. [File-list scope](file-lists.md)
-distinguishes implemented behavior, differences and remaining work. Final gates
-and downloaded-artifact results belong to this implementation PR.
+[PR #53](#merged-pr53) delivers bounded signature file lists and passing audited
+three-OS, native-import and packaging gates. The active D08/WP-08/WP-20 increment
+on `fix/entitlement-extraction` corrects entitlement display: DER-first compact XML,
+typed text, diagnostics, append files, consumed colon prefixes, slot integrity,
+architecture selection and certificate/file-list ordering. It adds 91 cases and
+six complete Apple functions with two-target Clang evidence. The
+[extraction contract](entitlement-extraction.md) separates the implemented profile
+from remaining DER/CMS/slot/locale/filesystem work. Current-commit gates and
+artifact audits belong to this implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -35,7 +33,7 @@ complete; merge and release remain maintainer gates.
 
 The current inventory retains 88 obligations: 27 partial, 53 not implemented,
 eight blocked and zero fully verified. Certificate extraction moved to partial
-in PR #51; this slice moves only `--file-list` from not implemented to partial. No feature status was upgraded merely
+in PR #51 and file lists in PR #53; this increment changes no feature status. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
@@ -46,7 +44,7 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
 [PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
 [PR #50 evidence](#merged-pr50), [PR #51 delivery](#merged-pr51),
-[PR #52 evidence](#merged-pr52) and the
+[PR #52 evidence](#merged-pr52), [PR #53 evidence](#merged-pr53) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -847,6 +845,45 @@ fixture-prefix mismatch was fixed symmetrically using physical fixture roots;
 no broad output normalization was introduced. These gates close PR #51's combined
 validation gap without claiming localized-date equivalence. No inventory status
 changed in PR #52; broader WP-03/WP-20 work remains open.
+
+<a id="merged-pr53"></a>
+### Merged milestone: PR #53 (2026-09-25)
+
+Actual merge `358f4ebe8102fea4e2eb90158fc8b0ba7ac1b4c5`, tested head
+`d56e9a18af99990fa20701f8890fdadbfdf559ad` and CI merge
+`0a73ba0c4d56c18fd4fa0721bf06ccf929307c92` share tree
+`6292a2e78ab25b599fc2e0fecb1d3f08d99a7079`. The
+[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36089111889)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36089111922)
+passed. Audited coverage is:
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 | 4,246/4,455 (95.31%) | 481/487 (98.77%) | 1/1 (100%) |
+| Windows 2025 | 4,242/4,455 (95.22%) | 481/487 (98.77%) | 1/1 (100%) |
+| macOS / Xcode 27 | 4,250/4,455 (95.40%) | 485/487 (99.59%) | 1/1 (100%) |
+
+All 96 portable file-list records and seven Mac records are present. The audit
+compared 79 path records and 248 complete tree hashes per foreign producer with
+native-compared Mac records: 76 representations, 17 lifecycle cases and three
+report-API external-component profiles. One Mac permission case matches; six
+native process-signal profiles remain explicit Go/native differences. External
+component report-API comparisons do not relax CLI layout restrictions.
+
+The audit checked 620 source/fixture hashes per OS, seventeen expected Windows
+text conversions, twelve archive/SBOM checksums, six SPDX 2.3 SBOMs and six packaged
+CGO-disabled binaries at the exact CI merge with released APFS v0.9.0 and no local
+replacement. The packaged Darwin arm64 binary passed a file-list smoke test.
+Retained evidence includes 108 parent-alias signing/removal hashes, 96 certificate
+DER sets, fourteen certificate lifecycle hashes, eighty notice hashes and seventy
+DMG dry-run hashes per foreign producer. Eighteen hosted certificate displays keep
+the explicit native date difference. Native imports pass 606 signatures, 88 removals
+and 140 unsigned DMG dry runs. Race, nine fuzz targets, lint and packaging passed.
+
+Native provenance remains macOS 27.0 build 26A428, codesign SHA-256
+`d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e`.
+Only `--file-list` moved to partial: 27 partial, 53 not implemented, eight blocked,
+zero fully verified. Broader WP-20 and filesystem work remain open.
 
 ### Completion criteria
 
@@ -1730,6 +1767,19 @@ extraction and interaction coverage, not simply adding a DER encoder.
 
 **Implementation tasks:**
 
+- [x] Add bounded version-1 DER extraction with existing XML fallback, owned
+  compact XML/typed text metadata, signed integers, UTF-8 escaping, empty/nested
+  collections and mixed primitive-array text rejection. Preserve signing XML.
+- [x] Establish DER preference, XML-only/DER-only, changed unused XML, hash failure,
+  rebound malformed DER, missing/zero DER binding and page-tamper extraction.
+  Limit parser input/depth/value count and add direct DER fuzzing.
+- [x] Match append destinations, colon consumption across operands, absent outputs,
+  empty argument, file-open/exit-65 failures, architecture selection, normal display,
+  certificate-first and file-list-last ordering in the 91-case bounded matrix.
+- [x] Record six complete Apple functions in two-target Clang ASTs, with explicit
+  shims and the unavailable CoreEntitlements implementation/current CLI boundaries.
+- [ ] Complete final-commit local/three-OS/packaging/native-import and downloaded
+  artifact gates for this entitlement increment; keep the option partial.
 - [ ] Enumerate native-accepted plist types and their DER mapping: booleans,
   integers, strings, data, arrays and dictionaries, with evidence for any additional
   type. Distinguish accepted plist syntax from accepted entitlement values.
@@ -1762,6 +1812,7 @@ with the same authenticated values, wire bytes where deterministic, and defaults
 Runtime authorization to exercise an entitlement is a separate host policy claim.
 
 **Touchpoints:** [entitlements.go](../pkg/codesign/entitlements.go),
+[entitlement_metadata.go](../pkg/codesign/entitlement_metadata.go),
 [bundle_plist.go](../pkg/codesign/bundle_plist.go),
 [sign.go](../pkg/codesign/sign.go), [CLI](../internal/cli/cli.go).
 
@@ -2420,9 +2471,9 @@ does not prove CLI compatibility.
   Test corrupt CMS/CodeDirectory boundaries, unavailable issuers and native trust
   policy effects without weakening explicit-trust verification APIs.
 - [ ] Complete extraction interactions with entitlements, requirements, constraints,
-  all verbosity/locales and architecture defaults. Existing entitlement display
-  suppresses native `Executable=` and colon-prefix warning lines; combined
-  certificate/entitlement extraction retains that diagnostic gap. Bundle-parent
+  all verbosity/locales and architecture defaults. The bounded entitlement slice
+  restores normal display and colon warnings, with native certificate-first
+  ordering and appended outputs. Bundle-parent
   display is closed for the bounded WP-03 profile; broader aliases remain open. Output paths
   that alias inputs and wider filesystem failures require separate native evidence.
 - [x] Implement bounded `--file-list` signing/display lists: absolute ordered paths,
@@ -2438,9 +2489,9 @@ does not prove CLI compatibility.
 - [x] Extract six complete Apple file-list/slot/path functions on two Clang targets
   and hash verbatim filename macros, all source files and excerpt bodies. Keep
   private-interface shims and unavailable current CLI call sites explicit.
-- [ ] Complete current-commit coverage above 95% per production package on all
+- [x] Complete PR #53 coverage above 95% per production package on all
   three OSes, race/fuzz, lint, packaging/native imports and downloaded-artifact
-  audits for this file-list slice. Match each foreign producer's exact checked
+  audits for the file-list slice. Match each foreign producer's exact checked
   path records and unchanged signing/replacement/dry-run hashes to Mac records.
 - [ ] Extend file lists to external-signature CLI bundle layouts, malformed or
   alternate slot metadata, detached/generic signatures and broader architecture
@@ -2796,7 +2847,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D05 | Parent path increment merged; wider work open | Native Unicode/case/root-alias handling and additional bundle layouts | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
-| D08 | Extraction merged; file-list increment active | Bounded signature file lists; broader extraction and output interactions remain | Complete raw output/file side-effect comparisons |
+| D08 | Certificates/file lists merged; entitlements active | Bounded entitlement reconstruction/lifecycle; broader extraction remains | Complete raw output/file side-effect comparisons |
 | D09 | Outstanding increment | Seekable hashing/output interfaces and first large-file/image path | WP-21 budgets and source-change detection; preserve existing byte APIs |
 | D10 | Outstanding increment | Mach-O header expansion, then FAT64/legacy layout/removal profiles | D09 where large offsets apply; every transformation independently evidenced |
 | D11 | Outstanding increment | One CodeDirectory/digest/slot family per slice, with CMS/nested integration | WP-07; no parser-only feature completion |
@@ -2908,23 +2959,23 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #52
+### Active implementation work after PR #53
 
-`feat/file-list` starts from actual merge
-`c8054f2ecafb7d513418e25956223466c5f7a811` and retains released APFS v0.9.0.
+`fix/entitlement-extraction` starts from actual merge
+`358f4ebe8102fea4e2eb90158fc8b0ba7ac1b4c5` and retains released APFS v0.9.0.
 
-1. Implement the bounded D08/WP-20 file-list profile above. Separate exact CLI
-   comparisons, external-component report-API evidence and explicit native crash
-   differences. Keep production pure Go and builds in GoReleaser.
-2. Complete local/three-OS coverage, native-import, race/fuzz, lint, packaging and
-   artifact gates for the final commit. Retain 606 signed imports, 88 removals,
-   140 unsigned DMGs, 108 parent-alias lifecycle hashes and extraction DER checks.
-   Only file-list status changes; broader equivalence remains outstanding.
-3. Continue external layout/slot inspection and output interactions in subsequent
-   D08 increments, without conflating a file list with recursive write tracking.
-4. Address inaccessible-directory discovery/removal and broader failure ordering
-   in subsequent D04 slices. Continue D05 Unicode/case/root-alias and D06 resource/
-   xattr work separately. Keep ACL and localized-date differences explicit.
+1. Implement the bounded D08/WP-08/WP-20 extraction contract above. Keep signing's
+   XML preservation separate from DER-based display reconstruction, and record
+   malformed-bound-DER versus hash-failure behavior independently.
+2. Complete local and three-OS coverage, native imports, race/ten fuzz targets,
+   lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
+   Retain all PR #53 file-list, certificate, parent-alias and DMG evidence. Compare
+   portable entitlement bytes and input/output-tree hashes against native Mac.
+3. Continue alternate/external slot, CMS-policy, requirement/constraint extraction
+   and broader output interactions as subsequent D08 increments. No inventory
+   status changes in this bounded entitlement increment.
+4. Keep inaccessible-directory discovery/removal, asynchronous failure ordering,
+   ACL inheritance, Unicode/case/root aliases and localized dates outstanding.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,

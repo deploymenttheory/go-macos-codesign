@@ -87,8 +87,10 @@ is already unsupported and is outside that crash matrix.
 Go reports write/close errors; the extracted Apple stdio helper does not check
 those results. Output paths that overlap input files, blocked/special streams,
 full disks, all errno translations, additional CMS/signature slots, detached and
-generic signatures, complete architecture defaults and entitlement/requirement
-extraction interactions remain outside this profile. `--file-list` is **partial**.
+generic signatures, complete architecture defaults and broader extraction
+interactions remain outside this profile. The bounded [entitlement profile](entitlement-extraction.md) now establishes
+certificate-first, entitlement-next and file-list-last ordering. `--file-list` is
+**partial**.
 
 The [Clang evidence](../spec/apple-file-list.json) contains six complete Apple
 functions on two targets, with pinned source and filename-macro hashes and

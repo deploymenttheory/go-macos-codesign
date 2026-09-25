@@ -28,6 +28,7 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	entitlementsSet                                                                      bool
 	fileList                                                                             bool
 	fileListPath                                                                         string
 	extractCertificates                                                                  bool
@@ -49,6 +50,13 @@ type options struct {
 	paths                                                                                []string
 }
 
+type nativeCLIError struct {
+	message string
+	code    int
+}
+
+func (e *nativeCLIError) Error() string { return e.message }
+
 type argumentError struct {
 	error
 	code int
@@ -65,12 +73,17 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
+				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
 				return nil
 			}
 			opts, err := parse(argv)
 			if err != nil {
 				code = 2
+				var native *nativeCLIError
+				if errors.As(err, &native) {
+					code = native.code
+				}
 				var argument *argumentError
 				if errors.As(err, &argument) {
 					code = argument.code
@@ -94,7 +107,12 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 	cmd.SetErr(stderr)
 	cmd.SetArgs(args)
 	if err := cmd.ExecuteContext(ctx); err != nil {
-		fmt.Fprintln(stderr, "macoscodesign:", err)
+		var native *nativeCLIError
+		if errors.As(err, &native) {
+			fmt.Fprintln(stderr, native)
+		} else {
+			fmt.Fprintln(stderr, "macoscodesign:", err)
+		}
 		if code == 0 {
 			code = 1
 		}
@@ -199,7 +217,10 @@ func parse(args []string) (options, error) {
 				case "config":
 					o.config = val
 				case "entitlements":
-					o.entitlements = val
+					if val == "" {
+						return o, &nativeCLIError{"Missing entitlements file path", 1}
+					}
+					o.entitlements, o.entitlementsSet = val, true
 				case "runtime-version":
 					o.runtimeVersion, err = parseVersion(val)
 				case "key":
@@ -539,9 +560,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			var report *codesign.Report
 			report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 			if err == nil {
-				if o.entitlements != "" {
-					err = extractEntitlements(stdout, report, o)
-				} else if o.json {
+				if o.json && !o.entitlementsSet && o.entitlements == "" {
 					err = json.NewEncoder(stdout).Encode(report)
 				} else {
 					err = display(stderr, report, o)
@@ -549,13 +568,24 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				if err == nil && o.extractCertificates {
 					err = extractCertificates(report, o)
 				}
+				if err == nil && (o.entitlementsSet || o.entitlements != "") {
+					err = extractEntitlements(stdout, stderr, report, &o)
+					if err == nil && o.verbose >= 2 {
+						fmt.Fprintln(stderr, "Total signatures=1\nChosen signature=1")
+					}
+				}
 				if err == nil && o.fileList {
 					err = outputFileList(stdout, report, o)
 				}
 			}
 		}
 		if err != nil {
-			var outputError *fileListOutputError
+			var native *nativeCLIError
+			if errors.As(err, &native) {
+				fmt.Fprintln(stderr, native)
+				return native.code
+			}
+			var outputError *outputFileError
 			if errors.As(err, &outputError) {
 				fmt.Fprintln(stderr, outputError)
 				return 1 // Native fopen failure terminates even with --continue.
@@ -588,28 +618,6 @@ func parseVersion(s string) (uint32, error) {
 		v |= uint32(n) << uint(16-i*8)
 	}
 	return v, nil
-}
-
-func extractEntitlements(w io.Writer, r *codesign.Report, o options) error {
-	for _, a := range r.Architectures {
-		if o.architecture != "" && o.architecture != a.Name {
-			continue
-		}
-		if a.Signature == nil {
-			return codesign.ErrUnsigned
-		}
-		for _, b := range a.Signature.Blobs {
-			if b.Slot == codesign.SlotEntitlements {
-				if o.entitlements == "-" || o.entitlements == ":-" {
-					_, err := w.Write(b.Data[8:])
-					return err
-				}
-				return os.WriteFile(o.entitlements, b.Data[8:], 0600)
-			}
-		}
-		return nil
-	}
-	return fmt.Errorf("architecture not found")
 }
 
 func diagnostic(err error) string {
@@ -737,7 +745,7 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 			fmt.Fprintf(w, "Internal requirements count=%d size=%d\n", binary.BigEndian.Uint32(b.Data[8:]), len(b.Data))
 		}
 	}
-	if o.verbose >= 2 {
+	if o.verbose >= 2 && !o.entitlementsSet && o.entitlements == "" {
 		fmt.Fprintln(w, "Total signatures=1\nChosen signature=1")
 	}
 	return nil

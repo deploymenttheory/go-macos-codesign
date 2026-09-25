@@ -32,9 +32,10 @@ Its Mac CI exposed the existing localized-date gap. PR #52
 records the two observed date profiles explicitly and closes bundle-parent
 path selection/display through the shared directory resolver. Another 108
 portable/native cases retain root-alias restrictions and framework boundaries.
-The active D08/WP-20 slice adds [signature file lists](file-lists.md), with
-96 portable and seven Mac records covering successful output, report-only external
-metadata and explicit native crash differences. Only `--file-list` moves to partial.
+PR #53 delivers [signature file lists](file-lists.md) with audited three-OS and
+packaging gates. The active D08/WP-08/WP-20 increment corrects
+[entitlement extraction](entitlement-extraction.md), including reconstruction,
+append destinations, diagnostics and ordering. No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
@@ -71,7 +72,7 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2, native trailer binding, identifiers and byte comparisons | Large-image streaming, encrypted/segmented images, detached/generic/xattr files and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 606 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and nine fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 606 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and ten fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
 
 ## Next implementation sequence
 

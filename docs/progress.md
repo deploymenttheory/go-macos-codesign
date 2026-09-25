@@ -6,7 +6,19 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current file-list slice
+## Current entitlement-extraction slice
+
+Display now reconstructs compact XML from DER, emits the native typed text dump,
+checks component binding and preserves normal diagnostics. It matches append
+files, consumed colon prefixes, malformed-data exit distinctions, architecture
+selection and certificate/file-list ordering. The 91-case matrix includes 90
+native comparisons and one portable JSON interaction. Six complete Apple
+functions have two-target Clang evidence; a tenth fuzz target exercises the DER
+reader directly. [The contract](entitlement-extraction.md) records bounds and
+remaining CMS/slot/locale/filesystem work. Inventory remains 27 partial, 53 not
+implemented, eight blocked and zero verified. Final gates belong to the PR.
+
+## Merged file-list slice
 
 Signing/display now support native ordered `--file-list PATH` output, append and
 stdout destinations, framework dot spelling, fatal output-open errors, preceding
@@ -15,11 +27,19 @@ representation and 17 CLI lifecycle cases plus three library/native external
 component comparisons. Mac adds permission handling and six explicitly divergent
 native crash profiles. Six complete Apple functions have two-target Clang ASTs.
 [File-list limits](file-lists.md) preserve external CLI-layout restrictions and
-unproven interactions. Only `--file-list` moves to partial: 27 partial, 53 not
-implemented, eight blocked, zero verified. Current-commit gates belong to the PR.
+unproven interactions. PR #53 moved only `--file-list` to partial: 27 partial, 53 not
+implemented, eight blocked, zero verified.
+
+[PR #53](https://github.com/deploymenttheory/go-macos-codesign/pull/53) passed all
+three OS jobs, native imports, race/fuzz, lint and six-target packaging. Audited
+library coverage is 95.31% on Linux, 95.22% on Windows and 95.40% on Mac; CLI is
+98.77%, 98.77% and 99.59%, with the entry point at 100%. The audit checked 620 source
+hashes per OS and 327 file-list path/tree values per foreign producer, retained
+previous matrices, six packaged binaries and twelve checksums. Its actual merge
+matches the audited tree; [the plan](implementation_plan.md#merged-pr53) records
+exact revisions, artifacts and the six explicit native crash differences.
 
 ## Merged bundle-parent path slice
-
 
 Bundle directory parents now resolve physically before lexical cleanup, sharing
 the existing framework-directory resolver. This closes the extraction display

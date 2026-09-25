@@ -188,9 +188,9 @@ incomplete/ambiguous chains, native host-chain augmentation, detached signatures
 additional signature slots, broader filesystem errors and output paths aliasing
 inputs. Bundle inputs reached through a symlinked parent now use the physical
 parent in `Executable=`; the Mac regression requires identical output and DER.
-Combined entitlement/certificate extraction writes both, but existing entitlement
-display still omits native `Executable=` and colon-prefix warning lines.
-These interactions prevent a complete extraction-parity claim.
+Combined extraction now retains normal display and colon warnings. Certificates
+are written before [entitlements](entitlement-extraction.md); file lists follow
+entitlements. Broader slot, CMS, locale and output interactions remain open.
 
 ## Evidence and remaining parity work
 

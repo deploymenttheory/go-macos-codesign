@@ -75,7 +75,7 @@ func TestFileListWriteError(t *testing.T) {
 		t.Fatal(err)
 	}
 	err = outputFileList(fileListFailWriter{}, report, options{fileListPath: "-"})
-	var output *fileListOutputError
+	var output *outputFileError
 	if !errors.As(err, &output) || !errors.Is(err, io.ErrClosedPipe) || !strings.HasPrefix(err.Error(), "-: ") {
 		t.Fatal(err)
 	}

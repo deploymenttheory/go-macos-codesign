@@ -12,6 +12,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [CLI/build quick start](../README.md) | GoReleaser, common operations and library entry points |
 | [Signing diagnostics](signing-diagnostics.md) | Replacement notices, callback timing, native comparisons and remaining output gaps |
 | [Signature file lists](file-lists.md) | Ordered signature paths, append output, partial effects and explicit native differences |
+| [Entitlement extraction](entitlement-extraction.md) | DER/XML selection, typed text, append output, error ordering and remaining limits |
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
