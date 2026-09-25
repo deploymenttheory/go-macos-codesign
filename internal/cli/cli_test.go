@@ -181,10 +181,10 @@ func TestCommands(t *testing.T) {
 		t.Fatal(code)
 	}
 	out, err, code = invoke(t, "-d", "--entitlements", ":-", unsigned)
-	if code != 0 || out != string(ent) {
+	if code != 0 || out != entitlementXMLHeader+`<dict><key>com.apple.security.cs.allow-jit</key><true/><key>test-array</key><array><string>one</string><false/></array><key>test-int</key><integer>42</integer><key>test-string</key><string>hello</string></dict></plist>`+"\n" {
 		t.Fatal(code, out, err)
 	}
-	if _, _, code := invoke(t, "-d", "--entitlements", filepath.Join(t.TempDir(), "out"), unsigned); code != 0 {
+	if _, _, code := invoke(t, "-d", "--entitlements", ":"+filepath.Join(t.TempDir(), "out"), unsigned); code != 0 {
 		t.Fatal(code)
 	}
 	if _, _, code := invoke(t, "-d", "--entitlements", "-", signed); code != 0 {
@@ -244,11 +244,11 @@ func TestOutputErrorsAndHelpers(t *testing.T) {
 		t.Fatal("flag names")
 	}
 	r := &codesign.Report{Architectures: []codesign.Architecture{{Name: "arm64"}}}
-	if err := extractEntitlements(&stderr, r, options{}); !errors.Is(err, codesign.ErrUnsigned) {
+	if err := extractEntitlements(&stderr, &stderr, r, &options{}); !errors.Is(err, codesign.ErrUnsigned) {
 		t.Fatal(err)
 	}
 	r.Architectures[0].Signature = &codesign.Signature{Directories: []codesign.Directory{{Raw: []byte{1}, TeamID: "TEAM", HashType: 1}}, Blobs: []codesign.Blob{{Slot: codesign.SlotEntitlements, Data: make([]byte, 9)}}}
-	if err := extractEntitlements(failWriter{}, r, options{entitlements: "-"}); err == nil {
+	if err := extractEntitlements(failWriter{}, &stderr, r, &options{architecture: "missing", entitlements: "-"}); err == nil {
 		t.Fatal("write failure ignored")
 	}
 	if err := display(&stderr, r, options{verbose: 4}); err != nil {

@@ -456,3 +456,24 @@ errors and unchecked stdio write/close results. Independent native tests establi
 actual option precedence, framework dot spelling, extraction ordering and crash
 profiles. [File-list documentation](file-lists.md) retains unsupported external
 CLI layouts and differences rather than treating the AST as complete equivalence.
+
+## Entitlement extraction evidence
+
+`make research-paths` also runs the Go
+[entitlement extraction driver](../scripts/extract-entitlement-extraction.go).
+Its [AST record](../spec/apple-entitlement-extraction.json) covers six complete
+verbatim functions on arm64/x86_64: `SecStaticCode::component`,
+`SecStaticCode::entitlements`, `CodeDirectory::slotIsPresent`,
+`EntitlementBlob::entitlements`, `writeDictionary` and `writeData`. Source pins,
+full-source/excerpt/translation-unit hashes and AST reference counts are retained.
+SDK declarations provide CoreFoundation and stdio; private interfaces are explicit
+declaration-only shims. The unavailable private CoreEntitlements implementation
+and current CLI call sites are not represented as recovered source.
+
+Native probes establish typed dumps, compact reconstructed XML, append output,
+colon consumption across operands, warnings and certificate/extraction/file-list
+ordering. Eighty-nine native cases retain raw results, including correctly bound
+malformed DER and invalid component-hash distinctions. Existing signing XML
+preservation remains separate from display reconstruction. The
+[extraction contract](entitlement-extraction.md) keeps unproven versions, types,
+CMS/slot interactions, locale and filesystem behavior outstanding.

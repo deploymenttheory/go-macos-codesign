@@ -29,22 +29,22 @@ func outputFileList(stdout io.Writer, report *codesign.Report, o options) error 
 		}
 	}
 	if err != nil {
-		return &fileListOutputError{o.fileListPath, certificateOutputError(o.fileListPath, err)}
+		return &outputFileError{o.fileListPath, certificateOutputError(o.fileListPath, err)}
 	}
 	return nil
 }
 
-// File-list errors name the output destination, unlike certificate extraction.
+// Entitlement and file-list errors name the output destination, unlike certificate extraction.
 // An empty destination uses perror's message-only spelling.
-type fileListOutputError struct {
+type outputFileError struct {
 	path string
 	err  error
 }
 
-func (e *fileListOutputError) Error() string {
+func (e *outputFileError) Error() string {
 	if e.path == "" {
 		return e.err.Error()
 	}
 	return fmt.Sprintf("%s: %s", e.path, e.err)
 }
-func (e *fileListOutputError) Unwrap() error { return e.err }
+func (e *outputFileError) Unwrap() error { return e.err }

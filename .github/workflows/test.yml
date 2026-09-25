@@ -133,6 +133,9 @@ jobs:
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzDMG$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
         env:
           CGO_ENABLED: '0'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzEntitlementMetadata$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRequirementText$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
         env:
           CGO_ENABLED: '0'

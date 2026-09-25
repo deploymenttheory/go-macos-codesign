@@ -356,9 +356,10 @@ Every algorithm/architecture combination must be present from both OS jobs.
 These are native OS jobs; cross-compilation alone
 does not replace them.
 
-Separate jobs run the Go race detector and nine bounded fuzz targets:
+Separate jobs run the Go race detector and ten bounded fuzz targets:
 `FuzzInspect`, `FuzzIdentity`, `FuzzCMS`, `FuzzPKCS12`, `FuzzTimestamp` and
-`FuzzTimestampHTTP`, `FuzzBundleResources`, `FuzzDMG` and `FuzzRequirementText`.
+`FuzzTimestampHTTP`, `FuzzBundleResources`, `FuzzDMG`, `FuzzRequirementText`
+and `FuzzEntitlementMetadata`.
 Each CI fuzz target runs for 60 seconds. GoReleaser creates
 snapshots with SPDX SBOMs and checksums for all six OS/architecture pairs; PR
 snapshots explicitly skip Cosign signing. The race detector's compiler dependency is
@@ -436,3 +437,31 @@ The six-function, two-target AST driver is `scripts/extract-file-list.go`, run b
 cover byte-only reports, absent/unsigned architecture selection, JSON companion
 files, invalid destinations and writer failures. Current-commit coverage, CI and
 artifact audit results belong to the implementation PR, not the previous merge.
+
+## Entitlement extraction
+
+`TestEntitlementExtraction`, `TestEntitlementOutputLifecycle`,
+`TestEntitlementSignatureState` and `TestEntitlementArchitectureSelection` add 90
+portable records: 44 value/representation cases, 25 destination/interaction cases,
+18 component mutations and three architecture selections. Mac requires 89 raw
+native comparisons; the remaining JSON interaction is an explicit extension.
+Inputs are preserved, actual link inode/mode retention is checked, and outputs,
+exits and deterministic input/output hashes are attested. Absolute file-list
+payloads retain raw native comparison; foreign comparisons must use checked paths
+rather than equating OS-specific path bytes.
+
+The [contract](entitlement-extraction.md) distinguishes hash failures, malformed
+bound DER, mixed primitive arrays, append mode and the consumed colon prefix.
+`FuzzEntitlementMetadata` directly exercises untrusted DER independently of slot
+hash checks; CI now runs ten fuzz targets. The six-function two-target
+[Clang record](../spec/apple-entitlement-extraction.json) documents source and
+private-interface limits. Coverage, native acceptance and downloaded artifact
+checks apply to each final commit, not merely the preceding merged milestone.
+
+The entitlement hard-link case exposed an archive-helper failure on Windows:
+`DirEntry.Info` supplied a stale size after an append through another link, so
+the tar writer rejected the actual bytes as too long. The shared acceptance
+archive helper now reads each regular file once and uses that captured content's
+length and bytes together. This follows the documented
+[NTFS directory-entry behavior](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions)
+and retains the separate real inode/mode assertions. Production writes are unchanged.

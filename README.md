@@ -39,6 +39,11 @@ absolute signature-file paths or writing them to stdout with `-`. The list
 describes the selected outer representation; deep signing does not enumerate
 all nested writes. Output failures retain preceding signing/extraction effects.
 
+Display also supports [entitlement extraction](docs/entitlement-extraction.md):
+`--entitlements=-` emits a typed dump; `--entitlements=:-` emits reconstructed XML
+with the native colon deprecation warning. File destinations append. DER takes
+precedence over original XML; extraction does not establish trust or authorization.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:
