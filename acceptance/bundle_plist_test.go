@@ -93,7 +93,11 @@ func TestAppleBinaryBundleParity(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					got = strings.ReplaceAll(got, filepath.Join(portable, "Contents/MacOS/hello"), "<executable>")
+					portablePath, err := filepath.EvalSymlinks(filepath.Join(portable, "Contents/MacOS/hello"))
+					if err != nil {
+						t.Fatal(err)
+					}
+					got = strings.ReplaceAll(got, portablePath, "<executable>")
 					want = strings.ReplaceAll(want, nativePath, "<executable>")
 					if gotCode != wantCode || got != want {
 						t.Fatalf("display %s: codes %d/%d\nGo:\n%s\nApple:\n%s", option, gotCode, wantCode, got, want)

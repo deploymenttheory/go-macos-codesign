@@ -25,20 +25,15 @@ func frameworkName(name string) string {
 	return strings.TrimSuffix(filepath.Base(name), filepath.Ext(name))
 }
 
-// Accept only the structural Current alias, with one physical sibling target.
-// Other root symlinks remain unsupported. The physical target is opened and
-// checked by openAppBundleVersion, so reads/writes never traverse Current.
-func resolveFrameworkCurrent(name string) (string, error) {
-	framework, version := frameworkVersionDirectory(name)
-	if framework == "" {
-		return name, nil
-	}
-	if err := bundleRelativePath(version); err != nil {
-		return "", err
-	}
+// Resolve directory parents before lexical cleanup, preserving physical link/..
+// selection. The final directory must remain physical except for a framework's
+// validated structural Current alias. Internal resource/write links keep their
+// existing containment rules.
+func resolveBundleDirectory(name string) (string, error) {
 	// Strip only directory suffixes before checking the final component. Clean
 	// must not collapse an interior link/.. before the link has been resolved.
 	name = filepath.FromSlash(name)
+	original := name
 	for {
 		name = strings.TrimRight(name, string(filepath.Separator))
 		if !strings.HasSuffix(name, string(filepath.Separator)+".") {
@@ -46,13 +41,26 @@ func resolveFrameworkCurrent(name string) (string, error) {
 		}
 		name = strings.TrimSuffix(name, string(filepath.Separator)+".")
 	}
+	if name == "" || name == filepath.VolumeName(original) {
+		name = original // retain filesystem/volume roots when stripping suffixes
+	}
 	parent, leaf := filepath.Split(name)
+	if parent == "" {
+		parent = "."
+	}
 	parent, err := filepath.EvalSymlinks(parent)
 	if err != nil {
 		return "", err
 	}
 	name = filepath.Join(parent, leaf)
-	if _, version = frameworkVersionDirectory(name); version == "Current" {
+	framework, version := frameworkVersionDirectory(name)
+	if framework == "" {
+		return name, nil
+	}
+	if err := bundleRelativePath(version); err != nil {
+		return "", err
+	}
+	if version == "Current" {
 		target, err := os.Readlink(name)
 		if err != nil {
 			return "", err

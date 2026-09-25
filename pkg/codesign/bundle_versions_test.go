@@ -41,7 +41,8 @@ func TestFrameworkVersionSelection(t *testing.T) {
 		if selected == "" {
 			selected = "Current"
 		}
-		if r.Bundle.Executable != filepath.Join(b, "Versions", selected, "F") {
+		physical, err := filepath.EvalSymlinks(b)
+		if err != nil || r.Bundle.Executable != filepath.Join(physical, "Versions", selected, "F") {
 			t.Fatal(r.Bundle)
 		}
 	}

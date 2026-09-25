@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Resolve bundle directory parents before lexical cleanup through the shared
+  framework resolver. Match native physical display and `link/..` selection while
+  retaining final-root alias restrictions and Current validation. Add 108 portable/
+  native lifecycle cases and upgrade certificate alias display to exact equality.
+  Record the hosted native certificate-date profile as an explicit remaining
+  difference, retaining raw outputs and all other display assertions.
+
 - Add `--extract-certificates[=PREFIX]` for display-time export of supported CMS
   chains as leaf-first DER, with native prefix/overwrite/partial-write behavior,
   architecture selection and continuation. Expose owned DER in library metadata

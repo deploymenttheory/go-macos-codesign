@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-24 after [PR #50](https://github.com/deploymenttheory/go-macos-codesign/pull/50) merged.
+Status: updated 2026-09-24 after [PR #51](https://github.com/deploymenttheory/go-macos-codesign/pull/51) merged.
 The [merged DMG dry-run slice](#merged-pr49) delivers native unsigned in-place
 components, recovery and 140 foreign-output comparisons. The
 [merged unsigned-child slice](#merged-pr48) closes the bounded single-chain
@@ -9,13 +9,23 @@ metadata dependency; private staging and preparation-error guarantees are retain
 
 The [merged notice slice](#merged-pr50) closes the replacement-notice omission
 for supported inputs, with 92 portable and eight Mac cases. All 70 DMG dry-run
-cases require exact diagnostics. The active WP-20 slice on
-`feat/extract-certificates` adds display-time DER extraction from the existing
+cases require exact diagnostics. [PR #51](#merged-pr51) adds display-time DER extraction from the existing
 CMS metadata chain. It covers optional prefixes, leaf-first/root-inclusive order,
 overwrite and partial-write behavior, architecture selection and multiple targets.
 The matrix includes 115 portable cases and two Mac-specific cases. Extraction is
 descriptive and does not establish trust. Unsupported CMS, additional signature
 slots, host-chain augmentation and broader extraction interactions remain open.
+Its hosted date-format failure is recorded below; merging did not establish a
+complete passing gate. This branch records both observed native date profiles
+explicitly and preserves the remaining localized-date difference.
+
+The active WP-03 slice on `fix/bundle-parent-aliases` reuses the framework-directory
+resolver for all bundle parents. Parents resolve before lexical cleanup, fixing
+physical display and Windows `link/..` selection while retaining final root-alias
+rejection and structural Current checks. A 108-case portable/native matrix covers
+nine layouts, three architectures and four operand forms, complete signing/removal
+trees, five display levels, verification, dry runs, aliases and lexical neighbours.
+Certificate extraction's parent-alias regression now requires exact display.
 Final per-commit validation and artifact results belong to the implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
@@ -31,8 +41,8 @@ Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
 The current inventory retains 88 obligations: 26 partial, 54 not implemented,
-eight blocked and zero fully verified. Certificate extraction moves to partial
-on implementation and independent native evidence. No feature status was upgraded merely
+eight blocked and zero fully verified. Certificate extraction moved to partial
+in PR #51; this directory-parent slice changes no status. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
@@ -42,7 +52,7 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #43/#44 evidence](#merged-pr44), [PR #45 evidence](#merged-pr45),
 [PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
 [PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
-[PR #50 evidence](#merged-pr50) and the
+[PR #50 evidence](#merged-pr50), [PR #51 delivery](#merged-pr51) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -784,6 +794,30 @@ The notice profile leaves malformed signature repair/rejection, mixed-signature
 universals, complete verbosity and OS-error wording outstanding. No inventory
 status was upgraded in PR #50.
 
+<a id="merged-pr51"></a>
+### Merged milestone: PR #51 (2026-09-24)
+
+Actual merge `fe9539f1798f3851a253891dc09ab97551db4ae3` and final head
+`38fe1196383fbf9271f0afd865de851f57ef781f` share tree
+`222399e447e4812272df763c4612e9f67836de78`. The delivered certificate-extraction
+profile adds owned DER metadata, optional prefixes, ordered output and partial
+write behavior, with 115 portable cases and two Mac cases. Only extraction moved
+to partial; the inventory remains 26 partial, 54 unimplemented, eight blocked.
+
+The [final PR workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36061121126)
+passed Linux, Windows, packaging and race/fuzz, but failed Mac verbose certificate
+display because native used a different date format. Native imports were skipped
+by dependency; no complete three-OS/artifact audit is claimed for this merge.
+An earlier Windows fixture failure was fixed before merge by using `File.Stat`
+to capture identity before renaming a path; no preservation assertion was removed.
+Full local verification passed at 4,205/4,408 library statements, 459/461 CLI
+statements and 1/1 entry-point statement, with focused checks after test-only edits.
+
+The following slice carries forward explicit local/hosted date profiles with raw
+outputs and honest non-parity attestations. It also closes the discovered
+bundle-parent alias display difference. Final validation must cover the combined
+result rather than treating the merged PR as an already green baseline.
+
 ### Completion criteria
 
 Completion has several separate meanings:
@@ -1410,10 +1444,18 @@ ASCII names and reject case collisions and Windows-reserved components.
 - [ ] Probe root/intermediate/final symlinks, absolute/relative/chained targets,
   `link/..`, broken/cyclic links, trailing separators and moved bundles. Record
   which paths select an object and which paths native diagnostics display.
-  `TestCertificateExtractionBundleAliasDifference` now records a concrete gap:
-  bundle inputs under a symlinked parent retain that parent in Go's `Executable=`
-  line while native display resolves it physically. Both extract identical DER.
-  Preserve the explicit difference test until path discovery closes this profile.
+- [x] Resolve directory parents for all supported bundle layouts before lexical
+  cleanup, reusing the framework-directory path resolver. Close PR #51's concrete
+  parent-alias display difference and fix physical `link/..` selection on Windows.
+  Keep final root aliases unsupported, strip trailing separators/`/.` before that
+  check, and preserve structural Current validation and selected-version display.
+  The 108-case matrix covers nine layouts, three architectures and four operand
+  forms with native signing/removal trees and five raw display comparisons each.
+  Require dry-run preservation, unchanged aliases/neighbours and native strict
+  verification; `TestCertificateExtractionBundleParentAlias` now requires equality.
+- [ ] Complete per-commit three-OS/coverage, native-import, packaging, race/fuzz
+  and artifact audits for this directory-parent slice. Broader bundle discovery,
+  final-root aliases, Unicode/case and inaccessible directories remain open.
 - [ ] Add Unicode names, composed/decomposed forms and case-sensitive versus
   case-insensitive lookup tests. Do not use simplistic lowercasing as a substitute
   for native filesystem name equivalence.
@@ -2318,6 +2360,11 @@ does not prove CLI compatibility.
 - [ ] Replace the current fixed English UTC date approximation with an explicit
   native locale/timezone contract. Test fixed baseline locale first; retain other
   localized/native-version outputs as separate unproven profiles until evidenced.
+  Certificate extraction now records a concrete hosted difference at its fixed
+  signing time: native uses `Sep 24, 2026 at 12:00:00\u202fPM`, while Go and the
+  local baseline use `24 Sep 2026 at 12:00:00`. All eighteen affected verbose
+  cases retain raw outputs and require one complete observed profile; the hosted
+  form is marked as a remaining date difference rather than exact display parity.
 - [x] Implement bounded `--extract-certificates[=PREFIX]` display extraction using
   owned DER copies from existing CMS metadata. Cover default `codesign`, empty
   and custom prefixes, last-value wins, zero-based leaf-first numbering and
@@ -2331,8 +2378,8 @@ does not prove CLI compatibility.
   missing-parent/directory/permission errors; leave other OS errors explicit.
 - [x] Add 96 format/identity/prefix cases, eight lifecycle cases, three multiple
   target cases, five signature-state/architecture cases and three ignored-operation
-  cases. Add two Mac cases for permission denial and the remaining bundle-parent
-  alias display difference. Extend the two-target path AST to eight complete
+  cases. Add two Mac cases for permission denial and bundle-parent alias display;
+  the latter now requires equality after the WP-03 fix. Extend the two-target path AST to eight complete
   functions with `SecStaticCode::signature` and `SecStaticCode::certificates`.
 - [ ] Complete final per-commit three-OS coverage, native-import, race/fuzz,
   packaging and downloaded-artifact gates for certificate extraction. Keep
@@ -2346,7 +2393,7 @@ does not prove CLI compatibility.
   all verbosity/locales and architecture defaults. Existing entitlement display
   suppresses native `Executable=` and colon-prefix warning lines; combined
   certificate/entitlement extraction retains that diagnostic gap. Bundle-parent
-  aliases also retain a physical-path display difference (WP-03). Output paths
+  display is closed for the bounded WP-03 profile; broader aliases remain open. Output paths
   that alias inputs and wider filesystem failures require separate native evidence.
 - [ ] Implement `--file-list`: discover exact native signing/display contents,
   file order, path spelling, newline/output destination and append/overwrite rules.
@@ -2806,25 +2853,25 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #50
+### Active implementation work after PR #51
 
-`feat/extract-certificates` starts from actual merge
-`1514835fea8bcc8a868d6e12a85ebfaa3138f2ca` and retains released APFS v0.9.0.
+`fix/bundle-parent-aliases` starts from actual merge
+`fe9539f1798f3851a253891dc09ab97551db4ae3` and retains released APFS v0.9.0.
 
-1. Deliver bounded certificate extraction through existing CMS metadata, with
-   owned DER, native filenames/order, display, overwrite/partial-write semantics
-   and independent native comparisons. Keep unsupported chain/slot contexts open.
+1. Close the bounded bundle-parent path gap with the shared directory resolver,
+   native byte/display comparisons and portable physical-parent selection. Retain
+   final-root alias restrictions and framework Current boundaries. Record the
+   hosted certificate date profile explicitly without claiming locale parity.
 2. Preserve byte APIs and existing writer matrices. Complete local and
    three-OS/native-import/artifact gates, retaining the existing 140 unsigned
-   DMGs, 606 signed imports and 88 removals. Audit extracted DER hashes across
-   producers against native-compared Mac records. Record bundle alias and combined
-   entitlement diagnostic differences separately from exact-output profiles.
+   DMGs, 606 signed imports and 88 removals. Audit extracted DER and all 108 parent
+   alias signing/removal hashes against native-compared Mac records. Keep native
+   date and combined entitlement diagnostic differences explicit.
 3. Address inaccessible-directory discovery/removal, broader planning failures
    and asynchronous sibling outcomes in subsequent D04 slices. Keep ACL
    inheritance/copying, other filesystems and raw diagnostics explicit.
 4. Continue D05 path/layout and D06 resource/xattr work separately. Preserve all
-   88 inventory obligations; only certificate extraction advances to partial.
-   This profile does not complete D04/WP-02 or WP-20.
+   88 inventory statuses. This profile does not complete D04/WP-02, WP-03 or WP-20.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,

@@ -176,14 +176,18 @@ indices. There is no atomic rollback or automatic cleanup of exported files.
 The native matrix covers arm64/x86_64/universal Mach-O, a Contents app, a versioned
 framework and a compressed DMG with ad-hoc/RSA/P-256/three-certificate identities.
 It compares DER to independent PEM fixtures and Apple's extraction, plus raw
-stdout/stderr/exit status. Additional cases cover existing files, links, permission
+stdout/stderr/exit status. Verbose certificate display retains an explicit date
+profile difference on the hosted Mac: its month-first 12-hour format differs from
+Go's fixed day-first 24-hour format. Both raw outputs are recorded, with the entire
+expected string checked for each of the two observed profiles; date parity is not
+claimed. Additional cases cover existing files, links, permission
 and partial-write failures, multiple operands and CMS/page mutations.
 
 Remaining differences include unsupported CMS algorithms/representations,
 incomplete/ambiguous chains, native host-chain augmentation, detached signatures,
 additional signature slots, broader filesystem errors and output paths aliasing
-inputs. Bundle inputs reached through a symlinked parent retain an existing
-`Executable=` path difference; the Mac regression records both exact outputs.
+inputs. Bundle inputs reached through a symlinked parent now use the physical
+parent in `Executable=`; the Mac regression requires identical output and DER.
 Combined entitlement/certificate extraction writes both, but existing entitlement
 display still omits native `Executable=` and colon-prefix warning lines.
 These interactions prevent a complete extraction-parity claim.

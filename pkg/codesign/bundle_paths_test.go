@@ -129,7 +129,7 @@ func TestFrameworkCurrentPathSafety(t *testing.T) {
 	if _, err := Inspect(ctx, filepath.Join(b, "Versions/Current")); err == nil {
 		t.Fatal("missing Current")
 	}
-	if _, err := resolveFrameworkCurrent(filepath.Join(b, "Versions/CON")); err == nil {
+	if _, err := resolveBundleDirectory(filepath.Join(b, "Versions/CON")); err == nil {
 		t.Fatal("reserved directory")
 	}
 	// A trailing separator or /. must not let Lstat follow a version-root alias.

@@ -155,7 +155,11 @@ func TestAppleNestedParity(t *testing.T) {
 						t.Fatal(err)
 					}
 					want = strings.ReplaceAll(want, real, "<executable>")
-					got = strings.ReplaceAll(got, filepath.Join(portable, "Contents/MacOS/hello"), "<executable>")
+					portablePath, err := filepath.EvalSymlinks(filepath.Join(portable, "Contents/MacOS/hello"))
+					if err != nil {
+						t.Fatal(err)
+					}
+					got = strings.ReplaceAll(got, portablePath, "<executable>")
 					if got != want || gc != wc {
 						t.Fatalf("display %s\nGo:\n%s\nApple:\n%s", flag, got, want)
 					}

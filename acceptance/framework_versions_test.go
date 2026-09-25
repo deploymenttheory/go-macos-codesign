@@ -60,7 +60,11 @@ func TestAppleFrameworkVersions(t *testing.T) {
 						if err != nil {
 							t.Fatal(err)
 						}
-						if wc != gc || strings.ReplaceAll(want, resolved, "<bundle>") != strings.ReplaceAll(got, portable, "<bundle>") {
+						resolvedGo, err := filepath.EvalSymlinks(portable)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if wc != gc || strings.ReplaceAll(want, resolved, "<bundle>") != strings.ReplaceAll(got, resolvedGo, "<bundle>") {
 							t.Fatalf("%s display %d\nGo %s\nApple %s", version, verbose, got, want)
 						}
 					}
