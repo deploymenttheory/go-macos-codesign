@@ -1,5 +1,15 @@
 # Research and provenance
 
+## Verification failure context
+
+The [diagnostic driver](../scripts/extract-verification-diagnostics.go) extracts
+eight complete Apple bodies and two-target Clang ASTs for diagnostic streams,
+special-slot errors, architecture/nested context and exception augmentation.
+[The contract](verification-diagnostics.md) distinguishes source evidence, native
+observations, 182 new acceptance cases and remaining gaps. Native probes establish
+innermost-path retention and resource failures without architecture augmentation;
+these behaviors are not inferred from declaration shims alone.
+
 ## Clang AST extraction
 
 `scripts/extract-sdk.py` invokes Clang against the SDK's `kern/cs_blobs.h` using

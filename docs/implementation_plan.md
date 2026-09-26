@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-26 after [PR #59](https://github.com/deploymenttheory/go-macos-codesign/pull/59) merged.
+Status: updated 2026-09-26 after [PR #60](https://github.com/deploymenttheory/go-macos-codesign/pull/60) merged.
 Released APFS v0.9.0 remains the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -28,13 +28,16 @@ records 75 bounded cases and six complete Apple bodies. Merged [PR #59](#merged-
 adds [certificate default merging](requirement-defaults.md),
 explicit overrides, canonical binary repacking, independent nested defaults and
 fresh replacement requirements. It adds 277 portable cases and 48 Mac certificate
-cases. The active D15/WP-10 increment on `feat/requirement-verification` resolves
+cases. Merged [PR #60](#merged-pr60) resolves
 the thirty quiet-verification/self-DR differences discovered there. It separates
 integrity, verbose self checks and explicit caller predicates, retaining parent
 constraints and explicit certificate trust. The [contract](requirement-verification.md)
 adds 822 cases and six complete Apple bodies with two-target Clang evidence;
-malformed-structure policy and several failure diagnostic forms remain open.
-Current-commit gates belong to this implementation PR.
+malformed-structure policy remains open. The active `feat/verification-diagnostics`
+increment adds [native failure context](verification-diagnostics.md), eight
+complete Apple bodies, 182 new cases and 340 deterministic hashes per producer.
+It strengthens 178 earlier comparisons to exact diagnostics, preserving six
+malformed-set differences. Current-commit gates belong to this implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -73,6 +76,49 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr60"></a>
+### Merged milestone: PR #60 (2026-09-26)
+
+[PR #60](https://github.com/deploymenttheory/go-macos-codesign/pull/60) merged at
+15:20:17 UTC as `6db74af19857219bde2d823daae8b4e2b739776f`. Its actual merge,
+final head `1da9adffbb8403e5e9f496be4403f6977250abd9` and tested CI merge
+`96ed6104f2f1c22a085144ddbf9ab5af17407734` share tree
+`2058ba6def87b3f8352480da87972570ef6aeeb3`. Final
+[compatibility](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36250798840)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36250798823)
+workflows passed.
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Linux | 4,561/4,773, 95.56% | 571/581, 98.28% | 1/1, 100% |
+| Windows | 4,557/4,773, 95.47% | 571/581, 98.28% | 1/1, 100% |
+| macOS | 4,565/4,773, 95.64% | 575/581, 98.97% | 1/1, 100% |
+
+The 822 new cases included 814 native comparisons, 630 exact diagnostic profiles
+and 184 side-by-side profiles. Thirty earlier false-self quiet-verification
+differences were resolved. Six malformed-set records retain a bounded policy
+difference, including three quiet native acceptance/Go rejection cases.
+All 1,382 deterministic hashes per foreign producer match hosted and local Mac
+evidence. Eight JSON comparison hashes normalize only the asserted temporary
+Report.Path; raw responses are retained. The audit checked 649 source hashes per
+OS and 17 expected Windows text conversions. Retained matrices passed: defaults
+325 cases/1,338 hashes, compiler 75/117, extraction 87/188, entitlements 90/178,
+file lists 327 values, 96 DER sets/14 hashes, 108 parent aliases, 80 notice hashes
+and 70 DMG dry-run hashes.
+
+Race/eleven fuzz targets and vendored RC2 passed. Native imports covered 606
+signatures, 88 removals and 140 DMG dry runs. Six packaged binaries carry the
+exact clean CI revision, CGO disabled and APFS v0.9.0 without replacement;
+twelve checksums and six SPDX 2.3 documents passed audit. The packaged Darwin
+arm64 CLI passed 116 native comparisons, 108 exact diagnostic profiles, input
+preservation and explicit-trust rejection. A local 30-second FuzzInspect run
+completed 906 executions. The doc audit checked 428 links; inventory unchanged.
+
+The earlier hosted attempt 36249976102 hit Go's ten-minute acceptance timeout
+without an assertion failure. The final runner explicitly permits 15 minutes
+inside the existing 20-minute CI job; hosted acceptance completed in 8m38s and
+local verification in 463 seconds. Both failed and final transcripts are retained.
 
 <a id="merged-pr59"></a>
 ### Merged milestone: PR #59 (2026-09-26)
@@ -2081,10 +2127,19 @@ the current explicit-trust library contract is not identical to every native
     explicit trust and mandatory parent seals. Expose opt-in API migration and
     report methods. Check all-slice caller predicates versus selected self checks,
     shallow/deep file/app/framework children, mutations and first-failing status.
-  - [ ] Complete failed nested-code, malformed-component, unsigned and architecture
-    augmentation diagnostics. Preserve the three quiet native/Go malformed-set
-    acceptance differences explicitly until a reviewed structural policy exists.
-    Expand beyond the measured architectures, representations and identities.
+  - [x] Add [bounded failure diagnostics](verification-diagnostics.md): unsigned,
+    code-page/requirements/Info.plist/resource bindings, CMS import/signature,
+    missing architecture and parent-seal failure. Preserve detailed error causes;
+    expose structured architecture, subcomponent and modified-resource context.
+    Validate arm64 first without reordering reports. Check two-level innermost
+    paths, quiet/verbose streams, relative/absolute operands and parseable JSON.
+    Add eight complete Apple bodies, 182 cases and 340 producer hashes; strengthen
+    the prior exact diagnostic profiles from 630 to 808 of 814 native comparisons.
+  - [ ] Complete ordinary resource added/missing/altered reporting, multiple-failure
+    aggregation/order, malformed containers, other CMS attributes/algorithms,
+    strict policy, alternate framework-version errors, aliases/localization and
+    other native architecture preferences. Preserve the six malformed-set records
+    and three quiet acceptance differences until a reviewed structural policy exists.
 - [ ] Establish `--use-software-signing-cert` software-update validation policy,
   defaults, errors and operation interactions from independent native cases;
   the merged D01 probes do not establish an identity-selection contract.
@@ -3161,25 +3216,25 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #59
+### Active implementation work after PR #60
 
-`feat/requirement-verification` starts from actual PR #59 merge
-`59e87e4e236a2afa9fbfbc74aebc4a98a297cb06`. Released APFS v0.9.0 remains pinned
+`feat/verification-diagnostics` starts from actual PR #60 merge
+`6db74af19857219bde2d823daae8b4e2b739776f`. Released APFS v0.9.0 remains pinned
 without a replacement.
 
-1. Implement the bounded D15/WP-10 verification contract above, reusing the
-   requirement decoder/evaluator and verified certificate context. Prove quiet
-   integrity, verbose selected self checks, explicit all-slice predicates, parent
-   constraints, first-failing status, unchanged inputs and API migration.
+1. Implement the bounded D15/WP-10 diagnostic contract above using structured
+   errors, shared architecture preference and existing bundle/CMS verification.
+   Prove exact native output, retained causes, nested path/stream behavior and JSON.
 2. Complete local and three-OS coverage, native imports, race/eleven fuzz targets,
    lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
    Retain PR #59 defaults, compiler, extraction and earlier matrices. Audit all
-   822 new records and 1,382 deterministic hashes per foreign producer. Preserve
-   the six malformed-set records, three quiet acceptance differences, and raw
-   native/Go diagnostics outside the 630 exact-output cases.
-3. Next, extend native verification failure diagnostics and architecture context
-   using the newly retained nested, unsigned and damaged-component observations.
-   Keep explicit trust and eager malformed-set rejection visible. Then address representation defaults,
+   182 new records/340 deterministic hashes and retained 822 records/1,382 hashes
+   per foreign producer. Preserve six malformed-set records, three quiet acceptance
+   differences and raw output for every exact diagnostic comparison. Keep absolute
+   nested temporary paths out of cross-OS diagnostic hashes.
+3. Next, extend ordinary resource diagnostics and multiple-failure ordering using
+   independent native probes. Keep explicit trust and eager malformed-set rejection
+   visible. Then address representation defaults,
    preservation, stdin and `$self.identifier` substitution, broader grammar and
    exact diagnostics. Unknown-opcode debug text, alternate/external slots,
    CMS/default policy, removal applicability, constraints and combined extraction

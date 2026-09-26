@@ -6,7 +6,17 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current requirement-verification slice
+## Current verification-diagnostics slice
+
+[Diagnostic context](verification-diagnostics.md) adds bounded native wording,
+failing architecture, nested paths and verbose modified-child details. Error
+causes are preserved; JSON stdout remains parseable. Eight complete Apple bodies
+have two-target Clang evidence. There are 182 new cases, 170 native comparisons
+and 340 deterministic cross-OS hashes; 178 earlier comparisons now require exact
+diagnostics. Final coverage, CI and package gates belong to this PR. Wider
+resource aggregation, malformed inputs and native trust policy remain open.
+
+## Merged requirement-verification slice
 
 Quiet verification now accepts intact signatures with false stored designated
 requirements. Verbose self checks, explicit caller predicates and parent-sealed
@@ -14,8 +24,14 @@ constraints have separate stages and architecture scopes. Failed parent predicat
 remain integrity failures; the first failing operand determines the CLI status.
 Explicit certificate trust is unchanged. The [contract](requirement-verification.md)
 documents API migration, 822 new cases, six complete Apple bodies on two Clang
-targets and remaining malformed-structure/diagnostic differences. Final
-current-commit gates belong to this PR. The broad inventory is unchanged.
+targets and remaining malformed-structure differences. Merged
+[PR #60](https://github.com/deploymenttheory/go-macos-codesign/pull/60) passed all
+three OS, native import, lint, race/eleven fuzz and packaging gates. Library
+coverage was 95.56% Linux, 95.47% Windows and 95.64% Mac; CLI coverage was
+98.28%, 98.28% and 98.97%, with entry point 100%. Its actual merge shares the
+audited tree. [The plan](implementation_plan.md#merged-pr60) records revisions,
+649 source hashes per OS and 1,382 deterministic hashes per foreign producer.
+The broad inventory is unchanged.
 
 ## Merged requirement-default slice
 

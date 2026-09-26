@@ -183,10 +183,8 @@ func TestRequirementVerificationNested(t *testing.T) {
 									if nativeStatus != status {
 										t.Fatal("native parent policy", nativeStatus, status, e, stderr)
 									}
-									if accepted {
-										nativeEqual(t, "parent stdout", []byte(out), []byte(nativeOut))
-										nativeEqual(t, "parent success diagnostics", []byte(stderr), []byte(e))
-									}
+									nativeEqual(t, "parent stdout", []byte(out), []byte(nativeOut))
+									nativeEqual(t, "parent diagnostics", []byte(stderr), []byte(e))
 								}
 								if status != want {
 									t.Fatal("portable parent policy", status, want, stderr)
@@ -198,7 +196,7 @@ func TestRequirementVerificationNested(t *testing.T) {
 									t.Fatal("library parent policy", err, accepted)
 								}
 								nativeEqual(t, "parent verification preserves tree", layoutArchive(t, parent), before)
-								attest(t, map[string]any{"algorithm": algorithm, "architecture": arch, "child_kind": kind, "state": state, "deep": deep, "accepted": accepted, "exit": status, "stdout": out, "native_stdout": nativeStdout, "stderr": stderr, "native_stderr": nativeErr, "input_sha256": hash(before), "input_preserved": true, "parent_requirement_enforced": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": accepted})
+								attest(t, map[string]any{"algorithm": algorithm, "architecture": arch, "child_kind": kind, "state": state, "deep": deep, "accepted": accepted, "exit": status, "stdout": out, "native_stdout": nativeStdout, "stderr": stderr, "native_stderr": nativeErr, "input_sha256": hash(before), "input_preserved": true, "parent_requirement_enforced": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": true})
 							})
 						}
 					})
@@ -303,14 +301,12 @@ func TestRequirementVerificationArchitectures(t *testing.T) {
 									t.Fatal("native architecture result", nativeStatus, status, e, stderr)
 								}
 								nativeEqual(t, "architecture stdout", []byte(out), []byte(nativeOut))
-								if mutation != "page" {
-									nativeEqual(t, "architecture diagnostics", []byte(stderr), []byte(e))
-								}
+								nativeEqual(t, "architecture diagnostics", []byte(stderr), []byte(e))
 							}
 							if hash(nativeRead(t, path)) != before {
 								t.Fatal("verification changed input")
 							}
-							attest(t, map[string]any{"changed": changed, "mutation": mutation, "selection": selection, "check": check, "exit": status, "stderr": stderr, "native_stderr": nativeErr, "input_sha256": before, "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": mutation != "page"})
+							attest(t, map[string]any{"changed": changed, "mutation": mutation, "selection": selection, "check": check, "exit": status, "stderr": stderr, "native_stderr": nativeErr, "input_sha256": before, "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": true})
 						})
 					}
 				}
@@ -379,11 +375,15 @@ func TestRequirementVerificationIntegrity(t *testing.T) {
 							if nativeStatus != want {
 								t.Fatal("native integrity result", nativeStatus, nativeErr)
 							}
+							if kind != "malformed-bound" {
+								nativeEqual(t, "integrity stdout", []byte(out), []byte(nativeOut))
+								nativeEqual(t, "integrity stderr", []byte(stderr), []byte(nativeErr))
+							}
 						}
 						if hash(nativeRead(t, path)) != before {
 							t.Fatal("verification mutated damaged input")
 						}
-						attest(t, map[string]any{"architecture": arch, "kind": kind, "verbose": verbose, "exit": status, "stdout": out, "stderr": stderr, "native_exit": nativeStatus, "native_stdout": nativeOut, "native_stderr": nativeErr, "input_sha256": before, "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": false, "bounded_structure_difference": kind == "malformed-bound"})
+						attest(t, map[string]any{"architecture": arch, "kind": kind, "verbose": verbose, "exit": status, "stdout": out, "stderr": stderr, "native_exit": nativeStatus, "native_stdout": nativeOut, "native_stderr": nativeErr, "input_sha256": before, "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": kind != "malformed-bound", "bounded_structure_difference": kind == "malformed-bound"})
 					})
 				}
 			})
@@ -428,7 +428,7 @@ func TestRequirementVerificationLifecycle(t *testing.T) {
 				if status != wanted {
 					t.Fatal(status, wanted, stderr)
 				}
-				exact := !strings.Contains(order, "unsigned")
+				exact := true
 				nativeOut, nativeErr := "", ""
 				if runtime.GOOS == "darwin" {
 					var nativeStatus int

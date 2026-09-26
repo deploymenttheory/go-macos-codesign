@@ -206,13 +206,13 @@ func verifyNestedApp(ctx context.Context, name string, value any, app *nestedApp
 		return err
 	}
 	if _, _, err := nestedSignature(app.data); err != nil {
-		return err
+		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	opts.Requirement = requirement
 	opts.Architecture = ""
 	opts.directoryOnly = !opts.Deep
 	if _, err := verifyBundleSnapshot(ctx, app.bundle, app.data, app.resources, app.files2, opts); err != nil {
-		return nestedVerificationError(name, err)
+		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	for _, other := range app.otherVersions {
 		if _, _, err := nestedSignature(other.data); err != nil {

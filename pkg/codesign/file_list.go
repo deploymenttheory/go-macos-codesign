@@ -10,6 +10,17 @@ import (
 // An empty name prefers arm64, then the first architecture in the container.
 // Selection and inspection do not establish integrity or trust.
 func (r *Report) SelectArchitecture(name string) (*Architecture, error) {
+	selected := r.selectArchitecture(name)
+	if selected == nil {
+		return nil, fmt.Errorf("architecture %q not present", name)
+	}
+	if selected.Signature == nil {
+		return nil, ErrUnsigned
+	}
+	return selected, nil
+}
+
+func (r *Report) selectArchitecture(name string) *Architecture {
 	var selected *Architecture
 	for i := range r.Architectures {
 		a := &r.Architectures[i]
@@ -22,13 +33,22 @@ func (r *Report) SelectArchitecture(name string) (*Architecture, error) {
 			selected = a
 		}
 	}
-	if selected == nil {
-		return nil, fmt.Errorf("architecture %q not present", name)
+	return selected
+}
+
+// Validate the preferred slice first without changing inspection/JSON order.
+func (r *Report) verificationArchitectures() []Architecture {
+	preferred := r.selectArchitecture("")
+	order := make([]Architecture, 0, len(r.Architectures))
+	if preferred != nil {
+		order = append(order, *preferred)
 	}
-	if selected.Signature == nil {
-		return nil, ErrUnsigned
+	for i := range r.Architectures {
+		if &r.Architectures[i] != preferred {
+			order = append(order, r.Architectures[i])
+		}
 	}
-	return selected, nil
+	return order
 }
 
 // SignatureFiles describes the selected representation's signature files in

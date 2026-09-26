@@ -120,7 +120,8 @@ type VerifyOptions struct {
 	// explicitly trusted timestamp selects genTime instead and must not be in
 	// the future relative to CurrentTime. Zero uses time.Now.
 	CurrentTime   time.Time
-	directoryOnly bool // internal shallow nested-code validation, never a public bypass
+	directoryOnly bool   // internal shallow nested-code validation, never a public bypass
+	resourceBase  string // absolute resource base for nested verification diagnostics
 }
 
 // Blob retains the complete encoding, including its magic and length fields.

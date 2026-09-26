@@ -120,7 +120,9 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 	return r, err
 }
 
-func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report, error) {
+func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *Report, failure error) {
+	var architecture string
+	defer func() { failure = verificationArchitecture(failure, architecture) }()
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -132,16 +134,17 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 		return r, unsupported("external special-slot overrides for disk images")
 	}
 	found := false
-	for _, a := range r.Architectures {
+	for _, a := range r.verificationArchitectures() {
 		if opts.Architecture != "" && opts.Architecture != a.Name {
 			continue
 		}
 		found = true
+		architecture = a.Name
 		if err := ctx.Err(); err != nil {
 			return r, err
 		}
 		if a.Signature == nil {
-			return r, ErrUnsigned
+			return r, verificationFailure(ErrUnsigned.Error(), ErrUnsigned)
 		}
 		var signer []byte
 		cms := a.Signature.find(SlotCMS)
@@ -228,7 +231,7 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 				h, _ := digest(d.HashType, data[start:end])
 				p := uint64(d.HashOffset) + uint64(i)*uint64(d.HashSize)
 				if !bytes.Equal(h, d.Raw[p:p+uint64(d.HashSize)]) {
-					return r, invalid("%s: code page %d", a.Name, i)
+					return r, verificationFailure(signatureDiagnostic, invalid("%s: code page %d", a.Name, i))
 				}
 			}
 			for slot := uint32(1); slot <= d.SpecialSlots; slot++ {
@@ -255,13 +258,13 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 						continue
 					}
 					if slot == SlotInfo || slot == SlotResources {
-						return r, unsupported(fmt.Sprintf("external data for special slot %d is required", slot))
+						return r, slotVerificationFailure(slot, unsupported(fmt.Sprintf("external data for special slot %d is required", slot)))
 					}
-					return r, invalid("missing special slot %d", slot)
+					return r, slotVerificationFailure(slot, invalid("missing special slot %d", slot))
 				}
 				h, _ := digest(d.HashType, payload)
 				if !bytes.Equal(h, want) {
-					return r, invalid("special slot %d", slot)
+					return r, slotVerificationFailure(slot, invalid("special slot %d", slot))
 				}
 			}
 			if len(signer) > 0 && d.Flags&FlagAdhoc != 0 {
@@ -278,7 +281,7 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 		}
 	}
 	if !found {
-		return r, fmt.Errorf("architecture %q not present", opts.Architecture)
+		return r, verificationFailure("object file format unrecognized, invalid, or unsuitable", fmt.Errorf("architecture %q not present", opts.Architecture))
 	}
 	r.Valid = true
 	r.verifiedArchitecture = opts.Architecture
