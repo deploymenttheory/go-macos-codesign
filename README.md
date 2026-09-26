@@ -49,6 +49,11 @@ Display supports [requirement extraction](docs/requirement-extraction.md) with
 existing expression subset and comments synthesized designated requirements.
 Files are truncated before component validation; extraction does not verify pages.
 
+Signing accepts [named requirement sets](docs/requirement-sets.md) from inline text,
+source files or compiled sets, including host, guest, designated, library and plugin
+kinds. The shared compiler sorts entries and applies the last duplicate. Expression
+coverage and certificate default merging remain bounded as documented.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:

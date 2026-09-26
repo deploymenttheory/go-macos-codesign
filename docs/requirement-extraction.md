@@ -13,8 +13,9 @@ Both stdout and file destinations contain text. An explicit designated requireme
 uses `designated => expression`; a synthesized one uses `# designated => expression`.
 Binary sets retain their index order and host, guest, designated, library and plugin
 labels. Type zero prints `invalid`; other unknown type numbers use Apple's comment
-label. This does not add textual compilation of multi-requirement sets or new
-expression predicates. The existing compiler and decoder are reused.
+label. [Set source compilation](requirement-sets.md) now accepts the five named
+kinds and unsigned decimal kinds using the same bounded expression parser. Unknown
+display labels and implicit comments are not lossless source representations.
 
 Canonical output preserves native boolean precedence, quoting, hex strings,
 certificate positions and extension-existence comments. Literal whitespace is
@@ -90,8 +91,8 @@ private-type shims. Current private CLI call sites and the full dumper/interpret
 are not reconstructed by this AST. Their measured behavior comes from differential
 tests. Production has no SDK, Clang, CGO or Apple runtime dependency.
 
-Remaining work includes all other grammar/opcode families, requirement-set source
-compilation, native debug output for unknown instructions, alternate/external slots,
+Remaining work includes all other grammar/opcode families, broader set source forms
+and default merging, native debug output for unknown instructions, alternate/external slots,
 Apple-proper and broader default certificate policy, malformed-CMS synthesis,
 output aliases to inputs, special streams, permissions/ACLs, Unicode path
 normalization, locales and exhaustive operation/diagnostic interactions. Verbose

@@ -1,12 +1,24 @@
 # Project progress
 
-Updated 2026-09-25. This page describes the implementation in this branch and
+Updated 2026-09-26. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current requirement-extraction slice
+## Current requirement-set compiler slice
+
+Signing now compiles all five named requirement kinds and unsigned decimal kinds
+through the shared expression parser. Entries sort by kind; the last duplicate
+wins. Comments, semicolons and implicit extension-existence boundaries match the
+measured native grammar. Six complete Apple bodies have two-target Clang ASTs;
+33 native compiler records, 18 signed-tree comparisons, 12 rejection cases and
+12 certificate signing cases establish the bounded profile. The
+[contract](requirement-sets.md) retains certificate default merging, wider grammar,
+stdin/substitution and exact error diagnostics as outstanding. Final current-commit
+gates belong to this PR; the feature inventory is unchanged.
+
+## Merged requirement-extraction slice
 
 Display now supports `-r-` and file destinations for the existing requirement
 expression subset. Named binary sets render in native order; absent designated
@@ -15,9 +27,17 @@ output, architecture selection and combined extraction behavior have 87 cases:
 86 native comparisons and one portable JSON case. Six complete Apple bodies have
 two-target Clang ASTs; `FuzzRequirementSet` adds direct binary-set fuzzing.
 [The contract](requirement-extraction.md) records bounds and remaining language,
-policy, representation and diagnostic work. Final current-commit gates belong to
-the PR; the inventory remains 27 partial, 53 not implemented, eight blocked and
-zero verified.
+policy, representation and diagnostic work.
+
+[PR #57](https://github.com/deploymenttheory/go-macos-codesign/pull/57) merged with
+all three OS jobs, native imports, race/eleven fuzz targets, lint and packaging
+passing. Audited library coverage is 95.49% Linux, 95.40% Windows and 95.57% Mac;
+CLI is 98.92%, 98.92% and 99.64%, with entry point 100%. The audit checked 634
+source hashes per OS, 188 deterministic requirement hashes per foreign producer,
+the retained matrices, six binaries and twelve archive/SBOM checksums. The actual
+merge shares the audited tree; [the plan](implementation_plan.md#merged-pr57)
+records exact revisions. The inventory remains 27 partial, 53 not implemented,
+eight blocked and zero verified.
 
 ## Merged entitlement-extraction slice
 

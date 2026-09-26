@@ -27,9 +27,50 @@ type requirementParser struct {
 	text    string
 	depth   int
 	nodes   int
+	scanErr error
 }
 
-func (p *requirementParser) next() { p.token = p.scanner.Scan(); p.text = p.scanner.TokenText() }
+func (p *requirementParser) next() {
+	p.token = p.scanner.Scan()
+	// Shell comments are part of Apple's grammar, alongside C/C++ comments.
+	// Consume them only between tokens, preserving '#' inside quoted strings.
+	for p.token == '#' {
+		for r := p.scanner.Next(); r != '\n' && r != scanner.EOF; r = p.scanner.Next() {
+		}
+		p.token = p.scanner.Scan()
+	}
+	p.text = p.scanner.TokenText()
+}
+
+func newRequirementParser(text string) (*requirementParser, error) {
+	if len(text) > 1<<20 {
+		return nil, malformed("requirement size limit")
+	}
+	p := &requirementParser{}
+	p.scanner.Init(strings.NewReader(text))
+	p.scanner.Mode = scanner.ScanIdents | scanner.ScanInts | scanner.ScanStrings | scanner.SkipComments | scanner.ScanComments
+	p.scanner.Error = func(_ *scanner.Scanner, msg string) {
+		// Requirement integers are decimal, including those with leading zeroes.
+		// Ignore only Go's octal-digit diagnostics; all other lexer errors fail.
+		if msg != "invalid digit '8' in octal literal" && msg != "invalid digit '9' in octal literal" {
+			p.scanErr = fmt.Errorf("requirement: %s", msg)
+		}
+	}
+	p.next()
+	return p, nil
+}
+
+func (p *requirementParser) element() (*requirementNode, error) {
+	p.nodes = 0
+	n, err := p.expression()
+	for p.text == ";" {
+		p.next()
+	}
+	if err != nil {
+		return nil, err
+	}
+	return n, p.scanErr
+}
 func (p *requirementParser) expression() (*requirementNode, error) {
 	p.depth++
 	defer func() { p.depth-- }()
@@ -203,7 +244,7 @@ func (p *requirementParser) certificateField(slot int32) (*requirementNode, erro
 		// Apple's dumper emits an implicit matchExists with a comment.
 		if p.text == "exists" {
 			p.next()
-		} else if p.token != scanner.EOF && p.text != "and" && p.text != "or" && p.text != ")" {
+		} else if _, kind := p.requirementKind(); p.token != scanner.EOF && p.text != "and" && p.text != "or" && p.text != ")" && p.text != ";" && !kind {
 			return nil, unsupported("certificate extension match")
 		}
 		return n, nil
@@ -243,21 +284,13 @@ func (p *requirementParser) stringValue() (string, error) {
 	return value, err
 }
 func parseRequirement(text string) (*requirementNode, error) {
-	if len(text) > 1<<20 {
-		return nil, malformed("requirement size limit")
-	}
-	p := &requirementParser{}
-	p.scanner.Init(strings.NewReader(text))
-	p.scanner.Mode = scanner.ScanIdents | scanner.ScanInts | scanner.ScanStrings | scanner.SkipComments | scanner.ScanComments
-	var scanErr error
-	p.scanner.Error = func(_ *scanner.Scanner, msg string) { scanErr = fmt.Errorf("requirement: %s", msg) }
-	p.next()
-	n, err := p.expression()
+	p, err := newRequirementParser(text)
 	if err != nil {
 		return nil, err
 	}
-	if scanErr != nil {
-		return nil, scanErr
+	n, err := p.element()
+	if err != nil {
+		return nil, err
 	}
 	if p.token != scanner.EOF {
 		return nil, fmt.Errorf("requirement: unexpected %q", p.text)
@@ -313,21 +346,71 @@ func CompileRequirement(text string) ([]byte, error) {
 	return blob(MagicRequirement, n.encode(append32(nil, 1))), nil
 }
 
-// CompileRequirements compiles a designated requirement into a requirements set.
+// CompileRequirements compiles named or decimal-numbered requirements into a set.
+// Entries are sorted by unsigned kind; the last duplicate wins. A bare expression
+// is accepted as a designated requirement for compatibility with earlier versions.
+// Source is limited to 1 MiB and 64 entries (including overwritten duplicates).
+// Each expression retains the parser's nesting and node limits. Numeric kinds
+// must fit uint32; native integer overflow behavior is deliberately unsupported.
 func CompileRequirements(text string) ([]byte, error) {
-	text = strings.TrimSpace(text)
-	if strings.HasPrefix(text, "designated") {
-		_, rest, ok := strings.Cut(text, "=>")
-		if !ok {
-			return nil, fmt.Errorf("expected designated => expression")
-		}
-		text = strings.TrimSpace(rest)
-	}
-	req, err := CompileRequirement(text)
+	p, err := newRequirementParser(text)
 	if err != nil {
 		return nil, err
 	}
-	return superblob(MagicRequirements, []Blob{{Slot: 3, Data: req}}), nil
+	if _, named := p.requirementKind(); !named {
+		req, err := CompileRequirement(text)
+		if err != nil {
+			return nil, err
+		}
+		return superblob(MagicRequirements, []Blob{{Slot: 3, Data: req}}), nil
+	}
+	entries := map[uint32][]byte{}
+	for count := 0; p.token != scanner.EOF; count++ {
+		if count == 64 {
+			return nil, malformed("requirement set entry limit")
+		}
+		kind, ok := p.requirementKind()
+		if !ok {
+			return nil, malformed("requirement kind")
+		}
+		p.next()
+		// ARROW is one native token; whitespace or comments cannot split it.
+		if p.text != "=" || p.scanner.Peek() != '>' {
+			return nil, malformed("expected requirement => expression")
+		}
+		p.scanner.Next()
+		p.next()
+		n, err := p.element()
+		if err != nil {
+			return nil, err
+		}
+		entries[kind] = blob(MagicRequirement, n.encode(append32(nil, 1)))
+	}
+	blobs := make([]Blob, 0, len(entries))
+	for kind, data := range entries {
+		blobs = append(blobs, Blob{Slot: kind, Data: data})
+	}
+	return superblob(MagicRequirements, blobs), nil
+}
+
+func (p *requirementParser) requirementKind() (uint32, bool) {
+	switch p.text {
+	case "host":
+		return 1, true
+	case "guest":
+		return 2, true
+	case "designated":
+		return 3, true
+	case "library":
+		return 4, true
+	case "plugin":
+		return 5, true
+	}
+	if p.token != scanner.Int {
+		return 0, false
+	}
+	v, err := strconv.ParseUint(p.text, 10, 32)
+	return uint32(v), err == nil
 }
 
 func (n *requirementNode) matches(d Directory) bool {
