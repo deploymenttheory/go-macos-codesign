@@ -6,6 +6,7 @@ import (
 	"encoding/asn1"
 	"encoding/hex"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -405,6 +406,8 @@ func validateRequirements(data []byte) error {
 		return malformed("requirements index")
 	}
 	seen := map[uint32]bool{}
+	type span struct{ start, end uint64 }
+	spans := make([]span, 0, count)
 	for i := uint32(0); i < count; i++ {
 		slot := be.Uint32(data[12+i*8:])
 		off := uint64(be.Uint32(data[16+i*8:]))
@@ -416,7 +419,14 @@ func validateRequirements(data []byte) error {
 		if n < 12 || !rangeOK(off, n, uint64(len(data))) || be.Uint32(data[off:]) != MagicRequirement || be.Uint32(data[off+8:]) != 1 {
 			return malformed("requirement blob")
 		}
-		_, err := decodeRequirement(data[off : off+n])
+		spans = append(spans, span{off, off + n})
+	}
+	sort.Slice(spans, func(i, j int) bool { return spans[i].start < spans[j].start })
+	for i, span := range spans {
+		if i > 0 && span.start < spans[i-1].end {
+			return malformed("overlapping requirements")
+		}
+		_, err := decodeRequirement(data[span.start:span.end])
 		if err != nil {
 			return err
 		}

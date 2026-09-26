@@ -145,7 +145,7 @@ func TestCommands(t *testing.T) {
 	if _, _, code := invoke(t, "--remove-signature", unsigned); code != 0 {
 		t.Fatal(code)
 	}
-	for _, args := range [][]string{{"-s", "Developer ID", unsigned}, {"-d", "--requirements=req", signed}, {"-s", "-", "--requirements", missing, unsigned}, {"-s", "-", "-r=unknown", unsigned}, {"--verify", "-R", missing, signed}, {"-s", "-", "--entitlements", missing, unsigned}, {"-d", missing}, {"-s", "-", "--dryrun", missing}, {"-s", "-", "--continue", missing, unsigned}} {
+	for _, args := range [][]string{{"-s", "Developer ID", unsigned}, {"-d", "--requirements=" + missing + "/req", signed}, {"-s", "-", "--requirements", missing, unsigned}, {"-s", "-", "-r=unknown", unsigned}, {"--verify", "-R", missing, signed}, {"-s", "-", "--entitlements", missing, unsigned}, {"-d", missing}, {"-s", "-", "--dryrun", missing}, {"-s", "-", "--continue", missing, unsigned}} {
 		if _, _, code := invoke(t, args...); code != 1 {
 			t.Fatal(args, code)
 		}

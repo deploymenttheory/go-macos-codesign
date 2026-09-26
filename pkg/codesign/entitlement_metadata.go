@@ -48,19 +48,8 @@ func InspectEntitlements(signature *Signature) (*EntitlementMetadata, error) {
 	if len(data) < 8 || len(data)-8 > maxBundlePlist || be.Uint32(data) != magic || uint64(be.Uint32(data[4:])) != uint64(len(data)) {
 		return nil, malformed("entitlements blob")
 	}
-	storedHash := func(slot uint32) []byte {
-		if slot > directory.SpecialSlots {
-			return nil
-		}
-		offset := directory.HashOffset - slot*uint32(directory.HashSize)
-		hash := directory.Raw[offset : offset+uint32(directory.HashSize)]
-		if bytes.Equal(hash, make([]byte, len(hash))) {
-			return nil
-		}
-		return hash
-	}
-	stored := storedHash(slot)
-	if stored == nil || slot == SlotEntitlements && storedHash(SlotDEREntitlements) != nil {
+	stored := directory.specialSlotHash(slot)
+	if stored == nil || slot == SlotEntitlements && directory.specialSlotHash(SlotDEREntitlements) != nil {
 		return nil, invalid("entitlements component/hash presence")
 	}
 	actual, _ := digest(directory.HashType, data) // parseDirectory checked the algorithm.

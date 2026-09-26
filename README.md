@@ -44,6 +44,11 @@ Display also supports [entitlement extraction](docs/entitlement-extraction.md):
 with the native colon deprecation warning. File destinations append. DER takes
 precedence over original XML; extraction does not establish trust or authorization.
 
+Display supports [requirement extraction](docs/requirement-extraction.md) with
+`-r-` for stdout or `--requirements=requirements.txt` for a file. It renders the
+existing expression subset and comments synthesized designated requirements.
+Files are truncated before component validation; extraction does not verify pages.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:

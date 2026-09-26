@@ -28,6 +28,7 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	requirementsSet                                                                      bool
 	entitlementsSet                                                                      bool
 	fileList                                                                             bool
 	fileListPath                                                                         string
@@ -201,7 +202,7 @@ func parse(args []string) (options, error) {
 					}
 					o.bundleVersion = val
 				case "requirements":
-					o.requirements = val
+					o.requirements, o.requirementsSet = val, true
 				case "test-requirement":
 					if has {
 						o.testRequirement = val
@@ -316,7 +317,7 @@ func parse(args []string) (options, error) {
 					case 'a':
 						o.architecture = val
 					case 'r':
-						o.requirements = val
+						o.requirements, o.requirementsSet = val, true
 						if strings.HasPrefix(attached, "=") {
 							o.requirements = "=" + val
 						}
@@ -484,8 +485,8 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			return 1
 		}
 	}
-	if o.requirements != "" && o.operation != "sign" {
-		fmt.Fprintln(stderr, "macoscodesign: unsupported operation: requirements extraction")
+	if o.operation == "remove" && o.requirementsSet {
+		fmt.Fprintln(stderr, "macoscodesign: unsupported operation: requirements with signature removal")
 		return 1
 	}
 	if o.operation == "sign" && o.requirements != "" {
@@ -560,7 +561,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			var report *codesign.Report
 			report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 			if err == nil {
-				if o.json && !o.entitlementsSet && o.entitlements == "" {
+				if o.json && !o.entitlementsSet && o.entitlements == "" && !o.requirementsSet {
 					err = json.NewEncoder(stdout).Encode(report)
 				} else {
 					err = display(stderr, report, o)
@@ -568,11 +569,14 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				if err == nil && o.extractCertificates {
 					err = extractCertificates(report, o)
 				}
+				if err == nil && o.requirementsSet {
+					err = extractRequirements(stdout, report, o)
+				}
 				if err == nil && (o.entitlementsSet || o.entitlements != "") {
 					err = extractEntitlements(stdout, stderr, report, &o)
-					if err == nil && o.verbose >= 2 {
-						fmt.Fprintln(stderr, "Total signatures=1\nChosen signature=1")
-					}
+				}
+				if err == nil && o.verbose >= 2 && (o.requirementsSet || o.entitlementsSet || o.entitlements != "") {
+					fmt.Fprintln(stderr, "Total signatures=1\nChosen signature=1")
 				}
 				if err == nil && o.fileList {
 					err = outputFileList(stdout, report, o)
@@ -671,6 +675,9 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 		names[i] = a.Name
 	}
 	format := r.Format
+	if o.architecture != "" && strings.HasPrefix(format, "Mach-O") {
+		format, names = "Mach-O thin", []string{selected.Name}
+	}
 	if r.Format != "disk image" {
 		format += " (" + strings.Join(names, " ") + ")"
 	}
@@ -741,11 +748,11 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 		fmt.Fprintf(w, "Sealed Resources version=%d rules=%d files=%d\n", r.Bundle.ResourceVersion, r.Bundle.ResourceRules, r.Bundle.ResourceFiles)
 	}
 	for _, b := range selected.Signature.Blobs {
-		if b.Slot == codesign.SlotRequirements && len(b.Data) >= 12 {
+		if b.Slot == codesign.SlotRequirements && len(b.Data) >= 12 && !o.requirementsSet {
 			fmt.Fprintf(w, "Internal requirements count=%d size=%d\n", binary.BigEndian.Uint32(b.Data[8:]), len(b.Data))
 		}
 	}
-	if o.verbose >= 2 && !o.entitlementsSet && o.entitlements == "" {
+	if o.verbose >= 2 && !o.entitlementsSet && o.entitlements == "" && !o.requirementsSet {
 		fmt.Fprintln(w, "Total signatures=1\nChosen signature=1")
 	}
 	return nil
