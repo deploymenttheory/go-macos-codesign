@@ -477,3 +477,24 @@ malformed DER and invalid component-hash distinctions. Existing signing XML
 preservation remains separate from display reconstruction. The
 [extraction contract](entitlement-extraction.md) keeps unproven versions, types,
 CMS/slot interactions, locale and filesystem behavior outstanding.
+
+## Requirement extraction selection and rendering
+
+`make research-paths` also runs the
+[requirement extraction driver](../scripts/extract-requirement-extraction.go).
+The [AST record](../spec/apple-requirement-extraction.json) contains six complete
+verbatim bodies from pinned Apple Security: `internalRequirements`,
+`internalRequirement`, `designatedRequirement`, `defaultDesignatedRequirement`,
+Dumper's requirement-set overload and `Dumper::print`. Both arm64 and x86_64 use
+real SDK CoreFoundation/Security declarations and C++ library declarations, with
+private interfaces supplied as declaration-only shims. Function/source/translation
+unit hashes and AST references make those boundaries inspectable.
+
+The bodies establish explicit/default selection, selected-first ad-hoc CDHashes,
+certificate-context delegation, set labels/order/newlines and the 256-byte print
+buffer. Current private CLI call sites, all expression opcodes and DRMaker internals
+are not analyzed by this record. Native acceptance independently establishes implicit
+comments, explicit-architecture restriction, file truncation before component
+validation, display-line suppression and extraction order. Research reads public
+source and the host tool; production reuses the existing pure Go requirement,
+certificate and signature implementations. See the [measured contract](requirement-extraction.md).

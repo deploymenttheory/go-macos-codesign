@@ -6,7 +6,20 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current entitlement-extraction slice
+## Current requirement-extraction slice
+
+Display now supports `-r-` and file destinations for the existing requirement
+expression subset. Named binary sets render in native order; absent designated
+requirements are synthesized as comments. Component hashes, truncate-before-check
+output, architecture selection and combined extraction behavior have 87 cases:
+86 native comparisons and one portable JSON case. Six complete Apple bodies have
+two-target Clang ASTs; `FuzzRequirementSet` adds direct binary-set fuzzing.
+[The contract](requirement-extraction.md) records bounds and remaining language,
+policy, representation and diagnostic work. Final current-commit gates belong to
+the PR; the inventory remains 27 partial, 53 not implemented, eight blocked and
+zero verified.
+
+## Merged entitlement-extraction slice
 
 Display now reconstructs compact XML from DER, emits the native typed text dump,
 checks component binding and preserves normal diagnostics. It matches append
@@ -15,8 +28,15 @@ selection and certificate/file-list ordering. The 90-case matrix includes 89
 native comparisons and one portable JSON interaction. Six complete Apple
 functions have two-target Clang evidence; a tenth fuzz target exercises the DER
 reader directly. [The contract](entitlement-extraction.md) records bounds and
-remaining CMS/slot/locale/filesystem work. Inventory remains 27 partial, 53 not
-implemented, eight blocked and zero verified. Final gates belong to the PR.
+remaining CMS/slot/locale/filesystem work.
+
+[PR #54](https://github.com/deploymenttheory/go-macos-codesign/pull/54) passed all
+three OS jobs, native imports, race/ten fuzz targets, lint and six-target packaging.
+Audited library coverage is 95.46% Linux, 95.37% Windows and 95.55% Mac; CLI is
+98.86%, 98.86% and 99.62%, with entry point 100%. The audit checked 627 source hashes
+per OS, 178 entitlement input/output hashes per foreign producer, all retained
+matrices, six binaries and twelve archive/SBOM checksums. Its actual merge shares
+the audited tree; [the plan](implementation_plan.md#merged-pr54) records exact evidence.
 
 ## Merged file-list slice
 

@@ -25,7 +25,8 @@ func simpleRequirementString(s string) bool {
 
 func requirementString(s string) string {
 	if simpleRequirementString(s) {
-		return s
+		// Apple's simple-string path uses a single 256-byte snprintf buffer.
+		return s[:min(len(s), 255)]
 	}
 	for _, c := range []byte(s) {
 		if c < 32 && c != '\t' && c != '\n' && c != '\r' && c != '\v' && c != '\f' || c > 126 {

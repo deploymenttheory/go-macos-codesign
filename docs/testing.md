@@ -465,3 +465,26 @@ archive helper now reads each regular file once and uses that captured content's
 length and bytes together. This follows the documented
 [NTFS directory-entry behavior](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions)
 and retains the separate real inode/mode assertions. Production writes are unchanged.
+
+## Requirement extraction
+
+The new matrix has 87 cases: 54 representation/expression profiles, 21 destination
+and interaction cases, six component states and six architecture selections.
+Eighty-six require exact native stdout/stderr/status and file or tree comparisons;
+one tests JSON-extension precedence. File cases assert truncation, actual inode and
+mode preservation through hard links/symlinks, multi-operand overwrite, fatal open
+errors and retained effects after later failures. Corrupt hash/missing components
+leave already-truncated output; zero hashes ignore the component and synthesize a
+default. Modified code pages and unreadable CMS with explicit requirements remain
+extractable. Input trees/bytes must remain unchanged.
+
+The three producers retain hashes for their inputs and deterministic outputs. The
+six chain-signed input archives are nondeterministic and are not compared across
+hosts; their extracted requirements are deterministic. Absolute file-list stdout
+is compared to native output on the same Mac and excluded from portable path-hash
+comparison. No normalization of actual stdout/stderr or signed bytes is performed.
+The [contract](requirement-extraction.md) records unsupported opcodes, broader
+synthesis/slot policy and untested combinations. `FuzzRequirementSet` adds an
+eleventh target with malformed binary indexes and overlapping-entry seeds/tests.
+The [six-body Clang record](../spec/apple-requirement-extraction.json) covers both
+macOS target architectures and records declaration-only shim boundaries.
