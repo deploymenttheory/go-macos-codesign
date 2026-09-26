@@ -9,7 +9,7 @@ replace github.com/deploymenttheory/go-macos-codesign/third_party/rc2 => ./third
 replace github.com/spf13/afero => ./third_party/afero
 
 require (
-	github.com/deploymenttheory/go-apfs-v2 v0.9.0
+	github.com/deploymenttheory/go-apfs-v2 v0.11.1
 	github.com/deploymenttheory/go-macos-codesign/third_party/rc2 v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
@@ -19,7 +19,6 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/go-compressions/lzfse v0.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
