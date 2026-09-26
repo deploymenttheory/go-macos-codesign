@@ -72,6 +72,13 @@ are compared; nondeterministic ECDSA CMS bytes are not claimed identical.
 Per-case attestations distinguish comparisons actually run from portable checks.
 Final-commit coverage, CI and downloaded-artifact audits belong to the PR.
 
+Native chain fixtures share one temporary public-test keychain for the acceptance
+process. Recreating identical issuer chains in successive deleted keychains
+produced intermittent host `errSecInternalComponent` failures. Both chain groups
+now reuse the imported certificates; suite cleanup restores the original search
+list and deletes the fixture, and cleanup failures fail the suite. No trust
+settings are installed and production behavior is unaffected.
+
 The previous 87 extraction and 75 compiler cases remain. Legacy certificate
 fixtures without stored designated requirements are constructed explicitly as
 described in [extraction evidence](requirement-extraction.md), rather than changing

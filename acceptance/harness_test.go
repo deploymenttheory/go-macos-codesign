@@ -55,6 +55,12 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	code := m.Run()
+	if nativeChainCleanup != nil {
+		if err := nativeChainCleanup(); err != nil {
+			fmt.Fprintln(os.Stderr, "native chain fixture cleanup:", err)
+			code = 1
+		}
+	}
 	os.RemoveAll(tmp)
 	os.Exit(code)
 }

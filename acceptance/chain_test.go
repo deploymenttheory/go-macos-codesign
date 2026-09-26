@@ -2,7 +2,10 @@ package acceptance
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -140,13 +143,61 @@ func TestAppleChainRequirements(t *testing.T) {
 	}
 }
 
+// Tests are serial. Keep one imported chain set alive until TestMain cleanup:
+// recreating identical issuers in successive keychains can leave native trust
+// evaluation referring to the already-deleted fixture keychain.
+var nativeChainPath string
+var nativeChainCleanup func() error
+
 func nativeChainKeychain(t *testing.T) string {
 	t.Helper()
-	dir := t.TempDir()
+	if nativeChainPath != "" {
+		return nativeChainPath
+	}
+	if nativeChainCleanup != nil {
+		t.Fatal("previous native chain fixture setup failed")
+	}
+	dir, err := os.MkdirTemp(filepath.Dir(binaryPath), "chains-")
+	if err != nil {
+		t.Fatal(err)
+	}
 	keychain := filepath.Join(dir, "chains.keychain-db")
+	listing, listErr, status := run(t, "/usr/bin/security", "list-keychains", "-d", "user")
+	if status != 0 {
+		t.Fatal(listErr)
+	}
+	original := []string{"list-keychains", "-d", "user", "-s"}
+	for _, line := range strings.Split(strings.TrimSpace(listing), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		name, err := strconv.Unquote(strings.TrimSpace(line))
+		if err != nil {
+			t.Fatal(err)
+		}
+		original = append(original, name)
+	}
+	created, changed := false, false
+	nativeChainCleanup = func() error {
+		var failures []error
+		cleanup := func(args ...string) {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			if out, err := exec.CommandContext(ctx, "/usr/bin/security", args...).CombinedOutput(); err != nil {
+				failures = append(failures, fmt.Errorf("%s: %w: %s", args[0], err, out))
+			}
+		}
+		if changed {
+			cleanup(original...)
+		}
+		if created {
+			cleanup("delete-keychain", keychain)
+		}
+		return errors.Join(failures...)
+	}
 	const password = "public-codesign-test-only"
 	mustRun(t, "/usr/bin/security", "create-keychain", "-p", password, keychain)
-	t.Cleanup(func() { mustRun(t, "/usr/bin/security", "delete-keychain", keychain) })
+	created = true
 	mustRun(t, "/usr/bin/security", "unlock-keychain", "-p", password, keychain)
 	// All profiles reuse the same public test signing key. Import it once,
 	// then import every certificate before any native trust evaluation.
@@ -172,26 +223,13 @@ func nativeChainKeychain(t *testing.T) string {
 	}
 	mustRun(t, "/usr/bin/security", "set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-s", "-k", password, keychain)
 	// --keychain selects the identity; SecTrust uses the user search list.
-	// Keep one stable list for all cases, then restore it before deletion.
-	listing, listErr, status := run(t, "/usr/bin/security", "list-keychains", "-d", "user")
-	if status != 0 {
-		t.Fatal(listErr)
-	}
-	original := []string{"list-keychains", "-d", "user", "-s"}
-	for _, line := range strings.Split(strings.TrimSpace(listing), "\n") {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
-		name, err := strconv.Unquote(strings.TrimSpace(line))
-		if err != nil {
-			t.Fatal(err)
-		}
-		original = append(original, name)
-	}
-	t.Cleanup(func() { mustRun(t, "/usr/bin/security", original...) })
+	// Restore the pre-fixture search list before deletion at suite exit, including
+	// after a later setup/test failure. No trust settings are installed.
+	changed = true
 	mustRun(t, "/usr/bin/security", append(append([]string(nil), original...), keychain)...)
 	certs, certErr, certStatus := run(t, "/usr/bin/security", "find-certificate", "-a", keychain)
 	t.Logf("Native chain search list %s; imported certificates (status %d): %s %s", listing, certStatus, certs, certErr)
+	nativeChainPath = keychain
 	return keychain
 }
 
