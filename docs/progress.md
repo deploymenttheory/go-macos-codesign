@@ -6,15 +6,30 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current verification-diagnostics slice
+## Current resource-verification slice
+
+[Resource verification](resource-verification.md) collects ordinary added, modified
+and missing paths, preserves detailed causes, reports selected framework paths,
+and supports verbose/JSON and shallow/deep child behavior. Eight complete Apple
+bodies have two-target Clang evidence. There are 382 new cases, 358 native profiles
+and 686 deterministic hashes per producer. Exact output is required for 306 native
+profiles; 40 ordering/summary and twelve dangling-link profiles retain explicit
+differences. Four dangling cases expose native acceptance versus portable rejection.
+Current-commit coverage and artifact gates belong to this PR. No inventory upgrade.
+
+## Merged verification-diagnostics slice
 
 [Diagnostic context](verification-diagnostics.md) adds bounded native wording,
 failing architecture, nested paths and verbose modified-child details. Error
 causes are preserved; JSON stdout remains parseable. Eight complete Apple bodies
 have two-target Clang evidence. There are 182 new cases, 170 native comparisons
 and 340 deterministic cross-OS hashes; 178 earlier comparisons now require exact
-diagnostics. Final coverage, CI and package gates belong to this PR. Wider
-resource aggregation, malformed inputs and native trust policy remain open.
+diagnostics. [PR #61](https://github.com/deploymenttheory/go-macos-codesign/pull/61)
+passed all three OS, native-import, lint, race/eleven fuzz and packaging gates.
+Library coverage was 95.56% Linux, 95.48% Windows and 95.64% Mac; CLI coverage was
+98.32%, 98.32% and 98.99%, with entry point 100%. The actual merge shares the
+tested CI tree. [The plan](implementation_plan.md#merged-pr61) records 655 source
+hashes per OS, producer audits and 251 exact packaged native comparisons.
 
 ## Merged requirement-verification slice
 

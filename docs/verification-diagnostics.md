@@ -3,6 +3,8 @@
 This extends [verification policy](requirement-verification.md) with structured
 context for a bounded set of native failures. Explicit certificate trust, eager
 malformed-requirement rejection and first-failing-operand exit status are unchanged.
+[Resource collection](resource-verification.md) extends this contract with ordinary
+added/modified/missing details and a documented deterministic ordering choice.
 
 ## CLI contract
 
@@ -36,7 +38,8 @@ synthetic `In architecture: dmg` line.
 ## Library contract
 
 Use `errors.As(err, &detail)` with `var detail *codesign.VerificationError` to read
-`Diagnostic`, `Architecture`, `Subcomponent` and `ModifiedResources`. `Error()`
+`Diagnostic`, `Architecture`, `Subcomponent`, `AddedResources`, `ModifiedResources`
+and `MissingResources`. `Error()`
 retains the detailed Go description and `Unwrap()` preserves sentinel identity.
 Context augmentation copies errors rather than mutating earlier contexts.
 
@@ -83,8 +86,9 @@ gates; final coverage, CI revisions and package audits are recorded in the PR.
 
 ## Remaining work
 
-Ordinary resource added/missing/altered details, multiple-failure aggregation and
-ordering, malformed Mach-O/signature containers, other CMS attribute/policy errors,
+Resource aggregation now has a [bounded contract](resource-verification.md), with
+native ordering and dangling-link differences retained. Malformed Mach-O/signature
+containers, other CMS attribute/policy errors,
 strict validation, alternate framework-version failures, symbolic/Unicode aliases,
 localized text, other architecture preferences and certificate policy diagnostics
 need further probes. Malformed binary Info.plist parsing is distinct from the

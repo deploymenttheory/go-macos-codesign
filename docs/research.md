@@ -1,5 +1,15 @@
 # Research and provenance
 
+## Resource collection and ordering
+
+The [resource driver](../scripts/extract-resource-verification.go) records eight
+complete Apple bodies with two-target Clang ASTs for classification, optionality,
+collection and grouped output. [The contract](resource-verification.md) records
+382 cases and distinguishes exact diagnostics, unstable native within-group order,
+mixed primary errors and existing dangling-link discovery differences. Repeated
+native observations remain in acceptance evidence; they are not replaced by a
+claim that sorted portable output is native scheduling parity.
+
 ## Verification failure context
 
 The [diagnostic driver](../scripts/extract-verification-diagnostics.go) extracts

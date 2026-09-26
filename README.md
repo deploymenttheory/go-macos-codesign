@@ -64,6 +64,8 @@ the previous self-check behavior with `VerifyOptions.CheckDesignatedRequirement`
 Explicit certificate trust remains required.
 [Failure diagnostics](docs/verification-diagnostics.md) include bounded native
 wording, failing architecture and nested paths, with structured library errors.
+[Resource verification](docs/resource-verification.md) collects added, modified
+and missing paths, with explicit limits for native ordering and dangling links.
 
 ## Build
 

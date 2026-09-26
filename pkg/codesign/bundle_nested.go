@@ -246,7 +246,7 @@ func nestedVerificationError(name string, err error) error {
 	if errors.Is(err, ErrRequirement) {
 		// A parent seal is part of signature integrity, not the caller's -R
 		// test. Native reports errSecCSBadNestedCode, with an ordinary exit 1.
-		return &VerificationError{Diagnostic: "nested code is modified or invalid", ModifiedResources: []string{name}, cause: invalid("nested %s: %v", name, err)}
+		return &VerificationError{Diagnostic: "nested code is modified or invalid", ModifiedResources: []string{name}, cause: invalid("nested %s: %v", name, err), resourceFailure: true}
 	}
 	wrapped := fmt.Errorf("nested %s: %w", name, err)
 	var detail *VerificationError
