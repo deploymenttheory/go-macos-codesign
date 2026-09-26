@@ -26,8 +26,13 @@ func verificationDiagnostic(stdout, stderr io.Writer, path string, err error, o 
 		if o.json {
 			stdout = stderr
 		}
-		for _, resource := range detail.ModifiedResources {
-			fmt.Fprintf(stdout, "file modified: %s\n", resource)
+		for _, group := range []struct {
+			label string
+			paths []string
+		}{{"added", detail.AddedResources}, {"modified", detail.ModifiedResources}, {"missing", detail.MissingResources}} {
+			for _, resource := range group.paths {
+				fmt.Fprintf(stdout, "file %s: %s\n", group.label, resource)
+			}
 		}
 	}
 }

@@ -48,10 +48,13 @@ signing, with audited three-OS gates. Merged PR #60 separates
 [quiet integrity verification, verbose self checks and explicit predicates](requirement-verification.md),
 retains parent-sealed requirements and explicit certificate trust, and adds 822
 cases. The thirty PR #59 quiet-verification differences are resolved. Malformed-set
-policy remains an explicit difference. The active D15/WP-10 increment adds
+policy remains an explicit difference. Merged PR #61 adds
 [failure diagnostics](verification-diagnostics.md), structured architecture/nested
 context, verbose resource details and 182 additional cases. It strengthens 178
-earlier native comparisons to exact diagnostics. Full policy remains open.
+earlier native comparisons to exact diagnostics. The active resource increment
+adds [ordinary resource collection](resource-verification.md) and 382 cases,
+retaining native scheduling/primary-error and dangling-link differences. Full
+policy remains open.
 No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory

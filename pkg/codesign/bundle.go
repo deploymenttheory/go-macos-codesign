@@ -479,7 +479,12 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 		}
 	}
 	if !opts.directoryOnly {
-		opts.resourceBase, err = filepath.Abs(filepath.Join(b.path, b.base))
+		base := b.base
+		if b.version != "" {
+			// Diagnostics retain the selected alias; reads use the physical base.
+			base = "Versions/" + b.selection
+		}
+		opts.resourceBase, err = filepath.Abs(filepath.Join(b.path, base))
 		if err != nil {
 			return r, err
 		}

@@ -8,8 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"reflect"
 	"regexp"
+	"slices"
 	"strings"
 
 	"howett.net/plist"
@@ -207,56 +209,35 @@ func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual m
 	if !ok || !legacy || len(m) != 4 || len(files) > maxBundleEntries || !reflect.DeepEqual(m["rules"], bundleRules(true)) || !reflect.DeepEqual(m["rules2"], bundleRules(false)) {
 		return 0, unsupported("bundle resource envelope profile")
 	}
-	for name, v := range files {
+	// Validate present entries before missing entries, as Apple's resource scan
+	// precedes its optional-resource pass. Map iteration must not choose errors.
+	names := slices.Sorted(maps.Keys(actual))
+	for _, name := range slices.Sorted(maps.Keys(files)) {
+		if _, present := actual[name]; !present {
+			names = append(names, name)
+		}
+	}
+	var failures resourceFailures
+	for _, name := range names {
 		if err := ctx.Err(); err != nil {
 			return 0, err
 		}
 		if err := bundleRelativePath(name); err != nil {
 			return 0, err
 		}
-		include, optional := resourcePolicy(name, false)
-		if child, ok := actual[name].(*nestedAppResource); ok {
-			if err := verifyNestedApp(ctx, name, v, child, opts); err != nil {
-				return 0, err
-			}
-			continue
+		var err error
+		if seal, sealed := files[name]; sealed {
+			value, present := actual[name]
+			err = verifyBundleResource(ctx, name, seal, value, present, opts)
+		} else {
+			err = resourceFailure("added", name, opts)
 		}
-		if child, ok := actual[name].(nestedResource); ok {
-			if err := verifyNestedResource(ctx, name, v, child, opts); err != nil {
-				return 0, err
-			}
-			continue
-		}
-		seal, ok := v.(map[string]any)
-		if target, linked := seal["symlink"].(string); linked {
-			if !include || target == "" || !reflect.DeepEqual(v, symlinkSeal(target, optional)) {
-				return 0, invalid("symlink resource seal: %s", name)
-			}
-			if got, present := actual[name]; present {
-				if !reflect.DeepEqual(got, v) {
-					return 0, invalid("altered symlink resource: %s", name)
-				}
-			} else if !optional {
-				return 0, invalid("missing symlink resource: %s", name)
-			}
-			continue
-		}
-		hash, hashOK := seal["hash2"].([]byte)
-		if !include || !ok || !hashOK || len(hash) != 32 || !reflect.DeepEqual(v, resourceSeal(hash, optional, false)) {
-			return 0, invalid("resource seal for %s", name)
-		}
-		if got, present := actual[name]; present {
-			if !reflect.DeepEqual(got, v) {
-				return 0, invalid("altered resource: %s", name)
-			}
-		} else if !optional {
-			return 0, invalid("missing resource: %s", name)
+		if err != nil && !failures.collect(err) {
+			return 0, err
 		}
 	}
-	for name := range actual {
-		if _, ok := files[name]; !ok {
-			return 0, invalid("added resource: %s", name)
-		}
+	if err := failures.err(); err != nil {
+		return 0, err
 	}
 	return len(files), nil
 }

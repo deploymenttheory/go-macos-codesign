@@ -9,9 +9,12 @@ type VerificationError struct {
 	Diagnostic        string
 	Architecture      string
 	Subcomponent      string
+	AddedResources    []string
 	ModifiedResources []string
+	MissingResources  []string
 	cause             error
 	omitArchitecture  bool
+	resourceFailure   bool // a local, collectable resource failure
 }
 
 func (e *VerificationError) Error() string { return e.cause.Error() }
