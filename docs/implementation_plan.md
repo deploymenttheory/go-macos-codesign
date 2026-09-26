@@ -3384,6 +3384,12 @@ existing bounded profile and requires a separate integration phase for streaming
    six malformed-set records and their acceptance deltas. Require exact native
    results for all twelve now-resolved dangling-link profiles. Audit packaged
    APFS v0.11.2 and repeat native DMG/metadata checks across producer hosts.
+   The first v0.11.2 run passed locally and on Linux/Windows, but hosted Mac
+   terminated the native `--strict=all` process for a cyclic framework (exit -1,
+   no output). The signal was not captured; 100 consecutive local repetitions
+   passed. The harness now logs process state and command/output details without
+   accepting signal termination or retrying it. Require final green evidence;
+   retain the failed attempt and investigate any recurrence from the new logs.
 3. Next, implement strict selectors and establish earlier traversal, resource
    inclusion and enclosing-bundle policy. Preserve containment and signing
    guarantees; keep native scheduling/primary-error differences explicit. Then

@@ -17,6 +17,10 @@ native comparisons. Full coverage/CI/artifact gates are being repeated for that
 correction; the initial PR64 run is not passing release evidence.
 The follow-up also pins APFS v0.11.2, published during PR64 validation, adding its
 bounded decmpfs LZFSE decoding fix. Final package audits require that newer pin.
+The first v0.11.2 local, Linux and Windows runs passed. Hosted Mac failed one
+native `--strict=all` observation on a cyclic framework because the reference
+process terminated. One hundred local repetitions passed. Signal-state logging
+has been added without relaxing the assertion; all final gates are being repeated.
 
 ## Merged symlink-verification and dependency slice
 

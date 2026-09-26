@@ -42,6 +42,14 @@ explicitly unsupported by the portable CLI; no strict request silently falls bac
 to default verification. The next phase must establish selector parsing, earlier
 traversal, resource inclusion and outer-bundle scope before exposing those options.
 
+One hosted Mac run terminated the native process while checking a cyclic framework
+with `--strict=all` (exit -1, empty output). Its signal was not captured by the
+original harness. The same framework case passed 100 consecutive local runs;
+the cause remains unresolved. The harness now logs the process state, executable,
+arguments and both output streams for signal termination. The assertion remains
+a hard failure: termination is neither an accepted strict outcome nor parity
+evidence, and there is no automatic retry that could conceal it.
+
 ## Acceptance evidence
 
 [The tests](../acceptance/resource_symlink_test.go) add:
