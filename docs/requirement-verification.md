@@ -117,7 +117,10 @@ The implementation deliberately retains existing eager structural rejection.
 
 The matrix supplies 1,382 deterministic hashes per producer for cross-OS auditing;
 randomized ECDSA CMS bytes are excluded from deterministic comparisons. Inputs
-are checked unchanged in every case. Unit tests cover report preconditions,
+are checked unchanged in every case. The eight portable JSON cases retain raw
+responses and verify their resolved absolute input path separately. Their comparison
+hash replaces only that temporary path with `input` before re-encoding the report;
+native output comparisons elsewhere remain raw. Unit tests cover report preconditions,
 architecture narrowing, certificate context and explicit trust; `FuzzInspect`
 also exercises the report methods after successful verification. The previous
 default, compiler and extraction matrices remain in the suite. Final coverage,

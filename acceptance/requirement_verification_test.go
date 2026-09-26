@@ -480,10 +480,22 @@ func TestRequirementVerificationJSON(t *testing.T) {
 					if err := json.Unmarshal([]byte(out), &report); err != nil || status != wanted || report.Valid != (wanted == 0) {
 						t.Fatal(status, wanted, err, out, stderr)
 					}
+					resolved, err := filepath.EvalSymlinks(dir)
+					if err != nil || report.Path != filepath.Join(resolved, "input") {
+						t.Fatal("JSON resolved input path", report.Path, resolved, err)
+					}
+					// Preserve the raw response, but exclude the independently checked
+					// temporary directory from the portable JSON comparison hash.
+					// Native diagnostics elsewhere in this matrix remain unmodified.
+					report.Path = "input"
+					portable, err := json.Marshal(report)
+					if err != nil {
+						t.Fatal(err)
+					}
 					if hash(nativeRead(t, "input")) != before {
 						t.Fatal("JSON verification changed input")
 					}
-					attest(t, map[string]any{"self": self, "verbose": verbose, "explicit": explicit, "exit": status, "valid": report.Valid, "input_sha256": before, "output_sha256": hash([]byte(out + "\x00" + stderr)), "input_preserved": true, "portable_json_extension": true})
+					attest(t, map[string]any{"self": self, "verbose": verbose, "explicit": explicit, "exit": status, "valid": report.Valid, "stdout": out, "stderr": stderr, "input_sha256": before, "normalized_output_sha256": hash(append(append(portable, 0), stderr...)), "resolved_input_path_checked": true, "input_preserved": true, "portable_json_extension": true})
 				})
 			}
 		}
