@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/disk"
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 )
 
@@ -67,7 +68,92 @@ func requirementInput(t *testing.T, dir, format, profile string) string {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if profile == "implicit-rsa" {
+		// Signing now correctly inserts a certificate DR into an empty set.
+		// Preserve extraction coverage for legacy signatures without one by
+		// constructing a bound empty component and re-signing its CodeDirectory.
+		withoutDesignatedRequirement(t, path, identity)
+	}
 	return path
+}
+
+func withoutDesignatedRequirement(t *testing.T, path string, identity *codesign.Identity) {
+	t.Helper()
+	report, err := codesign.Inspect(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	executable := path
+	if report.Bundle != nil {
+		executable = report.Bundle.Executable
+	}
+	data := nativeRead(t, executable)
+	for _, arch := range report.Architectures {
+		base := int(arch.Offset + arch.SignatureOffset)
+		var directory, requirements, cms int
+		for i := 0; i < int(binary.BigEndian.Uint32(data[base+8:])); i++ {
+			index := base + 12 + 8*i
+			offset := base + int(binary.BigEndian.Uint32(data[index+4:]))
+			switch binary.BigEndian.Uint32(data[index:]) {
+			case codesign.SlotDirectory:
+				directory = offset
+			case codesign.SlotRequirements:
+				requirements = offset
+			case codesign.SlotCMS:
+				cms = offset
+			}
+		}
+		if directory == 0 || requirements == 0 || cms == 0 {
+			t.Fatal("missing fixture components")
+		}
+		oldLength := int(binary.BigEndian.Uint32(data[requirements+4:]))
+		clear(data[requirements+8 : requirements+oldLength])
+		binary.BigEndian.PutUint32(data[requirements+4:], 12)
+		sum := sha256.Sum256(data[requirements : requirements+12])
+		hashOffset := directory + int(arch.Signature.Directories[0].HashOffset) - 64
+		copy(data[hashOffset:hashOffset+32], sum[:])
+		length := int(binary.BigEndian.Uint32(data[directory+4:]))
+		signed, err := codesign.SignCMS(context.Background(), identity, [][]byte{data[directory : directory+length]}, time.Date(2026, 9, 24, 12, 0, 0, 0, time.UTC))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(signed)+8 != int(binary.BigEndian.Uint32(data[cms+4:])) {
+			t.Fatal("fixture CMS allocation changed")
+		}
+		copy(data[cms+8:], signed)
+	}
+	if report.Format == "disk image" {
+		// UDIF requires a tightly packed signature. Reuse the APFS footer model
+		// to update the length, which is blinded in the bound trailer hash.
+		base := int(report.Architectures[0].SignatureOffset)
+		count := int(binary.BigEndian.Uint32(data[base+8:]))
+		packed := bytes.Clone(data[base : base+12+count*8])
+		for i := 0; i < count; i++ {
+			index := 12 + i*8
+			offset := base + int(binary.BigEndian.Uint32(data[base+index+4:]))
+			length := int(binary.BigEndian.Uint32(data[offset+4:]))
+			binary.BigEndian.PutUint32(packed[index+4:], uint32(len(packed)))
+			packed = append(packed, data[offset:offset+length]...)
+		}
+		binary.BigEndian.PutUint32(packed[4:], uint32(len(packed)))
+		var footer disk.DMGFooter
+		size := binary.Size(footer)
+		if err := binary.Read(bytes.NewReader(data[len(data)-size:]), binary.BigEndian, &footer); err != nil {
+			t.Fatal(err)
+		}
+		footer.CodeSignatureLength = uint64(len(packed))
+		var tail bytes.Buffer
+		if err := binary.Write(&tail, binary.BigEndian, footer); err != nil {
+			t.Fatal(err)
+		}
+		data = append(append(bytes.Clone(data[:base]), packed...), tail.Bytes()...)
+	}
+	if err := os.WriteFile(executable, data, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := codesign.Verify(context.Background(), path, codesign.VerifyOptions{TrustedCertificates: identity.Certificates}); err != nil {
+		t.Fatal("legacy fixture binding", err)
+	}
 }
 
 func TestRequirementExtraction(t *testing.T) {

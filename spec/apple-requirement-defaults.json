@@ -1,0 +1,414 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "c64ea68ff66a63ca854156b3ee8cefeee626dbf09154350e3972ff454b830bbd",
+  "excerpt_sha256": {
+    "BundleDiskRep::defaultRequirements": "e8b7c1bc118849a8b6dc5db37dfb9befe80efe7826a6f359eb3a130c1610a097",
+    "DRMaker::make": "8684ca3c3331db2f53d1c60bdf7d58af14c827eefb49830b2d9ee3d90a0f1440",
+    "DRMaker::nonAppleAnchor": "c6936355da1610888900443150c064ff23d60d8fe4bb3764ecc2d04832f8b150",
+    "DiskRep::defaultRequirements": "d05cd8ef5d2de636a4c282c35d38db1ce3baa07905252fecacd63dbbf70de885",
+    "InternalRequirements::operator \\(\\)": "319363486af346c11e73e581075058087fbf78617f345ba72e594f8e19ef6b38",
+    "MachORep::defaultRequirements": "2bfbb04166fbc08aee06be7a5cc3309d2ff6ebb1a10ac19a87a5c2d00854ae2c"
+  },
+  "schema": 1,
+  "scope": "Six complete verbatim Apple bodies: InternalRequirements merge/default selection, DRMaker make/nonAppleAnchor, MachORep/BundleDiskRep/DiskRep default dispatch. Real SDK certificate/CoreFoundation declarations, requirement-kind constants, target macros and C++ library; private maker/context/CFRef/DERItem/logging interfaces are declaration-only shims. Both target ASTs establish explicit override precedence, absent-designated synthesis, no ad-hoc default at signing time, organization anchor selection and representation default delegation. Library dependency extraction, interpreter defaults, Apple proper policy and private current CLI call sites are not reconstructed or implemented by this increment. Native signing acceptance supplies the executed oracle. Production has no SDK or native runtime dependency.",
+  "sdk": "MacOSX.sdk",
+  "sources": {
+    "bundlediskrep.cpp": {
+      "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "diskrep.cpp": {
+      "sha256": "b09b8e6eaff18664910185e3fe10b1cc07bded1c98fd5038a2fdd0ad8a5a461f",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/diskrep.cpp"
+    },
+    "drmaker.cpp": {
+      "sha256": "08355c401f9b50ae30af4500b0787699656f2734cb9a3b23baad85552f96a7f8",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/drmaker.cpp"
+    },
+    "machorep.cpp": {
+      "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
+    },
+    "signerutils.cpp": {
+      "sha256": "2f352abf90941bca654b31bee3a44a75499abc22da4362601920c0ff6301c699",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signerutils.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "__ZN23CodesignDefaultResearch13BundleDiskRep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "arch": 1,
+          "ctx": 1,
+          "defaultRequirements": 1,
+          "mExecRep": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch20InternalRequirementsclEPKNS_12RequirementsES3_RKNS_11Requirement7ContextE": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CStyleCastExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 7,
+          "CallExpr": 2,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 14,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 19,
+          "MemberExpr": 8,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "references": {
+          "add": 3,
+          "contains": 1,
+          "context": 1,
+          "defaulted": 3,
+          "dr": 2,
+          "free": 1,
+          "given": 2,
+          "kSecDesignatedRequirementType": 2,
+          "mReqs": 2,
+          "make": 2,
+          "maker": 1,
+          "requirements_supported": 1,
+          "secinfo": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DRMaker14nonAppleAnchorEv": {
+        "ast_kinds": {
+          "BinaryOperator": 6,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 6,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 30,
+          "DeclStmt": 5,
+          "GNUNullExpr": 2,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 44,
+          "IntegerLiteral": 3,
+          "MemberExpr": 17,
+          "StringLiteral": 4,
+          "UnaryOperator": 6,
+          "VarDecl": 5,
+          "WhileStmt": 1
+        },
+        "references": {
+          "CFStringCompare": 1,
+          "SecCertificateCopySubjectAttributeValue": 2,
+          "anchor": 1,
+          "anchorCert": 1,
+          "authorityHash": 2,
+          "ca": 2,
+          "caOrganization": 4,
+          "cert": 3,
+          "certCount": 1,
+          "ctx": 4,
+          "hashOfCertificate": 1,
+          "kCFCompareEqualTo": 1,
+          "leafCert": 2,
+          "leafOrganization": 4,
+          "oidOrganizationName": 2,
+          "operator const __CFString *": 6,
+          "secinfo": 2,
+          "slot": 6,
+          "take": 2
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DRMaker4makeEv": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 7,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 3,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 8,
+          "IntegerLiteral": 1,
+          "MemberExpr": 11,
+          "ReturnStmt": 2
+        },
+        "references": {
+          "anchorCert": 1,
+          "appleAnchor": 1,
+          "cert": 1,
+          "certCount": 1,
+          "ctx": 3,
+          "ident": 1,
+          "identifier": 1,
+          "isAppleCA": 1,
+          "make": 1,
+          "nonAppleAnchor": 1,
+          "opAnd": 1,
+          "put": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DiskRep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "GNUNullExpr": 1,
+          "ImplicitCastExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1
+        },
+        "references": {}
+      },
+      "__ZN23CodesignDefaultResearch8MachORep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CStyleCastExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 10,
+          "DeclStmt": 2,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 3,
+          "MemberExpr": 3,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 3,
+          "UnaryOperator": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "__assert_rtn": 1,
+          "__builtin_expect": 1,
+          "add": 1,
+          "arch": 2,
+          "ctx": 1,
+          "kSecLibraryRequirementType": 1,
+          "libraryRequirements": 1,
+          "libreq": 2,
+          "make": 1,
+          "maker": 2
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "__ZN23CodesignDefaultResearch13BundleDiskRep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "ImplicitCastExpr": 2,
+          "MemberExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "arch": 1,
+          "ctx": 1,
+          "defaultRequirements": 1,
+          "mExecRep": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch20InternalRequirementsclEPKNS_12RequirementsES3_RKNS_11Requirement7ContextE": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CStyleCastExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 7,
+          "CallExpr": 2,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 14,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 19,
+          "MemberExpr": 8,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "references": {
+          "add": 3,
+          "contains": 1,
+          "context": 1,
+          "defaulted": 3,
+          "dr": 2,
+          "free": 1,
+          "given": 2,
+          "kSecDesignatedRequirementType": 2,
+          "mReqs": 2,
+          "make": 2,
+          "maker": 1,
+          "requirements_supported": 1,
+          "secinfo": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DRMaker14nonAppleAnchorEv": {
+        "ast_kinds": {
+          "BinaryOperator": 6,
+          "BreakStmt": 1,
+          "CStyleCastExpr": 3,
+          "CXXConstructExpr": 2,
+          "CXXMemberCallExpr": 13,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CallExpr": 6,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 30,
+          "DeclStmt": 5,
+          "GNUNullExpr": 2,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 44,
+          "IntegerLiteral": 3,
+          "MemberExpr": 17,
+          "StringLiteral": 4,
+          "UnaryOperator": 6,
+          "VarDecl": 5,
+          "WhileStmt": 1
+        },
+        "references": {
+          "CFStringCompare": 1,
+          "SecCertificateCopySubjectAttributeValue": 2,
+          "anchor": 1,
+          "anchorCert": 1,
+          "authorityHash": 2,
+          "ca": 2,
+          "caOrganization": 4,
+          "cert": 3,
+          "certCount": 1,
+          "ctx": 4,
+          "hashOfCertificate": 1,
+          "kCFCompareEqualTo": 1,
+          "leafCert": 2,
+          "leafOrganization": 4,
+          "oidOrganizationName": 2,
+          "operator const __CFString *": 6,
+          "secinfo": 2,
+          "slot": 6,
+          "take": 2
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DRMaker4makeEv": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXBindTemporaryExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 7,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 3,
+          "ExprWithCleanups": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 8,
+          "IntegerLiteral": 1,
+          "MemberExpr": 11,
+          "ReturnStmt": 2
+        },
+        "references": {
+          "anchorCert": 1,
+          "appleAnchor": 1,
+          "cert": 1,
+          "certCount": 1,
+          "ctx": 3,
+          "ident": 1,
+          "identifier": 1,
+          "isAppleCA": 1,
+          "make": 1,
+          "nonAppleAnchor": 1,
+          "opAnd": 1,
+          "put": 1
+        }
+      },
+      "__ZN23CodesignDefaultResearch7DiskRep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "GNUNullExpr": 1,
+          "ImplicitCastExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1
+        },
+        "references": {}
+      },
+      "__ZN23CodesignDefaultResearch8MachORep19defaultRequirementsEPKNS_12ArchitectureERKNS_14SigningContextE": {
+        "ast_kinds": {
+          "CStyleCastExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 3,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 10,
+          "DeclStmt": 2,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 3,
+          "MemberExpr": 3,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 3,
+          "UnaryOperator": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "__assert_rtn": 1,
+          "__builtin_expect": 1,
+          "add": 1,
+          "arch": 2,
+          "ctx": 1,
+          "kSecLibraryRequirementType": 1,
+          "libraryRequirements": 1,
+          "libreq": 2,
+          "make": 1,
+          "maker": 2
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "08e9d0e4e0c82f3a4a8489800a6ef4324dd78e2e4ffa4423ef058c88e1c154bb"
+}

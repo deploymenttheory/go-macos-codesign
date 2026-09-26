@@ -675,7 +675,7 @@ func checkDesignatedRequirement(set []byte, d Directory) error {
 	return nil
 }
 
-// RequirementsBytes accepts compiled sets or textual designated requirements.
+// RequirementsBytes accepts compiled or textual requirement sets.
 func RequirementsBytes(data []byte) ([]byte, error) {
 	if len(data) >= 4 && be.Uint32(data) == MagicRequirements {
 		return bytes.Clone(data), validateRequirements(data)

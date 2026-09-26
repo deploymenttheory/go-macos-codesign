@@ -51,8 +51,10 @@ Files are truncated before component validation; extraction does not verify page
 
 Signing accepts [named requirement sets](docs/requirement-sets.md) from inline text,
 source files or compiled sets, including host, guest, designated, library and plugin
-kinds. The shared compiler sorts entries and applies the last duplicate. Expression
-coverage and certificate default merging remain bounded as documented.
+kinds. The shared compiler sorts entries and applies the last duplicate.
+[Certificate signing defaults](docs/requirement-defaults.md) fill a missing
+designated requirement in empty or partial sets and preserve explicit overrides.
+Expression coverage, representation defaults and verification policy remain bounded.
 
 ## Build
 

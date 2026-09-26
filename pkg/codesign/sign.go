@@ -141,6 +141,11 @@ func signBytes(ctx context.Context, data []byte, opts SignOptions, dmgDryRun boo
 	if opts.Flags & ^uint32(0x33f02) != 0 {
 		return nil, unsupported("code signing flags")
 	}
+	if opts.Identity == nil {
+		if err := prepareRequirements(&opts, nil); err != nil {
+			return nil, err
+		}
+	}
 	if isDMG(data) {
 		return signDMG(ctx, data, opts, dmgDryRun)
 	}
@@ -187,8 +192,6 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	reqs := opts.Requirements
 	if len(reqs) == 0 {
 		reqs = superblob(MagicRequirements, nil)
-	} else if err := validateRequirements(reqs); err != nil {
-		return nil, err
 	}
 	codeEnd := len(im.data)
 	if im.sigCommand >= 0 {

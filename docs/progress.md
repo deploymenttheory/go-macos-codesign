@@ -6,7 +6,19 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current requirement-set compiler slice
+## Current requirement-default slice
+
+Certificate signing fills missing designated requirements in empty and partial
+sets, preserves explicit overrides and repacks binary entries canonically.
+Nested objects receive their own defaults; replacement uses fresh options.
+The [contract](requirement-defaults.md) defines 277 portable/native comparison cases
+and 48 additional Mac certificate cases, with six complete Apple bodies and
+two-target Clang evidence. Thirty false-designated-requirement cases expose an
+existing ordinary-verification policy difference; signing bytes are compared
+independently and that difference remains explicit. Representation defaults and
+metadata preservation remain open. Final current-commit gates belong to this PR.
+
+## Merged requirement-set compiler slice
 
 Signing now compiles all five named requirement kinds and unsigned decimal kinds
 through the shared expression parser. Entries sort by kind; the last duplicate
@@ -14,9 +26,14 @@ wins. Comments, semicolons and implicit extension-existence boundaries match the
 measured native grammar. Six complete Apple bodies have two-target Clang ASTs;
 33 native compiler records, 18 signed-tree comparisons, 12 rejection cases and
 12 certificate signing cases establish the bounded profile. The
-[contract](requirement-sets.md) retains certificate default merging, wider grammar,
-stdin/substitution and exact error diagnostics as outstanding. Final current-commit
-gates belong to this PR; the feature inventory is unchanged.
+[contract](requirement-sets.md) retains wider grammar, stdin/substitution and exact
+error diagnostics as outstanding. [PR #58](https://github.com/deploymenttheory/go-macos-codesign/pull/58)
+passed all three OS jobs, native imports, race/eleven fuzz targets, lint and
+packaging. Audited library coverage is 95.51% Linux, 95.42% Windows and 95.59% Mac;
+CLI is 98.92%, 98.92% and 99.64%, with entry point 100%. Its actual merge shares
+the audited tree; [the plan](implementation_plan.md#merged-pr58) records revisions,
+638 source hashes per OS, 117 new deterministic hashes per foreign producer and
+all retained matrices/package audits. The inventory remains unchanged.
 
 ## Merged requirement-extraction slice
 

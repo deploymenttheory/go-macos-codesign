@@ -39,9 +39,13 @@ append destinations, diagnostics and ordering, with audited three-OS gates.
 Merged PR #57 adds [requirement extraction](requirement-extraction.md):
 canonical named sets, implicit designated requirements, component binding,
 truncation and architecture/combined-output behavior. Its audited three-OS gates
-passed. The active D13/WP-09 increment adds [requirement-set compilation](requirement-sets.md):
+passed. Merged PR #58 adds [requirement-set compilation](requirement-sets.md):
 all named kinds, decimal kinds, comments/semicolons and duplicate ordering, with
-native byte comparisons. Certificate default merging remains the next policy task.
+audited native byte comparisons. The active D13/WP-09 increment adds
+[certificate default merging](requirement-defaults.md), explicit overrides,
+canonical binary repacking and fresh per-object defaults during deep/replacement
+signing. Ordinary verification's evaluation of the embedded designated requirement
+is a separately measured difference and the next WP-10 policy task.
 No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory

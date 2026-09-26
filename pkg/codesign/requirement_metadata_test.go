@@ -165,6 +165,18 @@ func TestRequirementExtractionAST(t *testing.T) {
 }
 
 func FuzzRequirementSet(f *testing.F) {
+	pem, err := os.ReadFile("../../testdata/identities/rsa-identity.pem")
+	if err != nil {
+		f.Fatal(err)
+	}
+	id, err := LoadIdentityPEM(pem, nil)
+	if err != nil {
+		f.Fatal(err)
+	}
+	chain, err := linkedCertificates(id.Certificates[0], id.Certificates)
+	if err != nil {
+		f.Fatal(err)
+	}
 	child, _ := CompileRequirement(`identifier "test" and ! never`)
 	for _, data := range [][]byte{nil, superblob(MagicRequirements, nil), superblob(MagicRequirements, []Blob{{Slot: 3, Data: child}}), superblob(MagicRequirements, []Blob{{Slot: 1, Data: child}, {Slot: 3, Data: child}}), []byte("bad")} {
 		f.Add(data)
@@ -174,6 +186,18 @@ func FuzzRequirementSet(f *testing.F) {
 			return
 		}
 		before := bytes.Clone(data)
+		for _, path := range [][]*certificate{nil, chain} {
+			opts := SignOptions{Identifier: "fuzz", Requirements: data}
+			if err := prepareRequirements(&opts, path); err == nil {
+				first := bytes.Clone(opts.Requirements)
+				if err := prepareRequirements(&opts, path); err != nil || !bytes.Equal(first, opts.Requirements) {
+					t.Fatal("unstable default merge", err)
+				}
+			}
+			if !bytes.Equal(before, data) {
+				t.Fatal("merge mutated input")
+			}
+		}
 		text, designated, e := requirementSetText(data)
 		if !bytes.Equal(data, before) {
 			t.Fatal("input mutated")
