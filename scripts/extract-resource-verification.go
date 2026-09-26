@@ -54,6 +54,8 @@ func main() {
 #include <unistd.h>
 #include <cstdio>
 #include <cerrno>
+#include <cstring>
+#include <cstdlib>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/CodeSigning.h>
 #define secinfo(...) ((void)0)
@@ -71,6 +73,7 @@ struct CFTempString { CFTempString(string); operator CFStringRef() const; };
 struct CFTempURL { CFTempURL(CFStringRef,bool,CFURLRef); CFTempURL(string,bool,CFURLRef); CFURLRef get(); operator CFURLRef() const; };
 struct CSError { CSError(OSStatus,CFDictionaryRef); [[noreturn]] static void throwMe(OSStatus,CFStringRef,CFTypeRef); };
 struct MacOSError { [[noreturn]] static void throwMe(OSStatus); };
+struct UnixError { static void check(int); };
 struct CFError { [[noreturn]] static void throwMe(); };
 struct Mutex {};
 template<class T> struct StLock { StLock(T&); ~StLock(); };
@@ -82,11 +85,17 @@ struct CodeDirectory { using HashAlgorithm=int; static void multipleHashFileData
 struct DiskRep { string mainExecutablePath(); };
 bool isFlagSet(SecCSFlags,SecCSFlags);
 extern const SecCSFlags kSecCSRestrictSidebandData;
+extern const SecCSFlags kSecCSRestrictSymlinks;
 extern const CFStringRef kSecCFErrorResourceRecursive;
+struct ResourceBuilder { string root() const; bool includes(string) const; };
 struct SecStaticCode {
  struct ValidationContext { SecStaticCode& code; void reportProblem(OSStatus,CFStringRef,CFTypeRef); };
  struct CollectingContext { Mutex mLock; OSStatus mStatus; CFRef<CFMutableDictionaryRef> mCollection; void reportProblem(OSStatus,CFStringRef,CFTypeRef); void throwMe(); };
  DiskRep* mRep;
+ SecCSFlags mValidationFlags;
+ const SecStaticCode* mOuterScope;
+ ResourceBuilder* mResourceScope;
+ std::set<OSStatus> mTolerateErrors;
  CFURLRef resourceBase(); CFDictionaryRef resourceDictionary();
  bool loadResources(CFDictionaryRef&,CFDictionaryRef&,uint32_t&);
  static void checkOptionalResource(CFTypeRef,CFTypeRef,void*);
@@ -107,7 +116,7 @@ static void diagnose1(const char*,CFTypeRef);
 		file, repo, commit, path string
 		patterns                 []string
 	}{
-		{"StaticCode.cpp", "Security", "db15acbe6a7f257a859ad9a3bb86097bfe0679d9", "OSX/libsecurity_codesigning/lib/", []string{`bool SecStaticCode::loadResources\(`, `void SecStaticCode::checkOptionalResource\(`, `void SecStaticCode::validateResource\(`, `void SecStaticCode::ValidationContext::reportProblem\(`, `void SecStaticCode::CollectingContext::reportProblem\(`, `void SecStaticCode::CollectingContext::throwMe\(`}},
+		{"StaticCode.cpp", "Security", "db15acbe6a7f257a859ad9a3bb86097bfe0679d9", "OSX/libsecurity_codesigning/lib/", []string{`bool SecStaticCode::loadResources\(`, `void SecStaticCode::checkOptionalResource\(`, `void SecStaticCode::validateResource\(`, `void SecStaticCode::validateSymlinkResource\(`, `void SecStaticCode::ValidationContext::reportProblem\(`, `void SecStaticCode::CollectingContext::reportProblem\(`, `void SecStaticCode::CollectingContext::throwMe\(`}},
 		{"cs_utils.cpp", "security_systemkeychain", "2b4c65b1074521e9c1dd2c8dc7fbf45dd775ec70", "src/", []string{`void diagnose\(const char \*context, OSStatus rc, CFDictionaryRef info\)`, `static void diagnose1\(const char \*type, CFTypeRef value\)`}},
 	} {
 		data := read(".research/apple/" + source.file)
@@ -146,14 +155,14 @@ static void diagnose1(const char*,CFTypeRef);
 				functions[n.MangledName] = map[string]any{"ast_kinds": kinds, "references": refs}
 			}
 		})
-		if len(functions) != 8 {
+		if len(functions) != 9 {
 			panic(fmt.Sprintf("incomplete AST: %d", len(functions)))
 		}
 		targets[target] = functions
 	}
-	record := map[string]any{"schema": 1, "driver_sha256": hash(read("scripts/extract-resource-verification.go")), "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk), "sources": sources, "excerpt_sha256": excerpts, "translation_unit_sha256": hash([]byte(unit)), "targets": targets, "scope": "Eight complete verbatim Apple bodies: resource loading, optional-resource checks, individual resource validation, immediate and collecting error contexts, collector throw, and two diagnostic output functions. Real SDK/CoreFoundation declarations; private code/resource/hash/file/lock/CF wrapper interfaces, private flags and POSIX aliases are declaration-only shims; tracing is a no-op. ASTs establish added/modified/missing classification, optional missing resources, first collected status and array append order, and grouped verbose output on stdout. The asynchronous traversal is read as source but is not reconstructed in this translation unit; repeated native probes establish unstable within-group ordering. Full rule sets, strict/xattr policy, filesystem races and native scheduling remain outside this profile. Production has no SDK or native runtime dependency."}
+	record := map[string]any{"schema": 1, "driver_sha256": hash(read("scripts/extract-resource-verification.go")), "compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk), "sources": sources, "excerpt_sha256": excerpts, "translation_unit_sha256": hash([]byte(unit)), "targets": targets, "scope": "Nine complete verbatim Apple bodies: resource loading, optional-resource checks, individual resource and symlink validation, immediate and collecting error contexts, collector throw, and two diagnostic output functions. Real SDK/CoreFoundation/POSIX declarations; private code/resource/hash/file/lock/CF wrapper interfaces and flags are declaration-only shims; tracing is a no-op. ASTs establish added/modified/missing classification, optionality, first collected status and grouped output. Symlink validation compares readlink text before any realpath call; resolution and destination restrictions require both strict and restrict-symlink flags. The outer-scope and resource-inclusion calls are declared but their implementations are not reconstructed. The asynchronous traversal is reviewed as source; repeated native probes establish unstable within-group ordering. Native plain/all strict traversal can fail earlier than the extracted symlink function, so this does not establish full strict policy. Full rule sets, xattrs, filesystem races and scheduling remain outside this profile. Production has no SDK or native runtime dependency."}
 	b, e := json.MarshalIndent(record, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-resource-verification.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote eight complete Apple resource bodies on two targets")
+	fmt.Println("Wrote nine complete Apple resource bodies on two targets")
 }

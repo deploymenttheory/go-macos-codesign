@@ -6,7 +6,19 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current resource-verification slice
+## Current symlink-verification and dependency slice
+
+The dependency is updated to released APFS v0.11.1, including its newer DMG and
+LZFSE fixes, with no APFS replacement. [Default symlink verification](resource-symlinks.md)
+compares sealed text without resolving targets, including dangling, cyclic and
+external links. Signing retains its containment policy. There are 352 portable
+cases, 68 native-signing cases and 568 comparable hashes. All twelve earlier
+dangling-link records now match native output; the four acceptance differences
+are resolved. The resource driver now has nine complete bodies on two Clang
+targets. The 102 strict-policy observations remain explicitly unimplemented.
+Current-commit coverage and artifact gates belong to this PR. No inventory upgrade.
+
+## Merged resource-verification slice
 
 [Resource verification](resource-verification.md) collects ordinary added, modified
 and missing paths, preserves detailed causes, reports selected framework paths,
@@ -15,7 +27,12 @@ bodies have two-target Clang evidence. There are 382 new cases, 358 native profi
 and 686 deterministic hashes per producer. Exact output is required for 306 native
 profiles; 40 ordering/summary and twelve dangling-link profiles retain explicit
 differences. Four dangling cases expose native acceptance versus portable rejection.
-Current-commit coverage and artifact gates belong to this PR. No inventory upgrade.
+[PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) passed all
+three OS, native-import, race/eleven fuzz, lint and package gates. Library coverage
+was 95.61% Linux, 95.53% Windows and 95.69% Mac; CLI coverage was 98.33%, 98.33%
+and 99.00%. Its actual merge shares the audited tree. [The plan](implementation_plan.md#merged-pr63)
+records 660 source hashes per OS, 2,408 producer hashes and 327 packaged native
+comparisons. The four dangling-link acceptance differences were resolved above.
 
 ## Merged verification-diagnostics slice
 

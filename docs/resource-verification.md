@@ -68,9 +68,9 @@ caller `ErrRequirement` failures. Invalid bundle reports have `Valid == false`.
 
 ## Research and acceptance evidence
 
-The [Go research driver](../scripts/extract-resource-verification.go) extracts eight
+The [Go research driver](../scripts/extract-resource-verification.go) extracts nine
 complete verbatim Apple bodies: resource loading, optional-resource checks,
-individual resource validation, immediate/collecting contexts, collector throw,
+individual resource and symlink validation, immediate/collecting contexts, collector throw,
 and grouped diagnostic rendering. [Two-target Clang evidence](../spec/apple-resource-verification.json)
 records source, excerpt, driver and translation-unit hashes. Real SDK declarations
 are used with declaration-only private interfaces and no-op tracing. The complete
@@ -85,10 +85,10 @@ development tools, not production requirements.
 | Four representations × ad-hoc/RSA × 19 states × quiet/verbose | 304 | 264 exact profiles; 24 within-group ordering and 16 mixed-summary profiles |
 | App/framework children × three changes × shallow/deep × quiet/verbose × text/JSON | 48 | 24 exact native comparisons and 24 portable JSON checks |
 | Three changes × Current/A/direct framework selection × quiet/verbose | 18 | Exact native diagnostics |
-| App/framework × three dangling-link states × quiet/verbose | 12 | Explicit existing discovery differences |
+| App/framework × three dangling-link states × quiet/verbose | 12 | Exact native output after the verification-specific symlink phase |
 
 All **382 cases** run on each producer; **358** also invoke native `codesign` on
-Mac. **306** require exact raw native output. The 40 ordering/summary cases retain
+Mac. **318** now require exact raw native output (306 at PR #63). The 40 ordering/summary cases retain
 three native observations each and compare complete grouped detail lists without
 losing duplicates. The twelve dangling-link cases retain both outputs and statuses.
 
@@ -107,14 +107,11 @@ coverage, three-OS CI revisions and downloaded artifact audits belong to the PR.
 
 ## Outstanding work
 
-The scanner still requires supported symlink targets to resolve within its root.
-An unchanged link whose required target is removed, a link retargeted to a missing
-file and a link to a removed optional localization file fail that existing check.
-Apple rejects the first two through resource diagnostics and accepts the last in
-the measured default policy. Four of the twelve dangling records therefore expose
-native acceptance versus portable rejection. Signing and containment behavior are
-not relaxed here; a separate verification-specific symlink-policy phase must prove
-safe behavior for dangling links, chains, escapes and strict-mode interactions.
+The [verification-specific symlink phase](resource-symlinks.md) resolves the twelve
+dangling-link discovery differences, including four native-acceptance differences.
+Default verification compares link text without resolving targets. Signing retains
+its existing containment guards. Strict selectors, resource inclusion, outer-bundle
+scope and earlier strict traversal remain outstanding, with 102 native observations.
 
 Other outstanding work includes custom/legacy rules and digests, empty directory
 and type transitions, recursive/excluded resources, alternate framework versions,

@@ -1,7 +1,7 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-26 after [PR #61](https://github.com/deploymenttheory/go-macos-codesign/pull/61) merged.
-Released APFS v0.9.0 remains the shared metadata/DMG dependency, with no local
+Status: updated 2026-09-26 after [PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) merged.
+Released APFS v0.11.1 is now the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
 [PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
@@ -37,11 +37,17 @@ malformed-structure policy remains open. Merged [PR #61](#merged-pr61)
 adds [native failure context](verification-diagnostics.md), eight
 complete Apple bodies, 182 new cases and 340 deterministic hashes per producer.
 It strengthens 178 earlier comparisons to exact diagnostics, preserving six
-malformed-set differences. The active `feat/resource-verification-diagnostics`
-increment adds [ordinary resource collection](resource-verification.md), eight
+malformed-set differences. Merged [PR #63](#merged-pr63)
+adds [ordinary resource collection](resource-verification.md), eight
 complete Apple bodies, 382 cases and 686 producer hashes. Exact output is required
 for 306 native profiles; native ordering/primary-error and dangling-link discovery
-differences remain explicit. Current-commit gates belong to this implementation PR.
+differences were retained explicitly. The active `feat/resource-symlink-verification`
+increment first upgrades APFS from v0.9.0 to v0.11.1, then adds
+[verification-specific link text checks](resource-symlinks.md). It resolves the twelve
+dangling-link records, including four native-acceptance differences, and adds 352
+portable cases, 68 native-signing cases and 102 explicit strict-policy observations.
+The resource driver now extracts nine complete bodies. Signing guards remain;
+strict selectors stay unsupported. Current-commit gates belong to this PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -80,6 +86,41 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr63"></a>
+### Merged milestone: PR #63 (2026-09-26)
+
+[PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) merged at
+22:40:54 UTC as `0e9ea75435c1419a02ca7b8b6b70912aeffdd243`. The actual merge,
+final head `8b6ba5ec8e224bdf5afbc16e5cbcb25b72cbef98` and tested CI merge
+`dbfb1c1acda055b7a3b526827cd6eca6868ec3c4` share tree
+`7f642818689620e56ee57140978fc93cdf60d259`. Final
+[compatibility](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36275931015)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36275931057)
+passed all gates.
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Linux | 4,640/4,853, 95.61% | 588/598, 98.33% | 1/1, 100% |
+| Windows | 4,636/4,853, 95.53% | 588/598, 98.33% | 1/1, 100% |
+| macOS | 4,644/4,853, 95.69% | 592/598, 99.00% | 1/1, 100% |
+
+The 382 new cases contained 358 native profiles: 306 exact output profiles,
+24 within-group ordering, 16 mixed-summary and twelve dangling-link profiles.
+Four dangling cases recorded native acceptance versus Go rejection. There were
+24 additional JSON cases. All 686 new deterministic hashes and the retained
+182/340 diagnostic and 822/1,382 requirement cases/hashes matched both hosted and
+local Mac evidence: 1,386 cases and 2,408 hashes per foreign producer. The audit
+checked 660 source hashes per OS with 17 expected Windows text conversions, plus
+all retained defaults/compiler/extraction/entitlement/file-list/parent-alias/
+DMG/notice matrices. Native downstream checks passed 606 signed imports,
+88 byte-identical removals and 140 DMG dry-run comparisons. Race/eleven fuzz
+targets and vendored RC2 passed. Six packages carried the clean CI revision,
+CGO disabled and APFS v0.9.0 without replacement; twelve checksums and six SPDX
+documents passed. The downloaded Darwin arm64 package passed 327 native
+comparisons: 317 exact output and ten bounded ordering/summary comparisons,
+preserved inputs and explicit trust rejection. Local acceptance took 554.784
+seconds. All 386 documentation links passed. The broad inventory stayed unchanged.
 
 <a id="merged-pr61"></a>
 ### Merged milestone: PR #61 (2026-09-26)
@@ -1820,6 +1861,14 @@ is conservative. The native `--strict`, `--ignore-resources`,
   additional selectors found by WP-01. Native strictness may evolve by OS version.
 - [ ] Match default versus strict treatment of broken, external, unsealed and
   cyclic resource links without weakening path containment during writes.
+  - [x] Compare bounded default-verification link text without resolving targets.
+    Propagate that scan policy to deep children while preserving signing/removal
+    discovery. Cover matching and changed dangling/cyclic/chained/external text,
+    Apple-produced seals, JSON and complete signing-rejection preservation.
+  - [ ] Implement selector parsing and full strict traversal/inclusion/outer-scope
+    rules. Retain 102 native observations: plain/all strict may fail with ENOENT
+    or ELOOP before the symlink validator; the symlinks selector reports modified
+    link details. Do not equate these distinct failure paths.
 - [ ] Detect native disallowed sideband attributes, including FinderInfo and
   resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
 - [ ] Implement `--strip-disallowed-xattrs` through APFS APIs, including native
@@ -2187,10 +2236,14 @@ the current explicit-trust library contract is not identical to every native
     profiles without claiming scheduling parity. Record all repeated native outputs;
     compare full grouped details with duplicates preserved. Investigate native
     scheduling separately from deterministic portable collection.
-  - [ ] Define verification-specific symlink policy for dangling targets, chains,
-    escapes and strict-mode interactions. Preserve signing/containment guards until
-    independently proven. Twelve cases retain current discovery differences,
-    including four native-accepted optional-target cases rejected by Go.
+  - [x] Define bounded default verification for dangling targets, chains, cycles,
+    absolute targets and escapes without traversing link targets. Preserve signing
+    guards. The twelve retained records now require exact native diagnostics,
+    resolving four optional-target acceptance differences. Nine complete Apple
+    bodies, 352 portable cases, 68 native-signing cases and 568 comparable hashes
+    define the new profile; absolute-target input hashes remain host-specific.
+  - [ ] Complete strict selectors and earlier traversal, inclusion rules and
+    outer-scope policy. Keep native scheduling differences explicit. See WP-04.
   - [ ] Complete malformed containers, other CMS attributes/algorithms,
     strict policy, alternate framework-version errors, aliases/localization and
     other native architecture preferences. Preserve the six malformed-set records
@@ -3170,7 +3223,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.9.0 retained; streaming needs D09 and new APIs need upstream releases |
+| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.1 supplies streaming APIs; codesign integration still needs D09 |
 | D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
 | D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
 | D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
@@ -3271,25 +3324,31 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #61
+### Active implementation work after PR #63
 
-`feat/resource-verification-diagnostics` starts from actual PR #61 merge
-`1d749c6a4b798c693437fd360a61f12773f40793`. Released APFS v0.9.0 remains pinned
-without a replacement.
+`feat/resource-symlink-verification` starts from actual PR #63 merge
+`0e9ea75435c1419a02ca7b8b6b70912aeffdd243`. Its first commit upgrades to released
+APFS v0.11.1 without a replacement, removing the superseded external LZFSE module.
+The new upstream streaming APIs are available; codesign's adapter still uses its
+existing bounded profile and requires a separate integration phase for streaming.
 
-1. Implement the bounded D15/WP-10 resource contract above using existing sealed
-   resource data and structured errors. Prove complete category lists, retained
-   causes, optionality, nested exceptions, selected framework paths and JSON.
+1. Implement the bounded default symlink contract above with a verification-only
+   scan policy. Compare text through the held root without resolving or opening
+   targets. Prove exact defaults on Apple-produced and portable byte-API fixtures,
+   shallow/deep behavior and unchanged signing/dry-run rejection/containment.
 2. Complete local and three-OS coverage, native imports, race/eleven fuzz targets,
    lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
    Retain PR #59 defaults, compiler, extraction and earlier matrices. Audit all
-   382 new records/686 deterministic hashes, retained 182/340 diagnostic records,
+   352 portable/68 native-signing new records, 568 comparable hashes and 102 native
+   strict observations. Retain 382 resource records/686 hashes, 182/340 diagnostic records,
    and retained 822/1,382 requirement records per foreign producer. Recompute
    ordinary diagnostic hashes after asserted fixture-root/separator normalization;
    keep raw native output and all repeated ordering observations. Preserve the
-   six malformed-set and twelve dangling-link records and their acceptance deltas.
-3. Next, establish verification-specific dangling-symlink/chain policy and strict
-   interactions with independent native probes. Preserve containment and signing
+   six malformed-set records and their acceptance deltas. Require exact native
+   results for all twelve now-resolved dangling-link profiles. Audit packaged
+   APFS v0.11.1 and repeat native DMG/metadata checks across producer hosts.
+3. Next, implement strict selectors and establish earlier traversal, resource
+   inclusion and enclosing-bundle policy. Preserve containment and signing
    guarantees; keep native scheduling/primary-error differences explicit. Then
    address representation defaults,
    preservation, stdin and `$self.identifier` substitution, broader grammar and
