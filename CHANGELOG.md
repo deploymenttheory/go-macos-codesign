@@ -145,6 +145,58 @@
   three native fixtures, two complete Apple methods in the Clang AST record,
   and eighteen additional Linux/Windows trees for native CI verification.
 
+## [0.3.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.2.0...v0.3.0) (2026-09-26)
+
+
+### Features
+
+* add native signature file lists ([#53](https://github.com/deploymenttheory/go-macos-codesign/issues/53)) ([358f4eb](https://github.com/deploymenttheory/go-macos-codesign/commit/358f4ebe8102fea4e2eb90158fc8b0ba7ac1b4c5))
+* compile named requirement sets ([#58](https://github.com/deploymenttheory/go-macos-codesign/issues/58)) ([01afd92](https://github.com/deploymenttheory/go-macos-codesign/commit/01afd92e4feec5e158e1351fd3305789da667dca))
+* extract native requirement text ([#57](https://github.com/deploymenttheory/go-macos-codesign/issues/57)) ([2bb50e1](https://github.com/deploymenttheory/go-macos-codesign/commit/2bb50e1db8eb97c196c93bdddfef900e3c25251c))
+* extract signing certificate chains as DER ([#51](https://github.com/deploymenttheory/go-macos-codesign/issues/51)) ([fe9539f](https://github.com/deploymenttheory/go-macos-codesign/commit/fe9539f1798f3851a253891dc09ab97551db4ae3))
+* merge certificate requirement defaults ([#59](https://github.com/deploymenttheory/go-macos-codesign/issues/59)) ([59e87e4](https://github.com/deploymenttheory/go-macos-codesign/commit/59e87e4e236a2afa9fbfbc74aebc4a98a297cb06))
+
+
+### Bug Fixes
+
+* align bundle executable access times ([32620f8](https://github.com/deploymenttheory/go-macos-codesign/commit/32620f8c198ae519fb1e19417d298f3b9ae47411))
+* align bundle executable access times ([633db51](https://github.com/deploymenttheory/go-macos-codesign/commit/633db5191385910b1bc5a0c1d2b437f54f77e8e8))
+* align bundle executable creation times ([54afd5a](https://github.com/deploymenttheory/go-macos-codesign/commit/54afd5ae1776f0043b2ad958fa2a618316e3a20a))
+* allocate unsigned nested code during dry runs ([4871006](https://github.com/deploymenttheory/go-macos-codesign/commit/4871006110da1693583317611b3ebd4e579775f0))
+* allocate unsigned nested code during dry runs ([b540add](https://github.com/deploymenttheory/go-macos-codesign/commit/b540add7b4298467b8c3b75796e60692d019e74e))
+* consume APFS v0.6.1 name hash concurrency fix ([0457f52](https://github.com/deploymenttheory/go-macos-codesign/commit/0457f52db4bbce4b55de8dc1564b5040923e4f54))
+* consume released APFS name hash concurrency fix ([45ba4a8](https://github.com/deploymenttheory/go-macos-codesign/commit/45ba4a85bb95f04f54992ce3cdac5e438a458b06))
+* copy stat metadata to new signature directories ([57c6ece](https://github.com/deploymenttheory/go-macos-codesign/commit/57c6eceb13e69e1d744cf7f9eacc06b21e2a7e87))
+* defer bundle source access until executable commit ([253667b](https://github.com/deploymenttheory/go-macos-codesign/commit/253667b102275878321be8b7d6b79ce35768a434))
+* defer bundle source access until executable commit ([5243171](https://github.com/deploymenttheory/go-macos-codesign/commit/5243171b702503eb2addbb074010943bddba22a8))
+* emit native signing replacement notices ([1514835](https://github.com/deploymenttheory/go-macos-codesign/commit/1514835fea8bcc8a868d6e12a85ebfaa3138f2ca))
+* emit native signing replacement notices ([9407e52](https://github.com/deploymenttheory/go-macos-codesign/commit/9407e52b87e71e50e557e865723b90f125c8ea67))
+* match APFS bundle signature cleanup ordering ([f4d7e28](https://github.com/deploymenttheory/go-macos-codesign/commit/f4d7e284f5ce21deeae80890238d1344f155ce72))
+* match APFS bundle signature cleanup ordering ([3583506](https://github.com/deploymenttheory/go-macos-codesign/commit/3583506670eb17083db92dba203f1f65618aa989))
+* match bundle envelope failure commit timing ([83e8f89](https://github.com/deploymenttheory/go-macos-codesign/commit/83e8f895f13180aed3cf4f315f86dc53a92f379d))
+* match bundle envelope failure commit timing ([f130025](https://github.com/deploymenttheory/go-macos-codesign/commit/f1300259db021c5ff37715bdbd8b0545906871d8))
+* match bundle executable creation times ([448c409](https://github.com/deploymenttheory/go-macos-codesign/commit/448c4090eda0afc63b8f8def3e671dd85f712e8f))
+* match bundle stale-entry cleanup failure timing ([d322e85](https://github.com/deploymenttheory/go-macos-codesign/commit/d322e85441e5299e55d687212d79155195010fa1))
+* match bundle stale-entry cleanup failure timing ([3a9049c](https://github.com/deploymenttheory/go-macos-codesign/commit/3a9049caf19fa43757db6668b3e141020c07c250))
+* match executable-directory allocation failures ([989b5c5](https://github.com/deploymenttheory/go-macos-codesign/commit/989b5c557369dc981041e7649da7223c96511791))
+* match executable-directory allocation failures ([24a1d01](https://github.com/deploymenttheory/go-macos-codesign/commit/24a1d0106a8386ed20d301c61e204251f08acb53))
+* match native ad-hoc DMG dry runs ([bd67bdd](https://github.com/deploymenttheory/go-macos-codesign/commit/bd67bddbf59c9af23a5e03065ff175fcb310c72d))
+* match native ad-hoc DMG dry runs ([e11a86b](https://github.com/deploymenttheory/go-macos-codesign/commit/e11a86beb41e3b6e656a16349b15515cead1a73f))
+* match native entitlement extraction ([#54](https://github.com/deploymenttheory/go-macos-codesign/issues/54)) ([a4c2078](https://github.com/deploymenttheory/go-macos-codesign/commit/a4c2078d66bcd3e1a686a0fe1fc0f10db222fc7c))
+* match standalone Mach-O access times on Darwin ([8c7c68f](https://github.com/deploymenttheory/go-macos-codesign/commit/8c7c68fc16a20e6f9621364d631f00f083b276d9))
+* match standalone Mach-O access times on Darwin ([1ee9154](https://github.com/deploymenttheory/go-macos-codesign/commit/1ee9154959c4663faf7a7cbba9091b1be900d10b))
+* preserve stat metadata on new signature directories ([f2af473](https://github.com/deploymenttheory/go-macos-codesign/commit/f2af473a9fd2566bb24df5a5b04c9a1d06cbe9bd))
+* purge stale bundle signature files after commit ([3ad9e15](https://github.com/deploymenttheory/go-macos-codesign/commit/3ad9e15d300621ca3b935e62a7c68532d983c570))
+* purge stale bundle signature files after commit ([f32ff46](https://github.com/deploymenttheory/go-macos-codesign/commit/f32ff4660bf63468957479d12ea1e8e4bc26a71d))
+* record bundle access when allocation begins ([5f5c106](https://github.com/deploymenttheory/go-macos-codesign/commit/5f5c1069ed1825d08c5f32598b16193ba4e09455))
+* record bundle access when allocation begins ([4162df6](https://github.com/deploymenttheory/go-macos-codesign/commit/4162df63cf638f3293ca458662f6b303bcc2af03))
+* refresh bundle access after signature cleanup ([35bb542](https://github.com/deploymenttheory/go-macos-codesign/commit/35bb54232cc2cff21aec912a5aab257cc08715d6))
+* refresh bundle access after signature cleanup ([8b05785](https://github.com/deploymenttheory/go-macos-codesign/commit/8b05785332576d703562f52fe9f5384844a6c4ae))
+* replace bundle Mach-O files through APFS metadata API ([c246135](https://github.com/deploymenttheory/go-macos-codesign/commit/c2461355e23b9cc7b65a01c0d380aa88dcdf0b14))
+* replace bundle Mach-O files through APFS metadata API ([a9248cd](https://github.com/deploymenttheory/go-macos-codesign/commit/a9248cd5c091c9cbb9a6cc8d195243a4dcca6af1))
+* resolve bundle directory parents before path cleanup ([#52](https://github.com/deploymenttheory/go-macos-codesign/issues/52)) ([c8054f2](https://github.com/deploymenttheory/go-macos-codesign/commit/c8054f2ecafb7d513418e25956223466c5f7a811))
+* separate signature integrity and requirement verification ([#60](https://github.com/deploymenttheory/go-macos-codesign/issues/60)) ([6db74af](https://github.com/deploymenttheory/go-macos-codesign/commit/6db74af19857219bde2d823daae8b4e2b739776f))
+
 ## [0.2.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.1.0...v0.2.0) (2026-09-20)
 
 
