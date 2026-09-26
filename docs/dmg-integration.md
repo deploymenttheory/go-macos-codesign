@@ -125,16 +125,24 @@ External Info.plist/resource overrides are rejected. Production does not mount
 or decompress the image; a valid signature does not prove filesystem mountability.
 Native acceptance checks image checksums separately with `hdiutil`.
 
-The pinned APFS encoder produced a small synthetic LZMA image that failed
+The earlier APFS encoder produced a small synthetic LZMA image that failed
 `hdiutil` **before signing** on macOS 27 build 26A428: error 1000, calculated CRC32
-zero. Its existing native LZMA fixture passes and is used for interoperability.
-The unsigned reproducer is retained:
+zero. Re-running the retained unsigned reproducer with **APFS v0.11.1** on the
+same macOS build passes `hdiutil verify` (partition CRC32 `36421931`, image CRC32
+`4DC488ED`). The committed native LZMA fixture remains in the interoperability
+corpus. The reproducer is retained:
 
 ```sh
 go run scripts/repro-apfs-lzma.go artifacts/unsigned-lzma-repro.dmg
 hdiutil verify artifacts/unsigned-lzma-repro.dmg
 ```
 
-The generator refuses to overwrite output. This single case does not establish
-that every LZMA input fails. Further encoder investigation belongs in
-`go-apfs-v2`; no APFS source files were modified by this signing phase.
+The generator refuses to overwrite output. This single passing case does not
+establish every LZMA profile; codec implementation remains owned by `go-apfs-v2`.
+
+Archived native-signature tests re-sign the exact recorded image payload. The
+APFS v0.11.1 LZFSE encoder emits different valid bytes from the older fixture
+encoder, so regenerating an input before comparing it to an archived signature
+is not a valid codesign comparison. Full native ad-hoc/RSA equality and P-256
+CodeDirectory equality remain required. Fresh encoder output is separately
+compared with live native signing on identical inputs.
