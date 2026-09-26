@@ -341,7 +341,7 @@ func TestCertificateMachOSigning(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := VerifyBytes(ctx, out, VerifyOptions{TrustedCertificates: id.Certificates}); !errors.Is(err, ErrDesignatedRequirement) {
+	if _, err := VerifyBytes(ctx, out, VerifyOptions{TrustedCertificates: id.Certificates, CheckDesignatedRequirement: true}); !errors.Is(err, ErrDesignatedRequirement) {
 		t.Fatal(err)
 	}
 	id.Signer = failureSigner{Signer: id.Signer, err: io.ErrClosedPipe}

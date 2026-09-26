@@ -534,7 +534,27 @@ or broader Apple-proper identity policy.
 Independent native signing probes establish empty/partial/overriding sets,
 canonical repacking, per-child identifiers and fresh defaults on replacement.
 The [signing contract](requirement-defaults.md) defines the measured matrix and
-its explicit verification difference: ordinary native verification does not
-evaluate the object's own designated requirement. The current Go verifier does.
-Pinned `StaticCode::staticValidateCore` validates a supplied requirement separately;
-that complete verifier body is source-reviewed here, not part of this AST manifest.
+the verification difference found in PR #59: quiet native verification does not
+evaluate the object's own designated requirement. The subsequent verification
+slice below resolves that difference and adds complete verifier AST evidence.
+
+## Verification stages and parent requirements
+
+The [verification driver](../scripts/extract-requirement-verification.go), included
+in `make research-paths`, extracts six complete pinned Apple bodies for arm64 and
+x86_64: `staticValidateCore`, `validateNonResourceComponents`,
+`validateRequirements`, `validateRequirement`, `internalRequirements` and
+`validateNestedCode`. The [manifest](../spec/apple-requirement-verification.json)
+records source, excerpt, driver and translation-unit hashes. Real SDK flags,
+error constants, CoreFoundation and C++ declarations combine with declaration-only
+private code/requirement/Mach-O/exception interfaces, slot aliases and no-op tracing.
+The AST proves component-before-supplied-requirement ordering, separate contextual
+checks and failed child-requirement mapping to invalid nested code. It does not
+reconstruct the full trust engine, evaluator or current private CLI call sites.
+
+Native probes establish the additional verbose self check, explicit predicate
+ordering, different architecture scopes and first-failing operand status. The
+[822-case contract](requirement-verification.md) records exact-output scopes and
+remaining malformed-structure/diagnostic differences. Production uses the shared
+Go parser, evaluator, verified certificate context and nested verifier; no Apple
+runtime or SDK dependency is added.

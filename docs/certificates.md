@@ -96,6 +96,12 @@ critical extensions fail closed. This deliberately conservative subset does not
 reproduce every RFC 5280 policy, Apple's expiration tolerances or keychain trust.
 There is no system trust store, issuer fetching, OCSP or CRL processing.
 
+[Requirement verification](requirement-verification.md) now separates integrity
+from optional self-designated-requirement checks. Existing callers that require
+the self check should set `VerifyOptions.CheckDesignatedRequirement`; explicit
+pins, roots and certificate validity checks remain mandatory as described above.
+The verified report also exposes separate caller and self predicate methods.
+
 `SignOptions.SigningTime` permits reproducible RSA output with a fixed time.
 The authenticated signing-time attribute is a signer's claim, not trusted proof
 of time. Expiration is checked against verification time, never bypassed by that

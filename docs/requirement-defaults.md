@@ -86,13 +86,15 @@ the production signing contract to preserve an obsolete fixture assumption.
 
 ## Explicit differences and next work
 
-Thirty signing cases use `designated => never`. Apple signs and ordinarily verifies
-them successfully. Go produces matching signed components but its verifier returns
-`ErrDesignatedRequirement`, because it evaluates the object's own designated
-requirement automatically. This is recorded as a known difference in every
-producer's evidence. The next verification phase must distinguish ordinary
-integrity verification from caller-requested and parent-sealed requirements,
-retain malformed-component rejection, and preserve explicit certificate trust.
+Thirty signing cases use `designated => never`. PR #59 recorded matching signed
+components but a verification difference: native quiet verification passed while
+Go automatically evaluated the self requirement. The subsequent
+[verification slice](requirement-verification.md) resolves those thirty cases.
+Quiet verification now passes; verbose self checks and caller/parent predicates
+remain separate. Every producer records successful portable verification and
+clears the former difference flag. Malformed-component rejection and explicit
+certificate trust remain required; the new contract documents migration and
+remaining policy/diagnostic differences.
 
 The twelve malformed-source lifecycle cases preserve inputs on both implementations
 but retain different syntax diagnostics. Other outstanding work includes:

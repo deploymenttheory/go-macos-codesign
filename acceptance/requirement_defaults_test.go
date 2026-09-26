@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -324,12 +323,7 @@ func TestRequirementDefaultSigning(t *testing.T) {
 							verify.TrustedCertificates = id.Certificates
 						}
 						_, err := codesign.Verify(context.Background(), portable, verify)
-						knownDifference := profile == "never"
-						if knownDifference {
-							if !errors.Is(err, codesign.ErrDesignatedRequirement) {
-								t.Fatal("explicit verification policy", err)
-							}
-						} else if err != nil {
+						if err != nil {
 							t.Fatal(err)
 						}
 						report, _ := inspectDefaults(t, portable)
@@ -368,7 +362,7 @@ func TestRequirementDefaultSigning(t *testing.T) {
 								nativeEqual(t, "complete ad-hoc tree", layoutArchive(t, filepath.Join(dir, "go")), layoutArchive(t, filepath.Join(dir, "apple")))
 							}
 						}
-						attest(t, map[string]any{"algorithm": algorithm, "format": format, "profile": profile, "input_form": form, "input_sha256": inputHash, "supplied_sha256": hash(given), "requirements_sha256": reqHashes, "directories_sha256": cdHashes, "text_sha256": hash(text), "native_compared": runtime.GOOS == "darwin", "native_strict_verified": runtime.GOOS == "darwin", "native_components_equal": runtime.GOOS == "darwin", "portable_verified": !knownDifference, "known_self_requirement_verification_difference": knownDifference})
+						attest(t, map[string]any{"algorithm": algorithm, "format": format, "profile": profile, "input_form": form, "input_sha256": inputHash, "supplied_sha256": hash(given), "requirements_sha256": reqHashes, "directories_sha256": cdHashes, "text_sha256": hash(text), "native_compared": runtime.GOOS == "darwin", "native_strict_verified": runtime.GOOS == "darwin", "native_components_equal": runtime.GOOS == "darwin", "portable_verified": true, "known_self_requirement_verification_difference": false})
 					})
 				}
 			}

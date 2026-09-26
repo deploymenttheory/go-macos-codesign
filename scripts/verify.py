@@ -85,7 +85,9 @@ def main():
         env["MACOSCODESIGN_EVIDENCE_DIR"] = str(evidence)
         run(["go", "test", "-count=1", "-json", "-covermode=atomic", "-coverpkg=./...",
              "-coverprofile=" + str(tmp / "unit.out"), "./pkg/...", "./internal/..."], env, dest / "unit.jsonl")
-        run(["go", "test", "-count=1", "-json", "./acceptance"], env, dest / "acceptance.jsonl")
+        # The growing native matrix exceeds Go's default ten-minute deadline on
+        # the hosted Mac. Keep a bounded suite budget below the 20-minute CI job.
+        run(["go", "test", "-timeout=15m", "-count=1", "-json", "./acceptance"], env, dest / "acceptance.jsonl")
         attestations = {p.stem: json.loads(p.read_text()) for p in sorted(evidence.glob("*.json"))}
         (dest / "acceptance.json").write_text(json.dumps(attestations, indent=2) + "\n")
         run(["go", "tool", "covdata", "textfmt", "-i=" + str(cli_dir), "-o=" + str(tmp / "cli.out")], env)

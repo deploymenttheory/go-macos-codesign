@@ -26,6 +26,11 @@ counts each statement once, and requires more than 95% in every package under
 in the production statement denominator. New production packages enter the gate
 automatically through `go list`.
 
+The acceptance suite has an explicit fifteen-minute timeout, below the CI job's
+twenty-minute limit. The expanded native matrix exceeded Go's default ten-minute
+deadline on the hosted Mac; the recorded timeout occurred during requirement
+verification. All cases, failure diagnostics and coverage thresholds remain enabled.
+
 The resulting files under `artifacts/` include:
 
 | File | Evidence |

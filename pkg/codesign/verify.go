@@ -270,18 +270,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 			if len(signer) == 0 && d.Flags&FlagAdhoc == 0 {
 				return r, invalid("missing certificate signature")
 			}
-			if !opts.directoryOnly {
-				if err := checkDesignatedRequirement(a.Signature.find(SlotRequirements), d); err != nil {
+			if set := a.Signature.find(SlotRequirements); len(set) != 0 {
+				if err := validateRequirements(set); err != nil {
 					return r, err
-				}
-			}
-			if opts.Requirement != "" {
-				ok, err := EvaluateRequirement(opts.Requirement, d)
-				if err != nil {
-					return r, err
-				}
-				if !ok {
-					return r, ErrRequirement
 				}
 			}
 		}
@@ -290,5 +281,18 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report,
 		return r, fmt.Errorf("architecture %q not present", opts.Architecture)
 	}
 	r.Valid = true
+	r.verifiedArchitecture = opts.Architecture
+	if opts.CheckDesignatedRequirement && !opts.directoryOnly {
+		if err := r.CheckDesignatedRequirement(""); err != nil {
+			r.Valid = false
+			return r, err
+		}
+	}
+	if opts.Requirement != "" {
+		if err := r.CheckRequirement(opts.Requirement, ""); err != nil {
+			r.Valid = false
+			return r, err
+		}
+	}
 	return r, nil
 }

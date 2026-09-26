@@ -6,17 +6,33 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current requirement-default slice
+## Current requirement-verification slice
+
+Quiet verification now accepts intact signatures with false stored designated
+requirements. Verbose self checks, explicit caller predicates and parent-sealed
+constraints have separate stages and architecture scopes. Failed parent predicates
+remain integrity failures; the first failing operand determines the CLI status.
+Explicit certificate trust is unchanged. The [contract](requirement-verification.md)
+documents API migration, 822 new cases, six complete Apple bodies on two Clang
+targets and remaining malformed-structure/diagnostic differences. Final
+current-commit gates belong to this PR. The broad inventory is unchanged.
+
+## Merged requirement-default slice
 
 Certificate signing fills missing designated requirements in empty and partial
 sets, preserves explicit overrides and repacks binary entries canonically.
 Nested objects receive their own defaults; replacement uses fresh options.
 The [contract](requirement-defaults.md) defines 277 portable/native comparison cases
 and 48 additional Mac certificate cases, with six complete Apple bodies and
-two-target Clang evidence. Thirty false-designated-requirement cases expose an
-existing ordinary-verification policy difference; signing bytes are compared
-independently and that difference remains explicit. Representation defaults and
-metadata preservation remain open. Final current-commit gates belong to this PR.
+two-target Clang evidence. [PR #59](https://github.com/deploymenttheory/go-macos-codesign/pull/59)
+passed the three OS jobs, native imports, race/eleven fuzz targets, lint and
+packaging. Library coverage was 95.55% Linux, 95.47% Windows and 95.64% Mac; CLI
+was 98.92%, 98.92% and 99.64%, with entry point 100%. Its actual merge shares the
+audited tree. [The plan](implementation_plan.md#merged-pr59) records exact revisions,
+643 source hashes per OS, 1,338 deterministic hashes per foreign producer and
+retained matrices/package audits. The thirty quiet-verification differences found
+in that slice are resolved by the current increment above. Representation defaults
+and metadata preservation remain open.
 
 ## Merged requirement-set compiler slice
 

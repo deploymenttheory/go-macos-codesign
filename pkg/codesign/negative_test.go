@@ -194,7 +194,7 @@ func TestVerificationFailures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := VerifyBytes(context.Background(), signed, VerifyOptions{InfoPlist: []byte("info"), Resources: []byte("resources")}); !errors.Is(err, ErrDesignatedRequirement) {
+	if _, err := VerifyBytes(context.Background(), signed, VerifyOptions{InfoPlist: []byte("info"), Resources: []byte("resources"), CheckDesignatedRequirement: true}); !errors.Is(err, ErrDesignatedRequirement) {
 		t.Fatal(err)
 	}
 	if _, err := VerifyBytes(context.Background(), signed, VerifyOptions{InfoPlist: []byte("wrong"), Resources: []byte("resources")}); !errors.Is(err, ErrInvalid) {

@@ -3,7 +3,6 @@ package codesign
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -213,7 +212,7 @@ func verifyNestedApp(ctx context.Context, name string, value any, app *nestedApp
 	opts.Architecture = ""
 	opts.directoryOnly = !opts.Deep
 	if _, err := verifyBundleSnapshot(ctx, app.bundle, app.data, app.resources, app.files2, opts); err != nil {
-		return fmt.Errorf("nested %s: %w", name, err)
+		return nestedVerificationError(name, err)
 	}
 	for _, other := range app.otherVersions {
 		if _, _, err := nestedSignature(other.data); err != nil {
