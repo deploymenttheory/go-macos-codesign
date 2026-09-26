@@ -63,11 +63,16 @@ type SignOptions struct {
 	PageSize                 uint32
 	Entitlements             []byte
 	ForceLibraryEntitlements bool
-	Requirements             []byte
-	InfoPlist                []byte
-	Resources                []byte
-	Identity                 *Identity
-	RuntimeVersion           uint32
+	// Requirements is an optional compiled set, copied and repacked by kind.
+	// Certificate signing inserts a default designated requirement when kind 3
+	// is absent, including in an explicitly empty set. Supplied expressions are
+	// preserved, not evaluated during signing. Input and output sets are limited
+	// to 1 MiB and 64 entries. Representation-specific defaults remain unsupported.
+	Requirements   []byte
+	InfoPlist      []byte
+	Resources      []byte
+	Identity       *Identity
+	RuntimeVersion uint32
 	// SigningTime is the CMS signing-time claim. Zero uses the current time.
 	// It is not an RFC 3161 timestamp.
 	SigningTime time.Time

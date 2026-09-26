@@ -76,12 +76,15 @@ their contextual policies require separate work. On the recorded Mac baseline,
 supplying a guest requirement does not automatically set the host CodeDirectory flag.
 
 Apple merges representation defaults, explicit requirements and a synthesized
-designated requirement when one is absent. The current certificate signer supplies
-its default only when the caller supplies no requirements bytes. An explicit empty
-or host-only certificate set therefore remains a known signing difference. The
-next policy increment must cover empty/partial/full sets, default override ordering,
-preservation, bundles, all supported identities and invalid designated requirements.
-Ad-hoc extraction can already synthesize a commented CDHash designated requirement.
+designated requirement when one is absent. The current signer now
+[fills the missing certificate designated requirement](requirement-defaults.md)
+in empty and partial sets, preserves explicit overrides without evaluating them,
+and repacks binary entries in unsigned-kind order. Ad-hoc signing leaves the
+designated requirement absent; extraction can synthesize a commented CDHash form.
+Representation-specific defaults and metadata preservation remain outstanding.
+Ordinary native verification accepts an embedded false designated requirement;
+the current Go verifier rejects it. That policy gap is recorded separately from
+the independently compared signing bytes.
 
 Unimplemented work also includes stdin/special streams, `$self.identifier`
 substitution, all remaining predicate/operator families, Apple-proper defaults,
@@ -97,8 +100,8 @@ The [research driver](../scripts/extract-requirement-sets.go) records
 Clang ASTs for arm64 and x86_64: generated set/type/element/integer parsing,
 SuperBlob duplicate replacement, and internal default merging. SDK enum constants
 and C++ library declarations are real; private/ANTLR interfaces are declaration-only
-shims. The full lexer and expression parser are not reconstructed. Default merging
-is documented research evidence, not a delivered signing change.
+shims. The full lexer and expression parser are not reconstructed. The subsequent
+[default-merging evidence](requirement-defaults.md) expands the signing contract.
 
 The same manifest contains 33 native `csreq` observations: 17 compiled byte fixtures
 and 16 rejections. [Unit tests](../pkg/codesign/requirement_sets_test.go) check those

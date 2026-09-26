@@ -83,6 +83,13 @@ only their deterministic extracted text, not whole input hashes, is comparable
 across producers. Absolute file-list stdout is compared locally with native output,
 not as a portable path hash.
 
+Six legacy RSA cases intentionally lack a stored designated requirement. Since
+the signer now supplies one for empty sets, the fixture helper removes that
+component entry, rebinds the CodeDirectory and re-signs CMS with the public test
+key. It repacks DMG components using the released APFS footer model. These remain
+independently native-compared legacy extraction cases; no production option to
+suppress certificate defaults is introduced.
+
 [The Clang driver](../scripts/extract-requirement-extraction.go) records six complete
 pinned Apple function bodies on arm64 and x86_64 in the
 [AST manifest](../spec/apple-requirement-extraction.json). It covers internal/default
@@ -92,7 +99,7 @@ are not reconstructed by this AST. Their measured behavior comes from differenti
 tests. Production has no SDK, Clang, CGO or Apple runtime dependency.
 
 Remaining work includes all other grammar/opcode families, broader set source forms
-and default merging, native debug output for unknown instructions, alternate/external slots,
+and representation defaults, native debug output for unknown instructions, alternate/external slots,
 Apple-proper and broader default certificate policy, malformed-CMS synthesis,
 output aliases to inputs, special streams, permissions/ACLs, Unicode path
 normalization, locales and exhaustive operation/diagnostic interactions. Verbose

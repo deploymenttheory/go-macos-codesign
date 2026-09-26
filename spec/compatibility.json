@@ -264,11 +264,17 @@
         "spec/apple-requirement-sets.json",
         "pkg/codesign/requirement_sets_test.go",
         "acceptance/requirement_sets_test.go",
-        "docs/requirement-sets.md"
+        "docs/requirement-sets.md",
+        "pkg/codesign/requirement_sign.go",
+        "pkg/codesign/requirement_sign_test.go",
+        "acceptance/requirement_defaults_test.go",
+        "scripts/extract-requirement-defaults.go",
+        "spec/apple-requirement-defaults.json",
+        "docs/requirement-defaults.md"
       ],
       "id": "--requirements",
       "manual": ".It Fl r, -requirements Ar requirements",
-      "notes": "Bounded source compilation now accepts all five named kinds and uint32 decimal kinds, sorts entries, keeps the last duplicate and supports comments/semicolons through the shared expression parser. 33 native compiler cases, 18 complete ad-hoc signing comparisons, 12 rejection-preservation cases and 12 certificate layout comparisons cover the increment. Bare expressions, not and hexadecimal identifier literals retain portable extensions; numeric overflow, stdin, self-identifier substitution and certificate default merging into explicit sets remain open. Bounded display extraction renders named binary sets using the existing expression subset, synthesizes commented ad-hoc/certificate designated requirements, checks nonzero component hashes, truncates destinations before component validation, and matches explicit architecture selection and certificate/entitlement/file-list ordering. 87 cases include 86 native comparisons and one portable JSON case. Sets are limited to 1 MiB/64 entries; overlapping children are rejected. One CodeDirectory per architecture is supported. Broader grammar/opcodes, native unknown-opcode debug output, default Apple-proper/certificate policy, external/alternate representations, removal applicability, input/output aliases, locale/path normalization and complete failure/operation combinations remain outstanding. Extraction is descriptive and does not assert page integrity or trust.",
+      "notes": "Bounded source compilation accepts all five named kinds and uint32 decimal kinds, sorts entries, keeps the last duplicate and supports comments/semicolons through the shared expression parser. 33 native compiler cases, 18 complete ad-hoc signing comparisons, 12 rejection-preservation cases and 12 certificate layout comparisons cover that increment. Certificate signing now fills a missing designated requirement in empty/partial sets, preserves explicit overrides without evaluating them, repacks binary sets canonically and derives independent nested/replacement defaults. 277 portable cases and 48 additional Mac certificate cases compare the supported default profile. Thirty false-designated-requirement cases explicitly retain a separate ordinary-verification difference: native accepts them while Go evaluates its own designated requirement. Bare expressions, not and hexadecimal identifier literals retain portable extensions; numeric overflow, stdin and self-identifier substitution remain open. Bounded display extraction renders named binary sets using the existing expression subset, synthesizes commented ad-hoc/certificate designated requirements, checks nonzero component hashes, truncates destinations before component validation, and matches explicit architecture selection and certificate/entitlement/file-list ordering. 87 cases include 86 native comparisons and one portable JSON case. Sets are limited to 1 MiB/64 entries; overlapping children are rejected. One CodeDirectory per architecture is supported. Representation-specific library/interpreter defaults, metadata preservation, broader grammar/opcodes, native unknown-opcode debug output, default Apple-proper/certificate policy, external/alternate representations, removal applicability, input/output aliases, locale/path normalization and complete failure/operation combinations remain outstanding. Extraction is descriptive and does not assert page integrity or trust.",
       "status": "partial"
     },
     {
@@ -321,9 +327,11 @@
       "status": "partial",
       "manual": ".It Fl v, -verify",
       "evidence": [
-        "acceptance/parity_test.go"
+        "acceptance/parity_test.go",
+        "acceptance/requirement_defaults_test.go",
+        "docs/requirement-defaults.md"
       ],
-      "notes": "Native compatibility remains unproven outside the documented fixture matrix."
+      "notes": "Native compatibility remains unproven outside the documented fixture matrix. Thirty default-signing cases expose a policy difference: ordinary native verification accepts an embedded designated requirement of never, while Go returns ErrDesignatedRequirement. The next verification increment must separate self metadata from caller-supplied and parent-sealed constraints while preserving malformed-component rejection and explicit certificate trust."
     },
     {
       "id": "--continue",

@@ -516,6 +516,25 @@ aliases, semicolons, comments and complete binary bytes. Additional probes showe
 unsigned overflow wrapping, native rejection of bare signing expressions, `not`
 and hexadecimal identifier literals, and no automatic host flag for the measured
 guest requirement. The [compiler contract](requirement-sets.md) distinguishes the
-existing portable extensions and deliberate bounds from native parity. Apple's
-default-merging body also exposes a remaining certificate signing gap; it is
-recorded as the next policy task rather than claimed as implemented here.
+existing portable extensions and deliberate bounds from native parity.
+
+## Signing defaults and explicit overrides
+
+The [default research driver](../scripts/extract-requirement-defaults.go) records
+six complete pinned Apple bodies through Clang on arm64 and x86_64:
+`InternalRequirements::operator()`, `DRMaker::make`, `DRMaker::nonAppleAnchor`,
+`MachORep::defaultRequirements`, `BundleDiskRep::defaultRequirements` and
+`DiskRep::defaultRequirements`. The [manifest](../spec/apple-requirement-defaults.json)
+records source, excerpt, driver and translation-unit hashes, real SDK target/types
+and declaration-only private interfaces. This establishes merge ordering, lazy
+designated-requirement synthesis and delegation to representation defaults. It
+does not reconstruct library-dependency requirements, script interpreter policy
+or broader Apple-proper identity policy.
+
+Independent native signing probes establish empty/partial/overriding sets,
+canonical repacking, per-child identifiers and fresh defaults on replacement.
+The [signing contract](requirement-defaults.md) defines the measured matrix and
+its explicit verification difference: ordinary native verification does not
+evaluate the object's own designated requirement. The current Go verifier does.
+Pinned `StaticCode::staticValidateCore` validates a supplied requirement separately;
+that complete verifier body is source-reviewed here, not part of this AST manifest.

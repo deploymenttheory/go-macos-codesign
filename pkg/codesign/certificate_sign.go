@@ -32,11 +32,7 @@ func prepareIdentity(opts *SignOptions) error {
 			return malformed("certificate Team ID is missing or contains NUL")
 		}
 	}
-	if len(opts.Requirements) != 0 {
-		return nil
-	}
-	opts.Requirements, err = defaultCertificateRequirement(opts.Identifier, path)
-	return err
+	return prepareRequirements(opts, path)
 }
 
 func defaultCertificateRequirement(identifier string, path []*certificate) ([]byte, error) {

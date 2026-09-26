@@ -150,8 +150,6 @@ func signDMG(ctx context.Context, data []byte, opts SignOptions, dryRun bool) ([
 	reqs := opts.Requirements
 	if len(reqs) == 0 {
 		reqs = superblob(MagicRequirements, nil)
-	} else if err := validateRequirements(reqs); err != nil {
-		return nil, err
 	}
 	blobs := []Blob{{Slot: SlotRequirements, Data: reqs}}
 	special := 6
