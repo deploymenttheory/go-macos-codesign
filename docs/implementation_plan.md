@@ -1,7 +1,7 @@
 # Detailed implementation plan: remaining codesign equivalence
 
 Status: updated 2026-09-26 after [PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged.
-Released APFS v0.11.1 is now the shared metadata/DMG dependency, with no local
+Released APFS v0.11.2 is now the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
 [PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
@@ -51,7 +51,8 @@ strict selectors stay unsupported. PR64 merged before final validation completed
 its archived LZFSE test regenerated input with the changed encoder and failed.
 `fix/native-dmg-fixture-inputs` preserves that test's native byte oracle by re-signing
 the original archived payload. Fresh encoder outputs retain independent native
-comparisons. Current-commit gates belong to this corrective follow-up.
+comparisons. The follow-up also upgrades to APFS v0.11.2, published during PR64
+validation, for bounded decmpfs LZFSE decoding. Current-commit gates belong to it.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -3257,7 +3258,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.1 supplies streaming APIs; codesign integration still needs D09 |
+| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.2 supplies streaming APIs; codesign integration still needs D09 |
 | D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
 | D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
 | D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
@@ -3363,6 +3364,8 @@ Released APFS v0.9.0 remains pinned.
 `fix/native-dmg-fixture-inputs` starts from actual PR #64 merge
 `6662e869931dc6e36a36050d03a4a21d239d2239`. PR64 upgraded to released
 APFS v0.11.1 without a replacement, removing the superseded external LZFSE module.
+The follow-up pins v0.11.2, published at 22:59:54 UTC during PR64 validation, and
+restarts final coverage/artifact gates on that version.
 The new upstream streaming APIs are available; codesign's adapter still uses its
 existing bounded profile and requires a separate integration phase for streaming.
 
@@ -3380,7 +3383,7 @@ existing bounded profile and requires a separate integration phase for streaming
    keep raw native output and all repeated ordering observations. Preserve the
    six malformed-set records and their acceptance deltas. Require exact native
    results for all twelve now-resolved dangling-link profiles. Audit packaged
-   APFS v0.11.1 and repeat native DMG/metadata checks across producer hosts.
+   APFS v0.11.2 and repeat native DMG/metadata checks across producer hosts.
 3. Next, implement strict selectors and establish earlier traversal, resource
    inclusion and enclosing-bundle policy. Preserve containment and signing
    guarantees; keep native scheduling/primary-error differences explicit. Then

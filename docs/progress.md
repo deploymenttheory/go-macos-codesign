@@ -15,6 +15,8 @@ The corrective branch re-signs the archived image's exact payload, preserving
 the native bytes and input-preservation assertions. Fresh images retain live
 native comparisons. Full coverage/CI/artifact gates are being repeated for that
 correction; the initial PR64 run is not passing release evidence.
+The follow-up also pins APFS v0.11.2, published during PR64 validation, adding its
+bounded decmpfs LZFSE decoding fix. Final package audits require that newer pin.
 
 ## Merged symlink-verification and dependency slice
 
