@@ -78,7 +78,7 @@ that selection but cannot widen it to an unverified slice. Verified certificate
 context remains available to predicates. These methods do not reevaluate pages,
 read files, fetch certificates, or turn parsed metadata into a trust decision.
 
-The CLI's portable `--json` extension sets `valid` to false when either requested
+The CLI's portable `--json` extension sets `Valid` to false when either requested
 post-verification predicate fails. Eight cases check this separately from native
 output because Apple has no corresponding JSON mode.
 
