@@ -82,9 +82,10 @@ in empty and partial sets, preserves explicit overrides without evaluating them,
 and repacks binary entries in unsigned-kind order. Ad-hoc signing leaves the
 designated requirement absent; extraction can synthesize a commented CDHash form.
 Representation-specific defaults and metadata preservation remain outstanding.
-Ordinary native verification accepts an embedded false designated requirement;
-the current Go verifier rejects it. That policy gap is recorded separately from
-the independently compared signing bytes.
+Quiet verification accepts an embedded false designated requirement. The
+[verification contract](requirement-verification.md) separates verbose self checks
+from caller-supplied and parent-sealed requirements, resolving the difference
+recorded during PR #59. Explicit certificate trust remains required.
 
 Unimplemented work also includes stdin/special streams, `$self.identifier`
 substitution, all remaining predicate/operator families, Apple-proper defaults,

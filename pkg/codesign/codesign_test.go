@@ -136,7 +136,14 @@ func FuzzInspect(f *testing.F) {
 			t.Skip()
 		}
 		_, _ = InspectBytes(b)
-		_, _ = VerifyBytes(context.Background(), b, VerifyOptions{})
+		before := bytes.Clone(b)
+		if report, err := VerifyBytes(context.Background(), b, VerifyOptions{}); err == nil {
+			_ = report.CheckDesignatedRequirement("")
+			_ = report.CheckRequirement("always", "")
+			if !report.Valid || !bytes.Equal(before, b) {
+				t.Fatal("requirement checks changed verified input or result")
+			}
+		}
 		_, _ = SignBytes(context.Background(), b, SignOptions{Identifier: "fuzz", Force: true})
 		_, _ = RemoveSignatureBytes(context.Background(), b)
 	})

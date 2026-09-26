@@ -548,14 +548,21 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, Requirement: o.testRequirement, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
+			if err == nil {
+				var passed bool
+				passed, err = checkVerificationRequirements(stderr, report, path, o)
+				if !passed {
+					report.Valid = false
+					if err == nil && status == 0 {
+						status = 3
+					}
+				}
+			}
 			if o.json && report != nil {
 				if e := json.NewEncoder(stdout).Encode(report); e != nil {
 					err = e
 				}
-			}
-			if err == nil && o.verbose > 0 {
-				fmt.Fprintf(stderr, "%s: valid on disk\n%s: satisfies its Designated Requirement\n", path, path)
 			}
 		case "display":
 			var report *codesign.Report
@@ -595,10 +602,11 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				return 1 // Native fopen failure terminates even with --continue.
 			}
 			fmt.Fprintf(stderr, "%s: %s\n", path, diagnostic(err))
-			if errors.Is(err, codesign.ErrRequirement) && status == 0 {
-				status = 3
-			} else if !errors.Is(err, codesign.ErrRequirement) {
+			if status == 0 {
 				status = 1
+				if errors.Is(err, codesign.ErrRequirement) {
+					status = 3
+				}
 			}
 			if o.operation != "verify" && !o.continueOnError {
 				break

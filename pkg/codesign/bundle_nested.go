@@ -3,6 +3,7 @@ package codesign
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -233,7 +234,16 @@ func verifyNestedResource(ctx context.Context, name string, value any, resource 
 	opts.Architecture = "" // every child architecture must satisfy the parent seal
 	opts.directoryOnly = !opts.Deep
 	if _, err := VerifyBytes(ctx, resource.data, opts); err != nil {
-		return fmt.Errorf("nested %s: %w", name, err)
+		return nestedVerificationError(name, err)
 	}
 	return nil
+}
+
+func nestedVerificationError(name string, err error) error {
+	if errors.Is(err, ErrRequirement) {
+		// A parent seal is part of signature integrity, not the caller's -R
+		// test. Native reports errSecCSBadNestedCode, with an ordinary exit 1.
+		return invalid("nested %s: %v", name, err)
+	}
+	return fmt.Errorf("nested %s: %w", name, err)
 }

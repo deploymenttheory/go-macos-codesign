@@ -97,7 +97,14 @@ type VerifyOptions struct {
 	Architecture string
 	InfoPlist    []byte
 	Resources    []byte
-	Requirement  string
+	// Requirement is a caller-supplied predicate checked against the selected
+	// code. Nested objects instead satisfy their parent's sealed requirement.
+	Requirement string
+	// CheckDesignatedRequirement additionally evaluates the stored designated
+	// requirement. Ordinary verification validates its structure and binding,
+	// but does not require it to match the object itself. Set this to retain the
+	// pre-verification-policy API behavior; explicit certificate trust is unchanged.
+	CheckDesignatedRequirement bool
 	// TrustedCertificates pins complete DER leaf certificates. It does not
 	// accept CA anchors or consult a system trust store. A matching pin or
 	// a valid path to TrustedRoots is required; ad-hoc signatures do not use it.
@@ -185,12 +192,13 @@ type Architecture struct {
 }
 
 type Report struct {
-	Path          string
-	Format        string
-	Bundle        *BundleInfo `json:",omitempty"`
-	Architectures []Architecture
-	Valid         bool
-	repSpecific   []byte
+	Path                 string
+	Format               string
+	Bundle               *BundleInfo `json:",omitempty"`
+	Architectures        []Architecture
+	Valid                bool
+	repSpecific          []byte
+	verifiedArchitecture string
 }
 
 func invalid(format string, args ...any) error {

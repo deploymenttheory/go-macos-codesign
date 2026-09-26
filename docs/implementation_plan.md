@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-26 after [PR #58](https://github.com/deploymenttheory/go-macos-codesign/pull/58) merged.
+Status: updated 2026-09-26 after [PR #59](https://github.com/deploymenttheory/go-macos-codesign/pull/59) merged.
 Released APFS v0.9.0 remains the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -24,12 +24,16 @@ The [requirement contract](requirement-extraction.md) defines the 87-case profil
 and its remaining limits. Merged [PR #58](#merged-pr58) adds named and decimal-kind
 source compilation, sorted last-duplicate encoding, comments/semicolons and
 implicit extension-existence boundaries. Its [compiler contract](requirement-sets.md)
-records 75 bounded cases and six complete Apple bodies. The active D13/WP-09
-increment on `feat/requirement-defaults` adds [certificate default merging](requirement-defaults.md),
+records 75 bounded cases and six complete Apple bodies. Merged [PR #59](#merged-pr59)
+adds [certificate default merging](requirement-defaults.md),
 explicit overrides, canonical binary repacking, independent nested defaults and
 fresh replacement requirements. It adds 277 portable cases and 48 Mac certificate
-cases. Thirty cases explicitly record the existing ordinary-verification/self-DR
-policy difference; this is the next WP-10 task, not a claimed verification fix.
+cases. The active D15/WP-10 increment on `feat/requirement-verification` resolves
+the thirty quiet-verification/self-DR differences discovered there. It separates
+integrity, verbose self checks and explicit caller predicates, retaining parent
+constraints and explicit certificate trust. The [contract](requirement-verification.md)
+adds 822 cases and six complete Apple bodies with two-target Clang evidence;
+malformed-structure policy and several failure diagnostic forms remain open.
 Current-commit gates belong to this implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
@@ -58,7 +62,7 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
 [PR #50 evidence](#merged-pr50), [PR #51 delivery](#merged-pr51),
 [PR #52 evidence](#merged-pr52), [PR #53 evidence](#merged-pr53),
-[PR #54 evidence](#merged-pr54), [PR #57 evidence](#merged-pr57), [PR #58 evidence](#merged-pr58) and the
+[PR #54 evidence](#merged-pr54), [PR #57 evidence](#merged-pr57), [PR #58 evidence](#merged-pr58), [PR #59 evidence](#merged-pr59) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -69,6 +73,46 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr59"></a>
+### Merged milestone: PR #59 (2026-09-26)
+
+[PR #59](https://github.com/deploymenttheory/go-macos-codesign/pull/59) merged as
+`59e87e4e236a2afa9fbfbc74aebc4a98a297cb06` at 14:09:16 UTC. Its actual merge,
+final head `c3493a37b2e3d748173ad8d3cee38fd20fcb178a` and tested CI merge
+`c0b1f2b4432841077a4651c831b55cd4514354ac` share tree
+`4c80d838f22149f8d2abf2c533839c88eb3bd7cf`. The final
+[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36246392509)
+and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36246392496)
+passed.
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Linux | 4,532/4,743, 95.55% | 547/553, 98.92% | 1/1, 100% |
+| Windows | 4,528/4,743, 95.47% | 547/553, 98.92% | 1/1, 100% |
+| macOS | 4,536/4,743, 95.64% | 551/553, 99.64% | 1/1, 100% |
+
+The 325 new cases comprise 277 portable/native comparisons and 48 additional
+Mac certificate cases. All 1,338 deterministic hashes per foreign producer match
+Mac evidence. The audit checked 643 source hashes per OS, 17 expected Windows text
+conversions and all retained matrices: compiler 75 cases/117 hashes, extraction
+87/188, entitlement extraction 90/178, file lists 327 values, 96 DER sets/14 hashes,
+108 parent aliases, 80 notice hashes and 70 DMG dry-run hashes. A local 30-second
+requirement-set fuzz run completed 1,104,637 executions. Race/eleven fuzz targets,
+vendored RC2, 606 native signature imports, 88 removals and 140 unsigned DMG dry-run
+imports passed. All six packaged binaries have the exact clean CI revision,
+CGO disabled and APFS v0.9.0 without replacement; twelve archive/SBOM checksums and
+six SPDX 2.3 documents passed audit. The packaged Darwin arm64 CLI passed nine
+ad-hoc and eighteen RSA native comparisons, rejected-source/dry-run preservation
+and fresh defaults on forced replacement.
+
+Earlier local chain-setup `errSecInternalComponent` logs were retained. The final
+suite shares one public-test keychain per acceptance process, restores the original
+search list and deletes it during checked cleanup; final local and CI runs pass.
+Thirty false-self quiet-verification differences were recorded separately from
+matching signing bytes; the current verification slice resolves those cases.
+Localized dates, native file-list crash profiles and wider policy remain explicit.
+The inventory remains 27 partial, 53 not implemented, eight blocked, zero verified.
 
 <a id="merged-pr58"></a>
 ### Merged milestone: PR #58 (2026-09-26)
@@ -1956,7 +2000,7 @@ existence boundaries have native evidence. Four complete generated parser method
 the duplicate-replacement body and internal requirement merging have two-target
 Clang ASTs. The 33 compiler records, 18 complete ad-hoc signing comparisons,
 12 rejected-source preservation cases and 12 certificate layout comparisons do not
-complete the wider tasks below. The current [default-merging slice](requirement-defaults.md)
+complete the wider tasks below. Merged PR #59's [default-merging slice](requirement-defaults.md)
 adds certificate synthesis for empty/partial sets, preserves explicit overrides,
 and establishes fresh nested/replacement defaults. Representation defaults,
 preservation and syntax diagnostics remain gaps.
@@ -2031,12 +2075,16 @@ the current explicit-trust library contract is not identical to every native
 - [ ] Probe native default verification separately from explicit requirement,
   certificate trust, timestamp validity, revocation and notarization checks.
   Define which checks are actually requested by each operation/option combination.
-  - [ ] Correct the measured self-designated-requirement difference: native ordinary
-    verification accepts `designated => never`, whereas the current Go verifier
-    returns `ErrDesignatedRequirement`. Preserve enforcement of caller-supplied
-    and parent-sealed requirements, malformed-set rejection and explicit trust.
-    Cover CLI/library, shallow/deep nested code, all identities/representations,
-    true/false supplied predicates and tampered parents/children independently.
+  - [x] Separate quiet integrity verification from verbose self checks and explicit
+    caller predicates for the [bounded 822-case profile](requirement-verification.md).
+    Resolve the thirty PR #59 false-self differences; retain malformed-set rejection,
+    explicit trust and mandatory parent seals. Expose opt-in API migration and
+    report methods. Check all-slice caller predicates versus selected self checks,
+    shallow/deep file/app/framework children, mutations and first-failing status.
+  - [ ] Complete failed nested-code, malformed-component, unsigned and architecture
+    augmentation diagnostics. Preserve the three quiet native/Go malformed-set
+    acceptance differences explicitly until a reviewed structural policy exists.
+    Expand beyond the measured architectures, representations and identities.
 - [ ] Establish `--use-software-signing-cert` software-update validation policy,
   defaults, errors and operation interactions from independent native cases;
   the merged D01 probes do not establish an identity-selection contract.
@@ -3006,9 +3054,9 @@ none leaves independent acceptance for a later “testing PR.”
 | D10 | Outstanding increment | Mach-O header expansion, then FAT64/legacy layout/removal profiles | D09 where large offsets apply; every transformation independently evidenced |
 | D11 | Outstanding increment | One CodeDirectory/digest/slot family per slice, with CMS/nested integration | WP-07; no parser-only feature completion |
 | D12 | Outstanding increment | Complete entitlement types, extraction and applicability | D11 as needed; native XML/DER byte comparisons |
-| D13 | Requirement-default merging active | Named/decimal compiler merged; missing certificate DRs, explicit overrides and repacking implemented; representation/preservation policy remains | WP-09; unavailable contexts remain explicitly unsupported |
+| D13 | Default merging merged in PR #59 | Named/decimal compiler, missing certificate DRs, explicit overrides and repacking delivered; representation/preservation policy remains | WP-09; unavailable contexts remain explicitly unsupported |
 | D14 | Outstanding increment | Identity/PFX extensions and CMS algorithms in matching increments | Independent identity and signature fixtures; no native dependency regression |
-| D15 | Outstanding increment | Native-compatible verification policy and broader timestamp/transport behavior | WP-10/WP-13; explicit-trust migration decision and independent chain tests |
+| D15 | Bounded requirement verification active | Separate integrity, verbose self checks, caller predicates and parent requirements; wider trust/timestamp policy remains | WP-10/WP-13; preserve explicit trust and document self-check migration |
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
@@ -3113,24 +3161,25 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #58
+### Active implementation work after PR #59
 
-`feat/requirement-defaults` starts from actual PR #58 merge
-`01afd92e4feec5e158e1351fd3305789da667dca`. Released APFS v0.9.0 remains pinned
+`feat/requirement-verification` starts from actual PR #59 merge
+`59e87e4e236a2afa9fbfbc74aebc4a98a297cb06`. Released APFS v0.9.0 remains pinned
 without a replacement.
 
-1. Implement the bounded D13/WP-09 default-merging contract above. Reuse the
-   certificate builder, binary validator and SuperBlob writer. Prove missing,
-   empty, partial, overriding and unordered sets for all supported identities and
-   representations, per-child identifiers, force replacement and input ownership.
+1. Implement the bounded D15/WP-10 verification contract above, reusing the
+   requirement decoder/evaluator and verified certificate context. Prove quiet
+   integrity, verbose selected self checks, explicit all-slice predicates, parent
+   constraints, first-failing status, unchanged inputs and API migration.
 2. Complete local and three-OS coverage, native imports, race/eleven fuzz targets,
    lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
-   Retain all PR #58 compiler, extraction and earlier matrices. Compare deterministic
-   requirement/CodeDirectory bytes, input/signed trees and text across producers; retain randomized
-   certificate-chain input hashes as local preservation evidence only.
-3. Next, correct ordinary verification's automatic self-designated-requirement
-   evaluation using separate caller/parent constraints, while retaining malformed
-   component rejection and explicit trust. Then address representation defaults,
+   Retain PR #59 defaults, compiler, extraction and earlier matrices. Audit all
+   822 new records and 1,382 deterministic hashes per foreign producer. Preserve
+   the six malformed-set records, three quiet acceptance differences, and raw
+   native/Go diagnostics outside the 630 exact-output cases.
+3. Next, extend native verification failure diagnostics and architecture context
+   using the newly retained nested, unsigned and damaged-component observations.
+   Keep explicit trust and eager malformed-set rejection visible. Then address representation defaults,
    preservation, stdin and `$self.identifier` substitution, broader grammar and
    exact diagnostics. Unknown-opcode debug text, alternate/external slots,
    CMS/default policy, removal applicability, constraints and combined extraction

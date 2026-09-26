@@ -124,7 +124,7 @@ func TestCommands(t *testing.T) {
 	if _, _, code := invoke(t, "--verify", `-R=identifier "wrong"`, signed); code != 3 {
 		t.Fatal(code)
 	}
-	if _, _, code := invoke(t, "--verify", `-R=identifier "wrong"`, signed, unsigned); code != 1 {
+	if _, _, code := invoke(t, "--verify", `-R=identifier "wrong"`, signed, unsigned); code != 3 {
 		t.Fatal(code)
 	}
 	if _, _, code := invoke(t, "--verify", `-R=identifier "wrong"`, unsigned, signed); code != 1 {

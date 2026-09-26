@@ -56,6 +56,13 @@ kinds. The shared compiler sorts entries and applies the last duplicate.
 designated requirement in empty or partial sets and preserve explicit overrides.
 Expression coverage, representation defaults and verification policy remain bounded.
 
+[Verification](docs/requirement-verification.md) separates signature integrity,
+verbose self-designated-requirement checks and explicit `-R` predicates. Quiet
+verification accepts an intact signature with a false stored self requirement;
+parent-sealed child requirements remain enforced. Library callers can preserve
+the previous self-check behavior with `VerifyOptions.CheckDesignatedRequirement`.
+Explicit certificate trust remains required.
+
 ## Build
 
 Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:

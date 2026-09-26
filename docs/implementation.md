@@ -41,11 +41,15 @@ canonical named sets, implicit designated requirements, component binding,
 truncation and architecture/combined-output behavior. Its audited three-OS gates
 passed. Merged PR #58 adds [requirement-set compilation](requirement-sets.md):
 all named kinds, decimal kinds, comments/semicolons and duplicate ordering, with
-audited native byte comparisons. The active D13/WP-09 increment adds
+audited native byte comparisons. Merged PR #59 adds
 [certificate default merging](requirement-defaults.md), explicit overrides,
 canonical binary repacking and fresh per-object defaults during deep/replacement
-signing. Ordinary verification's evaluation of the embedded designated requirement
-is a separately measured difference and the next WP-10 policy task.
+signing, with audited three-OS gates. The active D15/WP-10 increment separates
+[quiet integrity verification, verbose self checks and explicit predicates](requirement-verification.md),
+retains parent-sealed requirements and explicit certificate trust, and adds 822
+cases. The thirty PR #59 quiet-verification differences are resolved. Malformed-set
+policy, failed nested-code diagnostics and unsigned architecture augmentation
+remain explicit differences; full verification policy remains open.
 No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory

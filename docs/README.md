@@ -14,6 +14,9 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Signature file lists](file-lists.md) | Ordered signature paths, append output, partial effects and explicit native differences |
 | [Entitlement extraction](entitlement-extraction.md) | DER/XML selection, typed text, append output, error ordering and remaining limits |
 | [Requirement extraction](requirement-extraction.md) | Canonical text, implicit designated requirements, slot binding and truncate-before-validation output |
+| [Requirement compilation](requirement-sets.md) | Named/decimal sets, expression grammar, duplicate ordering and limits |
+| [Signing defaults](requirement-defaults.md) | Missing certificate requirements, explicit overrides and nested/replacement defaults |
+| [Requirement verification](requirement-verification.md) | Integrity, verbose self checks, caller/parent predicates and API migration |
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
