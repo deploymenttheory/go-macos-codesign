@@ -479,6 +479,10 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 		}
 	}
 	if !opts.directoryOnly {
+		opts.resourceBase, err = filepath.Abs(filepath.Join(b.path, b.base))
+		if err != nil {
+			return r, err
+		}
 		if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
 			return r, err
 		}

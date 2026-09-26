@@ -63,6 +63,7 @@ research-paths:
 	go run scripts/extract-requirement-sets.go
 	go run scripts/extract-requirement-defaults.go
 	go run scripts/extract-requirement-verification.go
+	go run scripts/extract-verification-diagnostics.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

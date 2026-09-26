@@ -10,6 +10,7 @@ import (
 	"crypto/sha256"
 	"encoding/asn1"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"math/big"
 	"sort"
@@ -352,7 +353,10 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	}
 	sd, certs, err := decodeCMS(der)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, ErrUnsupported) {
+			return nil, err
+		}
+		return nil, verificationFailure("Unknown format in import.", err)
 	}
 	si := sd.Signers[0]
 	var signer *certificate
@@ -414,7 +418,10 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	}
 	hashed := sha256.Sum256(signed)
 	if err := verifyCMSSignature(signer.public, si.Algorithm, hashed[:], si.Signature); err != nil {
-		return nil, err
+		if errors.Is(err, ErrUnsupported) {
+			return nil, err
+		}
+		return nil, verificationFailure(signatureDiagnostic, err)
 	}
 	info.SignerCertificate = bytes.Clone(signer.raw)
 	info.Timestamp, err = cmsTimestamp(si)

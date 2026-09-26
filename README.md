@@ -62,6 +62,8 @@ verification accepts an intact signature with a false stored self requirement;
 parent-sealed child requirements remain enforced. Library callers can preserve
 the previous self-check behavior with `VerifyOptions.CheckDesignatedRequirement`.
 Explicit certificate trust remains required.
+[Failure diagnostics](docs/verification-diagnostics.md) include bounded native
+wording, failing architecture and nested paths, with structured library errors.
 
 ## Build
 

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -62,10 +63,12 @@ func nestedSignature(data []byte) (*Report, int, error) {
 		return nil, 0, unsupported("nested code must be Mach-O")
 	}
 	selected := 0
-	for i, a := range r.Architectures {
+	for _, a := range r.verificationArchitectures() {
 		if a.Signature == nil {
-			return nil, 0, ErrUnsigned
+			return nil, 0, verificationArchitecture(verificationFailure(ErrUnsigned.Error(), ErrUnsigned), a.Name)
 		}
+	}
+	for i, a := range r.Architectures {
 		if len(a.Signature.Directories) != 1 || a.Signature.Directories[0].HashType != 2 {
 			return nil, 0, unsupported("nested code requires one SHA-256 CodeDirectory per architecture")
 		}
@@ -227,14 +230,14 @@ func verifyNestedResource(ctx context.Context, name string, value any, resource 
 		return err
 	}
 	if _, _, err := nestedSignature(resource.data); err != nil {
-		return err
+		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	opts.InfoPlist, opts.Resources = nil, nil
 	opts.Requirement = requirement
 	opts.Architecture = "" // every child architecture must satisfy the parent seal
 	opts.directoryOnly = !opts.Deep
 	if _, err := VerifyBytes(ctx, resource.data, opts); err != nil {
-		return nestedVerificationError(name, err)
+		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	return nil
 }
@@ -243,7 +246,17 @@ func nestedVerificationError(name string, err error) error {
 	if errors.Is(err, ErrRequirement) {
 		// A parent seal is part of signature integrity, not the caller's -R
 		// test. Native reports errSecCSBadNestedCode, with an ordinary exit 1.
-		return invalid("nested %s: %v", name, err)
+		return &VerificationError{Diagnostic: "nested code is modified or invalid", ModifiedResources: []string{name}, cause: invalid("nested %s: %v", name, err)}
 	}
-	return fmt.Errorf("nested %s: %w", name, err)
+	wrapped := fmt.Errorf("nested %s: %w", name, err)
+	var detail *VerificationError
+	if errors.As(err, &detail) {
+		copy := *detail
+		if copy.Subcomponent == "" {
+			copy.Subcomponent = name
+		}
+		copy.cause = wrapped
+		return &copy
+	}
+	return wrapped
 }

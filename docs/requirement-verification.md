@@ -107,10 +107,11 @@ CLI verbosity, architecture selection, diagnostics and operand ordering.
 | Two self predicates × quiet/verbose × two caller predicates | 8 | Portable JSON result |
 
 All 822 cases run on each producer; 814 additionally invoke native `codesign` on
-Mac. Raw diagnostic equality is required for 630 cases. The other 184 native
-records retain both outputs without claiming exact wording: failed nested-code
-checks, page/CMS/component failures and unsigned architecture augmentation remain
-open. In three quiet malformed-set cases, native verification accepts a correctly
+Mac. [Diagnostic context](verification-diagnostics.md) strengthens raw diagnostic
+equality from 630 to 808 cases, including failed nested checks, page/CMS/component
+failures and unsigned architecture context. The other six records retain both
+outputs without claiming exact wording. In three quiet malformed-set cases,
+native verification accepts a correctly
 bound malformed structure while Go rejects it; verbose native checks reject it.
 All six malformed-set records flag this bounded structural policy difference.
 The implementation deliberately retains existing eager structural rejection.

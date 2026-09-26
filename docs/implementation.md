@@ -44,12 +44,14 @@ all named kinds, decimal kinds, comments/semicolons and duplicate ordering, with
 audited native byte comparisons. Merged PR #59 adds
 [certificate default merging](requirement-defaults.md), explicit overrides,
 canonical binary repacking and fresh per-object defaults during deep/replacement
-signing, with audited three-OS gates. The active D15/WP-10 increment separates
+signing, with audited three-OS gates. Merged PR #60 separates
 [quiet integrity verification, verbose self checks and explicit predicates](requirement-verification.md),
 retains parent-sealed requirements and explicit certificate trust, and adds 822
 cases. The thirty PR #59 quiet-verification differences are resolved. Malformed-set
-policy, failed nested-code diagnostics and unsigned architecture augmentation
-remain explicit differences; full verification policy remains open.
+policy remains an explicit difference. The active D15/WP-10 increment adds
+[failure diagnostics](verification-diagnostics.md), structured architecture/nested
+context, verbose resource details and 182 additional cases. It strengthens 178
+earlier native comparisons to exact diagnostics. Full policy remains open.
 No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
