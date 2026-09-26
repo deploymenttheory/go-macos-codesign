@@ -60,6 +60,7 @@ research-paths:
 	go run scripts/extract-file-list.go
 	go run scripts/extract-entitlement-extraction.go
 	go run scripts/extract-requirement-extraction.go
+	go run scripts/extract-requirement-sets.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

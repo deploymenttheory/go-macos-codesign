@@ -259,11 +259,16 @@
         "acceptance/requirement_extraction_test.go",
         "pkg/codesign/requirement_metadata_test.go",
         "spec/apple-requirement-extraction.json",
-        "docs/requirement-extraction.md"
+        "docs/requirement-extraction.md",
+        "scripts/extract-requirement-sets.go",
+        "spec/apple-requirement-sets.json",
+        "pkg/codesign/requirement_sets_test.go",
+        "acceptance/requirement_sets_test.go",
+        "docs/requirement-sets.md"
       ],
       "id": "--requirements",
       "manual": ".It Fl r, -requirements Ar requirements",
-      "notes": "Bounded display extraction renders named binary sets using the existing expression subset, synthesizes commented ad-hoc/certificate designated requirements, checks nonzero component hashes, truncates destinations before component validation, and matches explicit architecture selection and certificate/entitlement/file-list ordering. 87 cases include 86 native comparisons and one portable JSON case. Sets are limited to 1 MiB/64 entries; overlapping children are rejected. One CodeDirectory per architecture is supported. Broader grammar/opcodes, native unknown-opcode debug output, default Apple-proper/certificate policy, external/alternate representations, removal applicability, input/output aliases, locale/path normalization and complete failure/operation combinations remain outstanding. Extraction is descriptive and does not assert page integrity or trust.",
+      "notes": "Bounded source compilation now accepts all five named kinds and uint32 decimal kinds, sorts entries, keeps the last duplicate and supports comments/semicolons through the shared expression parser. 33 native compiler cases, 18 complete ad-hoc signing comparisons, 12 rejection-preservation cases and 12 certificate layout comparisons cover the increment. Bare expressions, not and hexadecimal identifier literals retain portable extensions; numeric overflow, stdin, self-identifier substitution and certificate default merging into explicit sets remain open. Bounded display extraction renders named binary sets using the existing expression subset, synthesizes commented ad-hoc/certificate designated requirements, checks nonzero component hashes, truncates destinations before component validation, and matches explicit architecture selection and certificate/entitlement/file-list ordering. 87 cases include 86 native comparisons and one portable JSON case. Sets are limited to 1 MiB/64 entries; overlapping children are rejected. One CodeDirectory per architecture is supported. Broader grammar/opcodes, native unknown-opcode debug output, default Apple-proper/certificate policy, external/alternate representations, removal applicability, input/output aliases, locale/path normalization and complete failure/operation combinations remain outstanding. Extraction is descriptive and does not assert page integrity or trust.",
       "status": "partial"
     },
     {

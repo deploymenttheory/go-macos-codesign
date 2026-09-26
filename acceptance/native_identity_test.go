@@ -61,7 +61,7 @@ func TestAppleNativeCertificateLayout(t *testing.T) {
 				t.Fatal(err)
 			}
 			for _, arch := range []string{"arm64", "x86_64", "universal"} {
-				modes := []string{"default", "runtime", "entitlements", "requirement"}
+				modes := []string{"default", "runtime", "entitlements", "requirement", "requirement-set"}
 				if algorithm == "rsa" && arch == "arm64" {
 					for n := 1; n <= 16; n++ {
 						modes = append(modes, fmt.Sprintf("identifier-%d", n))
@@ -81,8 +81,11 @@ func TestAppleNativeCertificateLayout(t *testing.T) {
 						case "entitlements":
 							opts.Entitlements = nativeRead(t, filepath.Join(root, "testdata/entitlements.plist"))
 							extra = []string{"--entitlements", filepath.Join(root, "testdata/entitlements.plist")}
-						case "requirement":
+						case "requirement", "requirement-set":
 							expression := `designated => identifier "org.example.certificate"`
+							if mode == "requirement-set" {
+								expression = "host => never guest => never library => always plugin => never " + expression
+							}
 							opts.Requirements, err = codesign.CompileRequirements(expression)
 							if err != nil {
 								t.Fatal(err)

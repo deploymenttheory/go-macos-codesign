@@ -72,12 +72,25 @@ func TestCanonicalRequirementText(t *testing.T) {
 }
 
 func FuzzRequirementText(f *testing.F) {
+	for _, s := range []string{"host => always; designated => never", "# comment\nhost => certificate leaf[field.1.2.3] guest => always", "4294967295 => always 08 => never host => always host => never"} {
+		f.Add(s)
+	}
 	for _, s := range []string{`always`, `identifier helper`, `identifier 0xc3a9`, `certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and ! never`, `certificate root = H"0000000000000000000000000000000000000000"`, strings.Repeat("! ", 130) + "always"} {
 		f.Add(s)
 	}
 	f.Fuzz(func(t *testing.T, s string) {
 		if len(s) > 1<<16 {
 			return
+		}
+		if set, err := CompileRequirements(s); err == nil {
+			// Compilation is deterministic even with duplicate labels and map
+			// iteration. The binary decoder can have stricter depth limits.
+			again, err := CompileRequirements(s)
+			if err != nil || !bytes.Equal(set, again) {
+				t.Fatal("unstable requirement set compilation")
+			}
+			_, _ = RequirementsBytes(set)
+			_, _, _ = requirementSetText(set)
 		}
 		data, err := CompileRequirement(s)
 		if err != nil {

@@ -36,9 +36,13 @@ PR #53 delivers [signature file lists](file-lists.md) with audited three-OS and
 packaging gates. PR #54 corrects
 [entitlement extraction](entitlement-extraction.md), including reconstruction,
 append destinations, diagnostics and ordering, with audited three-OS gates.
-The active D08/WP-09/WP-20 increment adds [requirement extraction](requirement-extraction.md):
+Merged PR #57 adds [requirement extraction](requirement-extraction.md):
 canonical named sets, implicit designated requirements, component binding,
-truncation and architecture/combined-output behavior. No inventory status changes.
+truncation and architecture/combined-output behavior. Its audited three-OS gates
+passed. The active D13/WP-09 increment adds [requirement-set compilation](requirement-sets.md):
+all named kinds, decimal kinds, comments/semicolons and duplicate ordering, with
+native byte comparisons. Certificate default merging remains the next policy task.
+No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

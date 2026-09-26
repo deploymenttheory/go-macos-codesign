@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-25 after [PR #54](https://github.com/deploymenttheory/go-macos-codesign/pull/54) merged.
+Status: updated 2026-09-26 after [PR #57](https://github.com/deploymenttheory/go-macos-codesign/pull/57) merged.
 Released APFS v0.9.0 remains the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -17,11 +17,16 @@ architecture selection and certificate/file-list ordering. It adds 90 cases and
 six complete Apple functions with two-target Clang evidence. The
 [extraction contract](entitlement-extraction.md) separates the implemented profile
 from remaining DER/CMS/slot/locale/filesystem work. Its final gates and artifact
-audit passed. The active D08/WP-09/WP-20 increment on `feat/requirement-extraction`
+audit passed. Merged [PR #57](#merged-pr57)
 adds canonical requirement text, implicit designated requirements, slot binding,
 truncate-before-validation destinations and architecture/combined-output behavior.
 The [requirement contract](requirement-extraction.md) defines the 87-case profile
-and its remaining limits; current-commit gates belong to this implementation PR.
+and its remaining limits. The active D13/WP-09 increment on `feat/requirement-sets`
+adds named and decimal-kind source compilation, sorted last-duplicate encoding,
+comments/semicolons and implicit extension-existence boundaries. Its
+[compiler contract](requirement-sets.md) records 75 bounded cases, six complete
+Apple bodies and the remaining source/default-policy differences. Current-commit
+gates belong to this implementation PR.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -49,7 +54,7 @@ WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merge
 [PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
 [PR #50 evidence](#merged-pr50), [PR #51 delivery](#merged-pr51),
 [PR #52 evidence](#merged-pr52), [PR #53 evidence](#merged-pr53),
-[PR #54 evidence](#merged-pr54) and the
+[PR #54 evidence](#merged-pr54), [PR #57 evidence](#merged-pr57) and the
 [delivery status](#delivery-status) distinguish
 delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
 
@@ -60,6 +65,38 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr57"></a>
+### Merged milestone: PR #57 (2026-09-26)
+
+[PR #57](https://github.com/deploymenttheory/go-macos-codesign/pull/57) merged as
+`2bb50e1db8eb97c196c93bdddfef900e3c25251c`. Its actual merge, final head
+`3a944840c9f462b088f8b5d7b6e0ba7cf547affc` and tested CI merge
+`915a9b20302fcce8d53060c7bf1c55c3ad2bebf9` share tree
+`97acb062b92ad6b0c636a57519300fe79bb1d546`. The final
+[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36240644881)
+and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36240644847)
+passed.
+
+| Runner | Library | CLI | Entry point |
+| --- | --- | --- | --- |
+| Linux | 4,466/4,677, 95.49% | 547/553, 98.92% | 1/1, 100% |
+| Windows | 4,462/4,677, 95.40% | 547/553, 98.92% | 1/1, 100% |
+| macOS | 4,470/4,677, 95.57% | 551/553, 99.64% | 1/1, 100% |
+
+The 87-case requirement extraction matrix contains 86 native comparisons and one
+portable JSON case. All 188 deterministic requirement input/output hashes per
+foreign producer match the independently Apple-compared Mac results. Randomized
+certificate-chain input archives and absolute-path file-list stdout retain their
+documented local-only comparison scope. The audit checks 634 source/fixture hashes
+per OS, including 17 expected Windows text conversions; all earlier matrices;
+606 signature imports, 88 removal comparisons and 140 unsigned DMG dry-run imports.
+Race/eleven fuzz targets and vendored RC2 tests pass. Six packaged binaries carry
+the exact CI revision, `CGO_ENABLED=0` and released APFS v0.9.0 without replacement.
+Twelve archive/SBOM checksums and six SPDX 2.3 documents pass audit. The final packaged
+Darwin arm64 CLI passes explicit/implicit requirement extraction and truncation
+smokes. Eighteen localized certificate-date differences and six native file-list
+crash differences remain explicit. No broad inventory status changed.
 
 <a id="merged-pr54"></a>
 ### Merged milestone: PR #54 (2026-09-25)
@@ -1865,14 +1902,23 @@ Runtime authorization to exercise an entitlement is a separate host policy claim
 including the predicates used by current bundle/certificate fixtures. Numerous
 anchor, certificate-field, extension-match and opcode forms remain unsupported.
 
-The current D08 slice adds [bounded extraction](requirement-extraction.md), reusing
+Merged PR #57 adds [bounded extraction](requirement-extraction.md), reusing
 that decoder/formatter and the existing default certificate builder. Six complete
 Apple bodies have two-target ASTs. The 87-case matrix covers explicit/implicit
 requirements, all set labels, existing expression families, native 255-byte simple
 string truncation, six representations, architecture selection, component hashes,
 file truncation/links, multiple operands and extraction ordering. Shared validation
 now rejects overlapping children before decoding. Binary-set fuzzing supplements
-the existing source-language target. These changes do not complete the tasks below.
+the existing source-language target.
+
+The current D13 increment adds [bounded set compilation](requirement-sets.md).
+Five named kinds and uint32 decimal kinds share the existing expression parser;
+unsigned ordering, last duplicate wins, comments, optional semicolons and implicit
+existence boundaries have native evidence. Four complete generated parser methods,
+the duplicate-replacement body and internal requirement merging have two-target
+Clang ASTs. The 33 compiler records, 18 complete ad-hoc signing comparisons,
+12 rejected-source preservation cases and 12 certificate layout comparisons do not
+complete the wider tasks below. Syntax diagnostics and default merging remain gaps.
 
 **Implementation tasks:**
 
@@ -1885,6 +1931,12 @@ the existing source-language target. These changes do not complete the tasks bel
 - [ ] Support all native requirement kinds, including designated, host, guest,
   library and plug-in forms where accepted. Preserve an entire requirement set;
   do not flatten it into a single designated expression.
+  - [x] Compile the five named kinds and uint32 decimal kinds using the existing
+    expression subset, with sorted encoding, last-duplicate replacement, comments,
+    semicolon separators and inline/source-file/compiled-file signing evidence.
+  - [ ] Complete empty/partial-set default merging, preservation and representation
+    defaults. Prove certificate signing with omitted designated requirements before
+    claiming parity for that profile. Retain intentional source size/count limits.
 - [ ] Complete comparison operators and field contexts from evidence: existence,
   absence, equality/order, string matching, Info.plist, entitlements, certificate
   subjects/extensions/policies/dates and hash/identifier matching.
@@ -2898,12 +2950,12 @@ none leaves independent acceptance for a later “testing PR.”
 | D05 | Parent path increment merged; wider work open | Native Unicode/case/root-alias handling and additional bundle layouts | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
 | D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
 | D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
-| D08 | Certificates/file lists/entitlements merged; requirements active | Bounded canonical requirement extraction/defaults/lifecycle; broader extraction remains | Complete raw output/file side-effect comparisons |
+| D08 | Certificates/file lists/entitlements/requirements merged | Bounded canonical extraction/defaults/lifecycle; broader extraction remains | Complete raw output/file side-effect comparisons |
 | D09 | Outstanding increment | Seekable hashing/output interfaces and first large-file/image path | WP-21 budgets and source-change detection; preserve existing byte APIs |
 | D10 | Outstanding increment | Mach-O header expansion, then FAT64/legacy layout/removal profiles | D09 where large offsets apply; every transformation independently evidenced |
 | D11 | Outstanding increment | One CodeDirectory/digest/slot family per slice, with CMS/nested integration | WP-07; no parser-only feature completion |
 | D12 | Outstanding increment | Complete entitlement types, extraction and applicability | D11 as needed; native XML/DER byte comparisons |
-| D13 | Outstanding increment | Requirement grammar/encoding/rendering families, then contextual predicates | WP-09; unavailable contexts remain explicitly unsupported |
+| D13 | Requirement-set compiler active | Named/decimal source sets and duplicate ordering; broader grammar/default policy remains | WP-09; unavailable contexts remain explicitly unsupported |
 | D14 | Outstanding increment | Identity/PFX extensions and CMS algorithms in matching increments | Independent identity and signature fixtures; no native dependency regression |
 | D15 | Outstanding increment | Native-compatible verification policy and broader timestamp/transport behavior | WP-10/WP-13; explicit-trust migration decision and independent chain tests |
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
@@ -3010,25 +3062,29 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #54
+### Active implementation work after PR #57
 
-`feat/requirement-extraction` starts from `3771a2ace5f1b0e3cf6df73f2971d3fd7fa0b63c`,
-which contains PR #54 and the merged setup-go/golangci-lint-action updates in
-PR #55/#56. Released APFS v0.9.0 remains pinned without a replacement.
+`feat/requirement-sets` starts from actual PR #57 merge
+`2bb50e1db8eb97c196c93bdddfef900e3c25251c`. Released APFS v0.9.0 remains pinned
+without a replacement.
 
-1. Implement the bounded D08/WP-09/WP-20 requirement extraction contract above.
-   Reuse existing expression decoding, canonical text and certificate synthesis.
-   Keep explicit versus implicit requirements, component integrity versus page
-   verification, and output-open versus post-truncation failures distinguishable.
+1. Implement the bounded D13/WP-09 requirement-set source contract above. Reuse
+   the expression parser, binary builder and validator; add no competing grammar.
+   Compare independent native compilation, complete ad-hoc signed trees and
+   certificate signing components. Preserve every operand after rejected source.
 2. Complete local and three-OS coverage, native imports, race/eleven fuzz targets,
    lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
-   Retain all PR #54 entitlement and earlier matrices. Compare deterministic
-   requirement text and file-tree effects across producers; retain randomized
+   Retain all PR #57 extraction and earlier matrices. Compare deterministic set
+   bytes, input/signed trees and text across producers; retain randomized
    certificate-chain input hashes as local preservation evidence only.
-3. Continue broader requirement grammar/set source compilation, unknown-opcode
-   debug text, alternate/external slots, CMS/default policy, removal applicability,
-   constraint extraction and remaining combined-output checkpoints in subsequent
-   increments. The new API and CLI still reject unsupported expression families.
+3. Next, merge representation defaults, caller requirements and synthesized
+   designated requirements using the recorded Apple merge body. Cover absent,
+   empty, host-only, complete and overriding sets for every identity/representation;
+   preserve input ownership and verify failures do not write partially prepared code.
+   Then address stdin and `$self.identifier` substitution, broader grammar and
+   exact diagnostics. Unknown-opcode debug text, alternate/external slots,
+   CMS/default policy, removal applicability, constraints and combined extraction
+   checkpoints remain subsequent increments.
 4. Keep input/output aliases, special streams, Unicode path normalization,
    inaccessible-directory discovery/removal, asynchronous failures, ACL inheritance,
    root/case aliases and localized dates outstanding. No inventory status changes.

@@ -498,3 +498,24 @@ comments, explicit-architecture restriction, file truncation before component
 validation, display-line suppression and extraction order. Research reads public
 source and the host tool; production reuses the existing pure Go requirement,
 certificate and signature implementations. See the [measured contract](requirement-extraction.md).
+
+## Requirement-set parser and duplicate handling
+
+The [set research driver](../scripts/extract-requirement-sets.go), also included in
+`make research-paths`, records six complete pinned Apple bodies on arm64 and x86_64:
+`RequirementParser::requirementSet`, `requirementType`, `requirementElement`,
+`integer`, `SuperBlobCore::Maker::add` and `InternalRequirements::operator()`.
+The [manifest](../spec/apple-requirement-sets.json) retains whole-source, excerpt,
+driver and translation-unit hashes, AST references and 33 independent native
+`csreq` observations. Real SDK enum/target declarations and C++ library types are
+used with declaration-only ANTLR and private interfaces. It does not reconstruct
+the full lexer or evaluate every expression opcode.
+
+The native observations establish named/numeric kinds, source ordering, duplicate
+aliases, semicolons, comments and complete binary bytes. Additional probes showed
+unsigned overflow wrapping, native rejection of bare signing expressions, `not`
+and hexadecimal identifier literals, and no automatic host flag for the measured
+guest requirement. The [compiler contract](requirement-sets.md) distinguishes the
+existing portable extensions and deliberate bounds from native parity. Apple's
+default-merging body also exposes a remaining certificate signing gap; it is
+recorded as the next policy task rather than claimed as implemented here.

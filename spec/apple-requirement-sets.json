@@ -1,0 +1,790 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "ad39049ceb06aab2a00d93475113246fa6eae3ae857f7c285b1d9280eaa6ce5c",
+  "excerpt_sha256": {
+    "InternalRequirements::operator()": "319363486af346c11e73e581075058087fbf78617f345ba72e594f8e19ef6b38",
+    "Maker::add": "d939103919498aa10e8e0497ac08aeb8c0cf532626460c32495471240198143a",
+    "integer": "5891cd7f854c9858a55993c59d597bde1b453af953b1f076db66573fa87232b1",
+    "requirementElement": "47bb53fd63800f2bec2f86148a9a6525bbe40999d3041e5305549ea79bd2c021",
+    "requirementSet": "0a7e8fbf9af8fa36c78141571d6ce6d6167030b783ef71a660280f957184c254",
+    "requirementType": "73340e8cd1847ce6f4693458a0ba81d45e5f1e6678d300fc099b66cc7231c65e"
+  },
+  "native": {
+    "cases": {
+      "certificate": {
+        "compiled_hex": "fade0c010000009400000003000000010000002400000002000000500000000300000060fade0c000000002c0000000100000004ffffffff000000140000000000000000000000000000000000000000fade0c0000000010000000010000000ffade0c0000000034000000010000000b000000000000000a7375626a6563742e434e000000000001000000074578616d706c6500",
+        "compiled_sha256": "1d6579b91bf3340269f749a8b099370ddc3afaca805a692a0421fb7e82bbf149",
+        "exit": 0,
+        "source": "host =\u003e certificate root = H\"0000000000000000000000000000000000000000\" designated =\u003e certificate leaf[subject.CN] = Example guest =\u003e anchor apple generic",
+        "stderr": "",
+        "stdout": ""
+      },
+      "comma": {
+        "exit": 1,
+        "source": "host =\u003e always, guest =\u003e never",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:15: expecting EOF, found ','\n",
+        "stdout": ""
+      },
+      "comment-arrow": {
+        "exit": 1,
+        "source": "host =/*x*/\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:6: expecting ARROW, found '='\n",
+        "stdout": ""
+      },
+      "comment-only": {
+        "exit": 1,
+        "source": "# no expression\n",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 2:1: unexpected end of file\n",
+        "stdout": ""
+      },
+      "comments": {
+        "compiled_hex": "fade0c010000005400000003000000010000002400000002000000340000000300000044fade0c00000000100000000100000001fade0c00000000100000000100000000fade0c00000000100000000100000001",
+        "compiled_sha256": "8b03e2b81065a0962c48b0440bc7bdd121a7217f88ef0c2f04fa0d3a717b6bd2",
+        "exit": 0,
+        "source": "# leading\nhost /* kind */ =\u003e always // next\nguest =\u003e never; # middle\ndesignated =\u003e always# EOF",
+        "stderr": "",
+        "stdout": ""
+      },
+      "designated": {
+        "compiled_hex": "fade0c0100000024000000010000000300000014fade0c00000000100000000100000001",
+        "compiled_sha256": "801edddf8393280a932578a403c8ce24733f55975be680733e7e17868f4e9e2c",
+        "exit": 0,
+        "source": "designated =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "duplicate": {
+        "compiled_hex": "fade0c010000003c00000002000000010000001c000000030000002cfade0c00000000100000000100000001fade0c00000000100000000100000000",
+        "compiled_sha256": "a7a674d9d688eac6a557a5f166355dee3dc1fac224f0737c08a0983fc2bf22e5",
+        "exit": 0,
+        "source": "host =\u003e never designated =\u003e always host =\u003e always designated =\u003e never",
+        "stderr": "",
+        "stdout": ""
+      },
+      "empty": {
+        "exit": 1,
+        "source": "",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected end of file\n",
+        "stdout": ""
+      },
+      "exists-boundary": {
+        "compiled_hex": "fade0c010000008c00000004000000010000002c000000020000004c000000030000005c000000040000007cfade0c0000000020000000010000000e00000000000000022a03000000000000fade0c00000000100000000100000001fade0c0000000020000000010000000e00000000000000022a04000000000000fade0c00000000100000000100000001",
+        "compiled_sha256": "3eae72c87256c9a40ffd11ae9258e27183df76afdcdb1bf478bfb50c514a1caf",
+        "exit": 0,
+        "source": "host =\u003e certificate leaf[field.1.2.3] /* exists */ guest =\u003e always designated =\u003e certificate leaf[field.1.2.4]; library =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "guest": {
+        "compiled_hex": "fade0c0100000024000000010000000200000014fade0c00000000100000000100000000",
+        "compiled_sha256": "8caab8e7e9ee6093a1f266990d222f08fb96c70c4f19726c1fa2dae52a0a4685",
+        "exit": 0,
+        "source": "guest =\u003e never",
+        "stderr": "",
+        "stdout": ""
+      },
+      "hex-kind": {
+        "exit": 1,
+        "source": "0x3 =\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: 3\n",
+        "stdout": ""
+      },
+      "host": {
+        "compiled_hex": "fade0c0100000024000000010000000100000014fade0c00000000100000000100000001",
+        "compiled_sha256": "a0c9f2258755008c32760e4f3b95be6f3276bb4dab2e4d8ec6404aceb0a588de",
+        "exit": 0,
+        "source": "host =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "invalid-name": {
+        "exit": 1,
+        "source": "invalid =\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: invalid\n",
+        "stdout": ""
+      },
+      "leading-semi": {
+        "exit": 1,
+        "source": ";host =\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: ;\n",
+        "stdout": ""
+      },
+      "library": {
+        "compiled_hex": "fade0c0100000024000000010000000400000014fade0c00000000100000000100000000",
+        "compiled_sha256": "b7329c80b659c024635b46fa5b376f97ccd959b10c3ab57d5b9b98ddef0ee0df",
+        "exit": 0,
+        "source": "library =\u003e never",
+        "stderr": "",
+        "stdout": ""
+      },
+      "missing-arrow": {
+        "exit": 1,
+        "source": "host always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:6: expecting ARROW, found 'always'\n",
+        "stdout": ""
+      },
+      "missing-expression": {
+        "exit": 1,
+        "source": "host =\u003e",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:8: unexpected end of file\n",
+        "stdout": ""
+      },
+      "missing-type": {
+        "exit": 1,
+        "source": "=\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: =\u003e\n",
+        "stdout": ""
+      },
+      "negative": {
+        "exit": 1,
+        "source": "-1 =\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: -\n",
+        "stdout": ""
+      },
+      "numeric-alias": {
+        "compiled_hex": "fade0c010000003c00000002000000010000001c000000030000002cfade0c00000000100000000100000001fade0c00000000100000000100000001",
+        "compiled_sha256": "466cc8e9c970ed9af142b81e17e98a18204ed9f82798457f922128f0d51467b6",
+        "exit": 0,
+        "source": "3 =\u003e never designated =\u003e always 1 =\u003e never host =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "numeric-bounds": {
+        "compiled_hex": "fade0c0100000084000000050000000000000034000000030000004400000006000000540000000800000064ffffffff00000074fade0c00000000100000000100000000fade0c00000000100000000100000000fade0c00000000100000000100000001fade0c00000000100000000100000001fade0c00000000100000000100000000",
+        "compiled_sha256": "d9b1dbdef0df526876e6eb38028ded16803dfa71817226aeed316e3ecc726cbf",
+        "exit": 0,
+        "source": "4294967295 =\u003e never 6 =\u003e always 0 =\u003e never 08 =\u003e always 03 =\u003e never",
+        "stderr": "",
+        "stdout": ""
+      },
+      "numeric-exists-boundary": {
+        "compiled_hex": "fade0c010000004c00000002000000010000001c000000030000003cfade0c0000000020000000010000000e00000008000000022a03000000000000fade0c00000000100000000100000001",
+        "compiled_sha256": "ec9584a8b10358e4d00653993a11a3404881eab50f33632a1a9d6cfb21e79dc1",
+        "exit": 0,
+        "source": "1 =\u003e certificate 08[field.1.2.3] 3 =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "plugin": {
+        "compiled_hex": "fade0c0100000024000000010000000500000014fade0c00000000100000000100000001",
+        "compiled_sha256": "c2f386570dd0f904629454837e340d4ba4ef085c2493b422ff31641341d4d167",
+        "exit": 0,
+        "source": "plugin =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "precedence": {
+        "compiled_hex": "fade0c010000007400000003000000010000002400000003000000440000000400000060fade0c0000000020000000010000000700000006000000010000000000000001fade0c000000001c0000000100000009000000070000000000000001fade0c0000000014000000010000000900000000",
+        "compiled_sha256": "7c218c40009423c8a01b3a70efe301b2b7a12495080de20d204aa5e49dbba557",
+        "exit": 0,
+        "source": "host =\u003e always and never or always designated =\u003e ! (never or always) library =\u003e ! false",
+        "stderr": "",
+        "stdout": ""
+      },
+      "quoted-comment": {
+        "compiled_hex": "fade0c0100000034000000010000000100000014fade0c000000002000000001000000020000000b6123622f2f632f2a642a2f00",
+        "compiled_sha256": "8e11ba06ce4ef4a876bca6abd9e25a5fbcb5b3a970bddcf9db7dac17a1c81ede",
+        "exit": 0,
+        "source": "host =\u003e identifier \"a#b//c/*d*/\"",
+        "stderr": "",
+        "stdout": ""
+      },
+      "reordered": {
+        "compiled_hex": "fade0c01000000840000000500000001000000340000000200000044000000030000005400000004000000640000000500000074fade0c00000000100000000100000001fade0c00000000100000000100000000fade0c00000000100000000100000001fade0c00000000100000000100000000fade0c00000000100000000100000001",
+        "compiled_sha256": "762832e995886af1dc887cf3d10bad684c96a61958ac8cbddc86d14b8152c254",
+        "exit": 0,
+        "source": "plugin =\u003e always library =\u003e never designated =\u003e always guest =\u003e never host =\u003e always",
+        "stderr": "",
+        "stdout": ""
+      },
+      "semicolons": {
+        "compiled_hex": "fade0c010000003c00000002000000010000001c000000030000002cfade0c00000000100000000100000001fade0c00000000100000000100000000",
+        "compiled_sha256": "a7a674d9d688eac6a557a5f166355dee3dc1fac224f0737c08a0983fc2bf22e5",
+        "exit": 0,
+        "source": "host =\u003e always;;; designated =\u003e never;;",
+        "stderr": "",
+        "stdout": ""
+      },
+      "split-arrow": {
+        "exit": 1,
+        "source": "host = \u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:6: expecting ARROW, found '='\n",
+        "stdout": ""
+      },
+      "strings": {
+        "compiled_hex": "fade0c010000007000000003000000010000002400000003000000400000000500000058fade0c000000001c00000001000000020000000668656c7065720000fade0c0000000018000000010000000200000002c3a90000fade0c000000001800000001000000020000000361206200",
+        "compiled_sha256": "f3e90d785f17e703a9ec27834d28d852148229e7b22e2f8602ff397719a3ff32",
+        "exit": 0,
+        "source": "host =\u003e identifier helper designated =\u003e identifier \"é\" plugin =\u003e identifier \"a b\"",
+        "stderr": "",
+        "stdout": ""
+      },
+      "trailing-token": {
+        "exit": 1,
+        "source": "host =\u003e always bogus",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:16: expecting EOF, found 'bogus'\n",
+        "stdout": ""
+      },
+      "unclosed-comment": {
+        "exit": 1,
+        "source": "host =\u003e always /*",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:18: expecting ''*'', found 'EOF'\n",
+        "stdout": ""
+      },
+      "unclosed-string": {
+        "exit": 1,
+        "source": "host =\u003e identifier \"oops",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:25: expecting ''\"'', found 'EOF'\n",
+        "stdout": ""
+      },
+      "unknown-kind": {
+        "exit": 1,
+        "source": "future =\u003e always",
+        "stderr": "error: invalid or corrupted code requirement(s)\nRequirement syntax error(s):\nline 1:1: unexpected token: future\n",
+        "stdout": ""
+      }
+    },
+    "csreq_sha256": "90dc3ddd0f274937b36d0de11c2e0075cf8cfa1c9bc5dd78d9cf934fed741e65",
+    "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n"
+  },
+  "schema": 1,
+  "scope": "Six complete verbatim Apple bodies: four generated parser methods, SuperBlob Maker::add and InternalRequirements merge/default selection. Real SDK requirement-kind constants, target macros and C++ library; ANTLR, maker, DRMaker, logging and private interfaces are declarations only. Two Clang targets establish set grammar, semicolon consumption, unsigned kind conversion, duplicate replacement and missing-designated default selection; native csreq independently supplies complete compiled bytes. Lexer implementation and full expression grammar are not reconstructed. The recorded certificate default merge is an outstanding signing obligation, not implemented by this compiler increment. Production requires no native tools or SDK.",
+  "sdk": "MacOSX.sdk",
+  "sources": {
+    "RequirementParser.cpp": {
+      "sha256": "b53ff43cc7e2aef9f3519913a10f1780a1e76e29c10a9a124b21557d42dce6ad",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/RequirementParser.cpp"
+    },
+    "RequirementParserTokenTypes.hpp": {
+      "sha256": "409116babf88c613ea0422220d89a07c45615ac2a689e6cbcce1034a0e221790",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/RequirementParserTokenTypes.hpp"
+    },
+    "requirements.grammar": {
+      "sha256": "6a60dfa4c0cb339b3dac5efef173911c441d0325459b1d5754c35b469a98132f",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/requirements.grammar"
+    },
+    "signerutils.cpp": {
+      "sha256": "2f352abf90941bca654b31bee3a44a75499abc22da4362601920c0ff6301c699",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signerutils.cpp"
+    },
+    "superblob.h": {
+      "sha256": "dde24f47dee3cefc3349d4628df724cf860f552fc78f32544d7a0c2cbd1fa368",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/superblob.h"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "__ZN19CodesignSetResearch17RequirementParser14requirementSetEv": {
+        "ast_kinds": {
+          "": 4,
+          "BinaryOperator": 4,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 12,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXTemporaryObjectExpr": 1,
+          "CXXThisExpr": 12,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CompoundStmt": 9,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 5,
+          "ExprWithCleanups": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 2,
+          "GotoStmt": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 10,
+          "IntegerLiteral": 4,
+          "LabelStmt": 1,
+          "MemberExpr": 15,
+          "NullStmt": 1,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 6
+        },
+        "references": {
+          "ARROW": 1,
+          "EOF_TYPE": 1,
+          "LA": 1,
+          "LT": 1,
+          "_cnt4": 2,
+          "_tokenSet_0": 1,
+          "_tokenSet_1": 1,
+          "add": 1,
+          "empty": 1,
+          "errors": 1,
+          "ex": 2,
+          "getFilename": 1,
+          "maker": 2,
+          "match": 2,
+          "member": 1,
+          "operator()": 1,
+          "recover": 1,
+          "reportError": 1,
+          "req": 2,
+          "requirementElement": 1,
+          "requirementType": 1,
+          "result": 2,
+          "t": 2
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser15requirementTypeEv": {
+        "ast_kinds": {
+          "BinaryOperator": 6,
+          "BreakStmt": 6,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXMemberCallExpr": 11,
+          "CXXMethodDecl": 1,
+          "CXXTemporaryObjectExpr": 1,
+          "CXXThisExpr": 12,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CaseStmt": 6,
+          "CompoundStmt": 11,
+          "ConstantExpr": 6,
+          "DeclRefExpr": 26,
+          "DeclStmt": 1,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 19,
+          "IntegerLiteral": 2,
+          "MemberExpr": 12,
+          "ReturnStmt": 1,
+          "SwitchStmt": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "INTEGER": 1,
+          "LA": 1,
+          "LITERAL_designated": 2,
+          "LITERAL_guest": 2,
+          "LITERAL_host": 2,
+          "LITERAL_library": 2,
+          "LITERAL_plugin": 2,
+          "LT": 1,
+          "_tokenSet_2": 1,
+          "ex": 2,
+          "getFilename": 1,
+          "integer": 1,
+          "kSecDesignatedRequirementType": 1,
+          "kSecGuestRequirementType": 1,
+          "kSecHostRequirementType": 1,
+          "kSecInvalidRequirementType": 1,
+          "kSecLibraryRequirementType": 1,
+          "kSecPluginRequirementType": 1,
+          "match": 5,
+          "recover": 1,
+          "reportError": 1,
+          "type": 7
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser18requirementElementEv": {
+        "ast_kinds": {
+          "": 4,
+          "BinaryOperator": 2,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 6,
+          "CXXTryStmt": 1,
+          "CompoundStmt": 7,
+          "DeclRefExpr": 8,
+          "DeclStmt": 2,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "GotoStmt": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "LabelStmt": 1,
+          "MemberExpr": 6,
+          "NullStmt": 1,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "LA": 1,
+          "SEMI": 1,
+          "_tokenSet_3": 1,
+          "ex": 2,
+          "expr": 1,
+          "fluff": 1,
+          "maker": 2,
+          "operator()": 1,
+          "recover": 1,
+          "reportError": 1,
+          "result": 2
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser7integerEv": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CXXTryStmt": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 9,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 7,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 7,
+          "ReturnStmt": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "INTEGER": 1,
+          "LT": 1,
+          "_tokenSet_4": 1,
+          "atol": 1,
+          "c_str": 1,
+          "ex": 2,
+          "getText": 1,
+          "match": 1,
+          "nullToken": 1,
+          "recover": 1,
+          "reportError": 1,
+          "result": 2,
+          "s": 2
+        }
+      },
+      "__ZN19CodesignSetResearch20InternalRequirementsclEPKNS_12RequirementsES3_RKNS_11Requirement7ContextE": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CStyleCastExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 7,
+          "CallExpr": 2,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 14,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 19,
+          "MemberExpr": 8,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "references": {
+          "add": 3,
+          "contains": 1,
+          "context": 1,
+          "defaulted": 3,
+          "dr": 2,
+          "free": 1,
+          "given": 2,
+          "kSecDesignatedRequirementType": 2,
+          "mReqs": 2,
+          "make": 2,
+          "maker": 1,
+          "requirements_supported": 1,
+          "secinfo": 1
+        }
+      },
+      "add": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXDependentScopeMemberExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CallExpr": 4,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 8,
+          "DeclStmt": 1,
+          "IfStmt": 1,
+          "MemberExpr": 1,
+          "ParmVarDecl": 2,
+          "StringLiteral": 2,
+          "UnaryOperator": 1,
+          "UnresolvedLookupExpr": 2,
+          "VarDecl": 1
+        },
+        "references": {
+          "blob": 2,
+          "free": 1,
+          "mPieces": 1,
+          "r": 3,
+          "type": 2
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "__ZN19CodesignSetResearch17RequirementParser14requirementSetEv": {
+        "ast_kinds": {
+          "": 4,
+          "BinaryOperator": 4,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 12,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXTemporaryObjectExpr": 1,
+          "CXXThisExpr": 12,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CompoundStmt": 9,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 5,
+          "ExprWithCleanups": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 2,
+          "GotoStmt": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 10,
+          "IntegerLiteral": 4,
+          "LabelStmt": 1,
+          "MemberExpr": 15,
+          "NullStmt": 1,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 6
+        },
+        "references": {
+          "ARROW": 1,
+          "EOF_TYPE": 1,
+          "LA": 1,
+          "LT": 1,
+          "_cnt4": 2,
+          "_tokenSet_0": 1,
+          "_tokenSet_1": 1,
+          "add": 1,
+          "empty": 1,
+          "errors": 1,
+          "ex": 2,
+          "getFilename": 1,
+          "maker": 2,
+          "match": 2,
+          "member": 1,
+          "operator()": 1,
+          "recover": 1,
+          "reportError": 1,
+          "req": 2,
+          "requirementElement": 1,
+          "requirementType": 1,
+          "result": 2,
+          "t": 2
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser15requirementTypeEv": {
+        "ast_kinds": {
+          "BinaryOperator": 6,
+          "BreakStmt": 6,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXMemberCallExpr": 11,
+          "CXXMethodDecl": 1,
+          "CXXTemporaryObjectExpr": 1,
+          "CXXThisExpr": 12,
+          "CXXThrowExpr": 1,
+          "CXXTryStmt": 1,
+          "CaseStmt": 6,
+          "CompoundStmt": 11,
+          "ConstantExpr": 6,
+          "DeclRefExpr": 26,
+          "DeclStmt": 1,
+          "DefaultStmt": 1,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 19,
+          "IntegerLiteral": 2,
+          "MemberExpr": 12,
+          "ReturnStmt": 1,
+          "SwitchStmt": 1,
+          "VarDecl": 2
+        },
+        "references": {
+          "INTEGER": 1,
+          "LA": 1,
+          "LITERAL_designated": 2,
+          "LITERAL_guest": 2,
+          "LITERAL_host": 2,
+          "LITERAL_library": 2,
+          "LITERAL_plugin": 2,
+          "LT": 1,
+          "_tokenSet_2": 1,
+          "ex": 2,
+          "getFilename": 1,
+          "integer": 1,
+          "kSecDesignatedRequirementType": 1,
+          "kSecGuestRequirementType": 1,
+          "kSecHostRequirementType": 1,
+          "kSecInvalidRequirementType": 1,
+          "kSecLibraryRequirementType": 1,
+          "kSecPluginRequirementType": 1,
+          "match": 5,
+          "recover": 1,
+          "reportError": 1,
+          "type": 7
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser18requirementElementEv": {
+        "ast_kinds": {
+          "": 4,
+          "BinaryOperator": 2,
+          "CXXCatchStmt": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 6,
+          "CXXTryStmt": 1,
+          "CompoundStmt": 7,
+          "DeclRefExpr": 8,
+          "DeclStmt": 2,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "GotoStmt": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "LabelStmt": 1,
+          "MemberExpr": 6,
+          "NullStmt": 1,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "LA": 1,
+          "SEMI": 1,
+          "_tokenSet_3": 1,
+          "ex": 2,
+          "expr": 1,
+          "fluff": 1,
+          "maker": 2,
+          "operator()": 1,
+          "recover": 1,
+          "reportError": 1,
+          "result": 2
+        }
+      },
+      "__ZN19CodesignSetResearch17RequirementParser7integerEv": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CXXBindTemporaryExpr": 1,
+          "CXXCatchStmt": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 5,
+          "CXXTryStmt": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 9,
+          "DeclStmt": 2,
+          "ExprWithCleanups": 1,
+          "ImplicitCastExpr": 7,
+          "IntegerLiteral": 1,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 7,
+          "ReturnStmt": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "INTEGER": 1,
+          "LT": 1,
+          "_tokenSet_4": 1,
+          "atol": 1,
+          "c_str": 1,
+          "ex": 2,
+          "getText": 1,
+          "match": 1,
+          "nullToken": 1,
+          "recover": 1,
+          "reportError": 1,
+          "result": 2,
+          "s": 2
+        }
+      },
+      "__ZN19CodesignSetResearch20InternalRequirementsclEPKNS_12RequirementsES3_RKNS_11Requirement7ContextE": {
+        "ast_kinds": {
+          "BinaryOperator": 2,
+          "CStyleCastExpr": 1,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 7,
+          "CallExpr": 2,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 14,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 5,
+          "ImplicitCastExpr": 19,
+          "MemberExpr": 8,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "references": {
+          "add": 3,
+          "contains": 1,
+          "context": 1,
+          "defaulted": 3,
+          "dr": 2,
+          "free": 1,
+          "given": 2,
+          "kSecDesignatedRequirementType": 2,
+          "mReqs": 2,
+          "make": 2,
+          "maker": 1,
+          "requirements_supported": 1,
+          "secinfo": 1
+        }
+      },
+      "add": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXDependentScopeMemberExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CallExpr": 4,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 8,
+          "DeclStmt": 1,
+          "IfStmt": 1,
+          "MemberExpr": 1,
+          "ParmVarDecl": 2,
+          "StringLiteral": 2,
+          "UnaryOperator": 1,
+          "UnresolvedLookupExpr": 2,
+          "VarDecl": 1
+        },
+        "references": {
+          "blob": 2,
+          "free": 1,
+          "mPieces": 1,
+          "r": 3,
+          "type": 2
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "2979d2a1b66ae3256f234d4ae35033f9d774e339db26e3b1f1a34739df63825a"
+}
