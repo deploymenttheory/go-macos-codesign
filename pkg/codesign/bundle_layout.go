@@ -168,9 +168,8 @@ func frameworkResourcePath(name string) bool {
 	return false
 }
 
-// Resource links are sealed as text. Target existence is checked within os.Root,
-// but target bytes are never hashed through the link. Native absolute/system and
-// outer-scope link policy remains outside this portable profile.
+// Default verification compares link text, without resolving or opening targets.
+// Signing retains its narrower resolved, relative, contained target profile.
 func (b *appBundle) resourceLink(name, rel string, scope *bundleScan) (string, error) {
 	target, err := b.root.Readlink(name)
 	if err != nil {
@@ -178,23 +177,28 @@ func (b *appBundle) resourceLink(name, rel string, scope *bundleScan) (string, e
 	}
 	// Go's Windows symlink API stores backslashes; envelopes use POSIX spelling.
 	target = filepath.ToSlash(target)
-	if target == "" || strings.HasPrefix(target, "/") || len(target) > 1024 {
+	if target == "" || len(target) > 1024 {
 		return "", unsupported("bundle symlink target")
 	}
-	for _, part := range strings.Split(target, "/") {
-		if part == "." || part == ".." {
-			continue
+	if !scope.verifyLinks {
+		if strings.HasPrefix(target, "/") {
+			return "", unsupported("bundle symlink target")
 		}
-		if err := bundleRelativePath(part); err != nil {
+		for _, part := range strings.Split(target, "/") {
+			if part == "." || part == ".." {
+				continue
+			}
+			if err := bundleRelativePath(part); err != nil {
+				return "", err
+			}
+		}
+		resolved := path.Clean(path.Join(path.Dir(rel), target))
+		if resolved == ".." || strings.HasPrefix(resolved, "../") {
+			return "", unsupported("bundle symlink escapes resource base")
+		}
+		if _, err := b.root.Stat(name); err != nil {
 			return "", err
 		}
-	}
-	resolved := path.Clean(path.Join(path.Dir(rel), target))
-	if resolved == ".." || strings.HasPrefix(resolved, "../") {
-		return "", unsupported("bundle symlink escapes resource base")
-	}
-	if _, err := b.root.Stat(name); err != nil {
-		return "", err
 	}
 	scope.bytes += int64(len(target))
 	if scope.bytes > maxFileSize {

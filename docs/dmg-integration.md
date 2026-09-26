@@ -1,10 +1,16 @@
 # DMG signing with go-apfs-v2
 
 DMG signing directly uses `github.com/deploymenttheory/go-apfs-v2/pkg/disk`, pinned
-to `v0.8.0`. Production reuses its exported
+to `v0.11.1`. Production reuses its exported
 `DMGFooter`, including the signature offset/length fields. This repository adds
 the signature adapter; it does not maintain another DMG reader, writer or codec.
 The same dependency now supplies the [standalone and root-relative file metadata APIs](file-writes.md).
+
+The current pin includes upstream streaming image I/O, caller-owned readers,
+DMG codec/writer fixes and the LZFSE undersized-header fix. Codesign's adapter
+still uses its existing bounded in-memory profile; updating the dependency does
+not itself deliver streaming codesign operations. Generated raw/zlib/LZFSE and
+committed APFS/LZMA inputs remain in native signing and foreign-import checks.
 
 ## CLI and library
 

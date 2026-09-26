@@ -445,6 +445,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	scope := newBundleScan()
 	scope.recurse = opts.Deep
 	scope.verifyVersions = true
+	scope.verifyLinks = true
 	_, actual, err := b.scanTree(ctx, scope, 0, "")
 	if err != nil {
 		return nil, err

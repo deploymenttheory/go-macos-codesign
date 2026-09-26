@@ -205,18 +205,23 @@ is selected. Byte APIs remain standalone format APIs.
 
 ### Resource symlinks
 
-Resources may contain relative symlinks to existing targets within their resource
+Signing accepts relative symlinks to existing targets within their resource
 base (`Contents`, the unversioned framework root, or its selected version).
 Their exact target text is recorded under `symlink` in `files2`; legacy `files`
 omits them. Optional localization rules also apply to link entries. Retargeting a
 link invalidates the seal even when both targets contain identical bytes.
 
-The scanner never descends through resource links or hashes bytes through them;
-it checks target existence through `os.Root`. Absolute links, lexical escapes,
+The scanner never descends through resource links or hashes bytes through them.
+Signing checks target existence through `os.Root`. Absolute links, lexical escapes,
 dangling links, cycles, `.DS_Store` links and links replacing metadata/executables
 or structural directories are rejected. Some of these restrictions are stricter
-than native signing. Absolute system links and links into enclosing bundles
-remain outside this profile. Windows link separators are normalized to POSIX
+than native signing. Default verification compares the sealed text without
+resolving its target: matching dangling, cyclic, chained, absolute and external
+resource links are accepted. A target-text change still fails, and ordinary
+resources reached by a separate real path remain subject to their own seals.
+Structural links and `.DS_Store` links retain their discovery restrictions.
+See [verification-specific policy](resource-symlinks.md) for the native strict
+differences; `--strict` remains explicitly unsupported. Windows link separators are normalized to POSIX
 spelling in CodeResources. Creating test fixtures requires symlink privileges;
 production only reads existing links. CI transfers signed layouts in tar archives
 to retain target text rather than dereferencing links during artifact upload.

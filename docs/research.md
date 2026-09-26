@@ -2,11 +2,13 @@
 
 ## Resource collection and ordering
 
-The [resource driver](../scripts/extract-resource-verification.go) records eight
+The [resource driver](../scripts/extract-resource-verification.go) records nine
 complete Apple bodies with two-target Clang ASTs for classification, optionality,
-collection and grouped output. [The contract](resource-verification.md) records
+collection, symlink validation and grouped output. [The contract](resource-verification.md) records
 382 cases and distinguishes exact diagnostics, unstable native within-group order,
-mixed primary errors and existing dangling-link discovery differences. Repeated
+mixed primary errors. [Verification-specific symlink evidence](resource-symlinks.md)
+resolves the dangling-link discovery differences, adds 352 portable/68 native-signing
+cases and retains 102 strict-policy observations. Repeated
 native observations remain in acceptance evidence; they are not replaced by a
 claim that sorted portable output is native scheduling parity.
 

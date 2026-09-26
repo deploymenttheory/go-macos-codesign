@@ -226,6 +226,7 @@ progress page for completed runs. Go code linting uses golangci-lint only.
 - [Online timestamps and TSA trust](docs/timestamps.md)
 - [App bundles and resource sealing](docs/bundles.md)
 - [DMG signing using go-apfs-v2](docs/dmg-integration.md)
+- [Default resource-symlink verification and strict-policy evidence](docs/resource-symlinks.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
 - [Implementation stages and outstanding work](docs/implementation.md)
 - [Testing and native evidence](docs/testing.md)

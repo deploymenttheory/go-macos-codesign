@@ -51,10 +51,13 @@ cases. The thirty PR #59 quiet-verification differences are resolved. Malformed-
 policy remains an explicit difference. Merged PR #61 adds
 [failure diagnostics](verification-diagnostics.md), structured architecture/nested
 context, verbose resource details and 182 additional cases. It strengthens 178
-earlier native comparisons to exact diagnostics. The active resource increment
+earlier native comparisons to exact diagnostics. Merged PR #63
 adds [ordinary resource collection](resource-verification.md) and 382 cases,
-retaining native scheduling/primary-error and dangling-link differences. Full
-policy remains open.
+retained native scheduling/primary-error and dangling-link differences. The current
+[symlink increment](resource-symlinks.md) first updates APFS to v0.11.1, then resolves
+the twelve dangling-link records through verification-only link-text checks.
+It adds 352 portable and 68 native-signing cases; 102 strict-policy observations
+remain outstanding. Signing guards stay in force. Full strict policy remains open.
 No inventory status changes.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory

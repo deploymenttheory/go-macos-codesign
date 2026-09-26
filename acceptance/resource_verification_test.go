@@ -367,8 +367,7 @@ func TestResourceVerificationFrameworkSelection(t *testing.T) {
 	}
 }
 
-// Retain the existing discovery-policy difference instead of weakening signing
-// or containment checks merely to obtain a matching diagnostic.
+// Default verification checks the sealed text without resolving its target.
 func TestResourceVerificationDangling(t *testing.T) {
 	for _, format := range []string{"app", "framework"} {
 		for _, state := range []string{"dangling-required", "dangling-retarget", "dangling-optional"} {
@@ -400,26 +399,26 @@ func TestResourceVerificationDangling(t *testing.T) {
 						}
 						operand := filepath.Base(path)
 						out, stderr, status := run(t, binaryPath, append(args, operand)...)
-						if status != 1 {
+						want := 1
+						if state == "dangling-optional" {
+							want = 0
+						}
+						if status != want {
 							t.Fatal(status, stderr)
 						}
-						if _, err := codesign.Verify(context.Background(), path, codesign.VerifyOptions{}); !errors.Is(err, os.ErrNotExist) {
-							t.Fatal("changed discovery policy", err)
+						if report, err := codesign.Verify(context.Background(), path, codesign.VerifyOptions{}); report == nil || report.Valid != (want == 0) || (want == 0 && err != nil) || (want == 1 && !errors.Is(err, codesign.ErrInvalid)) {
+							t.Fatal("default dangling verification", report, err)
 						}
 						nativeOut, nativeErr := "", ""
 						nativeStatus := -1
 						if runtime.GOOS == "darwin" {
 							nativeOut, nativeErr, nativeStatus = run(t, apple(t), append(args, operand)...)
-							want := 1
-							if state == "dangling-optional" {
-								want = 0
-							}
-							if nativeStatus != want {
-								t.Fatal(nativeStatus, want, nativeErr)
+							if nativeStatus != status || nativeOut != out || nativeErr != stderr {
+								t.Fatal("native dangling comparison", nativeStatus, status, nativeOut, out, nativeErr, stderr)
 							}
 						}
 						nativeEqual(t, "dangling tree preserved", layoutArchive(t, dir), before)
-						attest(t, map[string]any{"format": format, "state": state, "verbose": verbose, "exit": status, "native_exit": nativeStatus, "stdout": out, "stderr": stderr, "native_stdout": nativeOut, "native_stderr": nativeErr, "input_sha256": hash(before), "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": false, "bounded_discovery_difference": true})
+						attest(t, map[string]any{"format": format, "state": state, "verbose": verbose, "exit": status, "native_exit": nativeStatus, "stdout": out, "stderr": stderr, "native_stdout": nativeOut, "native_stderr": nativeErr, "input_sha256": hash(before), "input_preserved": true, "native_compared": runtime.GOOS == "darwin", "exact_diagnostics": true, "bounded_discovery_difference": false})
 					})
 				}
 			})
