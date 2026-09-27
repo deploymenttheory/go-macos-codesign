@@ -475,11 +475,18 @@
       "notes": "Must be implemented and independently verified before full-parity release."
     },
     {
+      "evidence": [
+        "acceptance/strict_verification_test.go",
+        "pkg/codesign/strict_verification_test.go",
+        "internal/cli/strict_test.go",
+        "scripts/extract-resource-verification.go",
+        "spec/apple-resource-verification.json",
+        "docs/strict-verification.md"
+      ],
       "id": "--strict",
-      "status": "not-implemented",
       "manual": ".It Fl -strict Ar options",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. See docs/strict-verification.md for exact scope and diagnostic differences.",
+      "status": "partial"
     },
     {
       "id": "--timestamp",
@@ -819,13 +826,17 @@
       "notes": "Native parser recognition and bounded operation probes are recorded; complete semantics, implementation and independent portable acceptance remain outstanding."
     },
     {
-      "id": "--no-strict",
-      "status": "not-implemented",
       "evidence": [
-        "spec/apple-cli-inventory.json",
-        "scripts/probe-cli.go"
+        "acceptance/strict_verification_test.go",
+        "pkg/codesign/strict_verification_test.go",
+        "internal/cli/strict_test.go",
+        "scripts/extract-resource-verification.go",
+        "spec/apple-resource-verification.json",
+        "docs/strict-verification.md"
       ],
-      "notes": "Native parser recognition and bounded operation probes are recorded; complete semantics, implementation and independent portable acceptance remain outstanding."
+      "id": "--no-strict",
+      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. See docs/strict-verification.md for exact scope and diagnostic differences.",
+      "status": "partial"
     },
     {
       "id": "--no-tsa-certs",

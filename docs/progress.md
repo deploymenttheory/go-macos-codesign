@@ -1,26 +1,35 @@
 # Project progress
 
-Updated 2026-09-26. This page describes the implementation in this branch and
+Updated 2026-09-27. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current APFS fixture-validation follow-up
+## Current strict-verification slice
 
-[PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged while
-its final CI was running. Linux, Windows and local acceptance subsequently exposed an
-archived LZFSE fixture test that regenerated its payload with the new encoder.
-The corrective branch re-signs the archived image's exact payload, preserving
-the native bytes and input-preservation assertions. Fresh images retain live
-native comparisons. Full coverage/CI/artifact gates are being repeated for that
-correction; the initial PR64 run is not passing release evidence.
-The follow-up also pins APFS v0.11.2, published during PR64 validation, adding its
-bounded decmpfs LZFSE decoding fix. Final package audits require that newer pin.
-The first v0.11.2 local, Linux and Windows runs passed. Hosted Mac failed one
-native `--strict=all` observation on a cyclic framework because the reference
-process terminated. One hundred local repetitions passed. Signal-state logging
-has been added without relaxing the assertion; all final gates are being repeated.
+[Strict verification](strict-verification.md) adds default Mach-O layout policy,
+verification-only symlink selectors, disabling controls and enclosing bundle
+resource scopes. There are 561 portable cases, 545 native comparison profiles,
+16 JSON reports and 18 complete Apple bodies with two-target Clang evidence.
+Sideband/all policy, xattrs, custom rules and broader native filesystem behavior
+remain open. The inventory moves strict/no-strict to partial: 29 partial,
+51 not implemented, eight blocked and zero fully verified. Current branch gates
+are recorded in the pull request; this is not a full-parity claim.
+
+## Merged APFS fixture-validation follow-up
+
+[PR #65](https://github.com/deploymenttheory/go-macos-codesign/pull/65) merged as
+`d12364610b80317637566f463558cdc5eb26f052` on 2026-09-27. It pins released
+APFS v0.11.2 and re-signs the exact archived LZFSE payload, preserving the native
+byte oracle. The final [compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36279963368)
+passed Linux, Windows 2025, Mac, native imports, race/eleven fuzz and six GoReleaser
+packages. Library coverage was 95.59%, 95.51% and 95.68%; CLI coverage was 98.33%,
+98.33% and 99.00%, with the entry point at 100%. Lint passed. The downloaded Mac
+package passed 359 native comparisons. The earlier native cyclic-framework
+termination is now tracked by the
+[PR66 crash investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27);
+signal logging and hard assertions are retained.
 
 ## Merged symlink-verification and dependency slice
 
@@ -31,7 +40,7 @@ external links. Signing retains its containment policy. There are 352 portable
 cases, 68 native-signing cases and 568 comparable hashes. All twelve earlier
 dangling-link records now match native output; the four acceptance differences
 are resolved. The resource driver now has nine complete bodies on two Clang
-targets. The 102 strict-policy observations remain explicitly unimplemented.
+targets. Of 102 strict-policy observations, 34 symlink profiles are now implemented; 68 plain/all profiles remain unsupported.
 Current-commit coverage and artifact gates belong to the corrective follow-up.
 No inventory upgrade.
 

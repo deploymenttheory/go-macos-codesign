@@ -91,6 +91,9 @@ func verifyBundleResource(ctx context.Context, name string, seal, actual any, pr
 		if !reflect.DeepEqual(actual, seal) {
 			return resourceFailure("modified", name, opts)
 		}
+		if target, linked := value["symlink"].(string); linked && opts.StrictSymlinks && !opts.NoStrict {
+			return verifyStrictLink(name, target, opts)
+		}
 	} else if !optional {
 		return resourceFailure("missing", name, opts)
 	}

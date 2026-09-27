@@ -87,6 +87,14 @@ type SignOptions struct {
 // VerifyOptions selects an architecture and optional external special-slot data.
 // Certificate-backed signatures are not reported valid until CMS verification succeeds.
 type VerifyOptions struct {
+	// NoStrict disables the additional native layout and symlink policies.
+	// Cryptographic verification, resource seals and safe parsing remain required.
+	NoStrict bool
+	// StrictSymlinks requires sealed resource links to resolve to included
+	// resources in this bundle or its verification parents. Absolute targets
+	// must resolve inside /System or /Library on the verifying host. It does
+	// not enable sideband-attribute checks or the complete --strict=all policy.
+	StrictSymlinks bool
 	// BundleVersion selects the input framework; nested frameworks check every
 	// physical version against the parent's sealed requirement.
 	BundleVersion string
@@ -122,6 +130,7 @@ type VerifyOptions struct {
 	CurrentTime   time.Time
 	directoryOnly bool   // internal shallow nested-code validation, never a public bypass
 	resourceBase  string // absolute resource base for nested verification diagnostics
+	linkScope     *verificationLinkScope
 }
 
 // Blob retains the complete encoding, including its magic and length fields.

@@ -126,6 +126,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if opts.StrictSymlinks && !opts.NoStrict && opts.linkScope == nil && len(opts.Resources) > 0 {
+		return nil, unsupported("strict resource links require a bundle filesystem scope")
+	}
 	r, err := InspectBytes(data)
 	if err != nil {
 		return nil, err
@@ -282,6 +285,11 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	}
 	if !found {
 		return r, verificationFailure("object file format unrecognized, invalid, or unsuitable", fmt.Errorf("architecture %q not present", opts.Architecture))
+	}
+	if opts.linkScope == nil {
+		if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
+			return r, err
+		}
 	}
 	r.Valid = true
 	r.verifiedArchitecture = opts.Architecture

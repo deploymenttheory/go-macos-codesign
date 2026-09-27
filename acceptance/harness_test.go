@@ -83,6 +83,7 @@ func run(t *testing.T, exe string, args ...string) (string, string, int) {
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	started := time.Now()
 	err := cmd.Run()
 	if ctx.Err() != nil {
 		t.Fatal("command timeout", args)
@@ -93,7 +94,7 @@ func run(t *testing.T, exe string, args ...string) (string, string, int) {
 			t.Fatal(err)
 		}
 		if e.ExitCode() < 0 {
-			t.Logf("command terminated: executable=%q arguments=%q state=%s stdout=%q stderr=%q", exe, args, e.ProcessState, stdout.String(), stderr.String())
+			t.Logf("command terminated: executable=%q arguments=%q pid=%d started=%s elapsed=%s state=%s stdout=%q stderr=%q", exe, args, e.Pid(), started.UTC().Format(time.RFC3339Nano), time.Since(started), e.ProcessState, stdout.String(), stderr.String())
 		}
 		return stdout.String(), stderr.String(), e.ExitCode()
 	}
