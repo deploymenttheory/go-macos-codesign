@@ -41,6 +41,14 @@ The resulting files under `artifacts/` include:
 | `acceptance.jsonl` | Raw `go test -json` subprocess acceptance transcript |
 | `acceptance.json` | Current-run byte comparisons, hashes, and execution attestations |
 | `provenance.json` | Host/tool versions, Apple executable hash on Mac, source and fixture hashes, and `.gitattributes` hash |
+| `sideband/native.json` (Mac) | 203 exact native reference commands, 42 unexecuted directory-fork setups, before/after byte/mode/attribute snapshots and provenance |
+
+The Mac producer also runs `go run scripts/probe-sideband.go -check`. This native
+reference gate establishes the [sideband policy observations](sideband-policy.md);
+it does not count as implemented Go parity or add to Go code coverage. New shared
+APFS operations require runtime lifecycle/error tests on Linux, macOS and Windows
+and their own coverage gate above 95%. Platform stubs or skipped operations do not
+satisfy delivery. The APFS release must precede codesign's dependency pin.
 
 On failure, the verification script prints the failed tests' output and package
 diagnostics in the CI job log. Full transcripts and provenance remain available

@@ -29,6 +29,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |
+| [Sideband policy](sideband-policy.md) | Shared three-OS attribute API, complete Apple AST bodies, native controls and release/integration sequence |
 | [Reference implementations](reference-implementations.md) | GitHub source comparisons and how they informed the work |
 | [Contributing](../CONTRIBUTING.md) | Development and PR requirements |
 | [Changelog](../CHANGELOG.md) | Unreleased implementation history |

@@ -1,5 +1,17 @@
 # Research and provenance
 
+## Strict sideband attributes
+
+[The Go extractor](../scripts/extract-sideband.go) verifies pinned source hashes
+and compiles eight complete Apple attribute/strict-policy bodies for arm64 and
+x86_64 Mac targets. [Its manifest](../spec/apple-sideband.json) records the exact
+provenance and declaration shims. [The native probe](../scripts/probe-sideband.go)
+requires 203 exact reference outcomes and unchanged byte/mode/attribute snapshots,
+with 42 directory-fork setups explicitly unexecuted. These establish ordinary
+attribute visibility, empty-value policy and verification-time strip dispatch;
+they do not establish Go implementation parity. The
+[contract](sideband-policy.md) defines the APFS API dependency and remaining work.
+
 ## Resource collection and ordering
 
 The [resource driver](../scripts/extract-resource-verification.go) records nine

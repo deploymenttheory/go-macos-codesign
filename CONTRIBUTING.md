@@ -29,6 +29,9 @@ and optional live TSA checks.
 - Keep production pure Go and portable across Linux, macOS and Windows. Audit
   transitive dependencies as well as direct imports; disabling CGO alone does not
   remove Darwin's certificate trust bridge.
+- Deliver each new feature on all three operating systems. An unsupported stub,
+  blanket platform exclusion or skipped runtime test does not establish support.
+  Require real operation and failure-path tests on each relevant CI runner.
 - Tie behavior to pinned source/Clang AST facts and independent native acceptance.
   Compare complete bytes where deterministic; document randomized fields and
   validate their cryptographic invariants independently.
