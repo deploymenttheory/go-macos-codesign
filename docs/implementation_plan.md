@@ -1,9 +1,12 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-27 after [PR #66](https://github.com/deploymenttheory/go-macos-codesign/pull/66) merged.
-The current [resource-suppression increment](ignore-resources.md) implements
+Status: updated 2026-09-27 after [PR #68](https://github.com/deploymenttheory/go-macos-codesign/pull/68) merged.
+The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
-behavior needs strict shared APFS metadata APIs and remains outstanding.
+behavior remains outstanding. The current [dependency and research phase](sideband-policy.md)
+adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
+eight complete Apple bodies with two-target Clang evidence, and 203 native
+verification controls. Production integration follows publication of the APFS API.
 Released APFS v0.11.2 is now the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -71,8 +74,9 @@ complete; merge and release remain maintainer gates.
 
 The current inventory retains 88 obligations: 30 partial, 50 not implemented,
 eight blocked and zero fully verified. Certificate extraction moved to partial
-in PR #51, file lists in PR #53 and strict/no-strict in PR #66; this increment moves
-ignore-resources to partial. No feature status was upgraded merely
+in PR #51, file lists in PR #53, strict/no-strict in PR #66 and ignore-resources
+in PR #68. The dependency/research phase changes no inventory status.
+No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
@@ -95,6 +99,32 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr68"></a>
+### Merged implementation: PR #68 (2026-09-27)
+
+[PR #68](https://github.com/deploymenttheory/go-macos-codesign/pull/68) merged at
+13:29:07 UTC as `78825e4ac1efb579ca8752e73e68a58505094fcf`. Final head
+`958eef82d12bd6a358f7517048a29436457e4f51`, tested CI merge
+`1c320afdab4134a0682560cf3b50bcbc4921dd91` and actual merge share tree
+`82b02f2e29c6d952bd76066773eb25d169f23a64`.
+The [final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36321587740)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36321587827)
+passed. Library coverage was 4828/5053 (95.55%) Mac, 4821/5053 (95.41%) Linux and
+4817/5053 (95.33%) Windows. CLI was 633/639 (99.06%) Mac and 629/639 (98.44%) on
+both foreign producers; entry point was 100%. The local full gate also passed.
+
+The resource-suppression increment added 385 portable cases, 11 Mac controls,
+386 exact native profiles and 767 comparable hashes per producer. The audit
+checked 674 source hashes per hosted producer with 17 expected Windows text
+conversions, plus retained verification matrices. Native foreign-signature imports
+(606), removal (88) and DMG dry runs (140) passed. All six downloaded GoReleaser
+packages had the clean tested revision, CGO disabled and released APFS v0.11.2;
+twelve checksums and six SPDX records passed. The downloaded Darwin arm64 package
+passed 507 native comparisons: 497 exact and ten retained bounded comparisons.
+The new option contributed 92 of those exact package checks. Full local evidence
+is retained under `artifacts/pr68/final/`; hosted originals remain attached to the
+linked run. The new dependency/research branch starts from this actual merge.
 
 <a id="merged-pr66"></a>
 ### Merged implementation: PR #66 (2026-09-27)
@@ -1980,16 +2010,30 @@ Full strict sideband/all policy, `--strip-disallowed-xattrs` and
   resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
   - [ ] First extend the shared APFS module with strict no-follow/pinned-object
     presence/read/removal operations; publish a release before pinning it here.
-    Released v0.11.2 remains the latest checked release in this phase. Its
+    [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131)
+    implements all six operations on Linux, macOS and Windows. Required runtime
+    tests must pass on all three; an unsupported platform stub or skip does not
+    complete this task. See the [API/research contract](sideband-policy.md).
+    Codesign still pins v0.11.2; v0.11.3 was released while this phase was in
+    progress, but does not contain the pending strict APIs. The pinned
     `hostmeta.ListXattrs` is best effort and can suppress per-value read errors;
     a successful returned map cannot prove that a prohibited attribute is absent.
   - [ ] Distinguish absence, present-empty, unreadable, oversized and concurrently
     changed values. Preserve OS error causes and object identity across operations.
-    Cover compression-hidden metadata through the shared supported wrapper layer;
-    do not add direct Darwin syscalls or duplicate a DMG/xattr implementation here.
+    The eight-body Clang extraction establishes options-zero visibility for native
+    sideband checks: hidden compression metadata is not implicitly included.
+    Broader compression fidelity remains a separate obligation. Do not add direct
+    Darwin syscalls or duplicate a DMG/xattr implementation here. Preserve Windows
+    native EA limits, zero-length deletion and no-follow/held-object semantics.
   - [ ] Measure native ordering on executable, outer root, signature directory,
     ordinary resources, child bundles and resource links. Cover FinderInfo,
     ResourceFork, unrelated attributes, empty values, aliases and denied access.
+    The first 203 native controls cover standalone/app code, root, ordinary
+    resources and signature-directory attributes under seven verification
+    policies. Forty-two directory-fork setups cannot be created and are recorded
+    as unexecuted. Verification-time strip is inert in this corpus; do not infer
+    CLI dispatch from the lower-level strip AST branch. Signing, nested/link and
+    permission-ordering profiles remain outstanding.
 - [ ] Implement `--strip-disallowed-xattrs` through APFS APIs, including native
   diagnostic order, offending paths, partial failure and dry-run behavior. Do not
   use the legacy best-effort attribute reader where exact failures matter.
@@ -3453,32 +3497,33 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active work after PR #66
+### Active work after PR #68
 
-PR66's bounded strict policy and native-crash investigation passed final gates
-and merged as recorded above. This increment starts from that exact main tree on
-`feat/ignore-resources-verification`. The [resource-suppression contract](ignore-resources.md)
-defines the bounded implementation; production remains pure Go on every host.
+The resource-suppression increment passed its final gates and merged as recorded
+[above](#merged-pr68). This phase starts from that exact main tree on
+`feat/strict-sideband-verification`. The [sideband contract](sideband-policy.md)
+defines the shared API, source evidence, native controls and integration sequence.
 
-1. Retain all prior acceptance, native imports, coverage, race/eleven fuzz,
-   golangci-lint and six GoReleaser package gates, including PR66's native stress
-   preflight and hard process-termination checks. Independently audit source and
-   downloaded package provenance. Record full gate outcomes in the pull request.
-2. Verify 385 new portable cases, 767 comparable hashes and 11 Mac-only controls.
-   Require exact status/stdout/stderr in 386 differential verification profiles.
-   Check limited-scope JSON independently; do not invent native JSON equivalence.
-   Damage resource/nested inputs and separately damage code, Info.plist, CMS and
-   requirements to prove that only the intended policy is suppressed.
-3. Next implement strict shared APFS metadata APIs before sideband enforcement.
-   The current best-effort reader cannot distinguish absence from suppressed read
-   failure. Preserve the APFS module boundary and release/pin sequence. Then measure
-   earlier sideband traversal, strip/dry-run ordering and partial failure behavior.
-   Plain/all selectors remain unsupported until that whole bounded path is proven.
-4. Retain custom rules, prefix containment, concurrent mutation, Unicode/reparse,
-   arbitrary native scheduling, aliases/streams, inaccessible-directory discovery,
-   removal ordering, ACLs, root/case aliases and localized dates as outstanding.
-   APFS streaming integration is a separate adapter phase. Ignore-resources moves
-   to partial; no broad feature is complete.
+1. Complete APFS PR #131 with working strict size/read/remove APIs on Linux,
+   macOS and Windows, including held-object/no-follow behavior and error causes.
+   Require runtime operation, identity and permission tests and coverage above
+   95% in the new API on every producer. Preserve the user's separate APFS tree.
+2. Record the eight complete Apple bodies on both Clang targets and 203 exact
+   native verification controls. Retain all 42 unavailable directory-fork setups
+   explicitly; they are not successful tests. Separate generic attribute results
+   from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
+3. After maintainer merge and publication, pin the released APFS API with no local
+   replacement. Implement sideband resource traversal, error order, selectors and
+   native diagnostics through that shared implementation. All three operating
+   systems are required; a missing platform implementation cannot be waived.
+4. Measure signing-time strip, dry-run ordering and partial effects separately.
+   Retain native imports, coverage, race/eleven fuzz, lint, six GoReleaser packages,
+   PR66 native stress controls and hard process-termination checks. Record actual
+   workflow results and independently check their source/artifact provenance.
+5. Retain custom rules, prefix containment, concurrent mutation, Unicode/reparse,
+   native scheduling, aliases/streams, inaccessible-directory discovery, removal
+   ordering, ACLs, root/case aliases and localized dates as outstanding. Streaming
+   integration is separate. No inventory status changes in this research phase.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,

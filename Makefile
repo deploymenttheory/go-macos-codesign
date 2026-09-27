@@ -66,6 +66,7 @@ research-paths:
 	go run scripts/extract-verification-diagnostics.go
 	go run scripts/extract-resource-verification.go
 	go run scripts/extract-ignore-resources.go
+	go run scripts/extract-sideband.go
 
 release-check:
 	python3 scripts/guards.py --require-complete

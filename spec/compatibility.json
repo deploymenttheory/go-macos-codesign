@@ -488,7 +488,10 @@
         "internal/cli/strict_test.go",
         "scripts/extract-resource-verification.go",
         "spec/apple-resource-verification.json",
-        "docs/strict-verification.md"
+        "docs/strict-verification.md",
+        "docs/sideband-policy.md",
+        "spec/apple-sideband.json",
+        "scripts/probe-sideband.go"
       ],
       "id": "--strict",
       "manual": ".It Fl -strict Ar options",
@@ -556,8 +559,12 @@
       "id": "--strip-disallowed-xattrs",
       "status": "not-implemented",
       "manual": ".It Fl -strip-disallowed-xattrs",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "evidence": [
+        "docs/sideband-policy.md",
+        "spec/apple-sideband.json",
+        "scripts/probe-sideband.go"
+      ],
+      "notes": "Production implementation is pending on all three operating systems. Eight complete Apple attribute/strict bodies have two-target AST evidence. The 203 native verification controls establish inert verification-time stripping in the measured profile; signing-time stripping and partial effects still require a separate corpus. APFS PR 131 implements the shared strict attribute APIs for Linux, macOS and Windows; integrate a published release before enabling policy here. Research/dependency evidence does not upgrade this feature status."
     },
     {
       "id": "--single-threaded-signing",

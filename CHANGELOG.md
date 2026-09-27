@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Establish the strict sideband dependency contract: shared APFS operations on
+  Linux, macOS and Windows, eight complete Apple bodies with two-target Clang
+  evidence, and 203 native verification controls in Mac CI. Retain 42 unavailable
+  directory-fork setups explicitly. Record merged PR #68 evidence and require
+  working runtime support on all three OSes before delivering a feature.
+  Sideband/all/strip production integration follows the APFS API release.
+
 - Correct entitlement extraction with bounded DER-first reconstruction, typed text,
   native XML/warnings, append destinations, consumed colon prefixes, component
   binding and certificate/file-list ordering. Reuse bounded plist decoding and

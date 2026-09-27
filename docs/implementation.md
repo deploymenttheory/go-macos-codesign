@@ -62,11 +62,16 @@ PR #65 pins released APFS v0.11.2 and fixes archived DMG validation. Merged PR #
 adds [bounded strict policy](strict-verification.md): default Mach-O layout,
 symlink selectors and none/no-strict controls. Its three-OS, native-import, package,
 race/eleven fuzz, coverage and lint gates passed. Full sideband/all policy remains
-open. The current [`--ignore-resources` increment](ignore-resources.md) suppresses
+open. Merged PR #68's [`--ignore-resources` increment](ignore-resources.md) suppresses
 resource/nested verification while retaining integrity, trust, requirements and
 enabled structure. There are 385 portable cases and 11 Mac-only controls, plus
 four complete Apple bodies on two Clang targets. Only this option moves to partial;
 the inventory now has 30 partial, 50 unimplemented, eight blocked and zero verified.
+The next [dependency/research phase](sideband-policy.md) supplies strict APFS
+attribute APIs for Linux, macOS and Windows, eight complete Apple bodies and
+203 native verification controls. Required Windows operations replace the
+initial unsupported proposal. Production integration waits for a published APFS
+release; this phase upgrades no inventory status.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

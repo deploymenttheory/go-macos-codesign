@@ -6,7 +6,23 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current resource-suppression slice
+## Current strict-attribute dependency and research
+
+[APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131) adds strict
+size, bounded read and removal by descriptor or no-follow path on Linux, macOS
+and Windows. The initial Windows stub was rejected and replaced by real native
+EA operations and required runtime tests. Its
+[corrected CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/36333046033)
+passed all three OS suites, six builds, lint and race; associated fuzz checks
+passed. Strict-API coverage is 98.85% Mac/Linux and 98.69% Windows, with zero
+skipped strict tests. Codesign retains v0.11.2 until the API is merged and published.
+[The contract](sideband-policy.md) records eight complete Apple bodies on two
+Clang targets and 203 native verification controls. Another 42 directory-fork
+setups are unavailable and explicitly unexecuted. The probe establishes that
+verification-time stripping is inert in the measured CLI profile. Full sideband,
+plain/all and strip implementation remain pending across all three OSes.
+
+## Merged resource-suppression slice
 
 [`--ignore-resources`](ignore-resources.md) skips the envelope, ordinary resources
 and parent-sealed child code, even with deep verification. Main executable pages,
@@ -15,9 +31,14 @@ Verbose output and JSON explicitly identify this scope. The 385 portable cases
 have 767 comparable hashes; Mac adds 11 independent producer/applicability controls.
 Four complete Apple bodies compile into Clang ASTs for both Mac targets. The
 inventory is now 30 partial, 50 not implemented, eight blocked and zero verified.
-Full branch gate results belong to the pull request. Strict sideband work first
-needs a shared APFS API that reports attribute-read errors, rather than suppressing
-them as its current best-effort reader can.
+[PR #68](https://github.com/deploymenttheory/go-macos-codesign/pull/68) merged as
+`78825e4ac1efb579ca8752e73e68a58505094fcf`. Its
+[final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36321587740)
+and lint passed. Library coverage was 95.55% Mac, 95.41% Linux and 95.33% Windows;
+CLI was 99.06%, 98.44% and 98.44%, with entry point 100%. The downloaded Mac
+package passed 507 native comparisons (497 exact, ten retained bounded).
+[The merged record](implementation_plan.md#merged-pr68) preserves revisions,
+source/artifact checks and the remaining limits.
 
 ## Merged strict-verification slice
 
