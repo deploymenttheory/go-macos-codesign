@@ -145,6 +145,20 @@
   three native fixtures, two complete Apple methods in the Clang AST record,
   and eighteen additional Linux/Windows trees for native CI verification.
 
+## [0.4.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.3.0...v0.4.0) (2026-09-27)
+
+
+### Features
+
+* collect native resource verification diagnostics ([#63](https://github.com/deploymenttheory/go-macos-codesign/issues/63)) ([0e9ea75](https://github.com/deploymenttheory/go-macos-codesign/commit/0e9ea75435c1419a02ca7b8b6b70912aeffdd243))
+* match bounded native verification diagnostics ([#61](https://github.com/deploymenttheory/go-macos-codesign/issues/61)) ([1d749c6](https://github.com/deploymenttheory/go-macos-codesign/commit/1d749c6a4b798c693437fd360a61f12773f40793))
+* update APFS and verify resource symlink text ([#64](https://github.com/deploymenttheory/go-macos-codesign/issues/64)) ([6662e86](https://github.com/deploymenttheory/go-macos-codesign/commit/6662e869931dc6e36a36050d03a4a21d239d2239))
+
+
+### Bug Fixes
+
+* update APFS and preserve archived DMG inputs ([#65](https://github.com/deploymenttheory/go-macos-codesign/issues/65)) ([d123646](https://github.com/deploymenttheory/go-macos-codesign/commit/d12364610b80317637566f463558cdc5eb26f052))
+
 ## [0.3.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.2.0...v0.3.0) (2026-09-26)
 
 
