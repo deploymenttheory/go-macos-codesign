@@ -375,6 +375,22 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 									want = 1
 								}
 								if nstatus != want {
+									// Preserve the exact public fixture before TempDir cleanup.
+									// A reference-process signal stays a hard failure.
+									failure := filepath.Join(root, "artifacts", "native-failures", fmt.Sprintf("%s-%s-%d", format, state, time.Now().UnixNano()))
+									if err := os.MkdirAll(failure, 0755); err != nil {
+										t.Fatal(err)
+									}
+									if err := os.WriteFile(filepath.Join(failure, "input.tar"), before, 0644); err != nil {
+										t.Fatal(err)
+									}
+									data, err := json.MarshalIndent(map[string]any{"test": t.Name(), "selector": selector, "native_exit": nstatus, "stdout": nout, "stderr": nerr, "input_sha256": hash(before)}, "", "  ")
+									if err != nil {
+										t.Fatal(err)
+									}
+									if err := os.WriteFile(filepath.Join(failure, "failure.json"), data, 0644); err != nil {
+										t.Fatal(err)
+									}
 									t.Fatal("native strict policy", selector, nstatus, want, nerr)
 								}
 								gout, gerr, gstatus := run(t, binaryPath, "--verify", selector, operand)

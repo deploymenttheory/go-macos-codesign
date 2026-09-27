@@ -30,10 +30,17 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Reproduce native framework failures with fresh fixtures
+        if: runner.os == 'macOS'
+        run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:
           MACOSCODESIGN_REQUIRE_APPLE: ${{ runner.os == 'macOS' && '1' || '0' }}
+      - name: Collect native failure diagnostics
+        if: failure() && runner.os == 'macOS'
+        continue-on-error: true
+        run: go run scripts/collect-native-diagnostics.go
       - name: Upload coverage and acceptance evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

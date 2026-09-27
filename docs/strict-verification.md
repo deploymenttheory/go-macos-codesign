@@ -129,3 +129,12 @@ explicit certificate trust and cross-platform native-import tests remain enabled
 
 Full CI and artifact validation for this branch are recorded in the pull request.
 No broad feature is marked fully verified.
+
+PR66's first hosted run and unchanged-source debug rerun both exposed native
+SIGKILL in the earlier plain-strict framework observations (dangling-chain, then
+pair-cycle). The new strict matrices passed, but those attempts are failed gates.
+The harness now records PID/start/duration and preserves each failing public
+fixture as a tar archive. A bounded post-failure collector captures codesign-related
+kernel/AMFI logs, recent codesign crash reports and memory state. A temporary Mac
+preflight constructs 100 fresh affected frameworks before the full matrix; any
+signal remains a hard failure. This gathers evidence rather than masking the issue.
