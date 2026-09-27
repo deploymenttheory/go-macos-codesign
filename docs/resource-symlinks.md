@@ -34,13 +34,14 @@ scope, resource inclusion/exclusion and layout checks. Plain/all and sideband
 policies remain explicitly unsupported because they can traverse targets before
 the resource validator and have additional option-ordering behavior.
 
-One hosted Mac run terminated the native process while checking a cyclic framework
-with `--strict=all` (exit -1, empty output). Its signal was not captured by the
-original harness. The same framework case passed 100 consecutive local runs;
-the cause remains unresolved. The harness now logs the process state, executable,
-arguments and both output streams for signal termination. The assertion remains
-a hard failure: termination is neither an accepted strict outcome nor parity
-evidence, and there is no automatic retry that could conceal it.
+Hosted Mac runs exposed native process termination while checking cyclic and
+dangling-chain frameworks with plain/all strict policy. PR66's crash reports point
+to asynchronous resource-rule access during error unwinding. The
+[investigation and reference profile](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
+document the evidence, likely source lifetime race and serial-only accommodation
+for these unsupported policy observations. Implemented comparisons retain their
+original native flags. Signals remain hard failures; no automatic retry conceals
+them, and the native asynchronous defect is not claimed fixed.
 
 ## Acceptance evidence
 

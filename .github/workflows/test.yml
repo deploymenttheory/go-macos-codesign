@@ -30,9 +30,11 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
-      - name: Reproduce native framework failures with fresh fixtures
+      - name: Stress native strict reference profiles with 100 fresh frameworks
         if: runner.os == 'macOS'
         run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
+        env:
+          MACOSCODESIGN_REQUIRE_APPLE: '1'
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:

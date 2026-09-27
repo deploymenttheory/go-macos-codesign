@@ -494,3 +494,21 @@ synthesis/slot policy and untested combinations. `FuzzRequirementSet` adds an
 eleventh target with malformed binary indexes and overlapping-entry seeds/tests.
 The [six-body Clang record](../spec/apple-requirement-extraction.json) covers both
 macOS target architectures and records declaration-only shim boundaries.
+
+## Native process failure diagnostics
+
+The acceptance harness logs signalled commands with executable, arguments, PID,
+UTC start, elapsed time, process state and captured output. Native strict-profile
+failures additionally preserve the exact signed fixture archive and invocation
+metadata under `artifacts/native-failures`. After a Mac CI failure,
+[`collect-native-diagnostics.go`](../scripts/collect-native-diagnostics.go) captures
+bounded codesign-related system logs, crash reports and memory state before the
+evidence artifact upload. Diagnostic collection is best effort; the test failure
+remains authoritative.
+
+A Mac preflight checks 100 fresh cyclic/dangling-chain frameworks. The unsupported
+plain/all strict native observations use the SDK's serial resource-validation bit;
+implemented comparisons keep their original flags. Exact native arguments and the
+serial flag are attested. See the
+[Xcode 27 investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
+for crash evidence, source analysis and an explicit asynchronous reproducer.

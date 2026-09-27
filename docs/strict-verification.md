@@ -123,18 +123,64 @@ output counterpart and is checked for parseability and validity.
 
 The previous native-signing corpus retains its 102 strict observations: 34 now
 exercise the implemented symlink selector and 68 still assert unsupported plain/all
-policy. The earlier native cyclic-framework process termination remains a hard
-failure if repeated; no native-test retries conceal it. Existing signing rejection,
-explicit certificate trust and cross-platform native-import tests remain enabled.
+policy. The 68 plain/all native observations add `--strict=4096` to request serial
+resource validation; their attestations record `native_args` and
+`native_single_threaded`. They characterize policy outcomes, not equivalence to
+the native asynchronous execution mode. Implemented symlink comparisons and all
+default verification commands keep their original flags. Existing signing
+rejection, explicit certificate trust and cross-platform native-import tests remain
+enabled. No native-test retries conceal failures.
 
 Full CI and artifact validation for this branch are recorded in the pull request.
 No broad feature is marked fully verified.
 
-PR66's first hosted run and unchanged-source debug rerun both exposed native
-SIGKILL in the earlier plain-strict framework observations (dangling-chain, then
-pair-cycle). The new strict matrices passed, but those attempts are failed gates.
-The harness now records PID/start/duration and preserves each failing public
-fixture as a tar archive. A bounded post-failure collector captures codesign-related
-kernel/AMFI logs, recent codesign crash reports and memory state. A temporary Mac
-preflight constructs 100 fresh affected frameworks before the full matrix; any
-signal remains a hard failure. This gathers evidence rather than masking the issue.
+### Native asynchronous verification crash on Xcode 27
+
+PR66's first hosted run and unchanged-source debug rerun exposed native SIGKILL
+in the plain-strict dangling-chain and pair-cycle framework observations. The new
+strict matrices passed, but those attempts remain failed gates. A diagnostic run
+with 100 fresh frameworks reproduced multiple crashes before the full suite:
+[run 36318321522](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36318321522).
+Its `evidence-xcode-27` artifact retains exact input archives, invocation details,
+system logs and 32 native crash reports. Reports include `EXC_BAD_ACCESS`/SIGSEGV
+and `PAC_EXCEPTION`/SIGKILL. The faulting worker stack passes through
+`tre_tnfa_run_parallel`, `ResourceBuilder::Rule::match`, `findRule`, `includes`
+and `SecStaticCode::validateResource`. The main thread waits in
+`Security::Dispatch::Group::~Group()`.
+
+The likely cause is a lifetime race in Apple's resource validation during error
+unwinding; this is an inference from the crash stacks and pinned source, not an
+Apple-confirmed diagnosis. In
+[validateResources](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp#L1367),
+the dispatch group is declared before `ResourceBuilder`, and scanning queues
+workers that use `mResourceScope`. A scan exception can therefore destroy the
+resource rules before the group destructor waits for outstanding workers. The
+[group destructor](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/dispatch.cpp#L96)
+and [LimitedAsync dispatch](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/csutilities.cpp#L287)
+support that explanation. The hosted crashes are not classified as expected policy
+rejections or attributed to memory pressure.
+
+The Mac SDK documents `kSecCSSingleThreaded = 1 << 12` (4096) as serial resource
+validation. `validateResources` passes `false` to `LimitedAsync` when this bit is
+set. Native CLI numeric strict selectors add API bits, so the reference invocation
+retains `--strict` or `--strict=all` and appends `--strict=4096`. It does not clear
+symlink/sideband policy or enable a resource-validation bypass. Local probes of 32
+original/serial profile pairs produced identical status, stdout and stderr; the
+full native-signing corpus still asserts the expected successes and rejections.
+This test-only accommodation does not add native calls or dependencies to production.
+
+The Mac preflight exercises the selected profiles against 100 fresh affected
+frameworks. Every unexpected status, signal or timeout remains a hard failure.
+To reproduce the original asynchronous native commands explicitly:
+
+```sh
+MACOSCODESIGN_REQUIRE_APPLE=1 MACOSCODESIGN_REPRODUCE_NATIVE_STRICT_CRASH=1 \
+  go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
+```
+
+This diagnostic can crash Apple's `codesign`; it only uses temporary test fixtures.
+The harness records PID/start/duration and preserves each failing public fixture.
+CI's bounded post-failure collector captures related system logs, recent native
+crash reports and memory state. Its best-effort collection cannot turn a failed
+test into a pass. The original asynchronous native defect remains outside this
+project's control and is not claimed fixed.

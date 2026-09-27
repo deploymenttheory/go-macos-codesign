@@ -368,7 +368,17 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 						var strict []map[string]any
 						if verbose {
 							for _, selector := range []string{"--strict", "--strict=symlinks", "--strict=all"} {
-								nout, nerr, nstatus := run(t, reference, "--verify", "--verbose=1", selector, operand)
+								// Apple's asynchronous sideband scan can destroy resource rules
+								// while validation workers still use them (see docs/strict-verification.md).
+								// Only the unsupported plain/all observations use the SDK's
+								// kSecCSSingleThreaded flag; implemented comparisons stay unchanged.
+								serial := selector != "--strict=symlinks" && os.Getenv("MACOSCODESIGN_REPRODUCE_NATIVE_STRICT_CRASH") != "1"
+								args := []string{"--verify", "--verbose=1", selector}
+								if serial {
+									args = append(args, "--strict=4096")
+								}
+								args = append(args, operand)
+								nout, nerr, nstatus := run(t, reference, args...)
 								want := 0
 								switch state {
 								case "dangling", "self-cycle", "pair-cycle", "dangling-chain", "relative-escape", "chain-escape", "absolute-missing", "absolute-external", "excluded-target":
@@ -384,7 +394,7 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 									if err := os.WriteFile(filepath.Join(failure, "input.tar"), before, 0644); err != nil {
 										t.Fatal(err)
 									}
-									data, err := json.MarshalIndent(map[string]any{"test": t.Name(), "selector": selector, "native_exit": nstatus, "stdout": nout, "stderr": nerr, "input_sha256": hash(before)}, "", "  ")
+									data, err := json.MarshalIndent(map[string]any{"test": t.Name(), "selector": selector, "native_args": args, "native_single_threaded": serial, "native_exit": nstatus, "stdout": nout, "stderr": nerr, "input_sha256": hash(before)}, "", "  ")
 									if err != nil {
 										t.Fatal(err)
 									}
@@ -403,7 +413,7 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 								} else if gstatus != 2 || !strings.Contains(gerr, "unsupported operation: --strict") {
 									t.Fatal("strict must remain explicitly unsupported", gstatus, gerr)
 								}
-								strict = append(strict, map[string]any{"selector": selector, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": implemented})
+								strict = append(strict, map[string]any{"selector": selector, "native_args": args, "native_single_threaded": serial, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": implemented})
 							}
 						}
 						nativeEqual(t, "native-produced link input preservation", layoutArchive(t, dir), before)

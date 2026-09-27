@@ -26,8 +26,10 @@ byte oracle. The final [compatibility run](https://github.com/deploymenttheory/g
 passed Linux, Windows 2025, Mac, native imports, race/eleven fuzz and six GoReleaser
 packages. Library coverage was 95.59%, 95.51% and 95.68%; CLI coverage was 98.33%,
 98.33% and 99.00%, with the entry point at 100%. Lint passed. The downloaded Mac
-package passed 359 native comparisons. A prior native cyclic-framework termination
-remains unexplained; signal logging and hard assertions are retained.
+package passed 359 native comparisons. The earlier native cyclic-framework
+termination is now tracked by the
+[PR66 crash investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27);
+signal logging and hard assertions are retained.
 
 ## Merged symlink-verification and dependency slice
 

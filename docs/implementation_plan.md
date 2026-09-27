@@ -113,9 +113,13 @@ conversions, 2,976 comparable verification hashes, 606 native imports, 88 remova
 and 140 dry-run results. Six downloaded GoReleaser packages had the clean tested
 revision, CGO disabled and APFS v0.11.2; twelve checksums and six SPDX records passed.
 The downloaded Darwin package passed 359 native comparisons (349 exact, ten bounded).
-A superseded native cyclic-framework process termination remains unresolved; final
-hard assertions passed without adding native-test retries. Historical failed runs
-remain recorded below. This branch starts from release v0.4.0 main.
+A superseded native cyclic-framework process termination passed in that final run
+without native-test retries. The subsequent
+[PR66 investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
+captured native resource-worker crashes and documents the serial reference profile
+for unsupported plain/all strict observations. Historical failures remain recorded;
+the native asynchronous defect is not claimed fixed. This branch starts from
+release v0.4.0 main.
 
 <a id="merged-pr64"></a>
 ### Merged implementation: PR #64 (2026-09-26; validation follow-up required)
