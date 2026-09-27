@@ -94,7 +94,7 @@ func run(t *testing.T, exe string, args ...string) (string, string, int) {
 			t.Fatal(err)
 		}
 		if e.ExitCode() < 0 {
-			t.Logf("command terminated: executable=%q arguments=%q pid=%d started=%s elapsed=%s state=%s stdout=%q stderr=%q", exe, args, e.ProcessState.Pid(), started.UTC().Format(time.RFC3339Nano), time.Since(started), e.ProcessState, stdout.String(), stderr.String())
+			t.Logf("command terminated: executable=%q arguments=%q pid=%d started=%s elapsed=%s state=%s stdout=%q stderr=%q", exe, args, e.Pid(), started.UTC().Format(time.RFC3339Nano), time.Since(started), e.ProcessState, stdout.String(), stderr.String())
 		}
 		return stdout.String(), stderr.String(), e.ExitCode()
 	}
