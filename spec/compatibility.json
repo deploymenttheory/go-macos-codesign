@@ -448,10 +448,17 @@
     },
     {
       "id": "--ignore-resources",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -ignore-resources",
-      "evidence": [],
-      "notes": "Must be implemented and independently verified before full-parity release."
+      "evidence": [
+        "acceptance/ignore_resources_test.go",
+        "pkg/codesign/ignore_resources_test.go",
+        "internal/cli/ignore_resources_test.go",
+        "scripts/extract-ignore-resources.go",
+        "spec/apple-ignore-resources.json",
+        "docs/ignore-resources.md"
+      ],
+      "notes": "Verification skips the resource slot, envelope/content traversal and parent-sealed nested code, including with deep and supported strict-symlink selectors. Executable pages, CMS/trust, non-resource slots, selected architecture, self/explicit requirements and enabled structure remain checked. Verbose success reports not all contents verified; JSON/API expose ResourcesIgnored. Default signature-directory/root structure remains enforced; no-strict suppresses those additional checks within supported layouts. Signing/display/removal applicability is inert. The 385 portable cases include four JSON extensions; Mac adds eight independently Apple-signed cases and three inert-operation controls. Four complete Apple bodies have two-target Clang AST evidence. Broader metadata discovery, external signature components, all/sideband strict policy, attached-value diagnostics, other representations and arbitrary option/filesystem combinations remain outstanding."
     },
     {
       "id": "--keychain",

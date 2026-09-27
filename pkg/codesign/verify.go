@@ -126,13 +126,14 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if opts.StrictSymlinks && !opts.NoStrict && opts.linkScope == nil && len(opts.Resources) > 0 {
+	if opts.StrictSymlinks && !opts.NoStrict && !opts.IgnoreResources && opts.linkScope == nil && len(opts.Resources) > 0 {
 		return nil, unsupported("strict resource links require a bundle filesystem scope")
 	}
 	r, err := InspectBytes(data)
 	if err != nil {
 		return nil, err
 	}
+	r.ResourcesIgnored = opts.IgnoreResources
 	if len(r.repSpecific) > 0 && (len(opts.InfoPlist) > 0 || len(opts.Resources) > 0) {
 		return r, unsupported("external special-slot overrides for disk images")
 	}
@@ -240,7 +241,7 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 			for slot := uint32(1); slot <= d.SpecialSlots; slot++ {
 				// Apple's shallow validation skips the resource envelope, but
 				// still binds Info.plist, requirements and other signed metadata.
-				if opts.directoryOnly && slot == SlotResources {
+				if (opts.directoryOnly || opts.IgnoreResources) && slot == SlotResources {
 					continue
 				}
 				p := uint64(d.HashOffset) - uint64(slot)*uint64(d.HashSize)

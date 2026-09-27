@@ -28,6 +28,7 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	ignoreResources                                                                      bool
 	strictRequested                                                                      bool
 	strictMask                                                                           uint32
 	noStrict                                                                             bool
@@ -76,6 +77,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "\nPortable extensions: --config FILE, --json, --help, --key FILE, --trust FILE, --trust-root FILE, --password-file FILE.\nCertificate signing: -s IDENTITY.pem, -s CERTIFICATE.pem --key KEY.pem, or -s IDENTITY.p12 --password-file FILE.\nVerification requires --trust CERTIFICATE.pem (exact leaf pin) or --trust-root CA.pem (portable chain policy).\nNative -h is hosting, not help.")
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
+				fmt.Fprintln(stdout, "Verification: --ignore-resources skips resource envelopes and nested code, even with --deep. Code integrity, non-resource metadata, requirements and enabled layout checks remain enforced.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
@@ -180,6 +182,11 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
+			case "ignore-resources":
+				if has {
+					return o, fmt.Errorf("--ignore-resources does not accept an argument")
+				}
+				o.ignoreResources = true
 			case "strict":
 				o.strictRequested = true
 				var mask uint32
@@ -568,7 +575,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, IgnoreResources: o.ignoreResources})
 			if err == nil {
 				var passed bool
 				passed, err = checkVerificationRequirements(stderr, report, path, o)

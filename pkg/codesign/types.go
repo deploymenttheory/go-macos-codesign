@@ -87,8 +87,14 @@ type SignOptions struct {
 // VerifyOptions selects an architecture and optional external special-slot data.
 // Certificate-backed signatures are not reported valid until CMS verification succeeds.
 type VerifyOptions struct {
+	// IgnoreResources skips the resource-directory binding, resource traversal
+	// and parent-sealed nested-code checks, including when Deep is set. Code
+	// pages, CMS/trust, non-resource slots, requirements and enabled structural
+	// policies are still checked. A successful report marks ResourcesIgnored.
+	IgnoreResources bool
 	// NoStrict disables the additional native layout and symlink policies.
-	// Cryptographic verification, resource seals and safe parsing remain required.
+	// Cryptographic verification and safe parsing remain required; resource seals
+	// are still checked unless IgnoreResources is also set.
 	NoStrict bool
 	// StrictSymlinks requires sealed resource links to resolve to included
 	// resources in this bundle or its verification parents. Absolute targets
@@ -202,11 +208,14 @@ type Architecture struct {
 }
 
 type Report struct {
-	Path                 string
-	Format               string
-	Bundle               *BundleInfo `json:",omitempty"`
-	Architectures        []Architecture
-	Valid                bool
+	Path          string
+	Format        string
+	Bundle        *BundleInfo `json:",omitempty"`
+	Architectures []Architecture
+	Valid         bool
+	// ResourcesIgnored means Valid only describes the selected non-resource
+	// verification policy; it does not attest the bundle's resources or children.
+	ResourcesIgnored     bool `json:",omitempty"`
 	repSpecific          []byte
 	verifiedArchitecture string
 }

@@ -442,21 +442,27 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 		return nil, err
 	}
 	defer b.close()
-	scope := newBundleScan()
-	scope.recurse = opts.Deep
-	scope.verifyVersions = true
-	scope.verifyLinks = true
-	_, actual, err := b.scanTree(ctx, scope, 0, "")
-	if err != nil {
-		return nil, err
+	var actual map[string]any
+	if !opts.IgnoreResources {
+		scope := newBundleScan()
+		scope.recurse = opts.Deep
+		scope.verifyVersions = true
+		scope.verifyLinks = true
+		_, actual, err = b.scanTree(ctx, scope, 0, "")
+		if err != nil {
+			return nil, err
+		}
 	}
 	data, err := b.read(b.executable, maxFileSize)
 	if err != nil {
 		return nil, err
 	}
-	resources, err := b.read(b.resourcesPath(), maxBundlePlist)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, err
+	var resources []byte
+	if !opts.IgnoreResources {
+		resources, err = b.read(b.resourcesPath(), maxBundlePlist)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return nil, err
+		}
 	}
 	return verifyBundleSnapshot(ctx, b, data, resources, actual, opts)
 }
@@ -479,12 +485,12 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 			continue
 		}
 		for _, d := range a.Signature.Directories {
-			if d.SpecialSlots < 3 {
+			if d.SpecialSlots < 3 && !opts.IgnoreResources {
 				return r, invalid("bundle signature lacks Info.plist/resource binding")
 			}
 		}
 	}
-	if !opts.directoryOnly {
+	if !opts.directoryOnly && !opts.IgnoreResources {
 		base := b.base
 		if b.version != "" {
 			// Diagnostics retain the selected alias; reads use the physical base.
@@ -495,6 +501,11 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 			return r, err
 		}
 		if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
+			return r, err
+		}
+	}
+	if opts.IgnoreResources && !opts.NoStrict {
+		if err := b.verifyIgnoredResourceStructure(r); err != nil {
 			return r, err
 		}
 	}
