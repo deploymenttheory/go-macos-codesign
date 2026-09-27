@@ -35,6 +35,7 @@ func verificationLinkFixture(t *testing.T, dir, format, algorithm, state string)
 		t.Fatal(err)
 	}
 	target, second := "target", ""
+	var extraLinks []string
 	switch state {
 	case "dangling":
 		target = "absent"
@@ -68,6 +69,42 @@ func verificationLinkFixture(t *testing.T, dir, format, algorithm, state string)
 		target = "."
 	case "excluded-target":
 		target = ".DS_Store"
+	case "resource-root":
+		target = ".."
+	case "executable-target":
+		var err error
+		target, err = filepath.Rel(resourceDir, report.Bundle.Executable)
+		if err != nil {
+			t.Fatal(err)
+		}
+		target = filepath.ToSlash(target)
+	case "signature-target":
+		target = "../_CodeSignature/CodeResources"
+	case "ancestor-target":
+		var err error
+		target, err = filepath.Rel(resourceDir, filepath.Join(dir, "../Resources/value"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		target = filepath.ToSlash(target)
+	case "physical-parent":
+		target, second = "second/../target", "fr.lproj"
+	case "file-slash":
+		target = "target/"
+	case "chain-33", "chain-34":
+		count := 33
+		if state == "chain-34" {
+			count++
+		}
+		target = "hop-0"
+		for i := range count {
+			name, next := fmt.Sprintf("hop-%d", i), fmt.Sprintf("hop-%d", i+1)
+			if i == count-1 {
+				next = "target"
+			}
+			layoutLink(t, base, "Resources/"+name, next)
+			extraLinks = append(extraLinks, name)
+		}
 	}
 	if err := os.Remove(filepath.Join(resourceDir, "link")); err != nil {
 		t.Fatal(err)
@@ -81,7 +118,7 @@ func verificationLinkFixture(t *testing.T, dir, format, algorithm, state string)
 	if _, err := plist.Unmarshal(nativeRead(t, envelope), &resources); err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"link", "second"} {
+	for _, name := range append([]string{"link", "second"}, extraLinks...) {
 		if name == "second" && second == "" {
 			continue
 		}
@@ -341,10 +378,16 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 									t.Fatal("native strict policy", selector, nstatus, want, nerr)
 								}
 								gout, gerr, gstatus := run(t, binaryPath, "--verify", selector, operand)
-								if gstatus != 2 || !strings.Contains(gerr, "unsupported operation: --strict") {
+								implemented := selector == "--strict=symlinks"
+								if implemented {
+									// This invocation is quiet; the native observation above is verbose.
+									if gstatus != nstatus || gout != "" || nstatus == 0 && gerr != "" || nstatus != 0 && gerr != nerr {
+										t.Fatal("implemented strict symlink result", gstatus, nstatus, gout, gerr, nerr)
+									}
+								} else if gstatus != 2 || !strings.Contains(gerr, "unsupported operation: --strict") {
 									t.Fatal("strict must remain explicitly unsupported", gstatus, gerr)
 								}
-								strict = append(strict, map[string]any{"selector": selector, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": false})
+								strict = append(strict, map[string]any{"selector": selector, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": implemented})
 							}
 						}
 						nativeEqual(t, "native-produced link input preservation", layoutArchive(t, dir), before)

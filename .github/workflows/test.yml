@@ -19,7 +19,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, windows-2025, xcode-27]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       CGO_ENABLED: '0'
       MACOSCODESIGN_EXPORT_DIR: ${{ github.workspace }}/artifacts/export

@@ -28,6 +28,9 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	strictRequested                                                                      bool
+	strictMask                                                                           uint32
+	noStrict                                                                             bool
 	requirementsSet                                                                      bool
 	entitlementsSet                                                                      bool
 	fileList                                                                             bool
@@ -177,6 +180,18 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
+			case "strict":
+				o.strictRequested = true
+				var mask uint32
+				var disable bool
+				mask, disable, err = parseStrictSelector(attached)
+				o.strictMask |= mask
+				o.noStrict = o.noStrict || disable
+			case "no-strict":
+				if has {
+					return o, fmt.Errorf("--no-strict does not accept an argument")
+				}
+				o.strictRequested, o.noStrict = true, true
 			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list":
 				if has {
 					val = attached
@@ -346,6 +361,11 @@ func parse(args []string) (options, error) {
 	if o.operation == "" && o.verbose > 0 {
 		o.operation = "verify"
 		o.verbose--
+	}
+	if o.strictRequested {
+		if o.operation != "verify" || o.strictMask & ^uint32(0x280) != 0 || o.strictMask&0x200 != 0 {
+			return o, fmt.Errorf("%w: --strict policy (supported: verification with symlinks, numeric 0/128, none or --no-strict)", codesign.ErrUnsupported)
+		}
 	}
 	return o, nil
 }
@@ -548,7 +568,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots})
+			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0})
 			if err == nil {
 				var passed bool
 				passed, err = checkVerificationRequirements(stderr, report, path, o)

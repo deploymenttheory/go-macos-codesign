@@ -81,7 +81,9 @@ func TestMalformedContainers(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err := VerifyBytes(context.Background(), out, VerifyOptions{}); err != nil {
+			// These alternate universal encodings remain portable extensions;
+			// native strict-layout equivalence is only established for FAT_MAGIC.
+			if _, err := VerifyBytes(context.Background(), out, VerifyOptions{NoStrict: fat64 || order != be}); err != nil {
 				t.Fatal(err)
 			}
 		}

@@ -462,6 +462,11 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 }
 
 func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []byte, actual map[string]any, opts VerifyOptions) (*Report, error) {
+	base, err := filepath.Abs(filepath.Join(b.path, b.base))
+	if err != nil {
+		return nil, err
+	}
+	opts.linkScope = &verificationLinkScope{bundle: b, base: base, outer: opts.linkScope}
 	opts.InfoPlist, opts.Resources = b.info, resources
 	r, err := VerifyBytes(ctx, data, opts)
 	b.annotate(r, resources)
@@ -492,6 +497,9 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 		if _, err := verifyBundleResourcesWithOptions(ctx, resources, actual, opts); err != nil {
 			return r, err
 		}
+	}
+	if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
+		return r, err
 	}
 	r.Valid = true
 	return r, nil

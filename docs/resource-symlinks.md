@@ -25,22 +25,14 @@ separators use the existing POSIX conversion. Drive/UNC spellings, Unicode targe
 normalization, reparse-point classes, concurrent tree mutation and full native
 path-limit behavior are not claimed as equivalent.
 
-## Native strict policy remains outstanding
+## Additional strict verification
 
-The additional complete Apple body has arm64/x86_64 Clang AST evidence in the
-[resource manifest](../spec/apple-resource-verification.json), bringing that driver
-to nine complete bodies. It compares `readlink` text before `realpath`; destination
-restriction requires both the strict and restrict-symlink flags. Its referenced
-outer-scope/resource-rule implementations are declaration-only interfaces here.
-
-Live tests show why this alone is insufficient to implement `--strict`: plain
-`--strict` and `--strict=all` can report ENOENT or ELOOP before the resource
-validator, whereas `--strict=symlinks` reports an invalid destination with modified
-resource details. Existing system targets, sealed internal targets, excluded
-targets and external targets also have distinct behavior. All three forms remain
-explicitly unsupported by the portable CLI; no strict request silently falls back
-to default verification. The next phase must establish selector parsing, earlier
-traversal, resource inclusion and outer-bundle scope before exposing those options.
+[Strict verification](strict-verification.md) now implements the symlink selector,
+default Mach-O layout checks and verification disabling controls. The resource
+driver has 18 complete bodies with two-target Clang evidence, including enclosing
+scope, resource inclusion/exclusion and layout checks. Plain/all and sideband
+policies remain explicitly unsupported because they can traverse targets before
+the resource validator and have additional option-ordering behavior.
 
 One hosted Mac run terminated the native process while checking a cyclic framework
 with `--strict=all` (exit -1, empty output). Its signal was not captured by the
@@ -64,8 +56,8 @@ evidence, and there is no automatic retry that could conceal it.
 All 352 portable cases run on Linux, Windows and Mac; Mac adds 68 native-signing
 records. There are 364 new exact native verification profiles in total. The 34
 verbose native-signing records also retain 102 native strict observations and
-explicit portable unsupported responses. Strict output is evidence of remaining
-work, not a parity claim.
+34 implemented symlink responses and 68 explicit unsupported plain/all responses.
+The strict contract separates those profiles from remaining policy work.
 
 The portable matrices carry 568 comparable hashes: 224 relative-target input trees
 and 272 normalized diagnostics in the main matrix, 48 nested trees and 24 relative
