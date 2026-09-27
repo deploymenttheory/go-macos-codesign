@@ -6,16 +6,35 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current strict-verification slice
+## Current resource-suppression slice
+
+[`--ignore-resources`](ignore-resources.md) skips the envelope, ordinary resources
+and parent-sealed child code, even with deep verification. Main executable pages,
+CMS/trust, non-resource slots, requirements and enabled structure still apply.
+Verbose output and JSON explicitly identify this scope. The 385 portable cases
+have 767 comparable hashes; Mac adds 11 independent producer/applicability controls.
+Four complete Apple bodies compile into Clang ASTs for both Mac targets. The
+inventory is now 30 partial, 50 not implemented, eight blocked and zero verified.
+Full branch gate results belong to the pull request. Strict sideband work first
+needs a shared APFS API that reports attribute-read errors, rather than suppressing
+them as its current best-effort reader can.
+
+## Merged strict-verification slice
 
 [Strict verification](strict-verification.md) adds default Mach-O layout policy,
 verification-only symlink selectors, disabling controls and enclosing bundle
 resource scopes. There are 561 portable cases, 545 native comparison profiles,
 16 JSON reports and 18 complete Apple bodies with two-target Clang evidence.
 Sideband/all policy, xattrs, custom rules and broader native filesystem behavior
-remain open. The inventory moves strict/no-strict to partial: 29 partial,
-51 not implemented, eight blocked and zero fully verified. Current branch gates
-are recorded in the pull request; this is not a full-parity claim.
+remain open. [PR #66](https://github.com/deploymenttheory/go-macos-codesign/pull/66)
+merged as `eed319dce8c402f5740ea73887032f7220361116` on 2026-09-27.
+Its final [compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36319043689)
+passed all three OS, native imports, race/eleven fuzz and six GoReleaser packages;
+lint passed. Library coverage was 95.60% Mac, 95.46% Linux and 95.38% Windows;
+CLI was 99.05%, 98.42% and 98.42%, with entry point 100%. The audit checked
+668 source hashes per producer, 4,002 verification hashes and 415 downloaded Mac
+package comparisons. The [merged record](implementation_plan.md#merged-pr66)
+preserves exact revisions, native-crash evidence and bounded diagnostic differences.
 
 ## Merged APFS fixture-validation follow-up
 

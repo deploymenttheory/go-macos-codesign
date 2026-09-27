@@ -1,8 +1,9 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-27 after [PR #65](https://github.com/deploymenttheory/go-macos-codesign/pull/65) merged.
-The current [strict-verification increment](strict-verification.md) adds a bounded
-verification policy; full sideband/all behavior remains outstanding.
+Status: updated 2026-09-27 after [PR #66](https://github.com/deploymenttheory/go-macos-codesign/pull/66) merged.
+The current [resource-suppression increment](ignore-resources.md) implements
+`--ignore-resources` within the supported verification profile. Full sideband/all
+behavior needs strict shared APFS metadata APIs and remains outstanding.
 Released APFS v0.11.2 is now the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -68,9 +69,10 @@ remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
-The current inventory retains 88 obligations: 29 partial, 51 not implemented,
+The current inventory retains 88 obligations: 30 partial, 50 not implemented,
 eight blocked and zero fully verified. Certificate extraction moved to partial
-in PR #51 and file lists in PR #53; this increment moves strict/no-strict to partial. No feature status was upgraded merely
+in PR #51, file lists in PR #53 and strict/no-strict in PR #66; this increment moves
+ignore-resources to partial. No feature status was upgraded merely
 because the parser recognized an option or one writer profile passed. WP-01 and
 WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
 [PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
@@ -93,6 +95,42 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr66"></a>
+### Merged implementation: PR #66 (2026-09-27)
+
+[PR #66](https://github.com/deploymenttheory/go-macos-codesign/pull/66) merged at
+12:47:23 UTC as `eed319dce8c402f5740ea73887032f7220361116`. Final head
+`0f5aec3a0275bf83242949b9d436b347fda9c0e1`, tested CI merge
+`026725b4cc921c61e22572af87b27966277d6bbe` and actual merge share tree
+`91ded230805f4da6e5aa5b0ac97452aa34650eba`.
+The [final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36319043689)
+and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36319043723)
+passed. Library coverage was 4776/4996 (95.60%) Mac, 4769/4996 (95.46%) Linux and
+4765/4996 (95.38%) Windows. CLI was 626/632 (99.05%) Mac and 622/632 (98.42%)
+on both foreign producers; entry point was 100%. The local full gate also passed.
+
+The audit checked 668 source hashes per host, including 17 expected Windows text
+conversions. New strict cases contributed 561 portable records, 545 native profiles,
+503 exact comparisons, 42 bounded ordering/primary-summary comparisons, 16 JSON
+reports and 1,026 comparable hashes. Combined verification evidence contained
+2,299 cases and 4,002 comparable hashes; requirement defaults retained 277 cases
+and 1,338 hashes. Foreign native imports (606), removal (88) and DMG dry runs (140)
+passed. All six downloaded GoReleaser packages had the clean tested revision,
+CGO disabled and released APFS v0.11.2, with twelve checksums and six SPDX records.
+The downloaded Darwin arm64 package passed 415 native comparisons: 405 exact and
+ten retained bounded comparisons, including 56 new exact strict profiles.
+
+The [Xcode27 native crash investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
+retains 29 signalled fixture trees and 25 crash reports (17 SIGSEGV and eight
+PAC_EXCEPTION/SIGKILL). Unsupported plain/all observations now explicitly append
+the SDK single-threaded flag; original asynchronous reproduction is opt-in.
+Implemented default/symlinks comparisons retain their original flags, native
+terminations remain hard failures and a 100-fresh-framework preflight passed.
+This is a measured native reference workaround, not a claim that Apple's
+asynchronous defect is fixed. Full evidence is retained under
+`artifacts/pr66/final/`; historical failures remain under the sibling diagnostic
+directories. This new feature branch starts from the actual merged tree above.
 
 <a id="merged-pr65"></a>
 ### Merged implementation: PR #65 (2026-09-27)
@@ -1389,7 +1427,7 @@ plan. The work-package column maps every existing entry to remaining work.
 | `--enforce-constraint-validity` | not-implemented | WP-14: strict constraint validation during signing and default warning behavior |
 | `--extract-certificates` | partial | WP-20/WP-12/WP-18: supported CMS chain DER/order, prefixes and output lifecycle covered; wider CMS/chains, host augmentation, signature slots and full option/error interactions remain |
 | `--file-list` | partial | WP-20/WP-02/WP-04: bounded ordered signing/display lists, append and failure ordering; external CLI layouts, native crash differences and wider interactions remain |
-| `--ignore-resources` | not-implemented | WP-04: native scope of resource suppression without bypassing executable integrity |
+| `--ignore-resources` | partial | WP-04: bounded resource/nested suppression with retained integrity, trust, requirements and structure; broader discovery/representation/option profiles remain |
 | `--keychain` | blocked | WP-22/WP-11: native identity lookup, search lists, preferences and authorization |
 | `--prefix` | not-implemented | WP-05/WP-20: native identifier-prefix rules for each default/explicit identifier source |
 | `--preserve-metadata` | not-implemented | WP-05: signature fields, abbreviations, override precedence and linker-signed exception |
@@ -1910,8 +1948,9 @@ stay visible in the inventory.
 
 **Starting point:** the supported resource-envelope profile handles XML/binary
 metadata, nested requirements and relative symlink text seals. Default checking
-is conservative. The native `--strict`, `--ignore-resources`,
-`--strip-disallowed-xattrs` and `--single-threaded-signing` controls are absent.
+is conservative. Bounded strict selectors and `--ignore-resources` are implemented.
+Full strict sideband/all policy, `--strip-disallowed-xattrs` and
+`--single-threaded-signing` remain outstanding.
 
 **Implementation tasks:**
 
@@ -1939,11 +1978,33 @@ is conservative. The native `--strict`, `--ignore-resources`,
     link details. Do not equate these distinct failure paths.
 - [ ] Detect native disallowed sideband attributes, including FinderInfo and
   resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
+  - [ ] First extend the shared APFS module with strict no-follow/pinned-object
+    presence/read/removal operations; publish a release before pinning it here.
+    Released v0.11.2 remains the latest checked release in this phase. Its
+    `hostmeta.ListXattrs` is best effort and can suppress per-value read errors;
+    a successful returned map cannot prove that a prohibited attribute is absent.
+  - [ ] Distinguish absence, present-empty, unreadable, oversized and concurrently
+    changed values. Preserve OS error causes and object identity across operations.
+    Cover compression-hidden metadata through the shared supported wrapper layer;
+    do not add direct Darwin syscalls or duplicate a DMG/xattr implementation here.
+  - [ ] Measure native ordering on executable, outer root, signature directory,
+    ordinary resources, child bundles and resource links. Cover FinderInfo,
+    ResourceFork, unrelated attributes, empty values, aliases and denied access.
 - [ ] Implement `--strip-disallowed-xattrs` through APFS APIs, including native
   diagnostic order, offending paths, partial failure and dry-run behavior. Do not
   use the legacy best-effort attribute reader where exact failures matter.
-- [ ] Implement `--ignore-resources` with precisely measured scope. It must not
-  accidentally suppress Mach-O page checks, CMS integrity or explicit requirements.
+- [x] Implement bounded `--ignore-resources` suppression of the envelope slot,
+  envelope reads, resource traversal and parent-sealed children even with deep.
+  Retain pages, CMS/trust, non-resource slots, explicit/self requirements, selected
+  architecture and enabled structure; expose limited scope in verbose/JSON/API.
+  The [contract](ignore-resources.md) records 385 portable cases, 11 Mac-only
+  controls, 767 comparable hashes and four complete Apple bodies on two Clang targets.
+- [ ] Extend ignore-resources to broader native discovery, external signature
+  components and representations as they are implemented. Measure attached-value
+  error paths, special filesystem entries, symlinked metadata, xattr sidecar
+  files, alternate-version discovery and arbitrary option interactions. A framework's
+  Resources directory contains required Info.plist; losing it is not merely losing
+  ordinary resource contents. Keep safe discovery limits explicit under no-strict.
 - [ ] Support nested signatures with multiple/alternate CodeDirectories and the
   expanded requirement language when WP-07/WP-09 provide them.
 - [ ] Implement the native single-thread resource-seal option. A currently serial
@@ -3392,30 +3453,32 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active work after PR #65
+### Active work after PR #66
 
-The APFS fixture correction and v0.11.2 upgrade passed final gates and merged in
-PR65, as recorded above. This increment starts from release v0.4.0 main on
-`feat/strict-verification-policy`. It adds default Mach-O boundaries and the
-bounded symlink/none/no-strict verification profile documented in the
-[strict contract](strict-verification.md). Production remains pure Go on all hosts.
+PR66's bounded strict policy and native-crash investigation passed final gates
+and merged as recorded above. This increment starts from that exact main tree on
+`feat/ignore-resources-verification`. The [resource-suppression contract](ignore-resources.md)
+defines the bounded implementation; production remains pure Go on every host.
 
-1. Retain all earlier acceptance, native imports, coverage, race/eleven fuzz,
-   golangci-lint and six GoReleaser package gates. The 561 new portable cases add
-   1,026 comparable hashes, 545 native profiles and 16 JSON reports. Independently
-   inspect foreign evidence and packaged binaries. Gate outcomes belong to the PR.
-2. Preserve exact native output in the 503 new exact profiles. For 42 multi-error
-   resource profiles, retain three raw native observations and compare every
-   resource path; only documented ordering/primary-summary alternatives are allowed.
-   Keep the earlier native process-termination assertion hard, with signal logs.
-3. Next establish earlier sideband traversal, option ordering and disallowed xattr
-   enforcement through shared APFS APIs. Plain/all strict selectors remain unsupported.
-   Custom rules, prefix containment, concurrent mutation, Unicode/reparse behavior
-   and broader native scheduling remain open. The APFS streaming APIs also require
-   a separate bounded adapter integration phase.
-4. Retain input/output aliases, special streams, inaccessible-directory discovery,
-   removal ordering, ACL inheritance, root/case aliases and localized dates as
-   outstanding work. Strict/no-strict move to partial; no broad feature is complete.
+1. Retain all prior acceptance, native imports, coverage, race/eleven fuzz,
+   golangci-lint and six GoReleaser package gates, including PR66's native stress
+   preflight and hard process-termination checks. Independently audit source and
+   downloaded package provenance. Record full gate outcomes in the pull request.
+2. Verify 385 new portable cases, 767 comparable hashes and 11 Mac-only controls.
+   Require exact status/stdout/stderr in 386 differential verification profiles.
+   Check limited-scope JSON independently; do not invent native JSON equivalence.
+   Damage resource/nested inputs and separately damage code, Info.plist, CMS and
+   requirements to prove that only the intended policy is suppressed.
+3. Next implement strict shared APFS metadata APIs before sideband enforcement.
+   The current best-effort reader cannot distinguish absence from suppressed read
+   failure. Preserve the APFS module boundary and release/pin sequence. Then measure
+   earlier sideband traversal, strip/dry-run ordering and partial failure behavior.
+   Plain/all selectors remain unsupported until that whole bounded path is proven.
+4. Retain custom rules, prefix containment, concurrent mutation, Unicode/reparse,
+   arbitrary native scheduling, aliases/streams, inaccessible-directory discovery,
+   removal ordering, ACLs, root/case aliases and localized dates as outstanding.
+   APFS streaming integration is a separate adapter phase. Ignore-resources moves
+   to partial; no broad feature is complete.
 
 The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
 EPERM in the recorded probe. A parent-directory clone also clones its children,

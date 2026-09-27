@@ -66,6 +66,11 @@ Explicit certificate trust remains required.
 wording, failing architecture and nested paths, with structured library errors.
 [Resource verification](docs/resource-verification.md) collects added, modified
 and missing paths, with explicit limits for native ordering and dangling links.
+[Strict verification](docs/strict-verification.md) supports bounded layout and
+symlink policies. [`--ignore-resources`](docs/ignore-resources.md) skips resource
+and nested-code checks, including with `--deep`, while retaining main-code
+integrity, trust, non-resource metadata, requirements and enabled structure checks.
+Verbose output and the JSON `ResourcesIgnored` field identify this limited scope.
 
 ## Build
 
@@ -227,6 +232,7 @@ progress page for completed runs. Go code linting uses golangci-lint only.
 - [App bundles and resource sealing](docs/bundles.md)
 - [DMG signing using go-apfs-v2](docs/dmg-integration.md)
 - [Strict verification selectors, layout boundaries and resource destinations](docs/strict-verification.md)
+- [Resource suppression and retained verification policy](docs/ignore-resources.md)
 - [Default resource-symlink verification and strict-policy evidence](docs/resource-symlinks.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
 - [Implementation stages and outstanding work](docs/implementation.md)

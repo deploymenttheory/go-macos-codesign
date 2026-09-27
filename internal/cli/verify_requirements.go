@@ -17,7 +17,11 @@ func checkVerificationRequirements(stderr io.Writer, report *codesign.Report, pa
 		return false, err
 	}
 	if o.verbose > 0 {
-		fmt.Fprintf(stderr, "%s: valid on disk\n", path)
+		scope := ""
+		if o.ignoreResources {
+			scope = " (not all contents verified)"
+		}
+		fmt.Fprintf(stderr, "%s: valid on disk%s\n", path, scope)
 		err := report.CheckDesignatedRequirement(selected.Name)
 		if err != nil && !errors.Is(err, codesign.ErrDesignatedRequirement) {
 			return false, err

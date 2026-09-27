@@ -53,12 +53,20 @@ policy remains an explicit difference. Merged PR #61 adds
 context, verbose resource details and 182 additional cases. It strengthens 178
 earlier native comparisons to exact diagnostics. Merged PR #63
 adds [ordinary resource collection](resource-verification.md) and 382 cases,
-retained native scheduling/primary-error and dangling-link differences. The current
+retained native scheduling/primary-error and dangling-link differences. Merged PR #64's
 [symlink increment](resource-symlinks.md) first updates APFS to v0.11.1, then resolves
 the twelve dangling-link records through verification-only link-text checks.
 It adds 352 portable and 68 native-signing cases; 102 strict-policy observations
-remain outstanding. Signing guards stay in force. Full strict policy remains open.
-No inventory status changes.
+include plain/all policy still outstanding. Signing guards stay in force.
+PR #65 pins released APFS v0.11.2 and fixes archived DMG validation. Merged PR #66
+adds [bounded strict policy](strict-verification.md): default Mach-O layout,
+symlink selectors and none/no-strict controls. Its three-OS, native-import, package,
+race/eleven fuzz, coverage and lint gates passed. Full sideband/all policy remains
+open. The current [`--ignore-resources` increment](ignore-resources.md) suppresses
+resource/nested verification while retaining integrity, trust, requirements and
+enabled structure. There are 385 portable cases and 11 Mac-only controls, plus
+four complete Apple bodies on two Clang targets. Only this option moves to partial;
+the inventory now has 30 partial, 50 unimplemented, eight blocked and zero verified.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and
