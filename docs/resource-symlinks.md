@@ -42,6 +42,14 @@ explicitly unsupported by the portable CLI; no strict request silently falls bac
 to default verification. The next phase must establish selector parsing, earlier
 traversal, resource inclusion and outer-bundle scope before exposing those options.
 
+One hosted Mac run terminated the native process while checking a cyclic framework
+with `--strict=all` (exit -1, empty output). Its signal was not captured by the
+original harness. The same framework case passed 100 consecutive local runs;
+the cause remains unresolved. The harness now logs the process state, executable,
+arguments and both output streams for signal termination. The assertion remains
+a hard failure: termination is neither an accepted strict outcome nor parity
+evidence, and there is no automatic retry that could conceal it.
+
 ## Acceptance evidence
 
 [The tests](../acceptance/resource_symlink_test.go) add:
@@ -77,7 +85,10 @@ ordering/primary-summary profiles. Its 686 comparable hashes remain in the audit
 ## Dependency integration
 
 This phase first updates [go-apfs-v2 to v0.11.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.11.1),
-with published module checksums and no APFS replacement. Native DMG signing,
+with published module checksums and no APFS replacement. The corrective follow-up
+updates again to [v0.11.2](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.11.2),
+published during validation, which bounds decmpfs LZFSE decoding to the caller's
+buffer. Native DMG signing,
 foreign imports and packaged dependency provenance validate the upgrade. Its
 streaming APIs and codec fixes remain upstream-owned; codesign's bounded adapter
 does not gain streaming behavior merely from this version change.

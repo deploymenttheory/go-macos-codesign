@@ -6,7 +6,23 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current symlink-verification and dependency slice
+## Current APFS fixture-validation follow-up
+
+[PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged while
+its final CI was running. Linux, Windows and local acceptance subsequently exposed an
+archived LZFSE fixture test that regenerated its payload with the new encoder.
+The corrective branch re-signs the archived image's exact payload, preserving
+the native bytes and input-preservation assertions. Fresh images retain live
+native comparisons. Full coverage/CI/artifact gates are being repeated for that
+correction; the initial PR64 run is not passing release evidence.
+The follow-up also pins APFS v0.11.2, published during PR64 validation, adding its
+bounded decmpfs LZFSE decoding fix. Final package audits require that newer pin.
+The first v0.11.2 local, Linux and Windows runs passed. Hosted Mac failed one
+native `--strict=all` observation on a cyclic framework because the reference
+process terminated. One hundred local repetitions passed. Signal-state logging
+has been added without relaxing the assertion; all final gates are being repeated.
+
+## Merged symlink-verification and dependency slice
 
 The dependency is updated to released APFS v0.11.1, including its newer DMG and
 LZFSE fixes, with no APFS replacement. [Default symlink verification](resource-symlinks.md)
@@ -16,7 +32,8 @@ cases, 68 native-signing cases and 568 comparable hashes. All twelve earlier
 dangling-link records now match native output; the four acceptance differences
 are resolved. The resource driver now has nine complete bodies on two Clang
 targets. The 102 strict-policy observations remain explicitly unimplemented.
-Current-commit coverage and artifact gates belong to this PR. No inventory upgrade.
+Current-commit coverage and artifact gates belong to the corrective follow-up.
+No inventory upgrade.
 
 ## Merged resource-verification slice
 

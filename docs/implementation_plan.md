@@ -1,7 +1,7 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-26 after [PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) merged.
-Released APFS v0.11.1 is now the shared metadata/DMG dependency, with no local
+Status: updated 2026-09-26 after [PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged.
+Released APFS v0.11.2 is now the shared metadata/DMG dependency, with no local
 replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
 [PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
@@ -41,13 +41,18 @@ malformed-set differences. Merged [PR #63](#merged-pr63)
 adds [ordinary resource collection](resource-verification.md), eight
 complete Apple bodies, 382 cases and 686 producer hashes. Exact output is required
 for 306 native profiles; native ordering/primary-error and dangling-link discovery
-differences were retained explicitly. The active `feat/resource-symlink-verification`
-increment first upgrades APFS from v0.9.0 to v0.11.1, then adds
+differences were retained explicitly. Merged [PR #64](#merged-pr64)
+first upgrades APFS from v0.9.0 to v0.11.1, then adds
 [verification-specific link text checks](resource-symlinks.md). It resolves the twelve
 dangling-link records, including four native-acceptance differences, and adds 352
 portable cases, 68 native-signing cases and 102 explicit strict-policy observations.
 The resource driver now extracts nine complete bodies. Signing guards remain;
-strict selectors stay unsupported. Current-commit gates belong to this PR.
+strict selectors stay unsupported. PR64 merged before final validation completed;
+its archived LZFSE test regenerated input with the changed encoder and failed.
+`fix/native-dmg-fixture-inputs` preserves that test's native byte oracle by re-signing
+the original archived payload. Fresh encoder outputs retain independent native
+comparisons. The follow-up also upgrades to APFS v0.11.2, published during PR64
+validation, for bounded decmpfs LZFSE decoding. Current-commit gates belong to it.
 
 The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
 cases with source/replacement access assertions. Native dispatch can leave independent
@@ -86,6 +91,36 @@ Work packages remain outstanding except for explicitly checked, bounded tasks
 and already delivered baseline behavior. Unchecked proposed APIs, tests and
 artifacts are future work, not existing capabilities. Continuous verification and
 inventory-maintenance tasks remain open for every subsequent implementation slice.
+
+<a id="merged-pr64"></a>
+### Merged implementation: PR #64 (2026-09-26; validation follow-up required)
+
+[PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged at
+23:00:02 UTC as `6662e869931dc6e36a36050d03a4a21d239d2239`, before final CI
+completed. Final head `9fcaef48f36a6b358f96040966cc11e3094dfd10`, tested CI merge
+`26af7d95d18e0c2576350f5c6d77a784676fce20` and the actual merge share tree
+`bed260417f68038dff1c4fa5e1a6ffefb07e35fd`. The implementation is on main;
+the initial [compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36278012903)
+failed the archived `TestNativeDMGFixtures/adhoc/lzfse` input comparison on Linux
+and Windows. Local
+acceptance found the same sole failure after 546.487 seconds. No complete coverage
+or downstream-import pass is claimed for that initial run.
+
+The APFS pin is published v0.11.1 (release commit
+`baf0015eb054a91063d310f5cfefc73ece73f3b2`), module checksum
+`h1:3GiaIlRQC9WglGkldIPOW7KLPgky5xmi5arMvYsZUDE=`, without an APFS replacement.
+Unit tests, dependency guards, module verification, focused native DMG/symlink
+tests, nine complete Apple bodies/two-target Clang extraction and lint passed.
+All six downloaded packages had the exact clean CI revision, CGO disabled and
+APFS v0.11.1; twelve checksums and six SPDX files passed. The downloaded Darwin
+package passed 359 native comparisons, 349 exact and ten bounded ordering/summary
+comparisons, preserving inputs and explicit trust rejection.
+
+The corrective branch changes the archived-fixture test input, retaining original
+fixture hashes and exact native ad-hoc/RSA signatures plus P-256 CodeDirectories
+and signature validation. It adds input-preservation assertions and repeats all
+gates. The retained LZMA unsigned reproducer now passes native `hdiutil` with
+v0.11.1; codesign's adapter remains bounded and does not gain streaming implicitly.
 
 <a id="merged-pr63"></a>
 ### Merged milestone: PR #63 (2026-09-26)
@@ -3223,7 +3258,7 @@ none leaves independent acceptance for a later “testing PR.”
 | D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
 | D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
 | D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.1 supplies streaming APIs; codesign integration still needs D09 |
+| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.2 supplies streaming APIs; codesign integration still needs D09 |
 | D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
 | D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
 | D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
@@ -3324,18 +3359,20 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active implementation work after PR #63
+### Active validation work after PR #64
 
-`feat/resource-symlink-verification` starts from actual PR #63 merge
-`0e9ea75435c1419a02ca7b8b6b70912aeffdd243`. Its first commit upgrades to released
+`fix/native-dmg-fixture-inputs` starts from actual PR #64 merge
+`6662e869931dc6e36a36050d03a4a21d239d2239`. PR64 upgraded to released
 APFS v0.11.1 without a replacement, removing the superseded external LZFSE module.
+The follow-up pins v0.11.2, published at 22:59:54 UTC during PR64 validation, and
+restarts final coverage/artifact gates on that version.
 The new upstream streaming APIs are available; codesign's adapter still uses its
 existing bounded profile and requires a separate integration phase for streaming.
 
-1. Implement the bounded default symlink contract above with a verification-only
-   scan policy. Compare text through the held root without resolving or opening
-   targets. Prove exact defaults on Apple-produced and portable byte-API fixtures,
-   shallow/deep behavior and unchanged signing/dry-run rejection/containment.
+1. Correct archived DMG fixture input selection without changing fixture hashes or
+   expected signature bytes. Re-sign the exact archived payload, assert input
+   preservation, and retain independent fresh-image native comparisons. Preserve
+   the merged default-symlink implementation and signing guards.
 2. Complete local and three-OS coverage, native imports, race/eleven fuzz targets,
    lint, GoReleaser packaging and downloaded-artifact audits for the final commit.
    Retain PR #59 defaults, compiler, extraction and earlier matrices. Audit all
@@ -3346,7 +3383,13 @@ existing bounded profile and requires a separate integration phase for streaming
    keep raw native output and all repeated ordering observations. Preserve the
    six malformed-set records and their acceptance deltas. Require exact native
    results for all twelve now-resolved dangling-link profiles. Audit packaged
-   APFS v0.11.1 and repeat native DMG/metadata checks across producer hosts.
+   APFS v0.11.2 and repeat native DMG/metadata checks across producer hosts.
+   The first v0.11.2 run passed locally and on Linux/Windows, but hosted Mac
+   terminated the native `--strict=all` process for a cyclic framework (exit -1,
+   no output). The signal was not captured; 100 consecutive local repetitions
+   passed. The harness now logs process state and command/output details without
+   accepting signal termination or retrying it. Require final green evidence;
+   retain the failed attempt and investigate any recurrence from the new logs.
 3. Next, implement strict selectors and establish earlier traversal, resource
    inclusion and enclosing-bundle policy. Preserve containment and signing
    guarantees; keep native scheduling/primary-error differences explicit. Then

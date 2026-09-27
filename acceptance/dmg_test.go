@@ -310,10 +310,17 @@ func TestNativeDMGFixtures(t *testing.T) {
 				if metadata := r.Architectures[0].Signature.CertificateMetadata; metadata != nil {
 					opts.SigningTime = metadata.SigningTime
 				}
-				got, err := codesign.SignBytes(context.Background(), dmgFixture(t, profile), opts)
+				// Archived native signatures bind their original compressed payload.
+				// Encoder upgrades may produce different valid compressed bytes, so
+				// re-sign this exact image rather than regenerating its input. Fresh
+				// encoder output has independent live-native signing comparisons.
+				opts.Force = true
+				input := bytes.Clone(want)
+				got, err := codesign.SignBytes(context.Background(), input, opts)
 				if err != nil {
 					t.Fatal(err)
 				}
+				nativeEqual(t, "archived DMG input preservation", input, want)
 				if identity != "p256" {
 					nativeEqual(t, "native DMG fixture", got, want)
 				} else {
@@ -323,7 +330,7 @@ func TestNativeDMGFixtures(t *testing.T) {
 					}
 					nativeEqual(t, "ECDSA CodeDirectory", other.Architectures[0].Signature.Directories[0].Raw, r.Architectures[0].Signature.Directories[0].Raw)
 				}
-				attest(t, map[string]any{"identity": identity, "profile": profile, "native_fixture_verified": true, "byte_equal": identity != "p256", "directory_equal": true})
+				attest(t, map[string]any{"identity": identity, "profile": profile, "native_fixture_verified": true, "byte_equal": identity != "p256", "directory_equal": true, "input_preserved": true, "input_source": "archived native image", "input_sha256": hash(want)})
 			})
 		}
 	}

@@ -1,13 +1,14 @@
 # DMG signing with go-apfs-v2
 
 DMG signing directly uses `github.com/deploymenttheory/go-apfs-v2/pkg/disk`, pinned
-to `v0.11.1`. Production reuses its exported
+to `v0.11.2`. Production reuses its exported
 `DMGFooter`, including the signature offset/length fields. This repository adds
 the signature adapter; it does not maintain another DMG reader, writer or codec.
 The same dependency now supplies the [standalone and root-relative file metadata APIs](file-writes.md).
 
 The current pin includes upstream streaming image I/O, caller-owned readers,
-DMG codec/writer fixes and the LZFSE undersized-header fix. Codesign's adapter
+DMG codec/writer fixes, the LZFSE undersized-header fix and bounded decmpfs LZFSE
+decoding. Codesign's adapter
 still uses its existing bounded in-memory profile; updating the dependency does
 not itself deliver streaming codesign operations. Generated raw/zlib/LZFSE and
 committed APFS/LZMA inputs remain in native signing and foreign-import checks.
@@ -125,16 +126,24 @@ External Info.plist/resource overrides are rejected. Production does not mount
 or decompress the image; a valid signature does not prove filesystem mountability.
 Native acceptance checks image checksums separately with `hdiutil`.
 
-The pinned APFS encoder produced a small synthetic LZMA image that failed
+The earlier APFS encoder produced a small synthetic LZMA image that failed
 `hdiutil` **before signing** on macOS 27 build 26A428: error 1000, calculated CRC32
-zero. Its existing native LZMA fixture passes and is used for interoperability.
-The unsigned reproducer is retained:
+zero. Re-running the retained unsigned reproducer with **APFS v0.11.1** on the
+same macOS build passes `hdiutil verify` (partition CRC32 `36421931`, image CRC32
+`4DC488ED`). The committed native LZMA fixture remains in the interoperability
+corpus. The reproducer is retained:
 
 ```sh
 go run scripts/repro-apfs-lzma.go artifacts/unsigned-lzma-repro.dmg
 hdiutil verify artifacts/unsigned-lzma-repro.dmg
 ```
 
-The generator refuses to overwrite output. This single case does not establish
-that every LZMA input fails. Further encoder investigation belongs in
-`go-apfs-v2`; no APFS source files were modified by this signing phase.
+The generator refuses to overwrite output. This single passing case does not
+establish every LZMA profile; codec implementation remains owned by `go-apfs-v2`.
+
+Archived native-signature tests re-sign the exact recorded image payload. The
+APFS v0.11.1 LZFSE encoder emits different valid bytes from the older fixture
+encoder, so regenerating an input before comparing it to an archived signature
+is not a valid codesign comparison. Full native ad-hoc/RSA equality and P-256
+CodeDirectory equality remain required. Fresh encoder output is separately
+compared with live native signing on identical inputs.

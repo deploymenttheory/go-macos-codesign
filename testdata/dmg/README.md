@@ -11,6 +11,13 @@ and strict verification: raw/zlib/LZFSE ad-hoc images and zlib RSA/P-256 images.
 Only public test credentials from `testdata/identities` were used. The manifest
 records hashes, source revision, arguments and host/tool provenance.
 
+Archived signature comparisons re-sign a copy of the exact archived image,
+preserving its compressed payload and asserting input preservation. They must not
+regenerate that payload with the current encoder: valid compression output can
+change between APFS releases, as LZFSE did by v0.11.1. Freshly generated images
+have separate live native signing comparisons. The native fixtures and their
+expected signature bytes remain unchanged across this dependency upgrade.
+
 Normal tests never rewrite fixtures. To re-record deliberately, move the five
 native files into an ignored backup under `artifacts/`, then run on a Mac:
 
@@ -23,5 +30,6 @@ The recorder refuses to overwrite native files. Review changes and run
 `make verify`. Native RSA is compared byte for byte at its recorded signing
 time. ECDSA compares CodeDirectories and verifies randomized signatures.
 
-The native LZMA fixture is used because a small image from the pinned encoder
-fails `hdiutil` before signing. See [the observation and reproducer](../../docs/dmg-integration.md).
+The native LZMA fixture preserves the original interoperability corpus. A small
+synthetic LZMA image failed `hdiutil` with the earlier encoder; the retained
+reproducer now passes with APFS v0.11.1. See [the observation and reproducer](../../docs/dmg-integration.md).
