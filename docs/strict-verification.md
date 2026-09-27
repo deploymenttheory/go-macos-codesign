@@ -141,8 +141,8 @@ in the plain-strict dangling-chain and pair-cycle framework observations. The ne
 strict matrices passed, but those attempts remain failed gates. A diagnostic run
 with 100 fresh frameworks reproduced multiple crashes before the full suite:
 [run 36318321522](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36318321522).
-Its `evidence-xcode-27` artifact retains exact input archives, invocation details,
-system logs and 32 native crash reports. Reports include `EXC_BAD_ACCESS`/SIGSEGV
+Its `evidence-xcode-27` artifact retains 29 failing input archives, invocation
+details, system logs and 25 native crash reports. Reports include `EXC_BAD_ACCESS`/SIGSEGV
 and `PAC_EXCEPTION`/SIGKILL. The faulting worker stack passes through
 `tre_tnfa_run_parallel`, `ResourceBuilder::Rule::match`, `findRule`, `includes`
 and `SecStaticCode::validateResource`. The main thread waits in
