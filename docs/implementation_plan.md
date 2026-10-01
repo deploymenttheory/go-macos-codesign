@@ -1,24 +1,26 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after APFS v0.15.0 publication. The upstream
+Status: updated 2026-10-01 after codesign PR70 and macOS-pkg PR72/PR73 merged. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
-codesign branch pins the published SDK and uses `hostdata` and
-`hostdata/accesstime`; macOS-pkg draft PR72 adopts the same version. No local
+codesign main pins the published SDK and uses `hostdata` and
+`hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current gate:** qualify both downstream PR revisions against the published
-v0.15.0 module. Keep the existing dependency guards, three-OS/native acceptance,
-coverage and artifact checks. The prior purego blocker is resolved by the approved
-typed Darwin extension; it does not justify changing any test threshold or CLI
-compatibility status. See [dependency qualification](apfs-dependency.md).
-After qualification and maintainer merge, cut the next sideband/plain/all and
-signing-time stripping phase from main.
+**Current increment:** qualify the read-only [sideband metadata adapter](sideband-policy.md)
+on a fresh branch from main. Explicit AppleDouble input supplements native
+attributes on every host; there is no automatic sidecar discovery or Linux xattr
+name remapping. Shared APFS streaming decode handles large forks. Native controls
+now compare both held attributes and explicit carriers; 29 captured snapshots are
+also tested on each CI host. Dependency guards, coverage above 95% per production
+package, three-OS/native acceptance and artifact checks remain unchanged.
+The next integration must bind these observations to verification objects, links,
+ordering and CLI selectors. Signing-time stripping is a separate mutation phase.
 
 The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
-behavior remains outstanding. The current [dependency and research phase](sideband-policy.md)
+behavior remains outstanding. The [dependency and research work](sideband-policy.md)
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
@@ -2024,16 +2026,21 @@ Full strict sideband/all policy, `--strip-disallowed-xattrs` and
     link details. Do not equate these distinct failure paths.
 - [ ] Detect native disallowed sideband attributes, including FinderInfo and
   resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
-  - [ ] First extend the shared APFS module with strict no-follow/pinned-object
+  - [x] First extend the shared APFS module with strict no-follow/pinned-object
     presence/read/removal operations; publish a release before pinning it here.
     [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131)
     implements all six operations on Linux, macOS and Windows. Required runtime
     tests must pass on all three; an unsupported platform stub or skip does not
     complete this task. See the [API/research contract](sideband-policy.md).
-    Codesign still pins v0.11.2; v0.11.3 was released while this phase was in
-    progress, but does not contain the pending strict APIs. The pinned
-    `hostmeta.ListXattrs` is best effort and can suppress per-value read errors;
+    Codesign now pins published v0.15.0, qualified and merged in PR70. The legacy
+    `hostdata.ListXattrs` is best effort and can suppress per-value read errors;
     a successful returned map cannot prove that a prohibited attribute is absent.
+  - [x] Implement a read-only native/explicit-AppleDouble inspection adapter,
+    preserving native failure causes, empty-value semantics and Darwin EPERM
+    policy. Use strict Linux inventory without name remapping. Inspect all
+    declared carrier records additively; do not emulate mutating restore.
+    Retain malformed-input/cancellation/4 GiB boundary tests and 29 native-derived
+    portable fixtures. This does not complete traversal or enable strict selectors.
   - [ ] Distinguish absence, present-empty, unreadable, oversized and concurrently
     changed values. Preserve OS error causes and object identity across operations.
     The eight-body Clang extraction establishes options-zero visibility for native
@@ -3513,23 +3520,25 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active work after PR #68
+### Active sideband work after PR #70
 
-The resource-suppression increment passed its final gates and merged as recorded
-[above](#merged-pr68). This phase starts from that exact main tree on
-`feat/strict-sideband-verification`. The [sideband contract](sideband-policy.md)
+The resource-suppression and published APFS v0.15.0 increments are merged. This
+phase starts from main at `8950d778a17caa9f7a6b51df15028efce50a6485` on
+`feat/strict-sideband-verification-v015`. The [sideband contract](sideband-policy.md)
 defines the shared API, source evidence, native controls and integration sequence.
 
-1. Complete APFS PR #131 with working strict size/read/remove APIs on Linux,
+1. **Completed and released:** APFS PR #131's strict size/read/remove APIs on Linux,
    macOS and Windows, including held-object/no-follow behavior and error causes.
    Require runtime operation, identity and permission tests and coverage above
    95% in the new API on every producer. Preserve the user's separate APFS tree.
-2. Record the eight complete Apple bodies on both Clang targets and 203 exact
+2. **Recorded:** eight complete Apple bodies on both Clang targets and 203 exact
    native verification controls. Retain all 42 unavailable directory-fork setups
    explicitly; they are not successful tests. Separate generic attribute results
    from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
-3. After maintainer merge and publication, pin the released APFS API with no local
-   replacement. Implement sideband resource traversal, error order, selectors and
+3. **Dependency merged; adapter implemented:** native held-object inspection and
+   explicit additive AppleDouble input, plus 29 native-derived portable fixtures.
+   Qualify the adapter through unchanged CI. Next implement object/carrier binding,
+   sideband resource traversal, error order, selectors and
    native diagnostics through that shared implementation. All three operating
    systems are required; a missing platform implementation cannot be waived.
 4. Measure signing-time strip, dry-run ordering and partial effects separately.

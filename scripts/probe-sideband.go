@@ -22,6 +22,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
+	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 	"golang.org/x/sys/unix"
 )
 
@@ -124,9 +126,36 @@ func copyTree(source, target string) {
 	}))
 }
 
+// Cross-check only the metadata adapter here. Native CLI policy, traversal and
+// diagnostic assertions below remain independent and unchanged.
+func inspectAdapter(path string, carrier appledouble.Value) []string {
+	f, err := os.Open(path)
+	must(err)
+	defer f.Close()
+	a, err := sideband.Inspect(context.Background(), f, carrier)
+	must(err)
+	return a.Names()
+}
+
+func capturedCarrier(attrs map[string]string) []byte {
+	fork, err := hex.DecodeString(attrs[names[0]])
+	must(err)
+	finder, err := hex.DecodeString(attrs[names[1]])
+	must(err)
+	f := appledouble.File{ResourceFork: fork}
+	copy(f.FinderInfo[:], finder)
+	b, err := f.Encode()
+	must(err)
+	return b
+}
+
 func main() {
 	check := flag.Bool("check", false, "assert the measured Mac verification profile, including exact diagnostics and unchanged snapshots")
+	fixtures := flag.String("fixtures", "", "write portable native metadata fixtures to this directory after all checks pass (requires -check)")
 	flag.Parse()
+	if *fixtures != "" && !*check {
+		panic("fixture export requires -check")
+	}
 	if runtime.GOOS != "darwin" {
 		panic("requires the native Mac reference host")
 	}
@@ -170,6 +199,7 @@ func main() {
 		{"strip-dry-run", []string{"--strict=sideband", "--strip-disallowed-xattrs", "--dryrun"}},
 	}
 	var cases []map[string]any
+	var captures []map[string]any
 	var failures []string
 	executed, unavailable := 0, 0
 	for _, location := range []struct{ name, operand, path string }{
@@ -218,10 +248,32 @@ func main() {
 				}
 				args := append([]string{"--verify", "--verbose=4"}, policy.args...)
 				v := invoke(dir, "/usr/bin/codesign", append(args, location.operand)...)
+				// Inspect the exact held object, then an explicit snapshot with
+				// a clean native object. The latter is the same portable path used
+				// on Linux and Windows, without restoring or deleting attributes.
+				attrs := before[location.path].Attrs
+				carrier := capturedCarrier(attrs)
+				observed := inspectAdapter(path, nil)
+				transported := inspectAdapter(filepath.Join(template, "tool"), bytes.NewReader(carrier))
+				var expectedNames []string
+				for _, name := range names[:2] {
+					if len(attrs[name]) > 0 {
+						expectedNames = append(expectedNames, name)
+					}
+				}
 				after := snapshot(dir)
 				executed++
-				cases = append(cases, map[string]any{"location": location.name, "attribute_state": state, "policy": policy.name, "invocation": v, "before": before, "after": after})
+				cases = append(cases, map[string]any{"location": location.name, "attribute_state": state, "policy": policy.name, "invocation": v, "before": before, "after": after,
+					"adapter_native": observed, "adapter_appledouble": transported, "appledouble_hex": hex.EncodeToString(carrier)})
+				if policy.name == "sideband" {
+					captures = append(captures, map[string]any{"location": location.name, "attribute_state": state,
+						"attrs_hex": attrs, "appledouble_hex": hex.EncodeToString(carrier), "native_status": v.Status,
+						"native_stdout": strings.ReplaceAll(v.Stdout, dir, "$FIXTURE"), "native_stderr": v.Stderr})
+				}
 				if *check {
+					if !reflect.DeepEqual(observed, expectedNames) || !reflect.DeepEqual(transported, expectedNames) {
+						failures = append(failures, "adapter/"+location.name+"/"+state+"/"+policy.name)
+					}
 					status, stdout := 0, ""
 					scope := ""
 					if policy.name == "ignore-resources" {
@@ -251,7 +303,7 @@ func main() {
 		}
 	}
 	report := map[string]any{
-		"schema": 1, "scope": "Native-only observations on fresh ad-hoc arm64 standalone/app fixtures; no Go parity or other filesystem, ACL, link, compression, signing or failure-ordering claim.",
+		"schema": 2, "scope": "Native observations plus held-object/explicit-AppleDouble metadata adapter comparisons on fresh ad-hoc arm64 standalone/app fixtures; not full Go CLI, traversal, ACL, link, compression, signing or failure-ordering parity.",
 		"go": runtime.Version(), "host": invoke("", "/usr/bin/sw_vers"), "codesign_sha256": hash(read("/usr/bin/codesign")),
 		"driver_sha256": hash(read("scripts/probe-sideband.go")), "input_sha256": map[string]string{source: hash(input)}, "signing": signing, "cases": cases,
 		"checked": *check, "executed": executed, "unavailable": unavailable, "failures": failures,
@@ -272,5 +324,17 @@ func main() {
 	}
 	if *check && (executed != 203 || unavailable != 42 || len(failures) != 0) {
 		panic(fmt.Sprintf("native sideband profile mismatch: executed=%d unavailable=%d failures=%v; raw evidence retained", executed, unavailable, failures))
+	}
+	if *fixtures != "" {
+		capture := map[string]any{"schema": 1, "scope": report["scope"], "host": report["host"], "codesign_sha256": report["codesign_sha256"],
+			"driver_sha256": report["driver_sha256"], "input_sha256": report["input_sha256"], "cases": captures}
+		data, err := json.MarshalIndent(capture, "", "  ")
+		must(err)
+		data = append(data, '\n')
+		must(os.MkdirAll(*fixtures, 0755))
+		must(os.WriteFile(filepath.Join(*fixtures, "policy.json"), data, 0644))
+		manifest, err := json.MarshalIndent(map[string]any{"files": map[string]string{"policy.json": hash(data)}}, "", "  ")
+		must(err)
+		must(os.WriteFile(filepath.Join(*fixtures, "manifest.json"), append(manifest, '\n'), 0644))
 	}
 }

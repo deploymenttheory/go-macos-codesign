@@ -1,23 +1,62 @@
-# Sideband policy: dependency and research
+# Sideband metadata and verification policy
 
-This phase prepares strict sideband verification and attribute stripping. It does
-not enable `--strict=sideband`, plain/all strict selectors or
-`--strip-disallowed-xattrs`. Codesign now pins published APFS v0.14.0. The shared
-operations introduced in [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131)
-are available in `hostdata`; the subsequent AppleDouble/resource-fork work and
-package refactor completed in APFS PR182/PR183. macOS-pkg PR72 has adopted that
-release and passed its required downstream CI. The optional live notarization
-step lacked signing secrets and did not execute.
+Sideband data is metadata attached to code or resources outside their ordinary
+file bytes. Apple's strict sideband policy rejects nonempty ResourceFork and
+FinderInfo attributes on applicable objects. Reading those attributes correctly
+is a prerequisite for matching its verification decisions and diagnostics.
 
-This dependency phase migrates existing codesign writers to `hostdata` and
-`hostdata/accesstime`, retaining their behavior and existing compatibility gates.
-It supplies the published prerequisite for sideband integration; it does not
-enable a CLI policy solely because the underlying filesystem API is available.
+Codesign uses published [APFS v0.15.0](apfs-dependency.md) for native metadata and
+AppleDouble decoding. The dependency upgrade is merged in codesign PR70 and
+macOS-pkg PR72; macOS-pkg PR73 resolves its macOS 27 relocation-default gap.
+The former purego dependency blocker is resolved. No local SDK replacement or
+additional native binding is introduced here.
 
-The adoption is currently [blocked by the production dependency guard](apfs-dependency.md):
-v0.14.0 adds a transitive Darwin `purego` dependency, including reachable
-creation-time behavior. A corrected upstream dependency boundary and published
-release are required before this integration can pass codesign qualification.
+The [read-only adapter](../internal/sideband/sideband.go) now inspects held native
+objects and explicitly supplied AppleDouble snapshots. It is an integration
+prerequisite, **not yet connected to the verification CLI**. `--strict=sideband`,
+plain/all selectors and `--strip-disallowed-xattrs` remain unsupported. Resource
+traversal, ordering and selector integration must pass their own native evidence
+before that status changes; stripping remains a separate mutation phase.
+
+## Explicit AppleDouble input
+
+Foreign macOS metadata is an explicit additional input on **all three hosts**.
+Native attributes are always inspected as well. No adjacent `._` file is guessed
+or automatically reinterpreted, and an empty carrier cannot hide native data.
+The adapter receives an already-open file and an optional APFS `appledouble.Value`.
+It never opens paths, restores metadata, advances caller offsets or closes inputs.
+
+| Input | Inspection contract |
+| --- | --- |
+| macOS native | APFS held size queries, ordinary visible namespace; only Darwin EPERM is ignored by the measured Apple presence policy |
+| Windows native | APFS held native EA queries with Windows name semantics; failures propagate |
+| Linux native | APFS complete strict name inventory; query canonical names only when listed; no `user.com.apple.*` remapping |
+| Explicit AppleDouble | APFS streaming decode validates the complete header and referenced spans; nonempty fork, nonzero fixed FinderInfo, and every nonempty special-name ATTR record are additional observations |
+
+The fixed FinderInfo field is mandatory padding even when absent; an all-zero
+field does not declare an attribute. A named FinderInfo ATTR record explicitly
+declares a 32-byte attribute, including an all-zero value. Duplicate records are
+all inspected: a later empty record cannot cancel an earlier positive observation.
+This is inspection of a supplied metadata snapshot, **not a simulation of
+copyfile restore**, whose cleanup, ordered writes, zero-value normalization,
+authorization and partial failures belong to APFS. Ordinary attribute payloads
+are not read or applied. Sidecar association, including links and aliases, still
+needs to be integrated and qualified at the verification boundary.
+
+The native and carrier results are combined only after successful reads. Inventory,
+size, decode, budget, cancellation and I/O failures return an error with its cause
+and no partial success. Native inspection ignores zero lengths. The Darwin EPERM
+exception does not apply to Linux inventory failures, Windows errors or EACCES.
+The caller owns input stability; cancellation cannot interrupt an in-flight native
+syscall. Streaming checks accept the full uint32 fork length without allocating
+the fork. Successful indexing proves valid declared spans, not that every payload
+byte can subsequently be read or restored.
+
+Unit tests cover additive inputs, duplicates, malformed/truncated carriers, native
+failure distinctions, cancellation, held-file lifetime and offsets, native attribute
+preservation, and the 4 GiB format boundary. The same 29 native-derived snapshots
+run on Linux, Windows and macOS; see [fixture provenance](../testdata/sideband/README.md).
+The existing per-production-package coverage gate also applies to this adapter.
 
 ## Shared API contract
 
@@ -61,7 +100,9 @@ removal is one filesystem operation, not a transaction: hard links share it,
 change time may advance, and attribute-specific compression/ACL effects belong
 to the filesystem. Ordinary read invisibility is not a guarantee of safe removal.
 
-The existing `ListXattrs` remains best effort and its legacy compression-aware
+`ListXattrNames` provides a complete bounded inventory or an error; the adapter
+uses it on Linux to avoid illegal unnamespaced queries. The existing `ListXattrs`
+remains best effort and its legacy compression-aware
 Darwin implementation is unchanged. A successful map from that API cannot prove
 attribute absence. Codesign must not duplicate the APFS implementation or use
 that reader to suppress security-relevant errors.
@@ -103,8 +144,9 @@ Resource traversal remains a separate integration problem. Pinned
 [`SecStaticCode::validateResource`](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp)
 opens a resource path before sideband checking when both strict validation and
 sideband restriction are set. This follows resource links and can fail before
-link-text validation. That source review is **not** an additional complete body
-in this phase's eight-body AST manifest. The earlier
+link-text validation. That body is retained in the separate
+[resource verification AST manifest](../spec/apple-resource-verification.json),
+not counted again in the sideband manifest's eight bodies. The earlier
 [native async crash controls](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
 remain in force.
 
@@ -124,7 +166,9 @@ file hashes, modes and the three selected attribute values. Presence of an empty
 value differs from an absent map key. Directory ResourceFork setup returning
 `EPERM` is recorded as unavailable, without running or counting a codesign
 comparison. Signals, timeouts, unexpected setup errors and snapshot read errors
-fail the driver. Results characterize native behavior; they do not assert Go
+fail the driver. Each executed case additionally compares the Go adapter's native
+and explicit-carrier observations against the raw captured attribute values.
+Results qualify metadata inspection; they do not assert Go CLI or traversal
 equivalence. Snapshots do not claim timestamp, ACL or every-xattr preservation.
 
 The reference Mac executed 203 commands: 156 accepted and 47 rejected. Another
@@ -175,15 +219,12 @@ of the history; correcting delete-sharing did not remove the identity assertion.
 
 ## Production integration sequence
 
-1. The shared API, AppleDouble qualification and package refactor are released in
-   APFS v0.14.0. This branch pins that module without an APFS replacement/workspace
-   and migrates existing metadata/access-time imports. Complete codesign's own
-   native, portable, coverage and artifact gates for this dependency upgrade.
-2. Add a codesign policy adapter over the shared size/removal operations. Keep
-   present-empty semantics in APFS and native nonempty/EPERM policy here. Decide
-   explicit host-filesystem behavior while implementing the feature on Linux,
-   macOS and Windows. Never infer absence from an operation failure. Add
-   deterministic error-policy tests alongside native fixtures.
+1. **Merged:** qualify published APFS v0.15.0 and downstream users without a local
+   replacement, preserving native, portable, coverage and artifact gates.
+2. **Implemented, CI qualification required:** the read-only metadata adapter over
+   shared strict size/inventory and streaming codec operations, with the explicit
+   additive AppleDouble contract above. Native nonempty/EPERM policy lives here;
+   platform operations and wire parsing remain in APFS. No mutation is introduced.
 3. Extend standalone, main executable, bundle-root and ordinary resource checks
    in measured order. Cover Info.plist and signature metadata separately. Include
    app/framework versions, nested shallow/deep checks and selected architectures.
