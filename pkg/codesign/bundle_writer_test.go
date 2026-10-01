@@ -357,7 +357,10 @@ func TestBundleDeferredMetadataLifecycle(t *testing.T) {
 				t.Fatal(err)
 			}
 			for _, f := range []*os.File{p.replacement.source, p.replacement.File} {
-				if _, err := f.Stat(); !errors.Is(err, os.ErrClosed) {
+				// Windows Stat on a closed NewFile handle returns the native
+				// invalid-handle error. Close has the portable ErrClosed contract
+				// and would return nil (failing this assertion) for a leaked file.
+				if err := f.Close(); !errors.Is(err, os.ErrClosed) {
 					t.Fatalf("descriptor leaked: %v", err)
 				}
 			}
