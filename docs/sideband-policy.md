@@ -2,14 +2,26 @@
 
 This phase prepares strict sideband verification and attribute stripping. It does
 not enable `--strict=sideband`, plain/all strict selectors or
-`--strip-disallowed-xattrs`. Codesign still pins released APFS v0.11.2. The new
-shared operations are proposed in
-[APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131); they must
-merge and be published before production integration here.
+`--strip-disallowed-xattrs`. Codesign now pins published APFS v0.14.0. The shared
+operations introduced in [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131)
+are available in `hostdata`; the subsequent AppleDouble/resource-fork work and
+package refactor completed in APFS PR182/PR183. macOS-pkg PR72 has adopted that
+release and passed its required downstream CI. The optional live notarization
+step lacked signing secrets and did not execute.
+
+This dependency phase migrates existing codesign writers to `hostdata` and
+`hostdata/accesstime`, retaining their behavior and existing compatibility gates.
+It supplies the published prerequisite for sideband integration; it does not
+enable a CLI policy solely because the underlying filesystem API is available.
+
+The adoption is currently [blocked by the production dependency guard](apfs-dependency.md):
+v0.14.0 adds a transitive Darwin `purego` dependency, including reachable
+creation-time behavior. A corrected upstream dependency boundary and published
+release are required before this integration can pass codesign qualification.
 
 ## Shared API contract
 
-The dependency adds size, bounded read and removal operations to `hostmeta`, each
+The dependency supplies size, bounded read and removal operations in `hostdata`, each
 with a held `*os.File` form and a final-component no-follow pathname form:
 
 | Operation | Held descriptor | Final-component no-follow |
@@ -163,8 +175,10 @@ of the history; correcting delete-sharing did not remove the identity assertion.
 
 ## Production integration sequence
 
-1. Merge and release APFS PR #131. Inspect the published module, pin that release,
-   remove obsolete sums and prove that no local APFS replacement/workspace is used.
+1. The shared API, AppleDouble qualification and package refactor are released in
+   APFS v0.14.0. This branch pins that module without an APFS replacement/workspace
+   and migrates existing metadata/access-time imports. Complete codesign's own
+   native, portable, coverage and artifact gates for this dependency upgrade.
 2. Add a codesign policy adapter over the shared size/removal operations. Keep
    present-empty semantics in APFS and native nonempty/EPERM policy here. Decide
    explicit host-filesystem behavior while implementing the feature on Linux,
@@ -186,6 +200,7 @@ of the history; correcting delete-sharing did not remove the identity assertion.
    CI, race/fuzz, foreign-signature imports and six GoReleaser package checks on
    the released dependency. Audit exact source and downloaded package provenance.
 
-Broader filesystem compression fidelity is still outstanding, but exposing hidden
-compression metadata is not a prerequisite inferred from these options-zero
-sideband checks. No inventory status is upgraded by dependency/research work.
+The SDK's completed compression and metadata qualification does not establish
+codesign's policy integration. Exposing hidden compression metadata is not a
+prerequisite inferred from these options-zero sideband checks. No inventory
+status is upgraded by dependency adoption alone.

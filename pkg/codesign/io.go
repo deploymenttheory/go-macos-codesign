@@ -8,7 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
 )
 
 func readBounded(r io.Reader, limit int64) ([]byte, error) {
@@ -56,7 +57,7 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("target changed during signing")
 	}
-	replacement, err := hostmeta.PrepareReplacement(source, filepath.Dir(path))
+	replacement, err := hostdata.PrepareReplacement(source, filepath.Dir(path))
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	if err := replacement.RestoreMetadata(); err != nil {
 		return err
 	}
-	if err := hostmeta.RecordReadAccess(f); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+	if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 		return err
 	}
 	if err := f.Sync(); err != nil {

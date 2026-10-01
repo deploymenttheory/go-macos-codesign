@@ -495,7 +495,7 @@
       ],
       "id": "--strict",
       "manual": ".It Fl -strict Ar options",
-      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. See docs/strict-verification.md for exact scope and diagnostic differences.",
+      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. Published APFS v0.14.0 supplies the qualified shared metadata prerequisite; adopting hostdata/accesstime does not implement those remaining codesign policies. See docs/strict-verification.md for exact scope and diagnostic differences.",
       "status": "partial"
     },
     {

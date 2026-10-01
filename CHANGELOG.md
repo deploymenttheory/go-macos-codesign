@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Adopt published go-apfs-v2 v0.14.0 after upstream AppleDouble/resource-fork
+  qualification and downstream package validation. Use `hostdata` and
+  `hostdata/accesstime` for the existing replacement, directory metadata and
+  access-time operations. Retain the current signing/verification behavior and
+  full three-OS/native compatibility gates; sideband/all/strip policy integration
+  remains pending. This adoption is an unqualified draft: the unchanged Darwin
+  dependency guard rejects upstream `purego`, requiring an APFS correction.
+
 - Establish the strict sideband dependency contract: shared APFS operations on
   Linux, macOS and Windows, eight complete Apple bodies with two-target Clang
   evidence, and 203 native verification controls in Mac CI. Retain 42 unavailable

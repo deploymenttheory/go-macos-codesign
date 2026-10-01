@@ -8,12 +8,15 @@ remove a private temporary file to check directory creation permission. They
 preserve all names and contents and skip metadata restoration and commit.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostmeta` in v0.11.2](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.11.2/pkg/hostmeta).
+[`go-apfs-v2/pkg/hostdata` in v0.14.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.14.0/pkg/hostdata).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.11.2. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.14.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
+Access-time recording and copying use the shared `hostdata/accesstime` package.
+The package migration retains the existing call order, cancellation, error and
+object-identity checks; it does not introduce a second metadata implementation.
 The existing `go-apfs-v2/pkg/disk` dependency continues to own the UDIF model.
 
 `CopyDirectoryStat` comes from [merged APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104),
@@ -141,7 +144,7 @@ Mode, owner/group, the tested xattr and supported flags survive both writers.
 
 Access-time recording uses `RecordReadAccess` from
 [merged APFS PR #110](https://github.com/deploymenttheory/go-apfs-v2/pull/110),
-released in v0.8.0 and retained in the current v0.11.2 pin.
+released in v0.8.0 and retained in the current v0.14.0 pin.
 The published metadata implementation matches the tested upstream API. No APFS
 module replacement or development workspace is required.
 
