@@ -3,6 +3,7 @@ package acceptance
 import (
 	"bytes"
 	"encoding/json"
+	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -154,6 +155,7 @@ func TestSigningSideband(t *testing.T) {
 							}
 							beforeBytes := signingSidebandBytes(t, operand, bundle)
 							attrs := sidebandObjectAttrs(t, target)
+							beforeAttrs := maps.Clone(attrs)
 							out, stderr, status := run(t, binaryPath, append(goArgs, operand)...)
 							if status != wantStatus {
 								t.Fatalf("status=%d want=%d stdout=%q stderr=%q", status, wantStatus, out, stderr)
@@ -177,8 +179,9 @@ func TestSigningSideband(t *testing.T) {
 									}
 								}
 							}
-							if !reflect.DeepEqual(attrs, sidebandObjectAttrs(t, target)) {
-								t.Fatalf("native attributes changed incorrectly: before=%v after=%v", attrs, sidebandObjectAttrs(t, target))
+							afterAttrs := sidebandObjectAttrs(t, target)
+							if !reflect.DeepEqual(attrs, afterAttrs) {
+								t.Fatalf("native attributes changed incorrectly: expected=%v after=%v", attrs, afterAttrs)
 							}
 							if transport == "appledouble" {
 								decoded, err := appledouble.Decode(nativeRead(t, carrierPath))
@@ -194,6 +197,7 @@ func TestSigningSideband(t *testing.T) {
 									t.Fatalf("carrier metadata: got=%+v want=%+v", decoded, expected)
 								}
 							}
+							referenceEvidence := map[string]any{}
 							if runtime.GOOS == "darwin" {
 								if err := os.RemoveAll(operand); err != nil {
 									t.Fatal(err)
@@ -203,6 +207,7 @@ func TestSigningSideband(t *testing.T) {
 								if err != nil {
 									t.Fatal(err)
 								}
+								referenceAttrs := sidebandObjectAttrs(t, target)
 								nativeOut, nativeErr, nativeStatus := run(t, apple(t), append(args, operand)...)
 								if status != nativeStatus || out != nativeOut || stderr != nativeErr {
 									t.Fatalf("native=(%d %q %q) Go=(%d %q %q)", nativeStatus, nativeOut, nativeErr, status, out, stderr)
@@ -220,6 +225,15 @@ func TestSigningSideband(t *testing.T) {
 									t.Fatal("object replacement differs from native")
 								}
 								actual := sidebandObjectAttrs(t, target)
+								referenceEvidence = map[string]any{"stdout": nativeOut, "stderr": nativeErr, "status": nativeStatus, "attributes_before": referenceAttrs, "attributes_after": actual, "tree_after_sha256": hash(signingSidebandBytes(t, operand, bundle))}
+								expectedAttrs := maps.Clone(referenceAttrs)
+								if removed {
+									delete(expectedAttrs, appledouble.ResourceForkName)
+									delete(expectedAttrs, appledouble.FinderInfoName)
+								}
+								if !reflect.DeepEqual(expectedAttrs, actual) {
+									t.Fatal("native unrelated attribute changes", expectedAttrs, actual)
+								}
 								for _, name := range []string{appledouble.ResourceForkName, appledouble.FinderInfoName} {
 									_, present := actual[name]
 									want := !removed && (name == appledouble.ResourceForkName && len(metadata.ResourceFork) > 0 || name == appledouble.FinderInfoName && metadata.FinderInfo != [32]byte{})
@@ -232,7 +246,7 @@ func TestSigningSideband(t *testing.T) {
 									nativeEqual(t, "complete independent signing control", completed, signingSidebandBytes(t, operand, bundle))
 								}
 							}
-							attest(t, map[string]any{"args": args, "status": status, "stdout": out, "stderr": stderr, "removed": removed, "same_object": same, "bytes_before": hash(beforeBytes), "bytes_after": hash(afterBytes), "independent_child": independent, "native_compared": runtime.GOOS == "darwin"})
+							attest(t, map[string]any{"args": args, "status": status, "stdout": out, "stderr": stderr, "removed": removed, "same_object": same, "bytes_before": hash(beforeBytes), "bytes_after": hash(afterBytes), "attributes_before": beforeAttrs, "attributes_after": afterAttrs, "reference": referenceEvidence, "independent_child": independent, "native_compared": runtime.GOOS == "darwin"})
 						})
 					}
 				}

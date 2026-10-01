@@ -266,7 +266,7 @@ opens a resource path before sideband checking when both strict validation and
 sideband restriction are set. This follows resource links and can fail before
 link-text validation. That body is retained in the separate
 [resource verification AST manifest](../spec/apple-resource-verification.json),
-not counted again in the sideband manifest's eleven bodies. The earlier
+not counted again in the sideband manifest's twelve bodies. The earlier
 [native async crash controls](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
 remain in force.
 
@@ -308,8 +308,8 @@ then FinderInfo order; code objects reported the first fork only.
 The native **verification CLI** did not remove attributes with
 `--strip-disallowed-xattrs`, with or without `--dryrun`; all byte/mode/selected-attr
 snapshots were unchanged. This prevents inferring CLI flag dispatch from the
-lower-level AST branch alone. Signing-time stripping and its partial effects
-still require a separate corpus.
+lower-level AST branch alone. The separate [signing corpus](signing-sideband.md)
+now qualifies signing-time stripping and measured partial effects.
 
 The independent APFS tests also use native `xattr` creation/read/removal and real
 ACL denial. APFS normalizes empty ResourceFork and all-zero FinderInfo values to
@@ -347,11 +347,11 @@ of the history; correcting delete-sharing did not remove the identity assertion.
    platform operations and wire parsing remain in APFS. No mutation is introduced.
 3. **Merged in PR72 with green CI:** standalone Mach-O
    metadata policy, explicit carrier binding, selected architectures, aliases,
-   diagnostic ordering and the UDIF exception. **Current bundle phase:** main executable,
+   diagnostic ordering and the UDIF exception. **Merged in PR73:** main executable,
    bundle-root and resource checks in measured order, with Info.plist/signature
    exclusions, framework versions, nested shallow/deep checks and universal code.
    Retain code/CMS/requirements checks under ignore-resources and disabled strict.
-4. **Current bundle phase:** resource-link follow behavior, link-count boundaries,
+4. **Merged in PR73:** resource-link follow behavior, link-count boundaries,
    dangling/cyclic targets, seal-mismatch precedence, explicit alias binding and
    sideband/all selectors. Existing native-signing plain/all observations now
    require matching portable results. Broader permission/ACL failures, custom rules,
