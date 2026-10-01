@@ -30,9 +30,15 @@ type attributeObservation struct {
 // Observe captures both queries, including their errors. A later First call
 // still short-circuits: a FinderInfo query error cannot override a resource fork.
 func Observe(ctx context.Context, file *os.File) *Observation {
-	o := &Observation{platform: runtime.GOOS, attrs: make(map[string]attributeObservation)}
+	return observe(ctx, runtime.GOOS,
+		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
+		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) })
+}
+
+func observe(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error)) *Observation {
+	o := &Observation{platform: platform, attrs: make(map[string]attributeObservation)}
 	if o.platform == "linux" {
-		o.names, o.inventory = hostdata.ListXattrNames(file, hostdata.MaxXattrListSize)
+		o.names, o.inventory = list()
 	}
 	for _, name := range []string{appledouble.ResourceForkName, appledouble.FinderInfoName} {
 		if o.platform == "linux" && (o.inventory != nil || !slices.Contains(o.names, name)) {
@@ -41,7 +47,7 @@ func Observe(ctx context.Context, file *os.File) *Observation {
 		var a attributeObservation
 		a.err = ctx.Err()
 		if a.err == nil {
-			a.size, a.present, a.err = hostdata.XattrSize(file, name)
+			a.size, a.present, a.err = size(name)
 		}
 		o.attrs[name] = a
 	}
