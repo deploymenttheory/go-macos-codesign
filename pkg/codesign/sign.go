@@ -108,6 +108,12 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
+	// Byte and metadata preflight share this handle. Release it before the
+	// existing replacement writer takes ownership: an ordinary Windows read
+	// handle does not share deletion and would block the final rename.
+	if err := file.Close(); err != nil {
+		return err
+	}
 	return writeFile(ctx, path, out, opts.DryRun)
 }
 
