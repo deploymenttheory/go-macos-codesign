@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"slices"
+	"strings"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
@@ -82,24 +83,26 @@ func stripNative(ctx context.Context, platform string, list func() ([]string, er
 	return err
 }
 
-// RewriteCarrier uses the shared streaming codec to remove a prohibited value.
+// RewriteCarrier uses the shared streaming codec to remove a prohibited value
+// or a generic signature attribute, including present-empty signature values.
 // The caller owns destination staging/commit. Unrelated decoded attribute values
 // remain intact; the output is a canonical AppleDouble encoding, not a wire copy.
 func RewriteCarrier(ctx context.Context, source appledouble.Value, dst io.Writer, name string) error {
-	if name != appledouble.ResourceForkName && name != appledouble.FinderInfoName {
+	if name != appledouble.ResourceForkName && name != appledouble.FinderInfoName && !strings.HasPrefix(name, signaturePrefix) {
 		return os.ErrInvalid
 	}
 	f, err := appledouble.DecodeStream(ctx, source, appledouble.DefaultStreamLimits())
 	if err != nil {
 		return err
 	}
-	if name == appledouble.ResourceForkName {
+	switch name {
+	case appledouble.ResourceForkName:
 		f.ResourceFork = nil
-	} else {
+	case appledouble.FinderInfoName:
 		f.FinderInfo = [32]byte{}
 	}
 	f.Attrs = slices.DeleteFunc(f.Attrs, func(attr appledouble.StreamAttr) bool {
-		return attr.Name == name && attr.Value != nil && attr.Value.Size() > 0
+		return attr.Name == name && (strings.HasPrefix(name, signaturePrefix) || attr.Value != nil && attr.Value.Size() > 0)
 	})
 	_, err = f.EncodeTo(ctx, dst, appledouble.DefaultStreamLimits())
 	return err

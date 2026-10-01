@@ -83,6 +83,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Verification: --ignore-resources skips resource envelopes and nested code, even with --deep. Code integrity, non-resource metadata, requirements and enabled layout checks remain enforced.")
 				fmt.Fprintln(stdout, "Sideband verification: --strict=sideband, --strict=all or --strict checks Mach-O and bundle metadata; DMGs retain Apple's exemption. Portable --appledouble FILE adds a standalone snapshot; --appledouble-map FILE maps bundle object paths to snapshots. Native attributes are always checked.")
 				fmt.Fprintln(stdout, "Signing checks sideband metadata by default. --strip-disallowed-xattrs removes prohibited native and explicit AppleDouble metadata, including during --dryrun; completed removals survive later failures. --no-strict disables code-object preflight, while explicit ordinary-resource stripping still runs.")
+				fmt.Fprintln(stdout, "Generic --remove-signature removes attached signature attributes in place. --appledouble and --appledouble-map explicitly supply portable metadata; unrelated attributes and file contents are preserved. Completed attribute removals survive later failures.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
@@ -395,12 +396,12 @@ func parse(args []string) (options, error) {
 			return o, fmt.Errorf("%w: --strict policy (supported bits: symlinks=128, sideband=512; none or --no-strict disables checks)", codesign.ErrUnsupported)
 		}
 	}
-	metadataOperation := o.operation == "sign" || o.operation == "verify" && o.strictMask&0x200 != 0 && !o.noStrict
+	metadataOperation := o.operation == "sign" || o.operation == "remove" || o.operation == "verify" && o.strictMask&0x200 != 0 && !o.noStrict
 	if o.appleDoublePath != "" && (!metadataOperation || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble requires signing or enabled strict sideband verification of exactly one standalone operand")
+		return o, fmt.Errorf("--appledouble requires signing, removal or enabled strict sideband verification of exactly one standalone operand")
 	}
 	if o.appleDoubleMap != "" && (o.appleDoublePath != "" || !metadataOperation || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble-map requires signing or enabled strict sideband verification of one bundle and cannot be combined with --appledouble")
+		return o, fmt.Errorf("--appledouble-map requires signing, removal or enabled strict sideband verification of one bundle and cannot be combined with --appledouble")
 	}
 	return o, nil
 }
@@ -601,7 +602,12 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				}
 			}
 		case "remove":
-			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
+			var opts codesign.RemoveOptions
+			opts.BundleVersion = o.bundleVersion
+			opts.AppleDouble, opts.AppleDoubleFiles, err = mutableMetadata(ctx, o.appleDoublePath, o.appleDoubleMap)
+			if err == nil {
+				err = codesign.Remove(ctx, path, opts)
+			}
 		case "verify":
 			var report *codesign.Report
 			report, err = verifyWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, StrictSideband: o.strictMask&0x200 != 0, IgnoreResources: o.ignoreResources})

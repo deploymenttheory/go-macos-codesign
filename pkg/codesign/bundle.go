@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
 const bundleResourcesPath = "Contents/_CodeSignature/CodeResources"
@@ -155,6 +157,16 @@ func (b *appBundle) close() {
 
 // Ordinary reads build the bounded plan without recording allocation access.
 func (b *appBundle) read(name string, limit int64) ([]byte, error) {
+	f, err := b.openRegular(name)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	b.observeSideband(name, f)
+	return readBounded(f, limit)
+}
+
+func (b *appBundle) openRegular(name string) (*os.File, error) {
 	st, err := b.root.Lstat(name)
 	if err != nil {
 		return nil, err
@@ -166,16 +178,16 @@ func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
 	current, err := f.Stat()
 	if err != nil {
+		f.Close()
 		return nil, err
 	}
 	if !os.SameFile(st, current) {
+		f.Close()
 		return nil, invalid("bundle file changed: %s", name)
 	}
-	b.observeSideband(name, f)
-	return readBounded(f, limit)
+	return f, nil
 }
 
 // scan validates the supported tree, seals resource symlinks without following
@@ -664,7 +676,7 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	return f.Close()
 }
 
-func removeBundle(ctx context.Context, path string, opts PathOptions) error {
+func removeBundle(ctx context.Context, path string, opts RemoveOptions) error {
 	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return err
@@ -677,6 +689,37 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 		return err
 	}
 	if err := b.validateFrameworkRoot(); err != nil {
+		return err
+	}
+	inputs, err := prepareBundleSideband(ctx, b.path, VerifyOptions{StrictSideband: true, AppleDouble: opts.AppleDouble, AppleDoubleFiles: opts.AppleDoubleFiles})
+	if err != nil {
+		return err
+	}
+	f, err := b.openRegular(b.executable)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	generic, err := genericRemovalCandidate(ctx, f)
+	if err != nil {
+		return err
+	}
+	if generic {
+		carrier, err := inputs.carrier(f)
+		if err != nil {
+			return err
+		}
+		if err := sideband.CheckPlatformAttribute(ctx, f); err != nil {
+			return err
+		}
+		if err := removeGenericSignature(ctx, f, func() (*os.File, error) { return b.root.OpenFile(b.executable, os.O_RDWR, 0) }, carrier); err != nil {
+			return err
+		}
+		return b.purgeSignatureFiles(ctx, false)
+	}
+	// Close the classifier handle before the existing replacement lifecycle;
+	// Windows rename must not retain an unrelated open handle.
+	if err := f.Close(); err != nil {
 		return err
 	}
 	data, err := b.read(b.executable, maxFileSize)

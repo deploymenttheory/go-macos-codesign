@@ -7,29 +7,36 @@ import (
 	"io"
 	"os"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 )
 
 func signWithMetadata(ctx context.Context, path, carrier, manifest string, opts codesign.SignOptions) error {
+	var err error
+	opts.AppleDouble, opts.AppleDoubleFiles, err = mutableMetadata(ctx, carrier, manifest)
+	if err != nil {
+		return err
+	}
+	return codesign.Sign(ctx, path, opts)
+}
+
+func mutableMetadata(ctx context.Context, carrier, manifest string) (appledouble.Value, map[string]appledouble.Value, error) {
 	if manifest != "" {
-		var err error
-		opts.AppleDoubleFiles, err = readSidebandManifest(ctx, manifest)
-		if err != nil {
-			return err
-		}
+		values, err := readSidebandManifest(ctx, manifest)
+		return nil, values, err
 	}
 	if carrier != "" {
 		info, err := os.Stat(carrier)
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 		if !info.Mode().IsRegular() {
-			return fmt.Errorf("AppleDouble carrier must be a regular file")
+			return nil, nil, fmt.Errorf("AppleDouble carrier must be a regular file")
 		}
-		opts.AppleDouble = &mappedCarrier{path: carrier, info: info}
+		return &mappedCarrier{path: carrier, info: info}, nil, nil
 	}
-	return codesign.Sign(ctx, path, opts)
+	return nil, nil, nil
 }
 
 // Commit through the held carrier, preserving its identity, hard links, mode and

@@ -1,6 +1,6 @@
 # Project progress
 
-Updated 2026-10-01. This page describes the implementation in this branch and
+Updated 2026-10-02. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
@@ -8,9 +8,18 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR76 is merged at `c5a245ca38f2ee59e320c2005392608af6cfe33c`. The current
-`feat/removal-security-boundaries` branch starts from that main. The upstream
+PR77 is merged at `a5633fef987dac89e719749963ca625a982aa17c`. The current
+`feat/generic-signature-removal` branch starts from that main. The upstream
 replacement prerequisite is now released in APFS v0.15.1 and adopted here.
+
+[Generic removal](generic-removal.md) adds attribute-backed signature removal for
+standalone files and selected generic bundle executables. It preserves data forks,
+requires writable access before mutation, and retains partial removals on later
+failure. Explicit AppleDouble carriers work on all producers alongside native
+metadata. Eight complete Apple methods have two-target Clang evidence; forty
+native probes retain dispatch and permission outcomes. Generic signing, display,
+verification and Info.plist fallback remain outstanding. The inventory now has
+31 partial, 49 not implemented, eight blocked and zero fully verified obligations.
 
 [Signature removal](signature-removal.md) now operates on the selected executable
 and signature directory without scanning resources, nested code or unselected
@@ -18,8 +27,9 @@ framework versions. It adds 27 portable cases and 79 native comparisons, includi
 effective permission denials, malformed children, symlinks and internal hard links.
 Twenty new foreign-produced removal archives are required by Apple's existing
 import-verification job. Selected executable errors retain their API cause and
-receive native CLI permission diagnostics. Current-branch CI must pass before
-qualification; thresholds and existing test matrices are unchanged.
+receive native CLI permission diagnostics. PR77 passed every CI gate, including
+all twenty foreign archives; codesign coverage was 95.32% Linux, 95.56% macOS and
+95.16% Windows. The current increment requires its own unchanged CI gates.
 
 The [signing-metadata contract](signing-sideband.md) describes default preflight,
 `--strip-disallowed-xattrs`, explicit mutable AppleDouble inputs, dry-run effects

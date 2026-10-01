@@ -318,8 +318,11 @@ func TestFileErrors(t *testing.T) {
 	if err := Sign(context.Background(), path, SignOptions{}); err == nil {
 		t.Fatal("bad file signed")
 	}
-	if err := RemoveSignature(context.Background(), path); err == nil {
-		t.Fatal("bad file stripped")
+	if err := RemoveSignature(context.Background(), path); err != nil {
+		t.Fatal("generic removal", err)
+	}
+	if string(readTestFile(t, path)) != "bad" {
+		t.Fatal("generic removal changed data")
 	}
 	if err := replaceFile(ctx, path, nil); !errors.Is(err, context.Canceled) {
 		t.Fatal(err)
