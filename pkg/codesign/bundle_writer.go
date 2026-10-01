@@ -313,9 +313,9 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err != nil {
 		return nil, err
 	}
-	if err := r.File.Close(); err != nil {
-		return nil, err
-	}
+	// Keep the SDK's writable handle through the deferred access-time update.
+	// Reopening after metadata restoration may lose write access (in particular
+	// for a readonly Windows replacement). copySourceAccess closes it before rename.
 	if err := source.Close(); err != nil {
 		return nil, err
 	}
@@ -366,6 +366,8 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 		return err
 	}
 	defer func() { result = errors.Join(result, source.Close()) }()
+	// Validate the staged pathname, but update metadata through the retained
+	// writer: this read handle does not grant Windows write-attribute access.
 	target, err := openBundleExecutable(root, p.replacement.Path, p.staged)
 	if err != nil {
 		return err
@@ -374,13 +376,16 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 	if err := accesstime.RecordReadAccess(source); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 		return err
 	}
-	if err := accesstime.CopyAccessTime(source, target); err != nil {
+	if err := accesstime.CopyAccessTime(source, p.replacement.File); err != nil {
 		if errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
-			return nil
+			return p.replacement.File.Close()
 		}
-		return err
+		return fmt.Errorf("copy staged executable access time: %w", err)
 	}
-	return target.Sync()
+	if err := p.replacement.File.Sync(); err != nil {
+		return fmt.Errorf("sync staged executable metadata: %w", err)
+	}
+	return p.replacement.File.Close()
 }
 
 func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) error {

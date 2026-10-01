@@ -6,6 +6,14 @@ There is no local APFS replacement or workspace override. Existing replacement,
 directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
 operations use `pkg/hostdata/accesstime`.
 
+Bundle replacement retains the SDK's writable staging handle until access time
+has been copied and metadata synced, then closes it before rename. This is
+required by the SDK's implemented Windows access-time operation: a read-only
+reopen cannot update file times or flush the file, and restored read-only
+attributes can prohibit reopening for writing. Path identity checks remain in
+place. Windows regression tests cover writable and read-only files, exact access
+time, unrelated metadata preservation, handle closure and staging cleanup.
+
 The release removes `purego` from the dependency graph. Missing x/sys signatures
 use the approved finite typed Darwin extension, following x/sys's static import
 and runtime-call pattern. It retains macOS metadata, ACL, quarantine, identity
