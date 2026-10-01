@@ -144,12 +144,12 @@ func (b *appBundle) sidebandDiagnostic(name string) string {
 func sidebandOpenError(err error) error {
 	message := ""
 	switch {
-	case errors.Is(err, os.ErrNotExist):
-		message = "No such file or directory"
 	case errors.Is(err, syscall.ELOOP):
 		message = "Too many levels of symbolic links"
 	case errors.Is(err, syscall.ENOTDIR):
 		message = "Not a directory"
+	case errors.Is(err, os.ErrNotExist):
+		message = "No such file or directory"
 	case errors.Is(err, os.ErrPermission):
 		message = "Permission denied"
 	default:
