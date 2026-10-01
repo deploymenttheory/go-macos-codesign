@@ -39,6 +39,7 @@ type appBundle struct {
 	layoutEntries                []string
 	sidebandInputs               *bundleSidebandInputs
 	sideband                     map[string]*bundleSidebandObject
+	sidebandBase                 string // absolute diagnostic path, after physical parent resolution
 }
 
 func bundleRelativePath(name string) error {
@@ -445,10 +446,6 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return nil, unsupported("external special-slot overrides for bundles")
 	}
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
 	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return nil, err
@@ -459,7 +456,9 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if err != nil {
 		return nil, err
 	}
-	b.startSideband(inputs)
+	if err := b.startSideband(inputs); err != nil {
+		return nil, err
+	}
 	if !opts.IgnoreResources {
 		scope := newBundleScan()
 		scope.recurse = opts.Deep
@@ -530,10 +529,7 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 	if err := b.verifyRootSideband(ctx, opts); err != nil {
 		return r, err
 	}
-	opts.sidebandPath = filepath.Join(b.path, b.executable)
-	if b.version != "" {
-		opts.sidebandPath = filepath.Join(b.path, "Versions", b.selection, strings.TrimPrefix(b.executable, b.base))
-	}
+	opts.sidebandPath = b.sidebandDiagnostic(b.executable)
 	if err := verifySideband(ctx, opts); err != nil {
 		return r, err
 	}

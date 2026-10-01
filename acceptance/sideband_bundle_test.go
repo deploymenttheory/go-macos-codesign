@@ -407,3 +407,58 @@ func clearSidebandFinder(t *testing.T, path string) {
 		t.Fatal(err)
 	}
 }
+
+func TestBundleSidebandParentPaths(t *testing.T) {
+	for _, profile := range []string{"app", "versioned"} {
+		for _, mode := range []string{"relative", "parent-dotdot"} {
+			t.Run(profile+"/"+mode, func(t *testing.T) {
+				dir := extractionDirectory(t)
+				t.Chdir(dir)
+				physical := filepath.Join(dir, "physical")
+				b, suffix, target := parentAliasFixture(t, physical, profile, "arm64")
+				if err := os.Mkdir(filepath.Join(physical, "nested"), 0755); err != nil {
+					t.Fatal(err)
+				}
+				layoutLink(t, dir, "alias", "physical")
+				layoutLink(t, dir, "left/link", "../physical/nested")
+				decoy, _, _ := parentAliasFixture(t, filepath.Join(dir, "left"), profile, "arm64")
+				beforeDecoy := layoutArchive(t, decoy)
+				if err := codesign.Sign(context.Background(), b, codesign.SignOptions{Deep: true}); err != nil {
+					t.Fatal(err)
+				}
+				operand := filepath.Join("alias", suffix)
+				if mode == "parent-dotdot" {
+					operand = filepath.Join(dir, "left/link") + string(filepath.Separator) + ".." + string(filepath.Separator) + suffix
+				}
+				value := appledouble.File{FinderInfo: [32]byte{'T', 'E', 'X', 'T'}}
+				encoded, err := value.Encode()
+				if err != nil {
+					t.Fatal(err)
+				}
+				bundleWrite(t, dir, "metadata.ad", encoded)
+				encoded, err = json.Marshal(map[string]string{target: "metadata.ad"})
+				if err != nil {
+					t.Fatal(err)
+				}
+				bundleWrite(t, dir, "metadata.json", encoded)
+				args := []string{"--verify", "--verbose=1", "--strict=all"}
+				before := layoutArchive(t, dir)
+				out, se, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble-map", "metadata.json", operand)...)
+				if status != 1 || !strings.Contains(out, "FinderInfo found on "+target) {
+					t.Fatal(status, out, se)
+				}
+				nativeEqual(t, "metadata alias verification preservation", layoutArchive(t, dir), before)
+				if runtime.GOOS == "darwin" {
+					setSidebandObject(t, target, value)
+					nout, nerr, nstatus := run(t, apple(t), append(args, operand)...)
+					if status != nstatus || out != nout || se != nerr {
+						t.Fatal(status, nstatus, out, nout, se, nerr)
+					}
+					nativeEqual(t, "native alias verification preservation", layoutArchive(t, dir), before)
+				}
+				nativeEqual(t, "lexical neighbour preservation", layoutArchive(t, decoy), beforeDecoy)
+				attest(t, map[string]any{"profile": profile, "mode": mode, "exit": status, "stdout": out, "stderr": se, "native_compared": runtime.GOOS == "darwin", "input_preserved": true, "lexical_neighbour_preserved": true})
+			})
+		}
+	}
+}

@@ -138,7 +138,7 @@ func (b *appBundle) sidebandDiagnostic(name string) string {
 	if b.version != "" && strings.HasPrefix(name, b.base) {
 		name = "Versions/" + b.selection + "/" + strings.TrimPrefix(name, b.base)
 	}
-	return filepath.Join(b.path, filepath.FromSlash(name))
+	return filepath.Join(b.sidebandBase, filepath.FromSlash(name))
 }
 
 func sidebandOpenError(err error) error {
@@ -160,26 +160,32 @@ func sidebandOpenError(err error) error {
 	return &VerificationError{Diagnostic: message, cause: err, omitArchitecture: true}
 }
 
-func (b *appBundle) startSideband(inputs *bundleSidebandInputs) {
+func (b *appBundle) startSideband(inputs *bundleSidebandInputs) error {
 	b.sidebandInputs = inputs
 	if inputs == nil {
-		return
+		return nil
+	}
+	var err error
+	b.sidebandBase, err = filepath.Abs(b.path)
+	if err != nil {
+		return err
 	}
 	b.sideband = make(map[string]*bundleSidebandObject)
 	b.openSideband(".")
 	if b.version != "" {
 		b.openSideband(strings.TrimSuffix(b.base, "/"))
 	}
+	return nil
 }
 
 func (b *appBundle) verifyRootSideband(ctx context.Context, opts VerifyOptions) error {
 	if !opts.StrictSideband || opts.NoStrict {
 		return nil
 	}
-	name, path := ".", b.path
+	name, path := ".", b.sidebandBase
 	if b.version != "" {
 		name = strings.TrimSuffix(b.base, "/")
-		path = filepath.Join(b.path, "Versions", b.selection) + string(filepath.Separator) + "."
+		path = filepath.Join(b.sidebandBase, "Versions", b.selection) + string(filepath.Separator) + "."
 	}
 	opts.sidebandObject, opts.sidebandPath = b.sideband[name], path
 	return verifySideband(ctx, opts)

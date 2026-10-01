@@ -94,7 +94,9 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		return nil, err
 	}
 	b.children = append(b.children, child) // top-level close owns all descendant roots
-	child.startSideband(b.sidebandInputs)
+	if err := child.startSideband(b.sidebandInputs); err != nil {
+		return nil, err
+	}
 	app, err := child.snapshot(ctx, scope, depth, prefix+name+"/")
 	if err != nil {
 		return nil, err
@@ -116,8 +118,10 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 				return nil, err
 			}
 			other.alternate = true
-			other.startSideband(b.sidebandInputs)
 			child.children = append(child.children, other)
+			if err := other.startSideband(b.sidebandInputs); err != nil {
+				return nil, err
+			}
 			snapshot, err := other.snapshot(ctx, scope, depth, prefix+name+"/")
 			if err != nil {
 				return nil, err
