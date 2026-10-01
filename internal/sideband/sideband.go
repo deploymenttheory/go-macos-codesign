@@ -68,15 +68,24 @@ func First(ctx context.Context, file *os.File, carrier appledouble.Value) (strin
 // only its read failure affects construction. Linux cannot query unnamespaced
 // names, so its native inventory establishes absence, as for sideband checks.
 func CheckPlatformAttribute(ctx context.Context, file *os.File) error {
+	return checkPlatformAttribute(ctx, runtime.GOOS,
+		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
+		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) })
+}
+
+func checkPlatformAttribute(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error)) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if runtime.GOOS == "linux" {
-		_, err := hostdata.ListXattrNames(file, hostdata.MaxXattrListSize)
-		return err
+	const name = "com.apple.root.installed"
+	if platform == "linux" {
+		names, err := list()
+		if err != nil || !slices.Contains(names, name) {
+			return err
+		}
 	}
-	_, _, err := hostdata.XattrSize(file, "com.apple.root.installed")
-	if runtime.GOOS == "darwin" && errors.Is(err, syscall.EPERM) {
+	_, _, err := size(name)
+	if platform == "darwin" && errors.Is(err, syscall.EPERM) {
 		return nil
 	}
 	return err
