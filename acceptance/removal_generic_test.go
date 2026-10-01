@@ -233,12 +233,13 @@ func TestGenericRemovalLarge(t *testing.T) {
 	if _, err := f.WriteAt([]byte("end"), size-3); err != nil {
 		t.Fatal(err)
 	}
-	original, err := f.Stat()
-	if err != nil {
+	beforeHash := genericFileDigest(t, f, size)
+	if err := f.Close(); err != nil {
 		t.Fatal(err)
 	}
-	beforeHash := genericFileDigest(t, f, size)
-	f.Close()
+	// Windows can finalize the last-write timestamp when the writer closes.
+	// Capture the operation's baseline only after fixture construction finishes.
+	original := accessFileInfo(t, path)
 	mustRun(t, binaryPath, "--remove-signature", path)
 	if runtime.GOOS == "darwin" {
 		mustRun(t, apple(t), "--remove-signature", path)
