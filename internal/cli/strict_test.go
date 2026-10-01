@@ -39,14 +39,14 @@ func TestStrictSelectors(t *testing.T) {
 			t.Fatal(o, e)
 		}
 	}
-	for _, args := range [][]string{{"--verify", "--strict"}, {"--verify", "--strict=all"}, {"--verify", "--strict=512"}, {"--verify", "--strict=1"}, {"--verify", "--no-strict", "--strict=1"}, {"-d", "--no-strict"}, {"-s-", "--strict=symlinks"}, {"--verify", "--no-strict=yes"}} {
+	for _, args := range [][]string{{"--verify", "--strict=1"}, {"--verify", "--no-strict", "--strict=1"}, {"-d", "--no-strict"}, {"-s-", "--strict=symlinks"}, {"--verify", "--no-strict=yes"}} {
 		_, e := parse(args)
 		if e == nil {
 			t.Fatal("accepted unsupported policy", args)
 		}
 	}
 	p := file(t, "adhoc-arm64")
-	for _, flags := range [][]string{{"--strict=0"}, {"--strict=128"}, {"--strict=none"}, {"--no-strict"}} {
+	for _, flags := range [][]string{{"--strict=0"}, {"--strict=128"}, {"--strict=none"}, {"--no-strict"}, {"--strict"}, {"--strict=all"}, {"--strict=512"}, {"--strict=sideband"}, {"--strict=sideband", "--no-strict"}} {
 		out, err, status := invoke(t, append(append([]string{"--verify"}, flags...), p)...)
 		if status != 0 || out != "" || err != "" {
 			t.Fatal(flags, status, out, err)

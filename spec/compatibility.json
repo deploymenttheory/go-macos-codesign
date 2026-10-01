@@ -491,11 +491,15 @@
         "docs/strict-verification.md",
         "docs/sideband-policy.md",
         "spec/apple-sideband.json",
-        "scripts/probe-sideband.go"
+        "scripts/probe-sideband.go",
+        "acceptance/sideband_object_test.go",
+        "pkg/codesign/sideband_verification_test.go",
+        "internal/cli/verify_sideband_test.go",
+        "internal/sideband/first_test.go"
       ],
       "id": "--strict",
       "manual": ".It Fl -strict Ar options",
-      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. Published APFS v0.14.0 supplies the qualified shared metadata prerequisite; adopting hostdata/accesstime does not implement those remaining codesign policies. See docs/strict-verification.md for exact scope and diagnostic differences.",
+      "notes": "Bounded symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries retain their 561 portable cases and 545 native profiles. Standalone sideband/plain/all verification adds 386 portable/native cases across thin/universal Mach-O and UDIF, native/explicit-AppleDouble inputs, first-attribute and integrity/layout order, selected architectures and aliases. Mach-O uses one held file for bytes and native metadata. UDIF follows Apple's DiskImageRep exemption from sideband rejection. The explicit single-operand --appledouble extension supplements native metadata without restoration or name remapping on all three hosts. Ten complete Apple bodies have two-target Clang evidence; APFS v0.15.0 owns metadata and streaming codecs. Enabled bundle sideband traversal, custom rules, broader filesystem/error scheduling and full policy parity remain outstanding. Unknown bits and non-verification operations are unsupported. See docs/strict-verification.md and docs/sideband-policy.md for the exact scope.",
       "status": "partial"
     },
     {
@@ -849,7 +853,7 @@
         "docs/strict-verification.md"
       ],
       "id": "--no-strict",
-      "notes": "Verification-only symlink selectors, prefixes/numeric masks, disabling controls and default Mach-O boundaries have 561 portable cases and 545 native comparison profiles. Enclosing scopes, exclusions, physical link resolution and 33-hop native boundary are covered. Plain/all and sideband selectors, unknown bits and other operations remain unsupported, including combinations with disabling controls. Custom rules, broader filesystem semantics and full policy parity remain outstanding. See docs/strict-verification.md for exact scope and diagnostic differences.",
+      "notes": "Disables additional layout, symlink and standalone sideband policy, including when combined with supported plain/all/sideband selectors, while preserving signature integrity and trust checks. Unknown bits and non-verification operations remain unsupported. Explicit --appledouble input requires enabled sideband verification, so an ignored carrier is rejected as a usage error. Enabled bundle sideband traversal and full policy parity remain outstanding. See docs/strict-verification.md for scope and evidence.",
       "status": "partial"
     },
     {

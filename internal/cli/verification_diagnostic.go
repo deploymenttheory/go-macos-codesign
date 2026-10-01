@@ -26,6 +26,9 @@ func verificationDiagnostic(stdout, stderr io.Writer, path string, err error, o 
 		if o.json {
 			stdout = stderr
 		}
+		for _, message := range detail.AttachedData {
+			fmt.Fprintf(stdout, "file with invalid attached data: %s\n", message)
+		}
 		for _, group := range []struct {
 			label string
 			paths []string

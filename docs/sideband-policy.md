@@ -11,12 +11,62 @@ macOS-pkg PR72; macOS-pkg PR73 resolves its macOS 27 relocation-default gap.
 The former purego dependency blocker is resolved. No local SDK replacement or
 additional native binding is introduced here.
 
-The [read-only adapter](../internal/sideband/sideband.go) now inspects held native
-objects and explicitly supplied AppleDouble snapshots. It is an integration
-prerequisite, **not yet connected to the verification CLI**. `--strict=sideband`,
-plain/all selectors and `--strip-disallowed-xattrs` remain unsupported. Resource
-traversal, ordering and selector integration must pass their own native evidence
-before that status changes; stripping remains a separate mutation phase.
+The [read-only adapter](../internal/sideband/sideband.go) is now connected to
+standalone verification. `--strict=sideband`, plain `--strict`, `--strict=all`
+and equivalent numeric masks reject prohibited metadata on standalone Mach-O
+inputs. UDIF inputs retain Apple's behavior: strict verification checks their
+signature/trailer but does not reject sideband metadata. Enabled bundle sideband
+traversal still returns `ErrUnsupported`; it never reports a partially checked
+bundle as valid. `--strip-disallowed-xattrs` remains a separate mutation phase.
+
+```sh
+macoscodesign --verify --strict=sideband --verbose=1 executable
+macoscodesign --verify --strict=all --appledouble metadata.appledouble executable
+```
+
+The portable `--appledouble FILE` extension binds one explicitly named carrier
+to exactly one standalone operand. It requires enabled sideband policy and rejects
+ambiguous multi-operand use, other operations and disabling controls. An adjacent
+`._executable` has no special meaning. Library callers use `VerifyOptions.StrictSideband`
+and optional `VerifyOptions.AppleDouble`; callers retain ownership of that source.
+Byte-only Mach-O verification rejects enabled sideband policy because it cannot
+observe a native object. UDIF byte verification needs no sideband observation.
+
+## Standalone ordering and lifetime
+
+`Verify` resolves aliases and reads code bytes and native metadata through the
+same held file. It does not reopen the operand after signature verification.
+Symbolic aliases report the resolved target in attached-data details; hard links
+retain their selected path. A caller-supplied AppleDouble source is borrowed;
+the CLI opens its explicit carrier once and closes it on every return path.
+Inputs must remain stable: holding the object prevents pathname substitution
+between these reads, but does not create an atomic snapshot of concurrent edits.
+
+Code pages, CMS/trust and signed slots are checked before sideband inspection.
+ResourceFork is checked before FinderInfo; the first nonempty attribute produces
+one attached-data detail, with no architecture line. A positive native ResourceFork
+rejects immediately, without reading FinderInfo or a carrier. Otherwise the carrier
+is decoded when needed to establish the first matching attribute. Errors from
+required observations propagate. Remaining Mach-O layout checks run afterwards.
+`--ignore-resources` leaves this standalone check active; `--no-strict` and
+`--strict=none` disable it without disabling signature verification.
+
+`DiskImageRep::strictValidate` calls `DiskRep` directly, bypassing the
+`SingleDiskRep` sideband branch. The Go implementation therefore does not query or
+decode sideband inputs for UDIF verification, even when a carrier is supplied.
+The native corpus proves acceptance with fork/FinderInfo data and continued
+rejection of corrupted signed DMG bytes. This is a representation-specific native
+policy, not a missing Linux or Windows implementation.
+
+The standalone acceptance matrix has 386 cases: 378 combinations of representation,
+state, metadata transport and policy, two aliases, and six selected-architecture
+cases. Each runs on every host; macOS additionally compares exact native status
+and output (only the separate native fixture's path prefix is normalized).
+Byte/mode/link archives, complete visible attribute values and carrier bytes are
+checked for preservation. Test signatures are ad-hoc and require no keychain.
+Portable unit tests additionally cover certificate trust precedence, malformed
+carriers, JSON/quiet diagnostics, cancellation and moved held objects through the
+shared APFS opener, including Windows delete-sharing.
 
 ## Explicit AppleDouble input
 
@@ -40,8 +90,8 @@ all inspected: a later empty record cannot cancel an earlier positive observatio
 This is inspection of a supplied metadata snapshot, **not a simulation of
 copyfile restore**, whose cleanup, ordered writes, zero-value normalization,
 authorization and partial failures belong to APFS. Ordinary attribute payloads
-are not read or applied. Sidecar association, including links and aliases, still
-needs to be integrated and qualified at the verification boundary.
+are not read or applied. Single-operand carrier association is explicit; bundle
+resource association, including followed resource links, still needs qualification.
 
 The native and carrier results are combined only after successful reads. Inventory,
 size, decode, budget, cancellation and I/O failures return an error with its cause
@@ -110,12 +160,13 @@ that reader to suppress security-relevant errors.
 ## Apple source and Clang evidence
 
 [The Go extractor](../scripts/extract-sideband.go) verifies the full source hashes
-at Security revision `db15acbe6a7f257a859ad9a3bb86097bfe0679d9` and compiles eight
+at Security revision `db15acbe6a7f257a859ad9a3bb86097bfe0679d9` and compiles ten
 complete verbatim bodies into Clang ASTs for arm64 and x86_64 macOS 27:
 
 - `FileDesc::getAttrLength`, buffer-form `getAttr` and `removeAttr`.
 - `checkFork`, `filehasExtendedAttribute` and `FileDesc::hasExtendedAttribute`.
 - `SingleDiskRep::strictValidate` and `BundleDiskRep::strictValidateStructure`.
+- `MachORep::strictValidate` and `DiskImageRep::strictValidate`.
 
 [The manifest](../spec/apple-sideband.json) retains source URLs and hashes,
 excerpt/driver/translation-unit hashes, compiler, SDK and per-function AST facts.
@@ -146,7 +197,7 @@ opens a resource path before sideband checking when both strict validation and
 sideband restriction are set. This follows resource links and can fail before
 link-text validation. That body is retained in the separate
 [resource verification AST manifest](../spec/apple-resource-verification.json),
-not counted again in the sideband manifest's eight bodies. The earlier
+not counted again in the sideband manifest's ten bodies. The earlier
 [native async crash controls](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
 remain in force.
 
@@ -221,16 +272,19 @@ of the history; correcting delete-sharing did not remove the identity assertion.
 
 1. **Merged:** qualify published APFS v0.15.0 and downstream users without a local
    replacement, preserving native, portable, coverage and artifact gates.
-2. **Implemented, CI qualification required:** the read-only metadata adapter over
+2. **Merged in PR71:** the read-only metadata adapter over
    shared strict size/inventory and streaming codec operations, with the explicit
    additive AppleDouble contract above. Native nonempty/EPERM policy lives here;
    platform operations and wire parsing remain in APFS. No mutation is introduced.
-3. Extend standalone, main executable, bundle-root and ordinary resource checks
-   in measured order. Cover Info.plist and signature metadata separately. Include
+3. **Standalone integration implemented; CI qualification required:** Mach-O
+   metadata policy, explicit carrier binding, selected architectures, aliases,
+   diagnostic ordering and the UDIF exception. Next extend main executable,
+   bundle-root and ordinary resource checks in measured order. Cover Info.plist
+   and signature metadata separately. Include
    app/framework versions, nested shallow/deep checks and selected architectures.
    Retain code/CMS/requirements checks under ignore-resources and disabled strict.
 4. Measure actual resource-link follow behavior and failures before enabling
-   sideband/all selectors. Cover aliases, dangling/cyclic links, denied access,
+   sideband/all selectors for bundles. Cover aliases, dangling/cyclic links, denied access,
    custom rules, root containment and native error scheduling. Extend retained
    unsupported plain/all observations only when their complete profile is proven.
 5. Implement strip as a separately reviewed mutation phase. Measure sign, verify,

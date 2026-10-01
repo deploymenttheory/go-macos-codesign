@@ -30,6 +30,10 @@ func carrier(t *testing.T, f appledouble.File) *bytes.Reader {
 
 func missing(string) (int, bool, error) { return 0, false, nil }
 
+func inspect(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), carrier appledouble.Value) (Attributes, error) {
+	return inspectPolicy(ctx, platform, list, size, carrier, false)
+}
+
 func TestNativePolicy(t *testing.T) {
 	ctx := context.Background()
 	names := []string{appledouble.ResourceForkName, appledouble.FinderInfoName}

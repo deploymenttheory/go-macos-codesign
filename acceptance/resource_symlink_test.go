@@ -410,7 +410,7 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 									if gstatus != nstatus || gout != "" || nstatus == 0 && gerr != "" || nstatus != 0 && gerr != nerr {
 										t.Fatal("implemented strict symlink result", gstatus, nstatus, gout, gerr, nerr)
 									}
-								} else if gstatus != 2 || !strings.Contains(gerr, "unsupported operation: --strict") {
+								} else if gstatus != 1 || !strings.Contains(gerr, "unsupported operation: strict sideband bundle traversal") {
 									t.Fatal("strict must remain explicitly unsupported", gstatus, gerr)
 								}
 								strict = append(strict, map[string]any{"selector": selector, "native_args": args, "native_single_threaded": serial, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": implemented})

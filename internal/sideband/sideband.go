@@ -48,12 +48,28 @@ func (a Attributes) Names() []string {
 // Errors return no partial observations. Context cancellation is checked between
 // operations; it cannot interrupt a native filesystem syscall already in flight.
 func Inspect(ctx context.Context, file *os.File, carrier appledouble.Value) (Attributes, error) {
-	return inspect(ctx, runtime.GOOS,
-		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
-		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) }, carrier)
+	return inspectFile(ctx, file, carrier, false)
 }
 
-func inspect(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), carrier appledouble.Value) (Attributes, error) {
+// First applies the single-code-object policy: stop at the first prohibited
+// attribute, ResourceFork before FinderInfo. A positive native ResourceFork
+// observation rejects the object without querying later metadata. Carrier errors
+// still propagate whenever decoding is needed to establish the first match.
+func First(ctx context.Context, file *os.File, carrier appledouble.Value) (string, error) {
+	a, err := inspectFile(ctx, file, carrier, true)
+	if names := a.Names(); len(names) != 0 {
+		return names[0], err
+	}
+	return "", err
+}
+
+func inspectFile(ctx context.Context, file *os.File, carrier appledouble.Value, first bool) (Attributes, error) {
+	return inspectPolicy(ctx, runtime.GOOS,
+		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
+		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) }, carrier, first)
+}
+
+func inspectPolicy(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), carrier appledouble.Value, first bool) (Attributes, error) {
 	if err := ctx.Err(); err != nil {
 		return Attributes{}, err
 	}
@@ -69,6 +85,8 @@ func inspect(ctx context.Context, platform string, list func() ([]string, error)
 		}
 	}
 	var result Attributes
+	var extra Attributes
+	decoded := false
 	for _, attr := range []struct {
 		name    string
 		present *bool
@@ -76,22 +94,46 @@ func inspect(ctx context.Context, platform string, list func() ([]string, error)
 		if err := ctx.Err(); err != nil {
 			return Attributes{}, err
 		}
-		if platform == "linux" && !slices.Contains(names, attr.name) {
-			continue
+		var n int
+		var present bool
+		var err error
+		if platform != "linux" || slices.Contains(names, attr.name) {
+			n, present, err = size(attr.name)
 		}
-		n, present, err := size(attr.name)
 		// Apple's checkFork ignores EPERM, not EACCES or arbitrary permission
 		// failures. Preserve this Darwin-specific rule without applying Unix
 		// errno numbers to Windows errors or to Linux inventory failures.
 		if platform == "darwin" && errors.Is(err, syscall.EPERM) {
-			continue
+			n, present, err = 0, false, nil
 		}
 		if err != nil {
 			return Attributes{}, fmt.Errorf("sideband attribute %s: %w", attr.name, err)
 		}
 		*attr.present = present && n > 0
+		if first {
+			if err := ctx.Err(); err != nil {
+				return Attributes{}, err
+			}
+			if *attr.present {
+				return result, nil
+			}
+			if carrier != nil && !decoded {
+				extra, err = inspectCarrier(ctx, carrier)
+				if err != nil {
+					return Attributes{}, fmt.Errorf("sideband AppleDouble snapshot: %w", err)
+				}
+				decoded = true
+			}
+			if err := ctx.Err(); err != nil {
+				return Attributes{}, err
+			}
+			*attr.present = attr.name == appledouble.ResourceForkName && extra.ResourceFork || attr.name == appledouble.FinderInfoName && extra.FinderInfo
+			if *attr.present {
+				return result, nil
+			}
+		}
 	}
-	if carrier != nil {
+	if carrier != nil && !first {
 		x, err := inspectCarrier(ctx, carrier)
 		if err != nil {
 			return Attributes{}, fmt.Errorf("sideband AppleDouble snapshot: %w", err)
