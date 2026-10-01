@@ -94,6 +94,9 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		return nil, err
 	}
 	b.children = append(b.children, child) // top-level close owns all descendant roots
+	if err := child.startSideband(b.sidebandInputs); err != nil {
+		return nil, err
+	}
 	app, err := child.snapshot(ctx, scope, depth, prefix+name+"/")
 	if err != nil {
 		return nil, err
@@ -116,6 +119,9 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 			}
 			other.alternate = true
 			child.children = append(child.children, other)
+			if err := other.startSideband(b.sidebandInputs); err != nil {
+				return nil, err
+			}
 			snapshot, err := other.snapshot(ctx, scope, depth, prefix+name+"/")
 			if err != nil {
 				return nil, err
@@ -217,11 +223,15 @@ func verifyNestedApp(ctx context.Context, name string, value any, app *nestedApp
 	}
 	for _, other := range app.otherVersions {
 		if _, _, err := nestedSignature(other.data); err != nil {
-			return invalid("embedded framework %s version %s: %v", name, other.bundle.version, err)
+			return frameworkVersionFailure(name, other.bundle.version, err, opts)
 		}
 		if _, err := verifyBundleSnapshot(ctx, other.bundle, other.data, other.resources, other.files2, opts); err != nil {
-			return invalid("embedded framework %s version %s: %v", name, other.bundle.version, err)
+			return frameworkVersionFailure(name, other.bundle.version, err, opts)
 		}
 	}
 	return nil
+}
+
+func frameworkVersionFailure(name, version string, err error, opts VerifyOptions) error {
+	return &VerificationError{Diagnostic: "embedded framework contains modified or invalid version", Subcomponent: filepath.Join(opts.resourceBase, name), cause: invalid("embedded framework %s version %s: %v", name, version, err), omitArchitecture: true}
 }

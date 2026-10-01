@@ -11,10 +11,10 @@ func sidebandOptions(ctx context.Context, opts VerifyOptions, bytesOnly bool) er
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if opts.AppleDouble != nil && (!opts.StrictSideband || opts.NoStrict) {
+	if (opts.AppleDouble != nil || opts.AppleDoubleFiles != nil) && (!opts.StrictSideband || opts.NoStrict) {
 		return unsupported("AppleDouble input requires enabled strict sideband verification")
 	}
-	if bytesOnly && opts.StrictSideband && !opts.NoStrict && opts.sidebandFile == nil {
+	if bytesOnly && opts.StrictSideband && !opts.NoStrict && opts.sidebandFile == nil && opts.sidebandObject == nil {
 		return unsupported("strict sideband verification requires a held filesystem object; use Verify")
 	}
 	return nil
@@ -27,18 +27,32 @@ func verifySideband(ctx context.Context, opts VerifyOptions) error {
 	if !opts.StrictSideband || opts.NoStrict {
 		return nil
 	}
-	name, err := sideband.First(ctx, opts.sidebandFile, opts.AppleDouble)
+	var name string
+	var err error
+	if opts.sidebandObject != nil {
+		name, err = opts.sidebandObject.first(ctx)
+	} else {
+		name, err = sideband.First(ctx, opts.sidebandFile, opts.AppleDouble)
+	}
 	if err != nil {
 		return err
 	}
 	if name == "" {
 		return nil
 	}
-	message := fmt.Sprintf("Disallowed xattr %s found on %s", name, opts.sidebandPath)
+	return sidebandFailure(opts.sidebandPath, []string{name}, false)
+}
+
+func sidebandFailure(path string, names []string, resource bool) error {
+	var messages []string
+	for _, name := range names {
+		messages = append(messages, fmt.Sprintf("Disallowed xattr %s found on %s", name, path))
+	}
 	return &VerificationError{
 		Diagnostic:       "resource fork, Finder information, or similar detritus not allowed",
-		AttachedData:     []string{message},
-		cause:            invalid("%s", message),
+		AttachedData:     messages,
+		cause:            invalid("%s", messages),
+		resourceFailure:  resource,
 		omitArchitecture: true,
 	}
 }

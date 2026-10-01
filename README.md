@@ -67,9 +67,9 @@ wording, failing architecture and nested paths, with structured library errors.
 [Resource verification](docs/resource-verification.md) collects added, modified
 and missing paths, with explicit limits for native ordering and dangling links.
 [Strict verification](docs/strict-verification.md) supports bounded layout,
-symlink and standalone Mach-O sideband policies. Explicit `--appledouble FILE`
-supplements native metadata on Linux, Windows and macOS; bundle sideband traversal
-remains outstanding. UDIF retains Apple's exemption from sideband rejection.
+symlink and Mach-O/bundle sideband policies. Explicit `--appledouble FILE` for
+standalone objects and `--appledouble-map FILE` for bundle members supplement native
+metadata on Linux, Windows and macOS. UDIF retains Apple's sideband exemption.
 [`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.

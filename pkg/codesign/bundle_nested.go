@@ -233,6 +233,11 @@ func verifyNestedResource(ctx context.Context, name string, value any, resource 
 		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	opts.InfoPlist, opts.Resources = nil, nil
+	if opts.StrictSideband && !opts.NoStrict {
+		b := opts.linkScope.bundle
+		opts.sidebandObject = b.sideband[b.base+name]
+		opts.sidebandPath = filepath.Join(opts.resourceBase, name)
+	}
 	opts.linkScope = nil // a plain child has no resource scope or deferred layout check
 	opts.Requirement = requirement
 	opts.Architecture = "" // every child architecture must satisfy the parent seal

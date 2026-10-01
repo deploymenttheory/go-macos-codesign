@@ -2003,7 +2003,7 @@ stay visible in the inventory.
 **Starting point:** the supported resource-envelope profile handles XML/binary
 metadata, nested requirements and relative symlink text seals. Default checking
 is conservative. Bounded strict selectors and `--ignore-resources` are implemented.
-Full strict sideband/all policy, `--strip-disallowed-xattrs` and
+Full custom-rule/filesystem strict parity, `--strip-disallowed-xattrs` and
 `--single-threaded-signing` remain outstanding.
 
 **Implementation tasks:**
@@ -2014,13 +2014,17 @@ Full strict sideband/all policy, `--strip-disallowed-xattrs` and
 - [ ] Determine support for custom/deprecated resource specifications on the pinned
   binary before adding a CLI surface. Implement only an observed native contract.
 - [x] Introduce bounded explicit verification options: symlinks, none/no-strict,
-  numeric masks and prefixes; retain unsupported sideband/all. See [contract](strict-verification.md).
+  numeric masks and prefixes; include bounded bundle sideband/all. See [contract](strict-verification.md).
 - [ ] Complete all/sideband policy and operation/selector combinations.
   Model plain/all, `symlinks`, `sideband`, combinations, invalid selectors and any
   additional selectors found by WP-01. Native strictness may evolve by OS version.
   - [x] Standalone Mach-O sideband/plain/all selectors, disabled controls, native
     and explicit-carrier input, first-attribute diagnostics and selected architectures.
-    Retain UDIF's native exemption and fail explicitly for enabled bundle traversal.
+    Retain UDIF's native exemption.
+  - [x] Integrate sideband/plain/all into supported bundles on all three hosts:
+    held resource observations, explicit AppleDouble object maps, nested/version
+    policy, root/executable ordering, link-open errors and native diagnostics.
+    Broader resource profiles and filesystem semantics remain open.
 - [ ] Match default versus strict treatment of broken, external, unsealed and
   cyclic resource links without weakening path containment during writes.
   - [x] Compare bounded default-verification link text without resolving targets.
@@ -2029,8 +2033,9 @@ Full strict sideband/all policy, `--strip-disallowed-xattrs` and
     Apple-produced seals, JSON and complete signing-rejection preservation.
   - [x] Implement bounded selector parsing, default layout checks and symlink
     inclusion/outer-scope policy with native acceptance.
-  - [ ] Complete earlier sideband traversal, custom rules and broader filesystem
-    semantics. Retain 102 native observations: plain/all strict may fail with ENOENT
+  - [x] Implement earlier sideband traversal and its distinct open failures.
+  - [ ] Complete custom rules and broader filesystem semantics.
+    Retain 102 native observations: plain/all strict may fail with ENOENT
     or ELOOP before the symlink validator; the symlinks selector reports modified
     link details. Do not equate these distinct failure paths.
 - [ ] Detect native disallowed sideband attributes, including FinderInfo and
@@ -3529,27 +3534,27 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active sideband work after PR #71
+### Active sideband work after PR #72
 
 The resource-suppression, APFS v0.15.0 and read-only metadata adapter increments
-are merged. This phase starts from main at `ea4edf32218c4504cbd76f4078fbd428b20a55b2` on
-`feat/strict-sideband-object-integration`. The [sideband contract](sideband-policy.md)
+are merged. This phase starts from main at `ba6ecf783d4cd31d5a5d2bed318c8c9ef3bb5401` on
+`feat/strict-sideband-bundles`. The [sideband contract](sideband-policy.md)
 defines the shared API, source evidence, native controls and integration sequence.
 
 1. **Completed and released:** APFS PR #131's strict size/read/remove APIs on Linux,
    macOS and Windows, including held-object/no-follow behavior and error causes.
    Require runtime operation, identity and permission tests and coverage above
    95% in the new API on every producer. Preserve the user's separate APFS tree.
-2. **Recorded:** eight complete Apple bodies on both Clang targets and 203 exact
+2. **Recorded:** eleven complete Apple bodies on both Clang targets and 203 exact
    native verification controls. Retain all 42 unavailable directory-fork setups
    explicitly; they are not successful tests. Separate generic attribute results
    from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
 3. **Dependency and adapter merged:** native held-object inspection and
    explicit additive AppleDouble input, plus 29 native-derived portable fixtures.
    Standalone object/carrier binding, first-error order and selectors are now
-   implemented with native acceptance; qualify through unchanged CI. Next implement
-   bundle sideband resource traversal, error order, selectors and
-   native diagnostics through that shared implementation. All three operating
+   merged with green three-host CI. Bundle sideband resource traversal, explicit
+   AppleDouble maps, error order, selectors and native diagnostics are implemented
+   in the current phase; qualification uses the unchanged CI harness. All three operating
    systems are required; a missing platform implementation cannot be waived.
 4. Measure signing-time strip, dry-run ordering and partial effects separately.
    Retain native imports, coverage, race/eleven fuzz, lint, six GoReleaser packages,

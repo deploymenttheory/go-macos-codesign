@@ -91,11 +91,8 @@ func verificationLinkFixture(t *testing.T, dir, format, algorithm, state string)
 		target, second = "second/../target", "fr.lproj"
 	case "file-slash":
 		target = "target/"
-	case "chain-33", "chain-34":
-		count := 33
-		if state == "chain-34" {
-			count++
-		}
+	case "chain-31", "chain-32", "chain-33", "chain-34":
+		count := map[string]int{"chain-31": 31, "chain-32": 32, "chain-33": 33, "chain-34": 34}[state]
 		target = "hop-0"
 		for i := range count {
 			name, next := fmt.Sprintf("hop-%d", i), fmt.Sprintf("hop-%d", i+1)
@@ -370,8 +367,8 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 							for _, selector := range []string{"--strict", "--strict=symlinks", "--strict=all"} {
 								// Apple's asynchronous sideband scan can destroy resource rules
 								// while validation workers still use them (see docs/strict-verification.md).
-								// Only the unsupported plain/all observations use the SDK's
-								// kSecCSSingleThreaded flag; implemented comparisons stay unchanged.
+								// Plain/all use the SDK's kSecCSSingleThreaded reference flag;
+								// every selector is compared to portable verification below.
 								serial := selector != "--strict=symlinks" && os.Getenv("MACOSCODESIGN_REPRODUCE_NATIVE_STRICT_CRASH") != "1"
 								args := []string{"--verify", "--verbose=1", selector}
 								if serial {
@@ -404,14 +401,10 @@ func TestResourceSymlinkNativeSigning(t *testing.T) {
 									t.Fatal("native strict policy", selector, nstatus, want, nerr)
 								}
 								gout, gerr, gstatus := run(t, binaryPath, "--verify", selector, operand)
-								implemented := selector == "--strict=symlinks"
-								if implemented {
-									// This invocation is quiet; the native observation above is verbose.
-									if gstatus != nstatus || gout != "" || nstatus == 0 && gerr != "" || nstatus != 0 && gerr != nerr {
-										t.Fatal("implemented strict symlink result", gstatus, nstatus, gout, gerr, nerr)
-									}
-								} else if gstatus != 1 || !strings.Contains(gerr, "unsupported operation: strict sideband bundle traversal") {
-									t.Fatal("strict must remain explicitly unsupported", gstatus, gerr)
+								implemented := true
+								// This invocation is quiet; the native observation above is verbose.
+								if gstatus != nstatus || gout != "" || nstatus == 0 && gerr != "" || nstatus != 0 && gerr != nerr {
+									t.Fatal("implemented strict symlink result", gstatus, nstatus, gout, gerr, nerr)
 								}
 								strict = append(strict, map[string]any{"selector": selector, "native_args": args, "native_single_threaded": serial, "native_exit": nstatus, "native_stdout": nout, "native_stderr": nerr, "portable_exit": gstatus, "portable_stdout": gout, "portable_stderr": gerr, "implemented": implemented})
 							}

@@ -1,12 +1,13 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-  "driver_sha256": "b77eb94e4b23036586f968a68193824ebb3b6f5a0da8d2aba5051b0017700256",
+  "driver_sha256": "fabe838062b1d5414e8a2554805fd7706426333bf277ecf6ec5fd78168b6fba6",
   "excerpt_sha256": {
     "bool FileDesc::hasExtendedAttribute": "8b261cd5ccad4695fdfe5bc32fcd07eddf7a8cb5a913b0e4b99bffee81bffb79",
     "bool filehasExtendedAttribute": "db8d46d9d10b831087e78a726f07fc8910520d785b39355b208a8d69d27f10a1",
     "ssize_t FileDesc::getAttr": "f05fb881c29af330ec867dcdc5bda2226167bf28029debf11dc71ac287a7e106",
     "ssize_t FileDesc::getAttrLength": "3c1767a2a4057f2619ae7c49d063c2ef01aa81bb482b36a40763c3db003cdbc6",
     "static bool checkFork": "9215e7f129733439aaf968c8c1fb52e0b0dfc499926f8e8ab7152f2e0ad594cc",
+    "void BundleDiskRep::strictValidate": "1c8ce63746dd08fbc2d9e691bd3bd359e630f584637469f68b709e7d2879b63f",
     "void BundleDiskRep::strictValidateStructure": "f606d88a6f781e7c48dcd8c13769e406d758d948994d53ff37f2467799cb7950",
     "void DiskImageRep::strictValidate": "005aadaeaee216596a58e1e9e15d640be039f54935887eed8165b3d1023619d8",
     "void FileDesc::removeAttr": "a13529bf0decb2673c9065866a82a4ecef825a8b6b60a8ff84bba36ab1bcbcf8",
@@ -14,7 +15,7 @@
     "void SingleDiskRep::strictValidate": "253a7d4587faf0c92841d72eb00a3054470dea80c1fae3b8b2232eb12af10eef"
   },
   "schema": 1,
-  "scope": "Ten complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
+  "scope": "Eleven complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure and strictValidate, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. BundleDiskRep checks its canonical root before delegating to its executable. The real host SDK asserts MAXSYMLINKS=32 on both Clang targets. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
     "bundlediskrep.cpp": {
@@ -68,6 +69,29 @@
           "strictValidate": 1,
           "throwMe": 1,
           "tolerated": 1
+        }
+      },
+      "__ZN24CodesignSidebandResearch13BundleDiskRep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 7,
+          "ImplicitCastExpr": 6,
+          "MemberExpr": 3,
+          "ParmVarDecl": 3,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "cd": 2,
+          "flags": 2,
+          "kSecCSRestrictToAppLike": 1,
+          "mExecRep": 1,
+          "strictValidate": 1,
+          "strictValidateStructure": 1,
+          "tolerated": 2
         }
       },
       "__ZN24CodesignSidebandResearch13BundleDiskRep23strictValidateStructureEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
@@ -416,6 +440,29 @@
           "tolerated": 1
         }
       },
+      "__ZN24CodesignSidebandResearch13BundleDiskRep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 7,
+          "ImplicitCastExpr": 6,
+          "MemberExpr": 3,
+          "ParmVarDecl": 3,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "cd": 2,
+          "flags": 2,
+          "kSecCSRestrictToAppLike": 1,
+          "mExecRep": 1,
+          "strictValidate": 1,
+          "strictValidateStructure": 1,
+          "tolerated": 2
+        }
+      },
       "__ZN24CodesignSidebandResearch13BundleDiskRep23strictValidateStructureEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
         "ast_kinds": {
           "BinaryOperator": 4,
@@ -732,5 +779,5 @@
       }
     }
   },
-  "translation_unit_sha256": "4e5b1a4c3d9924f82c9c081e0af2c544ade19457c7f31b137c93906cd8ef834c"
+  "translation_unit_sha256": "e00856f2168c8fd60667803e0bc5b4b93ec8428d70ce4299c614a79b6499d78b"
 }

@@ -113,8 +113,8 @@ func TestSidebandOptionsAndErrorOrder(t *testing.T) {
 	if err := Sign(ctx, app, SignOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Verify(ctx, app, VerifyOptions{StrictSideband: true}); !errors.Is(err, ErrUnsupported) {
-		t.Fatal("unqualified traversal accepted", err)
+	if report, err := Verify(ctx, app, VerifyOptions{StrictSideband: true}); err != nil || report == nil || !report.Valid {
+		t.Fatal("clean bundle sideband verification", report, err)
 	}
 	if _, err := Verify(ctx, app, VerifyOptions{StrictSideband: true, NoStrict: true}); err != nil {
 		t.Fatal(err)

@@ -28,16 +28,17 @@ The host rejects comma lists and uppercase names with
 wording. Only attached optional arguments are consumed: `--strict=symlinks`.
 
 Plain `--strict`, an empty selector, `all`, `sideband`, their prefixes and numeric
-sideband masks are supported for standalone Mach-O and UDIF inputs. Mach-O rejects
+sideband masks are supported for standalone Mach-O, supported bundles and UDIF inputs. Mach-O rejects
 nonempty prohibited metadata; UDIF bypasses that policy, matching Apple's override.
-Bundle sideband traversal remains explicitly unsupported when enabled; a disabling
-option permits ordinary verification. Unknown bits and strict controls outside verification remain
+Bundle traversal checks included resources and nested code, then the canonical root
+and main executable. A disabling option permits ordinary verification. Unknown bits and strict controls outside verification remain
 unsupported. Numeric overflow/unknown API masks are not claimed as native diagnostic
 parity. No unsupported policy silently falls back to ordinary verification.
 
 Library callers use `VerifyOptions.StrictSymlinks`, `VerifyOptions.StrictSideband`
 and `VerifyOptions.NoStrict`. Optional `VerifyOptions.AppleDouble` adds an explicit
-carrier for one standalone operand. See [sideband policy](sideband-policy.md) for
+carrier for one standalone operand; `AppleDoubleFiles` binds snapshots to bundle
+members. The CLI uses `--appledouble-map FILE` for those bindings. See [sideband policy](sideband-policy.md) for
 held-object lifetime, format-specific behavior and first-error ordering.
 Zero-value options now reject additional malformed layouts that previously passed
 cryptographic checks. `NoStrict` is the explicit compatibility escape for those

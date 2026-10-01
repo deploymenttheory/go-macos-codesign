@@ -105,9 +105,8 @@ type VerifyOptions struct {
 	// not enable sideband-attribute checks or the complete --strict=all policy.
 	StrictSymlinks bool
 	// StrictSideband rejects nonempty ResourceFork and FinderInfo metadata on
-	// standalone Mach-O inputs. UDIF verification ignores sideband data, matching
-	// Apple's DiskImageRep override. NoStrict disables it. Bundle traversal
-	// is not yet qualified and returns ErrUnsupported, never partial success.
+	// Mach-O inputs and applicable bundle code/resources. UDIF verification ignores
+	// sideband data, matching Apple's DiskImageRep override. NoStrict disables it.
 	// VerifyBytes cannot observe Mach-O metadata and rejects this option for it.
 	StrictSideband bool
 	// AppleDouble explicitly supplements native metadata on a standalone input.
@@ -115,6 +114,13 @@ type VerifyOptions struct {
 	// StrictSideband; it is not restored and no neighboring sidecar is inferred.
 	// UDIF's native strict override does not inspect this input.
 	AppleDouble appledouble.Value
+	// AppleDoubleFiles explicitly binds additional snapshots to filesystem
+	// objects. Keys are paths relative to the resolved operand (a bundle root),
+	// or absolute paths. Symbolic and hard links bind to the same held object.
+	// Use "." for a bundle root. Duplicate bindings to one object are rejected.
+	// Sources are caller-owned, stable, and only decoded if policy visits them.
+	// Native metadata remains additive. No neighboring sidecars are inferred.
+	AppleDoubleFiles map[string]appledouble.Value
 	// BundleVersion selects the input framework; nested frameworks check every
 	// physical version against the parent's sealed requirement.
 	BundleVersion string
@@ -147,12 +153,13 @@ type VerifyOptions struct {
 	// CurrentTime controls certificate validity checks. An authenticated,
 	// explicitly trusted timestamp selects genTime instead and must not be in
 	// the future relative to CurrentTime. Zero uses time.Now.
-	CurrentTime   time.Time
-	directoryOnly bool   // internal shallow nested-code validation, never a public bypass
-	resourceBase  string // absolute resource base for nested verification diagnostics
-	linkScope     *verificationLinkScope
-	sidebandFile  *os.File // same held object used to read the signature bytes
-	sidebandPath  string   // resolved standalone path for native diagnostics
+	CurrentTime    time.Time
+	directoryOnly  bool   // internal shallow nested-code validation, never a public bypass
+	resourceBase   string // absolute resource base for nested verification diagnostics
+	linkScope      *verificationLinkScope
+	sidebandFile   *os.File // same held object used to read the signature bytes
+	sidebandPath   string   // resolved standalone path for native diagnostics
+	sidebandObject *bundleSidebandObject
 }
 
 // Blob retains the complete encoding, including its magic and length fields.

@@ -1,6 +1,6 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-  "driver_sha256": "f8b847416770ac7ee4c67e2290a398820df47ffc89a2ba96e748ea96a832795d",
+  "driver_sha256": "be58646c7603df888b8c5844c63ca4749ea79b4ca72ed970b3b2f0370f8d49f3",
   "excerpt_sha256": {
     "ResourceBuilder::Rule \\*ResourceBuilder::findRule\\(": "530137c8ae691a681835f6796bd65fc35abeabbe791ef362702760d73b8c68d9",
     "Universal::Universal\\(": "1e06de7175fd335f718a59be53d8773d3b38885e308bf5b2b2416d507f809396",
@@ -22,7 +22,7 @@
     "void diagnose\\(const char \\*context, OSStatus rc, CFDictionaryRef info\\)": "73a0c0b5cdfb5abf275b9de61a4439f8c0b1e3bfaaaf7dc87f68ccfc222a814c"
   },
   "schema": 1,
-  "scope": "Eighteen complete verbatim Apple bodies: resource loading, optional-resource checks, resource/symlink validation, parent-scope initialization, rule inclusion/selection/POSIX matching, bundle resource exclusions, strict Mach-O validation, segment/symbol-table boundaries, universal construction/padding/suspicion, immediate/collecting error contexts, collector throw and two diagnostics functions. Real SDK/CoreFoundation/POSIX declarations; private code/hash/file/lock/CF wrapper interfaces and rule/flag constants are declaration-only shims; tracing is a no-op. ASTs establish text-before-destination validation, absolute system roots, enclosing-scope lookup, nearest-scope exclusion, soft executable targets, layout boundaries and grouped diagnostics. Custom resource rules, sideband handling, earlier all/sideband traversal, filesystem races and asynchronous scheduling remain outside the portable profile. The raw source uses a prefix-only scope comparison; portable verification requires component containment. Production has no SDK or native runtime dependency.",
+  "scope": "Eighteen complete verbatim Apple bodies: resource loading, optional-resource checks, resource/symlink validation, parent-scope initialization, rule inclusion/selection/POSIX matching, bundle resource exclusions, strict Mach-O validation, segment/symbol-table boundaries, universal construction/padding/suspicion, immediate/collecting error contexts, collector throw and two diagnostics functions. Real SDK/CoreFoundation/POSIX declarations; private code/hash/file/lock/CF wrapper interfaces and rule/flag constants are declaration-only shims; tracing is a no-op. ASTs establish text-before-destination validation, absolute system roots, enclosing-scope lookup, nearest-scope exclusion, soft executable targets, layout boundaries and grouped diagnostics. The sideband branch opens each included resource before seal comparison and nested verification, reporting both attributes through the collecting context. Custom resource rules, filesystem races and asynchronous scheduling remain outside the portable profile. The raw source uses a prefix-only scope comparison; portable verification requires component containment. Production has no SDK or native runtime dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
     "StaticCode.cpp": {
