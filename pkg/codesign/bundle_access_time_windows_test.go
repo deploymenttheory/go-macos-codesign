@@ -48,7 +48,7 @@ func TestBundleAccessTimeWindowsHeldWriter(t *testing.T) {
 			if err := p.copySourceAccess(); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := p.replacement.File.Stat(); !errors.Is(err, os.ErrClosed) {
+			if err := p.replacement.File.Close(); !errors.Is(err, os.ErrClosed) {
 				t.Fatalf("writer must close before rename: %v", err)
 			}
 			source, err := b.root.Stat(b.executable)
@@ -60,6 +60,9 @@ func TestBundleAccessTimeWindowsHeldWriter(t *testing.T) {
 				t.Fatal(err)
 			}
 			old := before.Sys().(*syscall.Win32FileAttributeData)
+			if gotReadonly := old.FileAttributes&syscall.FILE_ATTRIBUTE_READONLY != 0; gotReadonly != readonly {
+				t.Fatalf("restored readonly attribute: got %v want %v", gotReadonly, readonly)
+			}
 			got := after.Sys().(*syscall.Win32FileAttributeData)
 			want := source.Sys().(*syscall.Win32FileAttributeData)
 			if got.LastAccessTime != want.LastAccessTime {
