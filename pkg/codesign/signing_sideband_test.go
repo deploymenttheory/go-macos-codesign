@@ -89,6 +89,11 @@ func TestSigningSidebandPreflight(t *testing.T) {
 	if _, err := SignBytes(ctx, fixture(t, "unsigned-arm64"), SignOptions{Identifier: "test", AppleDouble: sidebandCarrier(t, appledouble.File{})}); !errors.Is(err, ErrUnsupported) {
 		t.Fatal(err)
 	}
+	canceled, cancel := context.WithCancel(ctx)
+	cancel()
+	if _, err := SignBytes(canceled, nil, SignOptions{AppleDouble: sidebandCarrier(t, appledouble.File{})}); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
 	path := filepath.Join(t.TempDir(), "tool")
 	if err := os.WriteFile(path, fixture(t, "unsigned-arm64"), 0600); err != nil {
 		t.Fatal(err)

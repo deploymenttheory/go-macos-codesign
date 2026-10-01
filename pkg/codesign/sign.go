@@ -134,6 +134,9 @@ func notifyReplacement(data []byte, opts SignOptions) {
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.
 // DryRun is a path-operation option and does not suppress the returned signature.
 func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if opts.AppleDouble != nil || opts.AppleDoubleFiles != nil {
 		return nil, unsupported("signing AppleDouble metadata requires a filesystem object; use Sign")
 	}
