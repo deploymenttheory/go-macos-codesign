@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"cmp"
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -168,6 +169,10 @@ func resolveStrictLink(name string) (string, error) {
 	return resolveMetadataLink(name, 33, false)
 }
 
+// Windows aliases syscall.ENOTDIR to ERROR_PATH_NOT_FOUND. Retain our detected
+// traversal condition independently of that ambiguous native error number.
+var errMetadataNotDirectory = errors.New("metadata link traverses a nondirectory")
+
 // The open(2) sideband path has a 32-link kernel budget, distinct from
 // realpath's 33-link strict destination policy. Resolve explicitly on every
 // host so Linux and Windows do not inherit their different native budgets.
@@ -213,7 +218,7 @@ func resolveMetadataLink(name string, limit int, opening bool) (string, error) {
 			continue
 		}
 		if (rest != "" || opening && separator) && !info.IsDir() {
-			return "", syscall.ENOTDIR
+			return "", errors.Join(errMetadataNotDirectory, syscall.ENOTDIR)
 		}
 		current = candidate
 	}

@@ -171,10 +171,14 @@ func TestBundleSidebandDeferredErrors(t *testing.T) {
 }
 
 func TestSidebandOpenErrors(t *testing.T) {
+	nativeNotDirectory := "Not a directory"
+	if errors.Is(syscall.ENOTDIR, os.ErrNotExist) {
+		nativeNotDirectory = "No such file or directory"
+	}
 	for _, tc := range []struct {
 		err     error
 		message string
-	}{{os.ErrNotExist, "No such file or directory"}, {syscall.ELOOP, "Too many levels of symbolic links"}, {syscall.ENOTDIR, "Not a directory"}, {os.ErrPermission, "Permission denied"}, {io.ErrUnexpectedEOF, ""}} {
+	}{{os.ErrNotExist, "No such file or directory"}, {syscall.ELOOP, "Too many levels of symbolic links"}, {syscall.ENOTDIR, nativeNotDirectory}, {errors.Join(errMetadataNotDirectory, syscall.ENOTDIR), "Not a directory"}, {os.ErrPermission, "Permission denied"}, {io.ErrUnexpectedEOF, ""}} {
 		err := sidebandOpenError(tc.err)
 		if !errors.Is(err, tc.err) {
 			t.Fatal(err)
