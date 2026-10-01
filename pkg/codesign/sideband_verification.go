@@ -11,7 +11,7 @@ func sidebandOptions(ctx context.Context, opts VerifyOptions, bytesOnly bool) er
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if (opts.AppleDouble != nil || len(opts.AppleDoubleFiles) != 0) && (!opts.StrictSideband || opts.NoStrict) {
+	if (opts.AppleDouble != nil || opts.AppleDoubleFiles != nil) && (!opts.StrictSideband || opts.NoStrict) {
 		return unsupported("AppleDouble input requires enabled strict sideband verification")
 	}
 	if bytesOnly && opts.StrictSideband && !opts.NoStrict && opts.sidebandFile == nil && opts.sidebandObject == nil {

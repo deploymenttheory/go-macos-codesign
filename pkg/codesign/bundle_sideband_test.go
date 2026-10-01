@@ -110,6 +110,14 @@ func TestBundleSidebandBindingValidation(t *testing.T) {
 	if _, err := Verify(ctx, path, VerifyOptions{StrictSideband: true, AppleDoubleFiles: map[string]appledouble.Value{path: value}}); !errors.Is(err, ErrUnsupported) {
 		t.Fatal(err)
 	}
+	for _, opts := range []VerifyOptions{{AppleDoubleFiles: map[string]appledouble.Value{}}, {StrictSideband: true, AppleDoubleFiles: map[string]appledouble.Value{}}} {
+		if _, err := Verify(ctx, path, opts); !errors.Is(err, ErrUnsupported) {
+			t.Fatal("empty map on standalone", err)
+		}
+		if _, err := VerifyBytes(ctx, data, opts); !errors.Is(err, ErrUnsupported) {
+			t.Fatal("byte-only map", err)
+		}
+	}
 }
 
 func TestBundleSidebandDeferredErrors(t *testing.T) {

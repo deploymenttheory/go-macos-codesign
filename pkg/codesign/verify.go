@@ -113,7 +113,7 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 	if bundle {
 		return verifyBundle(ctx, path, opts)
 	}
-	if len(opts.AppleDoubleFiles) != 0 {
+	if opts.AppleDoubleFiles != nil {
 		return nil, unsupported("AppleDoubleFiles requires a bundle operand; use AppleDouble for a standalone file")
 	}
 	f, err := os.Open(path)
@@ -138,6 +138,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	defer func() { failure = verificationArchitecture(failure, architecture) }()
 	if err := ctx.Err(); err != nil {
 		return nil, err
+	}
+	if opts.AppleDoubleFiles != nil && opts.sidebandObject == nil {
+		return nil, unsupported("AppleDoubleFiles requires a bundle filesystem scope; use Verify")
 	}
 	if err := sidebandOptions(ctx, opts, !isDMG(data)); err != nil {
 		return nil, err
