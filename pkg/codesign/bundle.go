@@ -214,7 +214,11 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 	if b.version != "" {
 		start = strings.TrimSuffix(b.base, "/")
 	}
-	err := fs.WalkDir(b.root.FS(), start, func(name string, d fs.DirEntry, walkErr error) error {
+	tree := b.root.FS()
+	if b.signing != nil {
+		tree = signingBundleFS{b}
+	}
+	err := fs.WalkDir(tree, start, func(name string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -372,7 +376,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 			return nil
 		}
-		f, err := b.root.Open(name)
+		f, err := openResourceFile(b.root, name)
 		if err != nil {
 			return err
 		}
@@ -570,7 +574,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	defer b.close()
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.signingExecutable(ctx)
 	if err != nil {
 		return err
 	}
@@ -579,11 +583,9 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	}
 	if opts.Force && opts.OnReplace != nil {
 		// The CLI notice precedes resource traversal, including failures there.
-		// Read only the selected main executable through the existing root. Do
-		// not inspect resources or record a mapped source access during this peek.
-		if data, err := b.read(b.executable, maxFileSize); err == nil {
-			notifyReplacement(data, opts)
-		}
+		// Executable representation construction has already succeeded. No
+		// resources or mapped-source accesses have been performed at this point.
+		notifyReplacement(data, opts)
 	}
 	inputs, err := prepareBundleSideband(ctx, b.path, VerifyOptions{StrictSideband: true, AppleDouble: opts.AppleDouble, AppleDoubleFiles: opts.AppleDoubleFiles})
 	if err != nil {

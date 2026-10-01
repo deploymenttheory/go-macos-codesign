@@ -54,10 +54,9 @@ func Strip(ctx context.Context, file *os.File, carrier appledouble.Value) error 
 }
 
 func removeAttribute(file *os.File, name string) error {
-	removed, err := hostdata.RemoveXattr(file, name)
-	if err == nil && !removed {
-		return fmt.Errorf("attribute disappeared before removal: %s", name)
-	}
+	// FileDesc::removeAttr uses options=0: ENOATTR after a positive presence
+	// query is success. Another actor may have removed the attribute already.
+	_, err := hostdata.RemoveXattr(file, name)
 	return err
 }
 

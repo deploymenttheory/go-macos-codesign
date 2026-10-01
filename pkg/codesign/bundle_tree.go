@@ -98,9 +98,9 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 		return nil, err
 	}
 	if b.signing != nil && b.signing.Deep {
-		data, err := child.read(child.executable, maxFileSize)
+		data, err := child.signingExecutable(ctx)
 		if err != nil {
-			return nil, err
+			return nil, signingNestedError(filepath.Join(b.sidebandBase, filepath.FromSlash(name)), err)
 		}
 		if signingNeedsNested(data, b.signing.Force) {
 			if err := child.startSigningSideband(ctx, *b.signing, b.signingInputs); err != nil {

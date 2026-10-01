@@ -8,28 +8,34 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current signing-metadata phase
 
-PR73 is merged at `5cfffbe8082e9be1f7b7e8abd074e971bbd751e8`. Its
-[final CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36853016484)
-passed all three platforms, every production-package coverage gate above 95%,
-native/foreign-signature acceptance, lint, race/fuzz and six packaged targets.
-The next branch, `feat/signing-sideband-policy`, starts from that merged main.
+PR74 is merged at `96b06a8af1680a8d0624475060137314b823f1c0`. The current
+`feat/signing-permission-qualification` branch starts from that main. The upstream
+replacement prerequisite is now released in APFS v0.15.1 and adopted here.
 
 The [signing-metadata contract](signing-sideband.md) describes default preflight,
 `--strip-disallowed-xattrs`, explicit mutable AppleDouble inputs, dry-run effects
 and independent-child completion after resource failures. The new acceptance
-matrix runs on every producer and adds native comparisons on macOS. CI results
+matrix runs on every producer and adds native comparisons on macOS.
+[Permission qualification](signing-permissions.md) adds 400 real Darwin ACL
+comparisons, six portable CLI write-denial cases, and portable partial-removal
+and error-identity tests. Executable preflight ordering, nested permission
+diagnostics and readable-resource traversal are corrected. CI results
 for this branch must pass before its draft PR is ready for maintainer review.
 Broader permission/concurrency profiles and the remaining compatibility inventory
 are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.15.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0)
+Codesign pins [APFS v0.15.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata and read/access-time operations. No local APFS replacement or
-duplicated filesystem implementation is used. The published correction removes
+copied metadata codec is used. The earlier v0.15.0 correction removes
 purego through the approved finite typed Darwin wrappers and preserves portable
 metadata support on Linux and Windows.
+
+APFS PR186 fixes writable replacement staging with denied source ACLs; release
+PR187 publishes v0.15.1. Native executable ACL inheritance remains a separate
+codesign policy obligation and is not declared complete by that SDK fix.
 
 [APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184) passed all
 64 applicable checks; wrapper coverage on the Mac runner was 98.8%. Both downstream

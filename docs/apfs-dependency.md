@@ -1,10 +1,17 @@
-# APFS v0.15.0 integration
+# APFS v0.15.1 integration
 
 Codesign pins the published
-[APFS v0.15.0 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0).
+[APFS v0.15.1 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1).
 There is no local APFS replacement or workspace override. Existing replacement,
 directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
 operations use `pkg/hostdata/accesstime`.
+
+PR186 and release PR187 fix denied-write source ACL staging. The SDK delays source
+ACL restoration until the temporary file has been opened and written. Codesign
+validates access-time metadata writes after restoring the final ACL, preserving the
+existing failure-before-envelope preparation contract. Six portable CLI cases
+exercise real write denials; the broader Mac ACL matrix compares native behavior.
+See [permission qualification and remaining ACL policy](signing-permissions.md).
 
 Bundle replacement retains the SDK's writable staging handle until access time
 has been copied and metadata synced, then closes it before rename. This is
@@ -14,7 +21,7 @@ attributes can prohibit reopening for writing. Path identity checks remain in
 place. Windows regression tests cover writable and read-only files, exact access
 time, unrelated metadata preservation, handle closure and staging cleanup.
 
-The release removes `purego` from the dependency graph. Missing x/sys signatures
+The earlier v0.15.0 release removes `purego` from the dependency graph. Missing x/sys signatures
 use the approved finite typed Darwin extension, following x/sys's static import
 and runtime-call pattern. It retains macOS metadata, ACL, quarantine, identity
 and sandbox operations while portable codecs and policy remain Go. The boundary

@@ -4,6 +4,12 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
+Current work resumes after merged PR74 with APFS v0.15.1 and
+[signing permission qualification](signing-permissions.md): 400 native ACL cases,
+six portable CLI write-denial cases, executable metadata preflight and resource
+traversal corrections. Native executable ACL inheritance and additional security
+rights remain outstanding; the full three-OS and coverage gates are unchanged.
+
 The [detailed implementation plan](implementation_plan.md) expands this overview
 into a complete post-PR #25 backlog, with all 88 inventory entries mapped to
 24 work packages, dependencies, native acceptance criteria and proposed PR slices.

@@ -84,14 +84,19 @@ Three additional portable cases compare absolute nested failure paths when the
 CLI operand is relative. Windows runs the existing replacement, certificate and
 dry-run regressions with the preflight handle released before replacement.
 
-[`apple-sideband.json`](../spec/apple-sideband.json) records twelve complete pinned
+The [permission matrix](signing-permissions.md) adds 400 native ACL comparisons
+and six portable write-denial CLI cases using published APFS v0.15.1. It covers
+executable preflight, diagnostic ordering, readable-resource traversal and partial
+metadata removal without weakening byte, metadata or failure assertions.
+
+[`apple-sideband.json`](../spec/apple-sideband.json) records fifteen complete pinned
 Apple bodies compiled with Clang for both architectures, including strict
 representation checks and resource hashing. The source-reviewed
 [`Signer::prepare` and `buildResources`](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp)
 connect default preflight, resource stripping and nested dispatch. These larger
 signer bodies are not claimed as compiled AST evidence.
 
-Broader native ACL/read-only denial matrices, concurrent path/attribute changes,
+Remaining native ACL inheritance/security/write-attribute rights, concurrent path/attribute changes,
 alternate filesystems, custom resource rules, generic/xattr-backed code, detached
 signatures, signing selector combinations and large streamed executable signing
 remain roadmap work. The compatibility inventory therefore records this feature
