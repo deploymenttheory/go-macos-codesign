@@ -192,7 +192,7 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 					}
 					writes = append(writes, staged...)
 					if metadataFailure == nil {
-						metadataFailure = signingNestedError(app.bundle.path, err)
+						metadataFailure = signingNestedError(app.bundle.sidebandBase, err)
 					}
 					continue
 				}
