@@ -80,6 +80,9 @@ CLI, exact failure diagnostics, output bytes, native attributes and object
 replacement. Evidence is retained by the existing acceptance harness. Protocol
 tests exercise query/removal errors, partial removal, cancellation, carrier
 validation and unrelated-value retention on every producer.
+Three additional portable cases compare absolute nested failure paths when the
+CLI operand is relative. Windows runs the existing replacement, certificate and
+dry-run regressions with the preflight handle released before replacement.
 
 [`apple-sideband.json`](../spec/apple-sideband.json) records twelve complete pinned
 Apple bodies compiled with Clang for both architectures, including strict

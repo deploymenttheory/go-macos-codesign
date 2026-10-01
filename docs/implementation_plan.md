@@ -3568,10 +3568,13 @@ defines the shared API, source evidence, native controls and integration sequenc
 5. Retain custom rules, prefix containment, concurrent mutation, Unicode/reparse,
    native scheduling, aliases/streams, inaccessible-directory discovery, removal
    ordering, ACLs, root/case aliases and localized dates as outstanding. Streaming
-   integration is separate. No inventory status changes in this research phase.
+   integration is separate. Stripping is now recorded as partial; no feature is
+   promoted to fully verified by this bounded implementation.
 
-The pinned x/sys Darwin wrappers have no ACL reader; security-xattr access returned
-EPERM in the recorded probe. A parent-directory clone also clones its children,
+Released APFS v0.15.0 provides the typed ACL and metadata wrappers. Codesign still
+needs operation-specific inheritance and denial qualification; the earlier
+security-xattr EPERM observation is not proof of ACL absence. A parent-directory
+clone also clones its children,
 matching Apple's [clonefile contract](https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/bsd/man/man2/clonefile.2).
 Do not use recursive cloning as an ACL-only snapshot or relax the supported-API
 boundary. Merge and release remain maintainer gates.
