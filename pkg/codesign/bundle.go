@@ -244,7 +244,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !strings.HasPrefix(name, b.base) {
 			return unsupported("unsealed app root entry: " + name)
 		}
-		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.removingSignature || scope.signatureCleanup && d.IsDir()) {
+		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.signatureCleanup && d.IsDir()) {
 			if name != b.resourcesPath() && strings.EqualFold(rel, "_CodeSignature/CodeResources") {
 				return unsupported("noncanonical resource envelope filename: " + rel)
 			}
@@ -358,7 +358,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err != nil {
 				return err
 			}
-			// Format validation applies even during inspection/removal; unsigned
+			// Format validation applies even during inspection; unsigned
 			// Mach-O files are permitted until a seal is actually requested.
 			if _, err := parseContainer(data); err != nil {
 				return err
@@ -670,14 +670,20 @@ func removeBundle(ctx context.Context, path string, opts PathOptions) error {
 		return err
 	}
 	defer b.close()
-	scope := newBundleScan()
-	scope.signatureCleanup = true
-	scope.removingSignature = true
-	if _, _, err = b.scanTree(ctx, scope, 0, ""); err != nil {
+	// Removal does not build a resource envelope or operate on nested code.
+	// Validate the selected layout, then touch only its executable and signature
+	// directory. Unrelated resource permissions must not prevent removal.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if err := b.validateFrameworkRoot(); err != nil {
 		return err
 	}
 	data, err := b.read(b.executable, maxFileSize)
 	if err != nil {
+		return err
+	}
+	if err := b.checkExecutablePlatformAttribute(ctx); err != nil {
 		return err
 	}
 	out, err := RemoveSignatureBytes(ctx, data)

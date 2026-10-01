@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after codesign PR75 merged and APFS v0.15.1 was published. The upstream
+Status: updated 2026-10-01 after codesign PR76 merged and APFS v0.15.1 was published. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,26 +8,32 @@ codesign main pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current increment:** [final signing security restoration](signing-permissions.md)
-on `feat/signing-security-restoration`, cut from merged PR75 main. Published
-APFS v0.15.1 resolves denied-write replacement staging. Standalone and bundle
-sideband verification and signing-time stripping are implemented within the
-documented profiles. PR75 adds 400 native ACL comparisons, six real portable CLI
-write-denial cases, portable partial-removal API tests and fifteen-body Clang
-evidence on both architectures. This increment delays final metadata restoration
-until after the last explicit timestamp write, retains the source through SDK
-restoration, and closes source and writable staging handles before rename on all
-hosts. It adds 72 exact native comparisons of writeattr, writesecurity and append
-denials, including final ACL records, plus portable lifecycle failure tests.
-Existing writer Clang evidence regenerates unchanged. Explicit AppleDouble inputs remain additive,
-with no implicit sidecar discovery or Linux attribute-name remapping.
+**Current increment:** [shallow signature removal](signature-removal.md) on
+`feat/removal-security-boundaries`, cut from merged PR76 main. Removal no longer
+walks unrelated resources, nested code or unselected framework versions. It
+retains selected-layout validation, executable/platform-metadata preflight and
+the existing commit/cleanup boundary. Permission errors keep their API cause and
+use native CLI diagnostics. The increment adds 27 portable cases, 79 native
+comparisons and twenty mandatory foreign-produced removal archives.
+
+PR75 qualified signing permissions with APFS v0.15.1. PR76 corrected final
+security-restoration order and passed all three producers, native comparisons,
+foreign-artifact verification and coverage gates: codesign coverage was 95.32%
+on Linux, 95.18% on Windows and 95.54% on macOS. Its 72 ACL comparisons and all
+existing strict tests remain. Existing writer Clang evidence regenerates
+unchanged. Explicit AppleDouble inputs remain additive, with no implicit sidecar
+discovery or Linux attribute-name remapping.
 
 **Next obligations:** merge explicit source ACL entries with destination-parent
 inheritance using the SDK's existing ACL policy; discard old inherited source
 entries and preserve native ACE ordering. Wider probes also show native bundle
 removal can succeed without replacing code under readsecurity denial, while Go
-fails discovery. Removal permission diagnostics and deny-delete temporary-file
-names, contents and cleanup differ (`.cstemp` versus SDK private staging).
+fails discovery. Implement the Info.plist-backed generic representation and its
+ordered signature-attribute removals. Denied metadata reads inside the signature
+directory also need a shared APFS enumeration primitive that preserves rooted
+containment and directory-entry types without eager per-entry stat calls.
+Deny-delete temporary-file names, contents and cleanup still differ (`.cstemp`
+versus SDK private staging). Permission-error CLI formatting is now corrected.
 Implement and qualify these discovery/removal and allocation/cleanup boundaries;
 retain full operand bytes, ACLs, temporary artifacts and nested partial results.
 Reproduce with `go run scripts/probe-signing-security.go -candidate /path/to/codesign`.

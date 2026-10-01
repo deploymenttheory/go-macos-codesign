@@ -103,13 +103,17 @@ source ACL, so parent inheritance and inherited-entry ordering remain open.
 
 Broader exploratory probes found additional gaps outside the 72-case restoration
 profile: deny-readsecurity can make native bundle removal return success without
-replacing its executable, whereas Go fails during discovery; permission errors
-from removal expose host paths rather than the native diagnostic; deny-delete
+replacing its executable, whereas Go fails during discovery; deny-delete
 can leave native `.cstemp` files while SDK private staging has different paths
 and cleanup. These require separate discovery/removal and allocation/cleanup
 work, including exact failure artifacts and nested completion boundaries.
 They are not qualified by this increment. Reproduce the observations with
 [`probe-signing-security.go`](../scripts/probe-signing-security.go).
+
+The subsequent [shallow-removal phase](signature-removal.md) removes the
+unnecessary resource/child traversal and corrects removal's CLI permission
+diagnostics. Selected-executable fallback and signature-directory metadata
+denials remain distinct outstanding obligations.
 
 Additional work includes alternate filesystems, sandbox/authorization contexts,
 concurrent path/content/ACL mutation, custom resource rules, generic/xattr-backed
