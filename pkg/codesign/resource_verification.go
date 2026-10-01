@@ -44,6 +44,7 @@ func (f *resourceFailures) collect(err error) bool {
 	f.detail.AddedResources = append(f.detail.AddedResources, detail.AddedResources...)
 	f.detail.ModifiedResources = append(f.detail.ModifiedResources, detail.ModifiedResources...)
 	f.detail.MissingResources = append(f.detail.MissingResources, detail.MissingResources...)
+	f.detail.AttachedData = append(f.detail.AttachedData, detail.AttachedData...)
 	return true
 }
 

@@ -226,6 +226,11 @@ func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual m
 			return 0, err
 		}
 		var err error
+		if _, present := actual[name]; present {
+			if err := verifyResourceSideband(ctx, name, opts); err != nil && !failures.collect(err) {
+				return 0, err
+			}
+		}
 		if seal, sealed := files[name]; sealed {
 			value, present := actual[name]
 			err = verifyBundleResource(ctx, name, seal, value, present, opts)

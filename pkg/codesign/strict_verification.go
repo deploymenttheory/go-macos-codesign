@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"syscall"
 )
 
 // Apple performs these layout checks after cryptographic/resource validation.
@@ -164,12 +165,19 @@ func verifyStrictLink(name, target string, opts VerifyOptions) error {
 // Resolve one component at a time so that symlink/.. uses the physical parent.
 // This is host filesystem policy, not an APFS/HFS image traversal implementation.
 func resolveStrictLink(name string) (string, error) {
+	return resolveMetadataLink(name, 33, false)
+}
+
+// The open(2) sideband path has a 32-link kernel budget, distinct from
+// realpath's 33-link strict destination policy. Resolve explicitly on every
+// host so Linux and Windows do not inherit their different native budgets.
+func resolveMetadataLink(name string, limit int, opening bool) (string, error) {
 	volume := filepath.VolumeName(name)
 	current := volume + string(filepath.Separator)
 	pending := strings.TrimLeft(name[len(volume):], string(filepath.Separator))
 	links := 0
 	for pending != "" {
-		part, rest, _ := strings.Cut(pending, string(filepath.Separator))
+		part, rest, separator := strings.Cut(pending, string(filepath.Separator))
 		pending = rest
 		switch part {
 		case "", ".":
@@ -185,8 +193,8 @@ func resolveStrictLink(name string) (string, error) {
 		}
 		if info.Mode()&os.ModeSymlink != 0 {
 			links++
-			if links > 33 {
-				return "", invalid("strict symlink traversal limit exceeded")
+			if links > limit {
+				return "", syscall.ELOOP
 			}
 			target, err := os.Readlink(candidate)
 			if err != nil {
@@ -204,8 +212,8 @@ func resolveStrictLink(name string) (string, error) {
 			}
 			continue
 		}
-		if rest != "" && !info.IsDir() {
-			return "", invalid("strict symlink traverses a nondirectory")
+		if (rest != "" || opening && separator) && !info.IsDir() {
+			return "", syscall.ENOTDIR
 		}
 		current = candidate
 	}

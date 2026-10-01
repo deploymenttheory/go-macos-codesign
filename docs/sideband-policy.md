@@ -11,17 +11,18 @@ macOS-pkg PR72; macOS-pkg PR73 resolves its macOS 27 relocation-default gap.
 The former purego dependency blocker is resolved. No local SDK replacement or
 additional native binding is introduced here.
 
-The [read-only adapter](../internal/sideband/sideband.go) is now connected to
-standalone verification. `--strict=sideband`, plain `--strict`, `--strict=all`
+The [read-only adapter](../internal/sideband/sideband.go) is connected to
+standalone and bundle verification. `--strict=sideband`, plain `--strict`, `--strict=all`
 and equivalent numeric masks reject prohibited metadata on standalone Mach-O
 inputs. UDIF inputs retain Apple's behavior: strict verification checks their
-signature/trailer but does not reject sideband metadata. Enabled bundle sideband
-traversal still returns `ErrUnsupported`; it never reports a partially checked
-bundle as valid. `--strip-disallowed-xattrs` remains a separate mutation phase.
+signature/trailer but does not reject sideband metadata. Bundle traversal checks
+the supported resource-envelope/layout profiles, including nested code and framework
+versions. `--strip-disallowed-xattrs` remains a separate mutation phase.
 
 ```sh
 macoscodesign --verify --strict=sideband --verbose=1 executable
 macoscodesign --verify --strict=all --appledouble metadata.appledouble executable
+macoscodesign --verify --strict=all --deep --appledouble-map metadata.json Example.app
 ```
 
 The portable `--appledouble FILE` extension binds one explicitly named carrier
@@ -31,6 +32,73 @@ ambiguous multi-operand use, other operations and disabling controls. An adjacen
 and optional `VerifyOptions.AppleDouble`; callers retain ownership of that source.
 Byte-only Mach-O verification rejects enabled sideband policy because it cannot
 observe a native object. UDIF byte verification needs no sideband observation.
+
+## Bundle traversal and explicit metadata maps
+
+Bundle verification checks signed code and special slots, then included resources,
+then the canonical bundle root and main executable. Resource checks follow links
+before comparing their sealed text, including under `--strict=sideband` alone.
+Both prohibited attributes can be reported on a resource; root/executable checks
+stop at the first one. Local resource errors accumulate, while nested exceptions
+propagate with the native subcomponent diagnostic. Other framework-version errors
+use Apple's aggregate invalid-version diagnostic without leaking child details.
+
+Shallow verification checks immediate nested code and its root/executable, but
+does not descend into its resources. `--deep` extends the traversal. Nested
+frameworks check every physical version; an outer framework checks its selected
+version. `--ignore-resources` suppresses resources and children, retaining the
+outer root/executable checks. `--strict=none` and `--no-strict` disable sideband
+policy. Ordinary directory metadata, omitted resources and signature files are
+not blanket-rejected. Framework `Resources/Info.plist` is an included resource;
+app `Contents/Info.plist` is excluded. A versioned framework's canonical root is
+its selected version, with `Versions/Current/.` retained in native diagnostics.
+
+The bundle map is a JSON object:
+
+```json
+{
+  ".": "metadata/root.appledouble",
+  "Contents/MacOS/hello": "metadata/executable.appledouble",
+  "Contents/Resources/icon.icns": "metadata/icon.appledouble"
+}
+```
+
+Object keys are relative to the resolved bundle operand; carrier paths are relative
+to the map file. Both can be absolute, allowing an explicitly named outside resource
+link target. Keys bind by filesystem identity: symbolic and hard-link aliases see
+the same supplied metadata. Duplicate keys or aliases for the same object are
+rejected. The map is limited to 8 MiB and 10,000 bindings. Carriers must be regular
+files; their fork payload is never read into memory. Native metadata remains
+additive. The extension requires enabled sideband verification of exactly one
+bundle and cannot be combined with standalone `--appledouble`.
+
+The API equivalent is `VerifyOptions.AppleDoubleFiles`, mapping object paths to
+caller-owned `appledouble.Value` sources. The verifier captures native query
+results while holding each file used for hashing. This bounds descriptor use
+without reopening resources to query their metadata. Errors and carrier decoding
+are deferred to the relevant verification stage, so a later metadata error cannot
+replace an earlier integrity failure. CLI carrier header reads hold and check their
+file identity, size and modification time; they close each handle after reading.
+All code, metadata sources and path bindings must remain stable during verification;
+this is not an atomic snapshot of concurrent filesystem mutations.
+
+Resource opens reproduce Darwin's 32-link limit on all three hosts, including
+framework selection aliases. Strict destination validation separately retains its
+33-link realpath limit. ENOENT, ELOOP and ENOTDIR preserve their native diagnostic
+precedence over seal-text mismatches. Sources are the host SDK's `sys/param.h`,
+[XNU's MAXSYMLINKS definition](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/param.h)
+and the pinned Security bodies in `spec/apple-sideband.json` and
+`spec/apple-resource-verification.json`. The Clang extractor checks MAXSYMLINKS
+on both targets and includes complete bundle-root-to-executable delegation.
+
+`acceptance/sideband_bundle_test.go` runs native/carrier matrices on Linux, macOS
+and Windows. macOS additionally compares Apple's output, preserves raw observations
+and checks input preservation. Resource detail arrays are compared as complete
+multisets because Apple's workers/CF collections do not provide a stable ordering;
+status, diagnostic text, paths and multiplicity must match. Link-failure observations
+retain the previously qualified native `--strict=4096` reference control to avoid
+the recorded Apple asynchronous crash; no policy is disabled and no retry hides a
+failure. Existing native-signing strict tests now compare all implemented selectors.
 
 ## Standalone ordering and lifetime
 
@@ -90,8 +158,8 @@ all inspected: a later empty record cannot cancel an earlier positive observatio
 This is inspection of a supplied metadata snapshot, **not a simulation of
 copyfile restore**, whose cleanup, ordered writes, zero-value normalization,
 authorization and partial failures belong to APFS. Ordinary attribute payloads
-are not read or applied. Single-operand carrier association is explicit; bundle
-resource association, including followed resource links, still needs qualification.
+are not read or applied. Standalone association and bundle object maps are explicit;
+the latter also bind followed resource links by identity.
 
 The native and carrier results are combined only after successful reads. Inventory,
 size, decode, budget, cancellation and I/O failures return an error with its cause
@@ -191,13 +259,13 @@ root attributes unless quick-check is selected. It then handles accumulated
 structure errors and app-like policy. The single-file code-limit check follows
 its attribute handling.
 
-Resource traversal remains a separate integration problem. Pinned
+Bundle integration follows the pinned
 [`SecStaticCode::validateResource`](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/StaticCode.cpp)
 opens a resource path before sideband checking when both strict validation and
 sideband restriction are set. This follows resource links and can fail before
 link-text validation. That body is retained in the separate
 [resource verification AST manifest](../spec/apple-resource-verification.json),
-not counted again in the sideband manifest's ten bodies. The earlier
+not counted again in the sideband manifest's eleven bodies. The earlier
 [native async crash controls](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
 remain in force.
 
@@ -276,17 +344,17 @@ of the history; correcting delete-sharing did not remove the identity assertion.
    shared strict size/inventory and streaming codec operations, with the explicit
    additive AppleDouble contract above. Native nonempty/EPERM policy lives here;
    platform operations and wire parsing remain in APFS. No mutation is introduced.
-3. **Standalone integration implemented; CI qualification required:** Mach-O
+3. **Merged in PR72 with green CI:** standalone Mach-O
    metadata policy, explicit carrier binding, selected architectures, aliases,
-   diagnostic ordering and the UDIF exception. Next extend main executable,
-   bundle-root and ordinary resource checks in measured order. Cover Info.plist
-   and signature metadata separately. Include
-   app/framework versions, nested shallow/deep checks and selected architectures.
+   diagnostic ordering and the UDIF exception. **Current bundle phase:** main executable,
+   bundle-root and resource checks in measured order, with Info.plist/signature
+   exclusions, framework versions, nested shallow/deep checks and universal code.
    Retain code/CMS/requirements checks under ignore-resources and disabled strict.
-4. Measure actual resource-link follow behavior and failures before enabling
-   sideband/all selectors for bundles. Cover aliases, dangling/cyclic links, denied access,
-   custom rules, root containment and native error scheduling. Extend retained
-   unsupported plain/all observations only when their complete profile is proven.
+4. **Current bundle phase:** resource-link follow behavior, link-count boundaries,
+   dangling/cyclic targets, seal-mismatch precedence, explicit alias binding and
+   sideband/all selectors. Existing native-signing plain/all observations now
+   require matching portable results. Broader permission/ACL failures, custom rules,
+   concurrent mutations, reparse/case/Unicode behavior and native scheduling remain open.
 5. Implement strip as a separately reviewed mutation phase. Measure sign, verify,
    force, dry-run, read-only/ACL denial and multiple-attribute partial failure;
    retain byte/attribute/object-identity evidence. Do not assume `--dryrun` prevents

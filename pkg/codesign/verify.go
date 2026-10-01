@@ -111,10 +111,10 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 		return nil, err
 	}
 	if bundle {
-		if opts.StrictSideband && !opts.NoStrict {
-			return nil, unsupported("strict sideband bundle traversal is not yet qualified")
-		}
 		return verifyBundle(ctx, path, opts)
+	}
+	if len(opts.AppleDoubleFiles) != 0 {
+		return nil, unsupported("AppleDoubleFiles requires a bundle operand; use AppleDouble for a standalone file")
 	}
 	f, err := os.Open(path)
 	if err != nil {

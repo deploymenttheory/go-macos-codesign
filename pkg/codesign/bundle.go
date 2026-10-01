@@ -37,6 +37,8 @@ type appBundle struct {
 	versions                     []string
 	alternate                    bool // another view of a root whose layout was already counted
 	layoutEntries                []string
+	sidebandInputs               *bundleSidebandInputs
+	sideband                     map[string]*bundleSidebandObject
 }
 
 func bundleRelativePath(name string) error {
@@ -166,6 +168,7 @@ func (b *appBundle) read(name string, limit int64) ([]byte, error) {
 	if !os.SameFile(st, current) {
 		return nil, invalid("bundle file changed: %s", name)
 	}
+	b.observeSideband(name, f)
 	return readBounded(f, limit)
 }
 
@@ -290,6 +293,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 						return fmt.Errorf("nested %s: %w", rel, err)
 					}
 					files2[rel] = child
+					if b.sidebandInputs != nil {
+						b.sideband[name] = child.bundle.sideband["."]
+					}
 					return fs.SkipDir
 				}
 				return nil
@@ -307,6 +313,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 			if include, optional := resourcePolicy(rel, false); include {
 				files2[rel] = symlinkSeal(target, optional)
+				b.observeSidebandLink(name)
 			}
 			return nil // legacy envelopes omit every symlink
 		}
@@ -362,6 +369,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if !os.SameFile(st, current) {
 			return invalid("resource changed: %s", rel)
 		}
+		b.observeSideband(name, f)
 		if current.Size() > maxFileSize-scope.bytes {
 			return unsupported("bundle resource data exceeds 1 GiB")
 		}
@@ -437,12 +445,21 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return nil, unsupported("external special-slot overrides for bundles")
 	}
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
 	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return nil, err
 	}
 	defer b.close()
 	var actual map[string]any
+	inputs, err := prepareBundleSideband(ctx, b.path, opts)
+	if err != nil {
+		return nil, err
+	}
+	b.startSideband(inputs)
 	if !opts.IgnoreResources {
 		scope := newBundleScan()
 		scope.recurse = opts.Deep
@@ -473,6 +490,7 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 		return nil, err
 	}
 	opts.linkScope = &verificationLinkScope{bundle: b, base: base, outer: opts.linkScope}
+	opts.sidebandObject = b.sideband[b.executable]
 	opts.InfoPlist, opts.Resources = b.info, resources
 	r, err := VerifyBytes(ctx, data, opts)
 	b.annotate(r, resources)
@@ -508,6 +526,16 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 		if err := b.verifyIgnoredResourceStructure(r); err != nil {
 			return r, err
 		}
+	}
+	if err := b.verifyRootSideband(ctx, opts); err != nil {
+		return r, err
+	}
+	opts.sidebandPath = filepath.Join(b.path, b.executable)
+	if b.version != "" {
+		opts.sidebandPath = filepath.Join(b.path, "Versions", b.selection, strings.TrimPrefix(b.executable, b.base))
+	}
+	if err := verifySideband(ctx, opts); err != nil {
+		return r, err
 	}
 	if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
 		return r, err

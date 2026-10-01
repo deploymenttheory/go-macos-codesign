@@ -40,7 +40,7 @@ func sidebandObjectAttrs(t *testing.T, path string) map[string]string {
 
 func setSidebandObject(t *testing.T, path string, metadata appledouble.File) {
 	t.Helper()
-	f, err := os.OpenFile(path, os.O_RDWR, 0)
+	f, err := os.Open(path)
 	if err != nil {
 		t.Fatal(err)
 	}
