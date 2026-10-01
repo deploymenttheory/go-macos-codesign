@@ -59,7 +59,8 @@ func readOpenFile(f *os.File, recordAccess bool) ([]byte, error) {
 // Sign constructs output before writing a Mach-O, supported app bundle, or UDIF
 // disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
 // matching codesign; see SignOptions.DryRun.
-func Sign(ctx context.Context, path string, opts SignOptions) error {
+func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
+	defer func() { err = signingIOError(err) }()
 	if err := ctx.Err(); err != nil {
 		return err
 	}

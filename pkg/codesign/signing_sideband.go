@@ -6,13 +6,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
 func signingNestedError(name string, err error) error {
-	err = nestedVerificationError(name, err)
+	err = nestedVerificationError(name, signingIOError(err))
 	var detail *VerificationError
 	if errors.As(err, &detail) {
 		copy := *detail
@@ -21,6 +22,26 @@ func signingNestedError(name string, err error) error {
 		return &copy
 	}
 	return err
+}
+
+// Preserve the underlying host error for errors.Is while reporting the native
+// signing diagnostic. Convert before nested wrapping to retain Subcomponent.
+// Do not replace an already-qualified diagnostic or hide cancellation.
+func signingIOError(err error) error {
+	var detail *VerificationError
+	if errors.As(err, &detail) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return err
+	}
+	message := ""
+	switch {
+	case errors.Is(err, syscall.EPERM):
+		message = "Operation not permitted"
+	case errors.Is(err, os.ErrPermission):
+		message = "Permission denied"
+	default:
+		return err
+	}
+	return &VerificationError{Diagnostic: message, cause: err, omitArchitecture: true}
 }
 
 type signingMetadataError struct{ err error }

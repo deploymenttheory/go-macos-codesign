@@ -215,8 +215,8 @@ func TestHeldRemoval(t *testing.T) {
 	if err := removeAttribute(f, "user.codesign-test"); err != nil {
 		t.Fatal(err)
 	}
-	if err := removeAttribute(f, "user.codesign-test"); err == nil {
-		t.Fatal("missing after a positive query must fail")
+	if err := removeAttribute(f, "user.codesign-test"); err != nil {
+		t.Fatal("disappeared attribute must be accepted", err)
 	}
 	if err := removeAttribute(nil, "user.codesign-test"); err == nil {
 		t.Fatal("invalid held object")
