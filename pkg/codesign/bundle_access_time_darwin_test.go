@@ -164,6 +164,9 @@ func TestBundlePreparationDefersSourceAccess(t *testing.T) {
 	}
 	oldStage, newStage := *p.staged.Sys().(*syscall.Stat_t), *stage.Sys().(*syscall.Stat_t)
 	oldStage.Atimespec, oldStage.Ctimespec = newStage.Atimespec, newStage.Ctimespec
+	// Final security restoration follows the last explicit timestamp write.
+	// The staging mode is private until then; the final mode must match source.
+	oldStage.Mode, oldStage.Uid, oldStage.Gid, oldStage.Flags = old.Mode, old.Uid, old.Gid, old.Flags
 	if oldStage != newStage {
 		t.Fatal("access copy changed unrelated staged metadata")
 	}

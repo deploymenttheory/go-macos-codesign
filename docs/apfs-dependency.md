@@ -8,8 +8,10 @@ operations use `pkg/hostdata/accesstime`.
 
 PR186 and release PR187 fix denied-write source ACL staging. The SDK delays source
 ACL restoration until the temporary file has been opened and written. Codesign
-validates access-time metadata writes after restoring the final ACL, preserving the
-existing failure-before-envelope preparation contract. Six portable CLI cases
+now delays that restoration until after the final explicit access-time write,
+preventing a restored deny-writeattr ACL from blocking a permitted replacement.
+The source handle stays open for SDK restoration and closes before rename on
+every platform. Six portable CLI cases
 exercise real write denials; the broader Mac ACL matrix compares native behavior.
 See [permission qualification and remaining ACL policy](signing-permissions.md).
 
@@ -74,10 +76,11 @@ prerequisites are satisfied.
 
 ## Next implementation phase
 
-The next branch from main implements the read-only
-[sideband metadata adapter](sideband-policy.md). Full sideband/plain/all verification
-still requires object/carrier binding, resource traversal and failure ordering.
-Signing-time stripping follows as a separate mutation phase using the shared
-APFS metadata APIs. Do not duplicate filesystem code in codesign.
+The read-only [sideband metadata adapter](sideband-policy.md), object/carrier
+binding and signing-time stripping are implemented within their documented
+profiles. Next obligations include destination ACL inheritance, removal under
+security-read denial and denied-delete allocation/cleanup artifacts; see
+[signing permissions](signing-permissions.md). Continue using the shared APFS
+metadata APIs; do not duplicate filesystem code in codesign.
 No CLI capability or compatibility-inventory status changes merely because the
 SDK dependency is upgraded.

@@ -7,11 +7,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"syscall"
 	"testing"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
-func TestBundleCreationTimeFailurePreservesSource(t *testing.T) {
+func TestBundleCreationTimePrecedesSecurityRestoration(t *testing.T) {
 	app := testBundle(t)
 	b, err := openAppBundle(app)
 	if err != nil {
@@ -19,7 +22,6 @@ func TestBundleCreationTimeFailurePreservesSource(t *testing.T) {
 	}
 	defer b.close()
 	path := filepath.Join(app, b.executable)
-	data := readTestFile(t, path)
 	if out, err := exec.Command("/bin/chmod", "+a", "everyone deny writeattr", path).CombinedOutput(); err != nil {
 		t.Fatalf("ACL: %v: %s", err, out)
 	}
@@ -28,22 +30,42 @@ func TestBundleCreationTimeFailurePreservesSource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	capture := func() any {
+		f, err := os.Open(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		m, err := hostdata.NewHeldMetadata(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		acl, err := m.CaptureACL()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return acl
+	}
+	acl := capture()
 	writes := []bundleWrite{
 		{name: b.resourcesPath(), data: []byte("new resource envelope"), bundle: b, kind: bundleResourceWrite},
 		{name: b.executable, data: []byte("new executable"), bundle: b},
 	}
-	if err := commitBundleWrites(context.Background(), writes); !errors.Is(err, os.ErrPermission) {
-		t.Fatalf("creation metadata denial: %v", err)
+	if err := commitBundleWrites(context.Background(), writes); err != nil {
+		t.Fatalf("writeattr ACL must not prevent replacement: %v", err)
 	}
 	after, err := os.Stat(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !os.SameFile(before, after) || before.Sys().(*syscall.Stat_t).Birthtimespec != after.Sys().(*syscall.Stat_t).Birthtimespec || !bytes.Equal(readTestFile(t, path), data) {
-		t.Fatal("failed preparation changed the source")
+	if os.SameFile(before, after) || !bytes.Equal(readTestFile(t, path), writes[1].data) {
+		t.Fatal("replacement was not committed")
 	}
-	if _, err := b.root.Stat(b.base + "_CodeSignature"); !errors.Is(err, os.ErrNotExist) {
-		t.Fatalf("envelope committed before metadata preparation: %v", err)
+	if after.Sys().(*syscall.Stat_t).Birthtimespec != before.Sys().(*syscall.Stat_t).Mtimespec || before.Mode() != after.Mode() || !reflect.DeepEqual(acl, capture()) {
+		t.Fatal("replacement lost expected creation time, mode or source ACL")
+	}
+	if !bytes.Equal(readTestFile(t, filepath.Join(app, b.resourcesPath())), writes[0].data) {
+		t.Fatal("resource envelope was not committed")
 	}
 	assertNoBundleStaging(t, app)
 }
