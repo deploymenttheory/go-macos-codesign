@@ -8,7 +8,7 @@ operations use `pkg/hostdata/accesstime`.
 
 PR186 and release PR187 fix denied-write source ACL staging. The SDK delays source
 ACL restoration until the temporary file has been opened and written. Codesign
-restores final metadata before checking its creation-time write, preserving the
+validates access-time metadata writes after restoring the final ACL, preserving the
 existing failure-before-envelope preparation contract. Six portable CLI cases
 exercise real write denials; the broader Mac ACL matrix compares native behavior.
 See [permission qualification and remaining ACL policy](signing-permissions.md).

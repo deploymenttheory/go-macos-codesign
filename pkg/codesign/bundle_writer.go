@@ -298,14 +298,19 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err := r.File.Truncate(int64(len(write.data))); err != nil {
 		return nil, err
 	}
-	if err := r.RestoreMetadata(); err != nil {
-		return nil, err
-	}
-	// Restore the final security policy before validating metadata writes, so a
-	// denied write fails during preparation, before committing any envelopes.
 	// Darwin's new executable inherits an earlier source modification time as
 	// its creation time. Other hosts retain their replacement metadata policy.
 	if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
+		return nil, err
+	}
+	if err := r.RestoreMetadata(); err != nil {
+		return nil, err
+	}
+	// APFS now installs the source ACL after staging writes. Validate the final
+	// metadata permissions before any envelope commit, without changing source
+	// access or the SDK's Windows creation-time restoration. Commit refreshes
+	// access again after preceding envelope writes and child cleanup succeed.
+	if err := accesstime.CopyAccessTime(source, r.File); err != nil && !errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
 		return nil, err
 	}
 	if err := r.File.Sync(); err != nil {
