@@ -1,29 +1,30 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after [PR #69](https://github.com/deploymenttheory/go-macos-codesign/pull/69) merged
-and APFS v0.14.0 was published. The agreed upstream AppleDouble/resource-fork
-implementation and native qualification completed in APFS PR182, followed by the
-hostdata package separation in PR183. macOS-pkg draft PR72 now pins v0.14.0 and
-passed its required downstream CI; its optional live notarization step lacked
-signing secrets. The current codesign branch starts from merged main, adopts the
-published SDK and migrates replacement/directory metadata calls to `hostdata`
-and access-time calls to `hostdata/accesstime`. Codesign's final three-OS/native,
-coverage and artifact gates must qualify this adoption before the next policy
-phase. No CLI feature or inventory status changes with the dependency alone.
+Status: updated 2026-10-01 after APFS v0.15.0 publication. The upstream
+AppleDouble/resource-fork implementation, hostdata separation and removal of
+purego are released. APFS PR184 passed all 64 applicable checks, including the
+strict native/portable harness and 98.8% typed-wrapper coverage. The current
+codesign branch pins the published SDK and uses `hostdata` and
+`hostdata/accesstime`; macOS-pkg draft PR72 adopts the same version. No local
+APFS replacement is used.
 
-**Current blocker:** the published module imports `purego` on Darwin through
-both `hostdata` and `apfs`. `SetCreationTime` uses the native binding at runtime.
-The unchanged `make verify` guard rejects this dependency; the branch is an
-unqualified draft. [Required upstream correction](apfs-dependency.md) must be
-implemented, qualified and released before codesign policy work resumes.
+**Current gate:** qualify both downstream PR revisions against the published
+v0.15.0 module. Keep the existing dependency guards, three-OS/native acceptance,
+coverage and artifact checks. The prior purego blocker is resolved by the approved
+typed Darwin extension; it does not justify changing any test threshold or CLI
+compatibility status. See [dependency qualification](apfs-dependency.md).
+After qualification and maintainer merge, cut the next sideband/plain/all and
+signing-time stripping phase from main.
+
 The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
 behavior remains outstanding. The current [dependency and research phase](sideband-policy.md)
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
-remains next. Released APFS v0.14.0 is now the shared metadata/DMG dependency, with no local
-replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
+remains next. Released APFS v0.15.0 is the shared metadata/DMG dependency, with no local
+replacement or generic FFI dependency. Native host operations use the approved
+typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
 [PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
 closes bundle-parent path selection/display and establishes the combined passing

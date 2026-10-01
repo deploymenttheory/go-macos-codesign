@@ -1,77 +1,52 @@
-# APFS v0.14.0 integration gate
+# APFS v0.15.0 integration
 
-The v0.14.0 upgrade compiles and passes codesign's package/internal unit tests,
-lint, module verification and GoReleaser configuration validation. It is **not
-ready to merge**: `make verify` stops at the existing production dependency guard:
+Codesign pins the published
+[APFS v0.15.0 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0).
+There is no local APFS replacement or workspace override. Existing replacement,
+directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
+operations use `pkg/hostdata/accesstime`.
 
-```text
-Native dependency for darwin: github.com/ebitengine/purego|
-```
+The release removes `purego` from the dependency graph. Missing x/sys signatures
+use the approved finite typed Darwin extension, following x/sys's static import
+and runtime-call pattern. It retains macOS metadata, ACL, quarantine, identity
+and sandbox operations while portable codecs and policy remain Go. The boundary
+still calls platform libraries for native host observations; it does not claim
+that a foreign host can observe a live Darwin process. See the versioned
+[wrapper boundary and qualification](https://github.com/deploymenttheory/go-apfs-v2/blob/v0.15.0/docs/darwin-wrappers.md).
 
-CGO being disabled does not satisfy this repository's stricter requirement:
-production dependencies must not load native APIs through `purego`. The guard
-remains unchanged. Full native acceptance, merged coverage and packaging
-qualification have not passed for this dependency upgrade.
+## Qualification
 
-## Dependency paths
+The upstream correction passed all 64 applicable checks in
+[APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184), including
+Linux/macOS/Windows suites, native comparisons, fuzz, commercial images and real
+large-fork transfers/readbacks. The macOS wrapper gate measured 81/82 statements
+(98.8%) with 2,193 passing test records. This upstream evidence does not replace
+codesign's downstream qualification.
 
-The published module, not a local replacement, introduces these paths:
+The unchanged dependency guard, native acceptance, per-package coverage above
+95%, three-OS CI, Apple verification of foreign signatures and GoReleaser artifact
+checks must pass against this published pin. Module checksums have been verified;
+full downstream qualification is in progress. Keep PR70 draft until its final
+revision is qualified. Candidate checks using temporary modfiles do not count as
+release qualification.
 
-- `codesign` → `hostdata` → `purego` for Darwin host adapters.
-- `codesign` → `apfs` → `hostdata` → `purego`, because image metadata/security
-  types and decoders share the coordinating host package.
-- `hostdata` → `hostdata/acl` and `hostdata/sandbox` → `purego` for native capture.
-
-`hostdata/accesstime` is already separate. However, the existing codesign call to
-`hostdata.SetCreationTime` reaches `loadDarwinSecurity` and `fsetattrlist` through
-the native binding layer in v0.14.0. This is a reachable behavior dependency,
-not merely an unused package reference that can be ignored.
-
-Reproduce the audit with CGO disabled:
+Reproduce the local guard and full native suite on macOS:
 
 ```sh
-make verify
-CGO_ENABLED=0 GOOS=darwin go list -deps \
-  -f '{{.ImportPath}} {{join .Imports " "}}' ./cmd/macoscodesign
+go mod verify
+MACOSCODESIGN_REQUIRE_APPLE=1 make verify
+make lint
+make check
 ```
 
-## Required upstream correction
+Package PR72 is being updated to the same published release. Its own wrapper,
+build/extract, native package and three-OS checks remain required. The maintainer
+merges both PRs; no release or merge is performed by this adoption work.
 
-The correction belongs in APFS, retaining a single implementation of shared
-filesystem behavior. The approved approach is a finite typed Darwin extension
-following x/sys's static import/runtime-call pattern, preserving every existing
-feature and removing purego entirely. The candidate is being prepared for APFS
-v0.15.0 on `fix/remove-native-bindings`, cut from released main.
+## Next implementation phase
 
-1. Replace the generic binding machinery with typed wrappers for the signatures
-   missing from x/sys. Policy and codec implementation remains Go; Darwin host
-   observations still call platform libraries through the approved boundary.
-2. Give the replacement, directory-stat and timestamp operations used by
-   codesign dependency boundaries that satisfy its existing guard. Retain their
-   held-object identity, permissions, timestamp precision, cancellation and
-   cleanup behavior on every supported OS. Inspect the creation-time binding
-   specifically; an import move alone does not solve it. Do not substitute
-   deprecated direct syscalls, copy implementations into codesign, silently
-   suppress errors or drop symlink/directory support from the existing SDK API.
-3. Keep native capture capabilities available to APFS callers that explicitly
-   need them. Introduce no unsupported-host stub or reduced portable logical
-   feature. Prove the dependency boundary with three-OS import audits as well
-   as runtime tests; CGO-disabled builds alone cannot detect this regression.
-4. Retain every APFS strict coverage, native evidence, large-fork, foreign-image
-   readback, fuzz and CI gate. Add downstream codesign dependency qualification
-   before calling a new APFS release ready for this consumer.
-5. After maintainer merge and publication, update package PR72 if it remains open,
-   pin the corrected published module here, and rerun the complete codesign
-   guards/native/portable/coverage/GoReleaser and artifact audits. Do not qualify
-   an external modfile or local replacement as the submitted dependency.
-
-Only after this gate passes can the planned sideband/all/strip policy integration
-proceed. No compatibility inventory status is upgraded by the attempted adoption.
-
-## Candidate prerequisite check
-
-The unchanged codesign dependency guard and package/internal unit tests pass
-against the APFS candidate using an external temporary modfile. This confirms
-that removing purego resolves the observed dependency failure. It does not
-qualify the v0.14.0 pin submitted in this PR, replace full acceptance, or authorize
-merging before the corrected upstream version has been published and tested.
+After downstream qualification and merge, cut the next codesign phase from main:
+implement sideband/plain/all verification policy and signing-time stripping using
+the shared APFS metadata APIs. Do not duplicate filesystem code in codesign.
+No CLI capability or compatibility-inventory status changes merely because the
+SDK dependency is upgraded.

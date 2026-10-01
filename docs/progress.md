@@ -8,24 +8,22 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current published APFS dependency
 
-Codesign now pins [APFS v0.14.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.14.0)
+Codesign pins [APFS v0.15.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
-directory metadata and read/access-time operations. There is no local APFS
-replacement or duplicated filesystem implementation. APFS PR182/PR183 completed
-the agreed upstream qualification and package separation. macOS-pkg draft PR72
-adopted the release and passed its required three-OS downstream checks in
-[run 36810269406](https://github.com/deploymenttheory/go-macos-pkg/actions/runs/36810269406).
-Its optional live Developer ID step was not exercised because signing secrets
-were unavailable.
+directory metadata and read/access-time operations. No local APFS replacement or
+duplicated filesystem implementation is used. The published correction removes
+purego through the approved finite typed Darwin wrappers and preserves portable
+metadata support on Linux and Windows.
 
-The codesign dependency migration is **blocked by the unchanged production
-dependency guard**: the published Darwin `hostdata` adapters pull in `purego`.
-The [dependency audit and upstream prerequisites](apfs-dependency.md) identify
-both import paths and the reachable creation-time binding. Unit tests, lint,
-module verification and GoReleaser configuration checks pass, but full native,
-coverage and artifact qualification have not passed. Sideband/all verification
-and signing-time stripping remain after this upstream correction and release.
-No compatibility inventory status changes in this dependency phase.
+[APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184) passed all
+64 applicable checks; wrapper coverage on the Mac runner was 98.8%. Both downstream
+PRs now adopt the published module: codesign PR70 and macOS-pkg PR72 remain draft
+while their final revisions run downstream qualification. See the
+[dependency boundary and validation gate](apfs-dependency.md). The prior
+purego publication blocker is resolved; native acceptance, coverage and artifact
+qualification must still validate the released pin before policy work resumes.
+Sideband/plain/all verification and signing-time stripping remain next. No
+compatibility-inventory status changes in this dependency phase.
 
 ## Strict-attribute research baseline
 
@@ -36,7 +34,7 @@ EA operations and required runtime tests. Its
 [corrected CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/36333046033)
 passed all three OS suites, six builds, lint and race; associated fuzz checks
 passed. Strict-API coverage is 98.85% Mac/Linux and 98.69% Windows, with zero
-skipped strict tests. Those APIs are included in the current v0.14.0 dependency.
+skipped strict tests. Those APIs are included in the current v0.15.0 dependency.
 [The contract](sideband-policy.md) records eight complete Apple bodies on two
 Clang targets and 203 native verification controls. Another 42 directory-fork
 setups are unavailable and explicitly unexecuted. The probe establishes that
