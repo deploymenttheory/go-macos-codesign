@@ -70,11 +70,30 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	if bundle {
 		return signBundle(ctx, path, opts)
 	}
-	data, err := readFileWithAccess(path, true)
+	if opts.AppleDoubleFiles != nil {
+		return unsupported("standalone signing requires AppleDouble, not AppleDoubleFiles")
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	data, err := readOpenFile(file, true)
 	if err != nil {
 		return err
 	}
 	notifyReplacement(data, opts)
+	if !opts.Force && signingHasSignature(data) {
+		return ErrSigned
+	}
+	if !isDMG(data) {
+		if _, err := parseContainer(data); err != nil {
+			return err
+		}
+		if err := signingSideband(ctx, file, path, opts.AppleDouble, opts, false); err != nil {
+			return err
+		}
+	}
 	if opts.Identifier == "" {
 		if isDMG(data) {
 			opts.Identifier, err = dmgIdentifier(path, data, opts.Identity == nil)
@@ -87,6 +106,12 @@ func Sign(ctx context.Context, path string, opts SignOptions) error {
 	}
 	out, err := signBytes(ctx, data, opts, opts.DryRun)
 	if err != nil {
+		return err
+	}
+	// Byte and metadata preflight share this handle. Release it before the
+	// existing replacement writer takes ownership: an ordinary Windows read
+	// handle does not share deletion and would block the final rename.
+	if err := file.Close(); err != nil {
 		return err
 	}
 	return writeFile(ctx, path, out, opts.DryRun)
@@ -115,6 +140,12 @@ func notifyReplacement(data []byte, opts SignOptions) {
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.
 // DryRun is a path-operation option and does not suppress the returned signature.
 func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if opts.AppleDouble != nil || opts.AppleDoubleFiles != nil {
+		return nil, unsupported("signing AppleDouble metadata requires a filesystem object; use Sign")
+	}
 	return signBytes(ctx, data, opts, false)
 }
 

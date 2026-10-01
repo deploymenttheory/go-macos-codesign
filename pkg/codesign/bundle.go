@@ -40,6 +40,11 @@ type appBundle struct {
 	sidebandInputs               *bundleSidebandInputs
 	sideband                     map[string]*bundleSidebandObject
 	sidebandBase                 string // absolute diagnostic path, after physical parent resolution
+	signing                      *SignOptions
+	signingInputs                *bundleSidebandInputs
+	signingFailure               error
+	signingPreflightFailed       bool
+	signingNestedFailures        map[string]error
 }
 
 func bundleRelativePath(name string) error {
@@ -356,6 +361,15 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			}
 			scope.bytes += int64(len(data))
 			files2[rel] = nestedResource{data}
+			if b.signing != nil && b.signing.Deep && signingNeedsNested(data, b.signing.Force) {
+				diagnostic := filepath.Join(b.sidebandBase, filepath.FromSlash(name))
+				if err := b.signingPath(ctx, name, diagnostic, false); err != nil {
+					if b.signingNestedFailures == nil {
+						b.signingNestedFailures = map[string]error{}
+					}
+					b.signingNestedFailures[name] = signingNestedError(diagnostic, err)
+				}
+			}
 			return nil
 		}
 		f, err := b.root.Open(name)
@@ -371,6 +385,13 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			return invalid("resource changed: %s", rel)
 		}
 		b.observeSideband(name, f)
+		if b.signing != nil && include2 {
+			if err := b.signingFile(ctx, f, filepath.Join(b.sidebandBase, filepath.FromSlash(name)), true); err != nil {
+				if b.signingFailure == nil {
+					b.signingFailure = err
+				}
+			}
+		}
 		if current.Size() > maxFileSize-scope.bytes {
 			return unsupported("bundle resource data exceeds 1 GiB")
 		}
@@ -549,6 +570,13 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		return err
 	}
 	defer b.close()
+	data, err := b.read(b.executable, maxFileSize)
+	if err != nil {
+		return err
+	}
+	if !opts.Force && signingHasSignature(data) {
+		return ErrSigned
+	}
 	if opts.Force && opts.OnReplace != nil {
 		// The CLI notice precedes resource traversal, including failures there.
 		// Read only the selected main executable through the existing root. Do
@@ -557,20 +585,27 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 			notifyReplacement(data, opts)
 		}
 	}
+	inputs, err := prepareBundleSideband(ctx, b.path, VerifyOptions{StrictSideband: true, AppleDouble: opts.AppleDouble, AppleDoubleFiles: opts.AppleDoubleFiles})
+	if err != nil {
+		return err
+	}
+	if err := b.startSigningSideband(ctx, opts, inputs); err != nil {
+		return err
+	}
 	scope := newBundleScan()
 	scope.signatureCleanup = true
 	files, files2, err := b.scanTree(ctx, scope, 0, "")
 	if err != nil {
 		return err
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err = b.read(b.executable, maxFileSize)
 	if err != nil {
 		return err
 	}
 	_, writes, err := b.planSignature(ctx, data, files, files2, opts, opts.Force)
 	if err != nil {
-		if opts.DryRun && len(writes) != 0 {
-			if allocationErr := applyBundleWrites(ctx, writes, true); allocationErr != nil {
+		if (opts.DryRun || metadataSigningFailure(err)) && len(writes) != 0 {
+			if allocationErr := applyBundleWrites(ctx, writes, opts.DryRun); allocationErr != nil {
 				return allocationErr
 			}
 		}

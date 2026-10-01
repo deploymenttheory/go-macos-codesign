@@ -17,7 +17,8 @@ and equivalent numeric masks reject prohibited metadata on standalone Mach-O
 inputs. UDIF inputs retain Apple's behavior: strict verification checks their
 signature/trailer but does not reject sideband metadata. Bundle traversal checks
 the supported resource-envelope/layout profiles, including nested code and framework
-versions. `--strip-disallowed-xattrs` remains a separate mutation phase.
+versions. [Signing preflight and stripping](signing-sideband.md) now use the same
+metadata policy, with separately qualified mutation and failure ordering.
 
 ```sh
 macoscodesign --verify --strict=sideband --verbose=1 executable
@@ -265,7 +266,7 @@ opens a resource path before sideband checking when both strict validation and
 sideband restriction are set. This follows resource links and can fail before
 link-text validation. That body is retained in the separate
 [resource verification AST manifest](../spec/apple-resource-verification.json),
-not counted again in the sideband manifest's eleven bodies. The earlier
+not counted again in the sideband manifest's twelve bodies. The earlier
 [native async crash controls](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
 remain in force.
 
@@ -307,8 +308,8 @@ then FinderInfo order; code objects reported the first fork only.
 The native **verification CLI** did not remove attributes with
 `--strip-disallowed-xattrs`, with or without `--dryrun`; all byte/mode/selected-attr
 snapshots were unchanged. This prevents inferring CLI flag dispatch from the
-lower-level AST branch alone. Signing-time stripping and its partial effects
-still require a separate corpus.
+lower-level AST branch alone. The separate [signing corpus](signing-sideband.md)
+now qualifies signing-time stripping and measured partial effects.
 
 The independent APFS tests also use native `xattr` creation/read/removal and real
 ACL denial. APFS normalizes empty ResourceFork and all-zero FinderInfo values to
@@ -346,19 +347,20 @@ of the history; correcting delete-sharing did not remove the identity assertion.
    platform operations and wire parsing remain in APFS. No mutation is introduced.
 3. **Merged in PR72 with green CI:** standalone Mach-O
    metadata policy, explicit carrier binding, selected architectures, aliases,
-   diagnostic ordering and the UDIF exception. **Current bundle phase:** main executable,
+   diagnostic ordering and the UDIF exception. **Merged in PR73:** main executable,
    bundle-root and resource checks in measured order, with Info.plist/signature
    exclusions, framework versions, nested shallow/deep checks and universal code.
    Retain code/CMS/requirements checks under ignore-resources and disabled strict.
-4. **Current bundle phase:** resource-link follow behavior, link-count boundaries,
+4. **Merged in PR73:** resource-link follow behavior, link-count boundaries,
    dangling/cyclic targets, seal-mismatch precedence, explicit alias binding and
    sideband/all selectors. Existing native-signing plain/all observations now
    require matching portable results. Broader permission/ACL failures, custom rules,
    concurrent mutations, reparse/case/Unicode behavior and native scheduling remain open.
-5. Implement strip as a separately reviewed mutation phase. Measure sign, verify,
-   force, dry-run, read-only/ACL denial and multiple-attribute partial failure;
-   retain byte/attribute/object-identity evidence. Do not assume `--dryrun` prevents
-   changes, that ignored resources are traversed, or that native removal rolls back.
+5. **Signing mutation phase:** default preflight, force/already-signed order,
+   native and explicit-carrier stripping, dry-run mutations and independent-child
+   completion are implemented. See [the signing contract](signing-sideband.md).
+   Broader read-only/ACL denial and concurrent-mutation profiles remain open;
+   retain byte/attribute/object-identity evidence and all strict CI gates.
 6. Run native differential cases, portable unit/CLI coverage above 95%, three-OS
    CI, race/fuzz, foreign-signature imports and six GoReleaser package checks on
    the released dependency. Audit exact source and downloaded package provenance.

@@ -561,14 +561,15 @@
     },
     {
       "id": "--strip-disallowed-xattrs",
-      "status": "not-implemented",
+      "status": "partial",
       "manual": ".It Fl -strip-disallowed-xattrs",
       "evidence": [
-        "docs/sideband-policy.md",
+        "docs/signing-sideband.md",
         "spec/apple-sideband.json",
-        "scripts/probe-sideband.go"
+        "acceptance/signing_sideband_test.go",
+        "internal/sideband/strip_test.go"
       ],
-      "notes": "Production implementation is pending on all three operating systems. Eight complete Apple attribute/strict bodies have two-target AST evidence. The 203 native verification controls establish inert verification-time stripping in the measured profile; signing-time stripping and partial effects still require a separate corpus. APFS PR 131 implements the shared strict attribute APIs for Linux, macOS and Windows; integrate a published release before enabling policy here. Research/dependency evidence does not upgrade this feature status."
+      "notes": "Signing preflight and nonempty native/explicit AppleDouble removal are implemented for supported Mach-O and bundle profiles on Linux, macOS and Windows. The native matrix covers force, already-signed rejection, no-strict, dry-run mutations, selected nested work, UDIF exemption and independent-child completion after resource errors. The flag is inert in verification/display/removal. Twelve complete pinned Apple bodies have two-target Clang AST evidence. Broader native permission/ACL and concurrent-mutation matrices, generic/xattr-backed representations and signing selector combinations remain open; do not infer full option parity from this bounded implementation."
     },
     {
       "id": "--single-threaded-signing",

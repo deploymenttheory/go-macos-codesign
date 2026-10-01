@@ -97,8 +97,23 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 	if err := child.startSideband(b.sidebandInputs); err != nil {
 		return nil, err
 	}
+	if b.signing != nil && b.signing.Deep {
+		data, err := child.read(child.executable, maxFileSize)
+		if err != nil {
+			return nil, err
+		}
+		if signingNeedsNested(data, b.signing.Force) {
+			if err := child.startSigningSideband(ctx, *b.signing, b.signingInputs); err != nil {
+				child.signingFailure, child.signingPreflightFailed = err, true
+				child.signing = nil // No child workers start before its code preflight succeeds.
+			}
+		}
+	}
 	app, err := child.snapshot(ctx, scope, depth, prefix+name+"/")
 	if err != nil {
+		if b.signing != nil {
+			return nil, signingNestedError(child.path, err)
+		}
 		return nil, err
 	}
 	if scope.verifyVersions {
@@ -175,7 +190,10 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 // forceMain controls this executable; opts.Force controls signed descendants.
 // Dry-run seal errors retain reached child allocations with their owning roots.
 func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files2 map[string]any, opts SignOptions, forceMain bool) ([]byte, []bundleWrite, error) {
-	writes, err := prepareNestedAt(ctx, files2, opts, b.base)
+	if b.signingPreflightFailed {
+		return nil, nil, &signingMetadataError{b.signingFailure}
+	}
+	writes, err := prepareNestedForBundle(ctx, files2, opts, b.base, b)
 	for i := range writes {
 		if writes[i].bundle == nil {
 			writes[i].bundle = b
@@ -183,6 +201,9 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 	}
 	if err != nil {
 		return nil, writes, err
+	}
+	if b.signingFailure != nil {
+		return nil, writes, &signingMetadataError{b.signingFailure}
 	}
 	opts.InfoPlist, opts.Resources = b.info, encodeBundleResources(files, files2)
 	if len(opts.Resources) > maxBundlePlist {
@@ -192,7 +213,7 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 		opts.Identifier = b.identifier
 	}
 	opts.Force = forceMain
-	out, err := SignBytes(ctx, data, opts)
+	out, err := signBytes(ctx, data, opts, false)
 	if err != nil {
 		return nil, nil, err
 	}
