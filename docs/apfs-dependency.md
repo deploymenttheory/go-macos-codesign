@@ -33,10 +33,14 @@ codesign's downstream qualification.
 
 The unchanged dependency guard, native acceptance, per-package coverage above
 95%, three-OS CI, Apple verification of foreign signatures and GoReleaser artifact
-checks must pass against this published pin. Module checksums have been verified;
-full downstream qualification is in progress. Keep PR70 draft until its final
-revision is qualified. Candidate checks using temporary modfiles do not count as
-release qualification.
+checks passed against this published pin in merged
+[PR70](https://github.com/deploymenttheory/go-macos-codesign/pull/70),
+[run 36827217728](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36827217728).
+Codesign coverage was 95.39% on Linux, 95.31% on Windows and 95.55% on macOS;
+CLI coverage was 98.44%, 98.44% and 99.06%, respectively, with command coverage
+100%. Qualification included six archives and SBOMs plus Apple's verification
+of 606 foreign-produced signed artifacts. Candidate checks using temporary
+modfiles do not count as release qualification.
 
 Native chain acceptance keeps its disposable keychain unlocked for the bounded
 suite: its 30-minute fixture timeout exceeds the 20-minute suite budget. macOS's
@@ -54,14 +58,19 @@ make lint
 make check
 ```
 
-Package PR72 is being updated to the same published release. Its own wrapper,
-build/extract, native package and three-OS checks remain required. The maintainer
-merges both PRs; no release or merge is performed by this adoption work.
+Package PR72 is merged on the same release. Its macOS 27 relocation-default gap
+was resolved in merged [PR73](https://github.com/deploymenttheory/go-macos-pkg/pull/73),
+with macOS 27's default used on every host and older relocation behavior available
+explicitly. Its [qualification run](https://github.com/deploymenttheory/go-macos-pkg/actions/runs/36840133037)
+passed the required native and portable checks. Both downstream publication
+prerequisites are satisfied.
 
 ## Next implementation phase
 
-After downstream qualification and merge, cut the next codesign phase from main:
-implement sideband/plain/all verification policy and signing-time stripping using
-the shared APFS metadata APIs. Do not duplicate filesystem code in codesign.
+The next branch from main implements the read-only
+[sideband metadata adapter](sideband-policy.md). Full sideband/plain/all verification
+still requires object/carrier binding, resource traversal and failure ordering.
+Signing-time stripping follows as a separate mutation phase using the shared
+APFS metadata APIs. Do not duplicate filesystem code in codesign.
 No CLI capability or compatibility-inventory status changes merely because the
 SDK dependency is upgraded.

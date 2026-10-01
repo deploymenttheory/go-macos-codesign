@@ -207,7 +207,7 @@ func (v *failedValue) Size() int64                     { return v.size }
 func (*failedValue) ReadAt([]byte, int64) (int, error) { return 0, syscall.EIO }
 
 // A synthetic sparse source proves that the full uint32 fork boundary is
-// accepted without allocating or reading the fork. Header accesses are bounded
+// accepted without allocating or reading the entire fork. Header accesses are bounded
 // independently of its declared size; no filesystem sparse-file support needed.
 type sparseValue struct {
 	header []byte
