@@ -38,6 +38,13 @@ full downstream qualification is in progress. Keep PR70 draft until its final
 revision is qualified. Candidate checks using temporary modfiles do not count as
 release qualification.
 
+Native chain acceptance keeps its disposable keychain unlocked for the bounded
+suite: its 30-minute fixture timeout exceeds the 20-minute suite budget. macOS's
+default five-minute lock otherwise expires before later requirement tests reuse
+the chain. This changes only the test-created keychain, which is deleted at suite
+exit; user keychain settings, trust policy, command deadlines and assertions are
+unchanged.
+
 Reproduce the local guard and full native suite on macOS:
 
 ```sh
