@@ -38,11 +38,14 @@ CGO_ENABLED=0 GOOS=darwin go list -deps \
 ## Required upstream correction
 
 The correction belongs in APFS, retaining a single implementation of shared
-filesystem behavior. Start from current APFS main and submit a draft PR.
+filesystem behavior. The approved approach is a finite typed Darwin extension
+following x/sys's static import/runtime-call pattern, preserving every existing
+feature and removing purego entirely. The candidate is being prepared for APFS
+v0.15.0 on `fix/remove-native-bindings`, cut from released main.
 
-1. Separate portable image metadata/security models and APFS name operations
-   from native host observation. Reading an image or comparing names must not
-   acquire a dependency on Darwin process, quarantine, identity or sandbox APIs.
+1. Replace the generic binding machinery with typed wrappers for the signatures
+   missing from x/sys. Policy and codec implementation remains Go; Darwin host
+   observations still call platform libraries through the approved boundary.
 2. Give the replacement, directory-stat and timestamp operations used by
    codesign dependency boundaries that satisfy its existing guard. Retain their
    held-object identity, permissions, timestamp precision, cancellation and
@@ -64,3 +67,11 @@ filesystem behavior. Start from current APFS main and submit a draft PR.
 
 Only after this gate passes can the planned sideband/all/strip policy integration
 proceed. No compatibility inventory status is upgraded by the attempted adoption.
+
+## Candidate prerequisite check
+
+The unchanged codesign dependency guard and package/internal unit tests pass
+against the APFS candidate using an external temporary modfile. This confirms
+that removing purego resolves the observed dependency failure. It does not
+qualify the v0.14.0 pin submitted in this PR, replace full acceptance, or authorize
+merging before the corrected upstream version has been published and tested.
