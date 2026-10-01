@@ -1,0 +1,350 @@
+{
+  "cases": [
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "clean",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 0,
+      "native_stderr": "tool: valid on disk\ntool: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-control",
+      "attrs_hex": {
+        "user.sideband-control": ""
+      },
+      "location": "standalone",
+      "native_status": 0,
+      "native_stderr": "tool: valid on disk\ntool: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-fork",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 0,
+      "native_stderr": "tool: valid on disk\ntool: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000400000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "fork",
+      "attrs_hex": {
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 1,
+      "native_stderr": "tool: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "zero-finder",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 0,
+      "native_stderr": "tool: valid on disk\ntool: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000054455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "finder",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 1,
+      "native_stderr": "tool: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.FinderInfo found on $FIXTURE/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000454455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "both",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "standalone",
+      "native_status": 1,
+      "native_stderr": "tool: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "clean",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "bundle-root",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-control",
+      "attrs_hex": {
+        "user.sideband-control": ""
+      },
+      "location": "bundle-root",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "zero-finder",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "bundle-root",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000054455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "finder",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "bundle-root",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.FinderInfo found on $FIXTURE/Probe.app\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "clean",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-control",
+      "attrs_hex": {
+        "user.sideband-control": ""
+      },
+      "location": "executable",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-fork",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000400000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "fork",
+      "attrs_hex": {
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/Probe.app/Contents/MacOS/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "zero-finder",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000054455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "finder",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.FinderInfo found on $FIXTURE/Probe.app/Contents/MacOS/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000454455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "both",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "executable",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/Probe.app/Contents/MacOS/tool\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "clean",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-control",
+      "attrs_hex": {
+        "user.sideband-control": ""
+      },
+      "location": "resource",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-fork",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000400000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "fork",
+      "attrs_hex": {
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/Probe.app/Contents/Resources/data\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "zero-finder",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000054455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "finder",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.FinderInfo found on $FIXTURE/Probe.app/Contents/Resources/data\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000454455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000666f726b",
+      "attribute_state": "both",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "com.apple.ResourceFork": "666f726b",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "resource",
+      "native_status": 1,
+      "native_stderr": "Probe.app: resource fork, Finder information, or similar detritus not allowed\n",
+      "native_stdout": "file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on $FIXTURE/Probe.app/Contents/Resources/data\nfile with invalid attached data: Disallowed xattr com.apple.FinderInfo found on $FIXTURE/Probe.app/Contents/Resources/data\n"
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "clean",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "signature-directory",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "empty-control",
+      "attrs_hex": {
+        "user.sideband-control": ""
+      },
+      "location": "signature-directory",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000000000000000000000000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "zero-finder",
+      "attrs_hex": {
+        "user.sideband-control": "6b656570"
+      },
+      "location": "signature-directory",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    },
+    {
+      "appledouble_hex": "00051607000200004d6163204f5320582020202020202020000200000009000000320000004600000002000000780000000054455854747478740000000000000000000000000000000000000000000000000000415454520000000000000078000000780000000000000000000000000000000000000000",
+      "attribute_state": "finder",
+      "attrs_hex": {
+        "com.apple.FinderInfo": "5445585474747874000000000000000000000000000000000000000000000000",
+        "user.sideband-control": "6b656570"
+      },
+      "location": "signature-directory",
+      "native_status": 0,
+      "native_stderr": "Probe.app: valid on disk\nProbe.app: satisfies its Designated Requirement\n",
+      "native_stdout": ""
+    }
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "driver_sha256": "05aefbafe830570679b3a16c13cd582082e3a8acb31303beae11e654a6b0d907",
+  "host": {
+    "args": null,
+    "status": 0,
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+    "stderr": ""
+  },
+  "input_sha256": {
+    "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"
+  },
+  "schema": 1,
+  "scope": "Native observations plus held-object/explicit-AppleDouble metadata adapter comparisons on fresh ad-hoc arm64 standalone/app fixtures; not full Go CLI, traversal, ACL, link, compression, signing or failure-ordering parity."
+}

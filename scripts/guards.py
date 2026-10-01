@@ -67,6 +67,7 @@ def main():
                                      ("testdata/layouts", "manifest.json"),
                                      ("testdata/framework-versions", "manifest.json"),
                                      ("testdata/removal", "manifest.json"),
+                                     ("testdata/sideband", "manifest.json"),
                                      ("testdata/dmg", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory
