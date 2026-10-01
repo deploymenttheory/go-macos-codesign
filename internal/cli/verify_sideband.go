@@ -92,7 +92,14 @@ func readSidebandManifest(ctx context.Context, path string) (map[string]appledou
 		if !info.Mode().IsRegular() {
 			return nil, fmt.Errorf("AppleDouble carrier must be a regular file")
 		}
-		values[key] = &mappedCarrier{path: name, info: info}
+		carrier := &mappedCarrier{path: name, info: info}
+		for _, previous := range values {
+			if existing := previous.(*mappedCarrier); os.SameFile(existing.info, info) {
+				carrier = existing
+				break
+			}
+		}
+		values[key] = carrier
 	}
 	if _, err := d.Token(); err != nil {
 		return nil, err

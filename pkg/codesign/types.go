@@ -3,6 +3,7 @@
 package codesign
 
 import (
+	"context"
 	"crypto"
 	"errors"
 	"fmt"
@@ -45,6 +46,19 @@ type SignOptions struct {
 	BundleVersion string
 	Identifier    string
 	Force         bool
+	// NoStrict disables signing preflight metadata rejection and code-object
+	// stripping. Explicit stripping of included ordinary resources still runs.
+	NoStrict bool
+	// StripDisallowedXattrs removes nonempty ResourceFork and FinderInfo values
+	// before signing preflight. Removals also occur during DryRun and are not
+	// rolled back after subsequent failures. UDIF ignores this option.
+	StripDisallowedXattrs bool
+	// AppleDouble and AppleDoubleFiles explicitly supplement native metadata,
+	// with the same binding rules as VerifyOptions. For stripping, a carrier
+	// containing prohibited data must implement MutableAppleDouble. Carriers
+	// are never automatically discovered or restored onto the host filesystem.
+	AppleDouble      appledouble.Value
+	AppleDoubleFiles map[string]appledouble.Value
 	// OnReplace is called synchronously by Sign when Force selects an existing,
 	// readable signature on the top-level input, before signature construction.
 	// It is a notice of an attempted replacement, not a success notification, and
@@ -85,6 +99,14 @@ type SignOptions struct {
 	// Certificate DMG path dry runs are rejected before calling the provider.
 	Timestamp *TimestampOptions
 	teamID    string
+}
+
+// MutableAppleDouble permits signing to remove a named attribute from an
+// explicit AppleDouble input. Each removal must preserve unrelated values,
+// update subsequent reads and report errors. The caller owns its lifetime.
+type MutableAppleDouble interface {
+	appledouble.Value
+	RemoveAttribute(context.Context, string) error
 }
 
 // VerifyOptions selects an architecture and optional external special-slot data.

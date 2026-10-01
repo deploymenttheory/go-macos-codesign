@@ -3534,18 +3534,19 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active sideband work after PR #72
+### Active sideband work after PR #73
 
 The resource-suppression, APFS v0.15.0 and read-only metadata adapter increments
-are merged. This phase starts from main at `ba6ecf783d4cd31d5a5d2bed318c8c9ef3bb5401` on
-`feat/strict-sideband-bundles`. The [sideband contract](sideband-policy.md)
+are merged, together with strict bundle sideband verification. This phase starts
+from main at `5cfffbe8082e9be1f7b7e8abd074e971bbd751e8` on
+`feat/signing-sideband-policy`. The [sideband contract](sideband-policy.md)
 defines the shared API, source evidence, native controls and integration sequence.
 
 1. **Completed and released:** APFS PR #131's strict size/read/remove APIs on Linux,
    macOS and Windows, including held-object/no-follow behavior and error causes.
    Require runtime operation, identity and permission tests and coverage above
    95% in the new API on every producer. Preserve the user's separate APFS tree.
-2. **Recorded:** eleven complete Apple bodies on both Clang targets and 203 exact
+2. **Recorded:** twelve complete Apple bodies on both Clang targets and 203 exact
    native verification controls. Retain all 42 unavailable directory-fork setups
    explicitly; they are not successful tests. Separate generic attribute results
    from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
@@ -3554,9 +3555,13 @@ defines the shared API, source evidence, native controls and integration sequenc
    Standalone object/carrier binding, first-error order and selectors are now
    merged with green three-host CI. Bundle sideband resource traversal, explicit
    AppleDouble maps, error order, selectors and native diagnostics are implemented
-   in the current phase; qualification uses the unchanged CI harness. All three operating
+   in merged PR73 with green CI. All three operating
    systems are required; a missing platform implementation cannot be waived.
-4. Measure signing-time strip, dry-run ordering and partial effects separately.
+4. **Current implementation:** signing-time default preflight, stripping, mutable
+   explicit carriers, already-signed/force ordering, dry-run removals and independent
+   child commits after metadata failures. The [signing contract](signing-sideband.md)
+   defines the native/portable acceptance matrix and remaining scope. Source-reviewed
+   signer dispatch complements the complete compiled resource-hashing body.
    Retain native imports, coverage, race/eleven fuzz, lint, six GoReleaser packages,
    PR66 native stress controls and hard process-termination checks. Record actual
    workflow results and independently check their source/artifact provenance.

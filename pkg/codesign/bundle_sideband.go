@@ -69,17 +69,12 @@ func prepareBundleSideband(ctx context.Context, path string, opts VerifyOptions)
 
 func (s *bundleSidebandInputs) observe(file *os.File) *bundleSidebandObject {
 	o := &bundleSidebandObject{}
-	info, err := file.Stat()
+	carrier, err := s.carrier(file)
 	if err != nil {
 		o.err = err
 		return o
 	}
-	for _, binding := range s.bindings {
-		if os.SameFile(info, binding.info) {
-			o.carrier = binding.value
-			break
-		}
-	}
+	o.carrier = carrier
 	o.native = sideband.Observe(s.ctx, file)
 	return o
 }

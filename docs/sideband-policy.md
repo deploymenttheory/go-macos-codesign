@@ -17,7 +17,8 @@ and equivalent numeric masks reject prohibited metadata on standalone Mach-O
 inputs. UDIF inputs retain Apple's behavior: strict verification checks their
 signature/trailer but does not reject sideband metadata. Bundle traversal checks
 the supported resource-envelope/layout profiles, including nested code and framework
-versions. `--strip-disallowed-xattrs` remains a separate mutation phase.
+versions. [Signing preflight and stripping](signing-sideband.md) now use the same
+metadata policy, with separately qualified mutation and failure ordering.
 
 ```sh
 macoscodesign --verify --strict=sideband --verbose=1 executable
@@ -355,10 +356,11 @@ of the history; correcting delete-sharing did not remove the identity assertion.
    sideband/all selectors. Existing native-signing plain/all observations now
    require matching portable results. Broader permission/ACL failures, custom rules,
    concurrent mutations, reparse/case/Unicode behavior and native scheduling remain open.
-5. Implement strip as a separately reviewed mutation phase. Measure sign, verify,
-   force, dry-run, read-only/ACL denial and multiple-attribute partial failure;
-   retain byte/attribute/object-identity evidence. Do not assume `--dryrun` prevents
-   changes, that ignored resources are traversed, or that native removal rolls back.
+5. **Signing mutation phase:** default preflight, force/already-signed order,
+   native and explicit-carrier stripping, dry-run mutations and independent-child
+   completion are implemented. See [the signing contract](signing-sideband.md).
+   Broader read-only/ACL denial and concurrent-mutation profiles remain open;
+   retain byte/attribute/object-identity evidence and all strict CI gates.
 6. Run native differential cases, portable unit/CLI coverage above 95%, three-OS
    CI, race/fuzz, foreign-signature imports and six GoReleaser package checks on
    the released dependency. Audit exact source and downloaded package provenance.

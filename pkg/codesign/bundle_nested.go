@@ -124,6 +124,10 @@ func prepareNested(ctx context.Context, files map[string]any, opts SignOptions) 
 }
 
 func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions, base string) ([]bundleWrite, error) {
+	return prepareNestedForBundle(ctx, files, opts, base, nil)
+}
+
+func prepareNestedForBundle(ctx context.Context, files map[string]any, opts SignOptions, base string, owner *appBundle) ([]bundleWrite, error) {
 	names := []string{}
 	for name, value := range files {
 		switch value.(type) {
@@ -134,9 +138,16 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 	sort.Strings(names)
 	var writes []bundleWrite
 	var total int64
+	var metadataFailure error
 	for _, name := range names {
 		if err := ctx.Err(); err != nil {
 			return nil, err
+		}
+		if owner != nil && owner.signingNestedFailures[base+name] != nil {
+			if metadataFailure == nil {
+				metadataFailure = owner.signingNestedFailures[base+name]
+			}
+			continue
 		}
 		var original []byte
 		var app *nestedAppResource
@@ -153,10 +164,7 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 			if err != nil {
 				return nil, err
 			}
-			signed := true
-			for _, a := range r.Architectures {
-				signed = signed && a.Signature != nil && a.Signature.Directories[0].Flags&0x20000 == 0
-			}
+			signed := signingComplete(r)
 			if !signed || opts.Force {
 				child := opts
 				child.InfoPlist, child.Resources = nil, nil
@@ -170,10 +178,23 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 							return nil, err
 						}
 					}
-					data, err = SignBytes(ctx, data, child)
+					data, err = signBytes(ctx, data, child, false)
 					if err == nil {
 						staged = []bundleWrite{{name: base + name, data: data}}
 					}
+				}
+				if metadataSigningFailure(err) {
+					for _, w := range staged {
+						total += int64(len(w.data))
+					}
+					if total > maxFileSize {
+						return nil, unsupported("nested signature output exceeds 1 GiB")
+					}
+					writes = append(writes, staged...)
+					if metadataFailure == nil {
+						metadataFailure = signingNestedError(app.bundle.path, err)
+					}
+					continue
 				}
 				if err != nil && (!opts.DryRun || len(staged) == 0) {
 					return nil, fmt.Errorf("nested %s: %w", name, err)
@@ -203,6 +224,9 @@ func prepareNestedAt(ctx context.Context, files map[string]any, opts SignOptions
 			return nil, fmt.Errorf("nested %s: %w", name, err)
 		}
 		files[name] = seal
+	}
+	if metadataFailure != nil {
+		return writes, &signingMetadataError{metadataFailure}
 	}
 	return writes, nil
 }

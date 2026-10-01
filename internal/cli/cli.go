@@ -32,6 +32,7 @@ type options struct {
 	strictRequested                                                                      bool
 	strictMask                                                                           uint32
 	noStrict                                                                             bool
+	stripDisallowed                                                                      bool
 	appleDoublePath                                                                      string
 	appleDoubleMap                                                                       string
 	requirementsSet                                                                      bool
@@ -81,6 +82,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				fmt.Fprintln(stdout, "Verification: --ignore-resources skips resource envelopes and nested code, even with --deep. Code integrity, non-resource metadata, requirements and enabled layout checks remain enforced.")
 				fmt.Fprintln(stdout, "Sideband verification: --strict=sideband, --strict=all or --strict checks Mach-O and bundle metadata; DMGs retain Apple's exemption. Portable --appledouble FILE adds a standalone snapshot; --appledouble-map FILE maps bundle object paths to snapshots. Native attributes are always checked.")
+				fmt.Fprintln(stdout, "Signing checks sideband metadata by default. --strip-disallowed-xattrs removes prohibited native and explicit AppleDouble metadata, including during --dryrun; completed removals survive later failures. --no-strict disables code-object preflight, while explicit ordinary-resource stripping still runs.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
@@ -185,6 +187,11 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
+			case "strip-disallowed-xattrs":
+				if has {
+					return o, fmt.Errorf("--strip-disallowed-xattrs does not accept an argument")
+				}
+				o.stripDisallowed = true
 			case "ignore-resources":
 				if has {
 					return o, fmt.Errorf("--ignore-resources does not accept an argument")
@@ -383,15 +390,17 @@ func parse(args []string) (options, error) {
 		o.verbose--
 	}
 	if o.strictRequested {
-		if o.operation != "verify" || o.strictMask & ^uint32(0x280) != 0 {
+		signingNoStrict := o.operation == "sign" && o.noStrict && o.strictMask == 0
+		if (o.operation != "verify" && !signingNoStrict) || o.strictMask & ^uint32(0x280) != 0 {
 			return o, fmt.Errorf("%w: --strict policy (supported bits: symlinks=128, sideband=512; none or --no-strict disables checks)", codesign.ErrUnsupported)
 		}
 	}
-	if o.appleDoublePath != "" && (o.operation != "verify" || o.strictMask&0x200 == 0 || o.noStrict || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble requires enabled --strict=sideband or --strict=all and exactly one standalone operand")
+	metadataOperation := o.operation == "sign" || o.operation == "verify" && o.strictMask&0x200 != 0 && !o.noStrict
+	if o.appleDoublePath != "" && (!metadataOperation || len(o.paths) != 1) {
+		return o, fmt.Errorf("--appledouble requires signing or enabled strict sideband verification of exactly one standalone operand")
 	}
-	if o.appleDoubleMap != "" && (o.appleDoublePath != "" || o.operation != "verify" || o.strictMask&0x200 == 0 || o.noStrict || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble-map requires enabled strict sideband verification of one bundle and cannot be combined with --appledouble")
+	if o.appleDoubleMap != "" && (o.appleDoublePath != "" || !metadataOperation || len(o.paths) != 1) {
+		return o, fmt.Errorf("--appledouble-map requires signing or enabled strict sideband verification of one bundle and cannot be combined with --appledouble")
 	}
 	return o, nil
 }
@@ -435,6 +444,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	signOpts.NoStrict, signOpts.StripDisallowedXattrs = o.noStrict, o.stripDisallowed
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
 		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
 		return 2
@@ -581,7 +591,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			signOpts.OnReplace = func() {
 				fmt.Fprintf(stderr, "%s: replacing existing signature\n", path)
 			}
-			err = codesign.Sign(ctx, path, signOpts)
+			err = signWithMetadata(ctx, path, o.appleDoublePath, o.appleDoubleMap, signOpts)
 			if err == nil && o.fileList {
 				if report == nil {
 					report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
@@ -647,7 +657,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				fmt.Fprintln(stderr, outputError)
 				return 1 // Native fopen failure terminates even with --continue.
 			}
-			if o.operation == "verify" {
+			if o.operation == "verify" || o.operation == "sign" {
 				verificationDiagnostic(stdout, stderr, path, err, o)
 			} else {
 				fmt.Fprintf(stderr, "%s: %s\n", path, diagnostic(err))

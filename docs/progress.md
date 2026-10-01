@@ -6,6 +6,22 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
+## Current signing-metadata phase
+
+PR73 is merged at `5cfffbe8082e9be1f7b7e8abd074e971bbd751e8`. Its
+[final CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36853016484)
+passed all three platforms, every production-package coverage gate above 95%,
+native/foreign-signature acceptance, lint, race/fuzz and six packaged targets.
+The next branch, `feat/signing-sideband-policy`, starts from that merged main.
+
+The [signing-metadata contract](signing-sideband.md) describes default preflight,
+`--strip-disallowed-xattrs`, explicit mutable AppleDouble inputs, dry-run effects
+and independent-child completion after resource failures. The new acceptance
+matrix runs on every producer and adds native comparisons on macOS. CI results
+for this branch must pass before its draft PR is ready for maintainer review.
+Broader permission/concurrency profiles and the remaining compatibility inventory
+are still open; this does not declare full codesign parity.
+
 ## Current published APFS dependency
 
 Codesign pins [APFS v0.15.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0)
@@ -17,13 +33,11 @@ metadata support on Linux and Windows.
 
 [APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184) passed all
 64 applicable checks; wrapper coverage on the Mac runner was 98.8%. Both downstream
-PRs now adopt the published module: codesign PR70 and macOS-pkg PR72 remain draft
-while their final revisions run downstream qualification. See the
+PRs adopted the published module and are merged: codesign PR70 and macOS-pkg PR72.
+See the
 [dependency boundary and validation gate](apfs-dependency.md). The prior
-purego publication blocker is resolved; native acceptance, coverage and artifact
-qualification must still validate the released pin before policy work resumes.
-Sideband/plain/all verification and signing-time stripping remain next. No
-compatibility-inventory status changes in this dependency phase.
+purego publication blocker is resolved. Subsequent green codesign PR71–73
+qualified the adapter and standalone/bundle sideband verification on that pin.
 
 ## Strict-attribute research baseline
 
@@ -35,11 +49,12 @@ EA operations and required runtime tests. Its
 passed all three OS suites, six builds, lint and race; associated fuzz checks
 passed. Strict-API coverage is 98.85% Mac/Linux and 98.69% Windows, with zero
 skipped strict tests. Those APIs are included in the current v0.15.0 dependency.
-[The contract](sideband-policy.md) records eight complete Apple bodies on two
+[The contract](sideband-policy.md) now records twelve complete Apple bodies on two
 Clang targets and 203 native verification controls. Another 42 directory-fork
 setups are unavailable and explicitly unexecuted. The probe establishes that
-verification-time stripping is inert in the measured CLI profile. Full sideband,
-plain/all and strip implementation remain pending across all three OSes.
+verification-time stripping is inert in the measured CLI profile. Standalone and
+bundle sideband/plain/all verification are merged; signing-time policy and
+stripping are the current implementation phase.
 
 ## Merged resource-suppression slice
 

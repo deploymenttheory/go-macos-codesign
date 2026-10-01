@@ -1,7 +1,8 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-  "driver_sha256": "fabe838062b1d5414e8a2554805fd7706426333bf277ecf6ec5fd78168b6fba6",
+  "driver_sha256": "611c2a3b3c47c9c8632322ed88d44a27dad1809d79845c94e5242181e65e1784",
   "excerpt_sha256": {
+    "CFMutableDictionaryRef ResourceBuilder::hashFile": "d4e5fb8bd8399cb4a444c07f3756ee7e0c48a0f2d61dd8b89e4b9457725c67d3",
     "bool FileDesc::hasExtendedAttribute": "8b261cd5ccad4695fdfe5bc32fcd07eddf7a8cb5a913b0e4b99bffee81bffb79",
     "bool filehasExtendedAttribute": "db8d46d9d10b831087e78a726f07fc8910520d785b39355b208a8d69d27f10a1",
     "ssize_t FileDesc::getAttr": "f05fb881c29af330ec867dcdc5bda2226167bf28029debf11dc71ac287a7e106",
@@ -15,7 +16,7 @@
     "void SingleDiskRep::strictValidate": "253a7d4587faf0c92841d72eb00a3054470dea80c1fae3b8b2232eb12af10eef"
   },
   "schema": 1,
-  "scope": "Eleven complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure and strictValidate, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. BundleDiskRep checks its canonical root before delegating to its executable. The real host SDK asserts MAXSYMLINKS=32 on both Clang targets. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
+  "scope": "Twelve complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure and strictValidate, MachORep::strictValidate, DiskImageRep::strictValidate and ResourceBuilder::hashFile (multiple algorithms). The complete hashing body checks ResourceFork before FinderInfo when strictCheck is enabled, before reading data. Signer::prepare and buildResources are source-reviewed separately: prepare applies QuickCheck plus RestrictSidebandData; ordinary resource stripping precedes hashFile, while symlink and nested branches bypass that removal. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. BundleDiskRep checks its canonical root before delegating to its executable. The real host SDK asserts MAXSYMLINKS=32 on both Clang targets. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
     "bundlediskrep.cpp": {
@@ -29,6 +30,10 @@
     "machorep.cpp": {
       "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
+    },
+    "resources.cpp": {
+      "sha256": "1a911c38fd9aaa4ddda0e041d5711317e92b312fe62d9b99674f7eca8c5b85c4",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/resources.cpp"
     },
     "singlediskrep.cpp": {
       "sha256": "321835f049a1b0dfef3d74559142a43d79a3205cb7e2f81285b968f1bb29baf4",
@@ -208,6 +213,66 @@
           "strictValidate": 1,
           "throwMe": 3,
           "tolerated": 3
+        }
+      },
+      "__ZN24CodesignSidebandResearch15ResourceBuilder8hashFileEPKcNSt3__13setIjNS3_4lessIjEENS3_9allocatorIjEEEEb": {
+        "ast_kinds": {
+          "BlockDecl": 1,
+          "BlockExpr": 1,
+          "CStyleCastExpr": 2,
+          "CXXBindTemporaryExpr": 3,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 5,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CallExpr": 12,
+          "Capture": 1,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 39,
+          "DeclStmt": 7,
+          "ExprWithCleanups": 3,
+          "GNUNullExpr": 2,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 55,
+          "IntegerLiteral": 2,
+          "MemberExpr": 9,
+          "ParenExpr": 2,
+          "ParmVarDecl": 5,
+          "ReturnStmt": 1,
+          "StringLiteral": 6,
+          "VarDecl": 7
+        },
+        "references": {
+          "CFDictionaryAddValue": 1,
+          "CFStringCreateWithFormat": 2,
+          "CFTempData": 1,
+          "CFTempString": 1,
+          "__builtin___CFStringMakeConstantString": 2,
+          "data": 2,
+          "digestLength": 1,
+          "digest_vector": 2,
+          "errSecCSInvalidAssociatedFileData": 2,
+          "fcntl": 1,
+          "fd": 4,
+          "finish": 1,
+          "hasExtendedAttribute": 2,
+          "hashName": 1,
+          "hasher": 2,
+          "kCFAllocatorDefault": 2,
+          "kSecCFErrorResourceSideband": 2,
+          "length": 2,
+          "makeCFMutableDictionary": 1,
+          "message": 2,
+          "multipleHashFileData": 1,
+          "operator __CFDictionary *": 1,
+          "path": 3,
+          "result": 2,
+          "resultRef": 1,
+          "strictCheck": 1,
+          "throwMe": 2,
+          "type": 1,
+          "types": 1,
+          "yield": 1
         }
       },
       "__ZN24CodesignSidebandResearch24filehasExtendedAttributeEPKcS1_": {
@@ -579,6 +644,66 @@
           "tolerated": 3
         }
       },
+      "__ZN24CodesignSidebandResearch15ResourceBuilder8hashFileEPKcNSt3__13setIjNS3_4lessIjEENS3_9allocatorIjEEEEb": {
+        "ast_kinds": {
+          "BlockDecl": 1,
+          "BlockExpr": 1,
+          "CStyleCastExpr": 2,
+          "CXXBindTemporaryExpr": 3,
+          "CXXBoolLiteralExpr": 1,
+          "CXXConstructExpr": 5,
+          "CXXMemberCallExpr": 9,
+          "CXXMethodDecl": 1,
+          "CallExpr": 12,
+          "Capture": 1,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 39,
+          "DeclStmt": 7,
+          "ExprWithCleanups": 3,
+          "GNUNullExpr": 2,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 55,
+          "IntegerLiteral": 2,
+          "MemberExpr": 9,
+          "ParenExpr": 2,
+          "ParmVarDecl": 5,
+          "ReturnStmt": 1,
+          "StringLiteral": 6,
+          "VarDecl": 7
+        },
+        "references": {
+          "CFDictionaryAddValue": 1,
+          "CFStringCreateWithFormat": 2,
+          "CFTempData": 1,
+          "CFTempString": 1,
+          "__builtin___CFStringMakeConstantString": 2,
+          "data": 2,
+          "digestLength": 1,
+          "digest_vector": 2,
+          "errSecCSInvalidAssociatedFileData": 2,
+          "fcntl": 1,
+          "fd": 4,
+          "finish": 1,
+          "hasExtendedAttribute": 2,
+          "hashName": 1,
+          "hasher": 2,
+          "kCFAllocatorDefault": 2,
+          "kSecCFErrorResourceSideband": 2,
+          "length": 2,
+          "makeCFMutableDictionary": 1,
+          "message": 2,
+          "multipleHashFileData": 1,
+          "operator __CFDictionary *": 1,
+          "path": 3,
+          "result": 2,
+          "resultRef": 1,
+          "strictCheck": 1,
+          "throwMe": 2,
+          "type": 1,
+          "types": 1,
+          "yield": 1
+        }
+      },
       "__ZN24CodesignSidebandResearch24filehasExtendedAttributeEPKcS1_": {
         "ast_kinds": {
           "CallExpr": 2,
@@ -779,5 +904,5 @@
       }
     }
   },
-  "translation_unit_sha256": "e00856f2168c8fd60667803e0bc5b4b93ec8428d70ce4299c614a79b6499d78b"
+  "translation_unit_sha256": "a07c3e1f1b89443b29ea26f1ad4ac036473c280b11eb381d36ead3dd73a0fe8a"
 }

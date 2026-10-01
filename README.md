@@ -70,6 +70,11 @@ and missing paths, with explicit limits for native ordering and dangling links.
 symlink and Mach-O/bundle sideband policies. Explicit `--appledouble FILE` for
 standalone objects and `--appledouble-map FILE` for bundle members supplement native
 metadata on Linux, Windows and macOS. UDIF retains Apple's sideband exemption.
+
+[Signing preflight](docs/signing-sideband.md) checks prohibited attached metadata
+by default. `--strip-disallowed-xattrs` removes it through the APFS SDK, including
+explicit AppleDouble inputs. Removals also occur during dry runs and can remain
+after later failures. `--deep` applies to selected nested signing operations.
 [`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.

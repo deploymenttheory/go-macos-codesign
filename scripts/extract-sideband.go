@@ -57,11 +57,13 @@ func main() {
 #include <cerrno>
 #include <sys/xattr.h>
 #include <sys/param.h>
+#include <fcntl.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/CodeSigning.h>
 namespace CodesignSidebandResearch {
 static_assert(MAXSYMLINKS == 32, "requalify native open symlink budget");
 using std::string;
+using std::vector;
 struct UnixError { [[noreturn]] static void throwMe(); };
 struct FileDesc {
  int mFd;
@@ -69,11 +71,25 @@ struct FileDesc {
  ssize_t getAttr(const char*,void*,size_t,u_int32_t,int);
  void removeAttr(const char*,int=0);
  bool hasExtendedAttribute(const char*) const;
+ int fcntl(int,int);
  size_t fileSize();
 };
 namespace UnixPlusPlus { struct AutoFileDesc : FileDesc { AutoFileDesc(string); }; }
 using ToleratedErrors=std::set<OSStatus>;
-struct CodeDirectory { size_t signingLimit() const; };
+namespace Hashing { using Byte=unsigned char; }
+namespace Security { struct DynamicHash { size_t digestLength(); void finish(void*); }; }
+struct CodeDirectory {
+ size_t signingLimit() const;
+ using HashAlgorithm=unsigned int; using HashAlgorithms=std::set<HashAlgorithm>;
+ static void multipleHashFileData(FileDesc&,size_t,HashAlgorithms,void (^)(HashAlgorithm,Security::DynamicHash*));
+};
+template<class T> struct CFRef { CFRef(T); operator T() const; T get(); T yield(); };
+CFMutableDictionaryRef makeCFMutableDictionary();
+CFStringRef CFTempString(string); CFDataRef CFTempData(const void*,size_t);
+struct ResourceBuilder {
+ static string hashName(CodeDirectory::HashAlgorithm);
+ static CFMutableDictionaryRef hashFile(const char*,CodeDirectory::HashAlgorithms,bool);
+};
 struct MacOSError { [[noreturn]] static void throwMe(OSStatus); };
 struct CSError { [[noreturn]] static void throwMe(OSStatus,CFStringRef,CFTypeRef); };
 extern const SecCSFlags kSecCSStripDisallowedXattrs;
@@ -112,6 +128,7 @@ struct BundleDiskRep {
 		{"bundlediskrep.cpp", "libsecurity_codesigning", "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4", []string{"void BundleDiskRep::strictValidateStructure", "void BundleDiskRep::strictValidate"}},
 		{"diskimagerep.cpp", "libsecurity_codesigning", "ca424f5b65da6534d332bcc64277bdf0133442e63586ed5cd8b01c3f125165df", []string{"void DiskImageRep::strictValidate"}},
 		{"machorep.cpp", "libsecurity_codesigning", "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6", []string{"void MachORep::strictValidate"}},
+		{"resources.cpp", "libsecurity_codesigning", "1a911c38fd9aaa4ddda0e041d5711317e92b312fe62d9b99674f7eca8c5b85c4", []string{"CFMutableDictionaryRef ResourceBuilder::hashFile"}},
 	} {
 		data := read(".research/apple/" + source.file)
 		if hash(data) != source.sha {
@@ -153,7 +170,7 @@ struct BundleDiskRep {
 				functions[n.MangledName] = map[string]any{"ast_kinds": kinds, "references": refs}
 			}
 		})
-		if len(functions) != 11 {
+		if len(functions) != 12 {
 			panic(fmt.Sprintf("incomplete AST: %d bodies", len(functions)))
 		}
 		targets[target] = functions
@@ -162,10 +179,10 @@ struct BundleDiskRep {
 		"schema": 1, "driver_sha256": hash(read("scripts/extract-sideband.go")),
 		"compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
 		"sources": sources, "excerpt_sha256": excerpts, "translation_unit_sha256": hash([]byte(unit)), "targets": targets,
-		"scope": "Eleven complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure and strictValidate, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. BundleDiskRep checks its canonical root before delegating to its executable. The real host SDK asserts MAXSYMLINKS=32 on both Clang targets. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
+		"scope": "Twelve complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure and strictValidate, MachORep::strictValidate, DiskImageRep::strictValidate and ResourceBuilder::hashFile (multiple algorithms). The complete hashing body checks ResourceFork before FinderInfo when strictCheck is enabled, before reading data. Signer::prepare and buildResources are source-reviewed separately: prepare applies QuickCheck plus RestrictSidebandData; ordinary resource stripping precedes hashFile, while symlink and nested branches bypass that removal. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. BundleDiskRep checks its canonical root before delegating to its executable. The real host SDK asserts MAXSYMLINKS=32 on both Clang targets. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
 	}
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-sideband.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote eleven complete Apple sideband bodies on two targets")
+	fmt.Println("Wrote twelve complete Apple sideband bodies on two targets")
 }
