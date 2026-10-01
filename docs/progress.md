@@ -8,8 +8,8 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current signing-metadata phase
 
-PR74 is merged at `96b06a8af1680a8d0624475060137314b823f1c0`. The current
-`feat/signing-permission-qualification` branch starts from that main. The upstream
+PR75 is merged at `87d0a73ea4b04e7e1dfc778edeb1c9134d128590`. The current
+`feat/signing-security-restoration` branch starts from that main. The upstream
 replacement prerequisite is now released in APFS v0.15.1 and adopted here.
 
 The [signing-metadata contract](signing-sideband.md) describes default preflight,
@@ -19,7 +19,14 @@ matrix runs on every producer and adds native comparisons on macOS.
 [Permission qualification](signing-permissions.md) adds 400 real Darwin ACL
 comparisons, six portable CLI write-denial cases, and portable partial-removal
 and error-identity tests. Executable preflight ordering, nested permission
-diagnostics and readable-resource traversal are corrected. CI results
+diagnostics and readable-resource traversal are corrected. This phase moves final
+security restoration after the last explicit access-time write, retains the
+source handle until restoration, and adds 72 native comparisons of writeattr,
+writesecurity and append ACLs, including actual final ACL records. Shared lifecycle
+tests cover success, failure, cancellation and handle cleanup on all three hosts.
+Read-security/removal and denied-delete temporary-artifact differences discovered
+by wider probes remain explicit roadmap items alongside parent ACL inheritance.
+CI results
 for this branch must pass before its draft PR is ready for maintainer review.
 Broader permission/concurrency profiles and the remaining compatibility inventory
 are still open; this does not declare full codesign parity.

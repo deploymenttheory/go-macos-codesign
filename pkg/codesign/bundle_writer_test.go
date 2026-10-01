@@ -289,3 +289,85 @@ func TestPreparedBundleCommitCancellation(t *testing.T) {
 		})
 	}
 }
+
+// A retained source is required by RestoreMetadata on every host. Neither a
+// failed restoration nor cancellation may publish staged bytes or leak handles.
+func TestBundleDeferredMetadataLifecycle(t *testing.T) {
+	for _, phase := range []string{"commit", "closed-source", "closed-writer", "cancel", "abandon"} {
+		t.Run(phase, func(t *testing.T) {
+			app := testBundle(t)
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			path := filepath.Join(app, b.executable)
+			before := readTestFile(t, path)
+			data := []byte("replacement bytes")
+			p, err := prepareBundleExecutable(context.Background(), bundleWrite{name: b.executable, data: data, bundle: b}, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer p.replacement.Close()
+			if _, err := p.replacement.source.Stat(); err != nil {
+				t.Fatalf("source closed before restoration: %v", err)
+			}
+			ctx := context.Background()
+			switch phase {
+			case "closed-source":
+				if err := p.replacement.source.Close(); err != nil {
+					t.Fatal(err)
+				}
+			case "closed-writer":
+				if err := p.replacement.File.Close(); err != nil {
+					t.Fatal(err)
+				}
+			case "cancel":
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithCancel(ctx)
+				cancel()
+			}
+			if phase != "abandon" {
+				err = p.commit(ctx)
+				if phase == "commit" && err != nil {
+					t.Fatal(err)
+				}
+				if phase != "commit" && err == nil {
+					t.Fatal("invalid commit succeeded")
+				}
+				if phase == "closed-source" && !strings.Contains(err.Error(), "restore staged executable metadata") {
+					t.Fatalf("wrong failure boundary: %v", err)
+				}
+				if phase == "cancel" && !errors.Is(err, context.Canceled) {
+					t.Fatal(err)
+				}
+			}
+			after, err := os.Stat(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if phase == "commit" {
+				if os.SameFile(p.original, after) || !bytes.Equal(readTestFile(t, path), data) {
+					t.Fatal("replacement not committed")
+				}
+			} else if !os.SameFile(p.original, after) || !bytes.Equal(readTestFile(t, path), before) {
+				t.Fatal("failed commit changed source")
+			}
+			if err := p.replacement.Close(); err != nil {
+				t.Fatal(err)
+			}
+			for _, f := range []*os.File{p.replacement.source, p.replacement.File} {
+				// Windows Stat on a closed NewFile handle returns the native
+				// invalid-handle error. Close has the portable ErrClosed contract
+				// and would return nil (failing this assertion) for a leaked file.
+				if err := f.Close(); !errors.Is(err, os.ErrClosed) {
+					t.Fatalf("descriptor leaked: %v", err)
+				}
+			}
+			if err := p.replacement.Close(); err != nil {
+				t.Fatalf("repeated close: %v", err)
+			}
+			assertNoBundleStaging(t, app)
+		})
+	}
+}

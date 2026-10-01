@@ -26,9 +26,13 @@ no local module replacement.
   removal survives a later FinderInfo permission failure or cancellation.
   Disappearance between a positive size query and removal is successful, matching
   Apple's options-zero removal. Unrelated metadata is retained.
-- Final replacement metadata permissions are checked during preparation, before
-  an envelope is committed. Later access-time refresh and commit ordering remain
-  separate operations. Dry runs do not commit code bytes, but can strip metadata.
+- Executable preparation retains a private writable replacement and the source
+  handle. After preceding envelopes and child cleanup succeed, the writer copies
+  source access time, restores final metadata, syncs and closes both handles,
+  then rechecks identity and renames. Restoring a deny-writeattr ACL before the
+  timestamp write incorrectly rejected replacements that native codesign permits.
+  Dry runs allocate without final restoration or code commits; they can strip
+  metadata. Cancellation or restoration failure never publishes staged bytes.
 
 The same signing policy and explicit AppleDouble protocol run on Linux, macOS
 and Windows. Host ACL namespaces differ; Linux attributes named `user.com.apple.*`
@@ -60,6 +64,22 @@ complete result with unrestricted signing. Portable API tests cover permission
 errors, cancellation, permanent partial carrier removal and control-value retention.
 The existing 1,664 signing-sideband cases and replacement-notice tests remain.
 
+[`signing_security_darwin_test.go`](../acceptance/signing_security_darwin_test.go)
+adds 72 exact native comparisons across eight standalone, application, framework
+and nested shapes, three ACL rights (`writeattr`, `writesecurity`, `append`) and
+signing, dry-run and removal. These compare complete code bytes, output streams,
+status, replacement identity, all target xattrs and the actual source/final ACL
+records. Source entries survive successful replacement. The shared restoration
+sequence runs on every platform; portable lifecycle tests verify source/writer
+closure, cancellation, failed restoration, unchanged source bytes and cleanup.
+Windows additionally verifies private writable staging, final read-only flags,
+source creation/access times and retained staged modification time.
+
+The existing [`apple-writer.json`](../spec/apple-writer.json) was regenerated
+unchanged with Clang for both architectures. Its complete `MachOEditor::commit`
+body copies security/metadata through the held writer after allocation, then
+renames. Native tests establish the observable behavior of the current OS.
+
 [`apple-sideband.json`](../spec/apple-sideband.json) contains fifteen complete
 pinned Apple bodies compiled with Clang against both host SDK targets. Added
 bodies cover `appleInternalForcePlatform`, `isPlainFile` and `checkPlainFile`.
@@ -74,11 +94,22 @@ unit and real CLI coverage. A draft remains unqualified until those gates pass.
 ## Outstanding qualification
 
 This bounded permission matrix does not complete filesystem or codesign parity.
-Native executable ACL inheritance differs from the SDK's deliberate source-ACL
-preservation contract. Deny-write staging is fixed; the separate ACL policy,
-inherited ACE ordering and write-attribute/security/delete/append rights still
-require native qualification and implementation. This matrix does not claim to
-compare resulting ACL records.
+Native executable ACL copying retains **explicit** source entries and combines
+them with entries inherited from the destination parent. It does not simply
+discard source ACLs. The SDK already supplies `appledouble.InheritACL` and
+`appledouble.CopyACL`; allocation-level integration must retain the correct
+destination inheritance before restoration. Current replacement preserves the
+source ACL, so parent inheritance and inherited-entry ordering remain open.
+
+Broader exploratory probes found additional gaps outside the 72-case restoration
+profile: deny-readsecurity can make native bundle removal return success without
+replacing its executable, whereas Go fails during discovery; permission errors
+from removal expose host paths rather than the native diagnostic; deny-delete
+can leave native `.cstemp` files while SDK private staging has different paths
+and cleanup. These require separate discovery/removal and allocation/cleanup
+work, including exact failure artifacts and nested completion boundaries.
+They are not qualified by this increment. Reproduce the observations with
+[`probe-signing-security.go`](../scripts/probe-signing-security.go).
 
 Additional work includes alternate filesystems, sandbox/authorization contexts,
 concurrent path/content/ACL mutation, custom resource rules, generic/xattr-backed

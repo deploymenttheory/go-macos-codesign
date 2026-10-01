@@ -19,7 +19,26 @@ type preparedBundleExecutable struct {
 	write       bundleWrite
 	original    os.FileInfo
 	staged      os.FileInfo
-	replacement *hostdata.RootReplacement
+	replacement *bundleReplacement
+}
+
+// Keep the source descriptor through the SDK's deferred metadata restoration.
+// It shares deletion on Windows; close both handles before committing a rename.
+type bundleReplacement struct {
+	*hostdata.RootReplacement
+	source *os.File
+}
+
+func (r *bundleReplacement) closeSource() error {
+	err := r.source.Close()
+	if errors.Is(err, os.ErrClosed) {
+		return nil
+	}
+	return err
+}
+
+func (r *bundleReplacement) Close() error {
+	return errors.Join(r.RootReplacement.Close(), r.closeSource())
 }
 
 type bundleAllocationError struct {
@@ -255,11 +274,16 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if !st.Mode().IsRegular() {
 		return nil, unsupported("writing non-regular bundle file")
 	}
-	source, err := root.Open(write.name)
+	source, err := openResourceFile(root, write.name)
 	if err != nil {
 		return nil, err
 	}
-	defer source.Close()
+	retained := false
+	defer func() {
+		if !retained {
+			result = errors.Join(result, source.Close())
+		}
+	}()
 	current, err := source.Stat()
 	if err != nil {
 		return nil, err
@@ -303,16 +327,6 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
 		return nil, err
 	}
-	if err := r.RestoreMetadata(); err != nil {
-		return nil, err
-	}
-	// APFS now installs the source ACL after staging writes. Validate the final
-	// metadata permissions before any envelope commit, without changing source
-	// access or the SDK's Windows creation-time restoration. Commit refreshes
-	// access again after preceding envelope writes and child cleanup succeed.
-	if err := accesstime.CopyAccessTime(source, r.File); err != nil && !errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
-		return nil, err
-	}
 	if err := r.File.Sync(); err != nil {
 		return nil, err
 	}
@@ -320,13 +334,10 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err != nil {
 		return nil, err
 	}
-	// Keep the SDK's writable handle through the deferred access-time update.
-	// Reopening after metadata restoration may lose write access (in particular
-	// for a readonly Windows replacement). copySourceAccess closes it before rename.
-	if err := source.Close(); err != nil {
-		return nil, err
-	}
-	return &preparedBundleExecutable{write: write, original: st, staged: staged, replacement: r}, nil
+	// Metadata restoration follows the last access-time write. Installing a
+	// deny-writeattr ACL earlier would reject a write native codesign permits.
+	retained = true
+	return &preparedBundleExecutable{write: write, original: st, staged: staged, replacement: &bundleReplacement{r, source}}, nil
 }
 
 func (p *preparedBundleExecutable) commit(ctx context.Context) error {
@@ -384,15 +395,17 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 		return err
 	}
 	if err := accesstime.CopyAccessTime(source, p.replacement.File); err != nil {
-		if errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
-			return p.replacement.File.Close()
+		if !errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
+			return fmt.Errorf("copy staged executable access time: %w", err)
 		}
-		return fmt.Errorf("copy staged executable access time: %w", err)
+	}
+	if err := p.replacement.RestoreMetadata(); err != nil {
+		return fmt.Errorf("restore staged executable metadata: %w", err)
 	}
 	if err := p.replacement.File.Sync(); err != nil {
 		return fmt.Errorf("sync staged executable metadata: %w", err)
 	}
-	return p.replacement.File.Close()
+	return errors.Join(p.replacement.File.Close(), p.replacement.closeSource())
 }
 
 func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) error {
