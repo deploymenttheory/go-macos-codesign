@@ -567,9 +567,13 @@
         "docs/signing-sideband.md",
         "spec/apple-sideband.json",
         "acceptance/signing_sideband_test.go",
+        "acceptance/signing_permissions_darwin_test.go",
+        "acceptance/signing_permissions_test.go",
+        "pkg/codesign/signing_permissions_test.go",
+        "docs/signing-permissions.md",
         "internal/sideband/strip_test.go"
       ],
-      "notes": "Signing preflight and nonempty native/explicit AppleDouble removal are implemented for supported Mach-O and bundle profiles on Linux, macOS and Windows. The native matrix covers force, already-signed rejection, no-strict, dry-run mutations, selected nested work, UDIF exemption and independent-child completion after resource errors. The flag is inert in verification/display/removal. Twelve complete pinned Apple bodies have two-target Clang AST evidence. Broader native permission/ACL and concurrent-mutation matrices, generic/xattr-backed representations and signing selector combinations remain open; do not infer full option parity from this bounded implementation."
+      "notes": "Signing preflight and nonempty native/explicit AppleDouble removal are implemented for supported Mach-O and bundle profiles on Linux, macOS and Windows. The native matrix covers force, already-signed rejection, no-strict, dry-run mutations, selected nested work, UDIF exemption and independent-child completion after resource errors. The flag is inert in verification/display/removal. Fifteen complete pinned Apple bodies have two-target Clang AST evidence. APFS v0.15.1 adoption adds 400 native ACL cases, six portable CLI write-denial cases, executable metadata/notice ordering, nested permission context, readable-resource traversal and partial-removal error identity. Native executable ACL inheritance, remaining security/write-attribute/delete/append rights, concurrent mutation, generic/xattr-backed representations and signing selector combinations remain open; do not infer full option parity from this bounded implementation."
     },
     {
       "id": "--single-threaded-signing",

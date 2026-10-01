@@ -298,12 +298,14 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err := r.File.Truncate(int64(len(write.data))); err != nil {
 		return nil, err
 	}
+	if err := r.RestoreMetadata(); err != nil {
+		return nil, err
+	}
+	// Restore the final security policy before validating metadata writes, so a
+	// denied write fails during preparation, before committing any envelopes.
 	// Darwin's new executable inherits an earlier source modification time as
 	// its creation time. Other hosts retain their replacement metadata policy.
 	if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
-		return nil, err
-	}
-	if err := r.RestoreMetadata(); err != nil {
 		return nil, err
 	}
 	if err := r.File.Sync(); err != nil {

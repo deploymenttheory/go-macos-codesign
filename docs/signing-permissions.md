@@ -1,46 +1,87 @@
-# Signing permission qualification
+# Signing permissions
 
-This phase starts from merged PR74 (`96b06a8`) on
-`feat/signing-permission-qualification`. It is **not ready for merge**.
+Signing a readable executable does not require permission to overwrite its
+existing data in place. Codesign writes a private replacement and commits it
+after preparing its content and metadata. Published
+[APFS v0.15.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1)
+fixes this staging prerequisite: a source deny-write ACL no longer prevents the
+SDK from opening its temporary copy. Codesign uses this release directly, with
+no local module replacement.
 
-The real Darwin ACL matrix in
+## Operational behavior
+
+- Bundle executable construction precedes the replacement notice. A denied
+  attribute read fails before that notice, even with `--no-strict`. The early
+  `com.apple.root.installed` query checks accessibility; it does not grant Apple
+  platform-signing privileges.
+- Permission errors retain their original cause for `errors.Is`, while the CLI
+  reports `Permission denied` or `Operation not permitted`. Executable discovery
+  failures identify the executable; failures inside nested bundles identify the
+  immediate subcomponent with an absolute path.
+- Ordinary resource traversal uses held root-relative descriptors when readable
+  resource data has a denied pathname attribute lookup. It retains regular-file,
+  no-follow, identity, hard-link and size checks. An unreadable resource is never
+  silently dropped from the envelope.
+- Attribute stripping remains ordered and nontransactional. A successful fork
+  removal survives a later FinderInfo permission failure or cancellation.
+  Disappearance between a positive size query and removal is successful, matching
+  Apple's options-zero removal. Unrelated metadata is retained.
+- Final replacement metadata permissions are checked during preparation, before
+  an envelope is committed. Later access-time refresh and commit ordering remain
+  separate operations. Dry runs do not commit code bytes, but can strip metadata.
+
+The same signing policy and explicit AppleDouble protocol run on Linux, macOS
+and Windows. Host ACL namespaces differ; Linux attributes named `user.com.apple.*`
+are not silently renamed, and neighboring AppleDouble files are not auto-discovered.
+Content-handle acquisition uses typed `x/sys` wrappers with no-follow semantics
+under a held directory; codecs and metadata operations remain in the shared SDK.
+
+## Evidence
+
 [`signing_permissions_darwin_test.go`](../acceptance/signing_permissions_darwin_test.go)
-compares native and Go signing at identical fresh operand paths. It retains
-command arguments, status, both output streams, complete operand byte digests,
-all target attributes before/after, and object replacement. Assertions compare
-the actual bytes and attribute values, not just exit status. Read-attribute,
-read-extended-attribute, write-extended-attribute and write-data denials cover
-thin/universal code, application roots/executables/resources, frameworks and
-nested code, with ordinary, stripping, dry-run and no-strict signing.
+contains 400 native differential cases: thin/universal Mach-O, application roots,
+main executables and resources, framework executables/resources, and nested main
+executables. Each tests real read-attribute, read-EA, write-EA or write-data denials
+under default, stripping, dry-run and no-strict policies. Directory resource forks
+are not constructible on Darwin, so application-root cases use FinderInfo.
 
-The expanded matrix currently fails against released APFS v0.15.0. In particular,
-the SDK clones source deny-write ACL entries before opening the private copy for
-writing. Native codesign can sign that readable source, whereas the SDK staging
-open fails. [APFS PR186](https://github.com/deploymenttheory/go-apfs-v2/pull/186)
-fixes the SDK's staging contract, with source ACL restoration after content writes.
-Wait for that PR's full CI, maintainer merge and published release before updating
-codesign. No local dependency replacement or reduced acceptance assertion is used.
+Both implementations receive fresh identical inputs at the same path. Assertions
+compare status, both output streams, bytes, all target attributes and replacement
+identity. A single evidence record retains both observations. Resource failure
+checks use an independently successful Apple signing control: only an entirely
+unchanged or entirely completed independent child is permitted; failed ancestors
+and unrelated members must remain unchanged. Completed manifests are retained in
+the evidence. Arbitrary partial child bytes never pass.
 
-Additional exposed differences still need resolution after the dependency update:
+[`signing_permissions_test.go`](../acceptance/signing_permissions_test.go) exercises
+six actual CLI write-denial cases on **every** producer using Darwin ACLs, Windows
+DACLs or Linux modes, verifies that the denial is effective, and compares the
+complete result with unrestricted signing. Portable API tests cover permission
+errors, cancellation, permanent partial carrier removal and control-value retention.
+The existing 1,664 signing-sideband cases and replacement-notice tests remain.
 
-- Replacement-notice ordering when main-executable metadata cannot be read.
-- Nested discovery error context when ACLs deny main-executable attributes.
-- Exact independent-child commit outcomes after resource permission failures;
-  reuse the established complete-member scheduling oracle rather than accepting
-  arbitrary partial bytes.
-- Native executable ACL inheritance versus the SDK's deliberate source-ACL
-  preservation contract. Fixing writable SDK staging does not resolve this policy
-  difference.
+[`apple-sideband.json`](../spec/apple-sideband.json) contains fifteen complete
+pinned Apple bodies compiled with Clang against both host SDK targets. Added
+bodies cover `appleInternalForcePlatform`, `isPlainFile` and `checkPlainFile`.
+The [BundleDiskRep constructor and setup](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp)
+are source-reviewed for construction order. Native observations qualify the
+current host behavior; this is not a reconstruction of Apple's private CLI.
 
-The branch also records two corrections for subsequent qualification: preserve
-underlying permission errors while rendering native signing diagnostics, and
-accept disappearance between attribute presence-query and removal. Apple's pinned
-`FileDesc::removeAttr` body uses options zero and tolerates ENOATTR; its complete
-body is already included in the two-target Clang evidence in
-[`apple-sideband.json`](../spec/apple-sideband.json). This narrow race outcome is
-not a guarantee against arbitrary concurrent path or content mutation.
+CI retains all three producer jobs, native comparison, foreign-artifact verification,
+race/fuzz, lint and coverage **above 95% in every production package**, combining
+unit and real CLI coverage. A draft remains unqualified until those gates pass.
 
-Linux and Windows keep their full signing implementations. APFS PR186 adds real
-write-denial tests for both SDK replacement APIs on all three hosts. Codesign's
-additional portable permission and partial-failure coverage remains part of this
-unfinished phase. No feature is promoted to fully verified by this checkpoint.
+## Outstanding qualification
+
+This bounded permission matrix does not complete filesystem or codesign parity.
+Native executable ACL inheritance differs from the SDK's deliberate source-ACL
+preservation contract. Deny-write staging is fixed; the separate ACL policy,
+inherited ACE ordering and write-attribute/security/delete/append rights still
+require native qualification and implementation. This matrix does not claim to
+compare resulting ACL records.
+
+Additional work includes alternate filesystems, sandbox/authorization contexts,
+concurrent path/content/ACL mutation, custom resource rules, generic/xattr-backed
+code, detached signatures and large streamed executable signing. These remain in
+the [full implementation plan](implementation_plan.md); no feature is promoted to
+fully verified by this increment.

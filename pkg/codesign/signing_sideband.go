@@ -12,6 +12,32 @@ import (
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
+// BundleDiskRep constructs its executable representation before signing starts.
+// checkPlainFile qualifies pathname failures with the executable; the subsequent
+// appleInternalForcePlatform metadata query fails without that qualification.
+func (b *appBundle) signingExecutable(ctx context.Context) ([]byte, error) {
+	data, err := b.read(b.executable, maxFileSize)
+	if err != nil {
+		if errors.Is(err, os.ErrPermission) {
+			name, absErr := filepath.Abs(filepath.Join(b.path, filepath.FromSlash(b.executable)))
+			if absErr != nil {
+				return nil, absErr
+			}
+			return nil, signingNestedError(name, err)
+		}
+		return nil, err
+	}
+	f, err := b.root.Open(b.executable)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	if err := sideband.CheckPlatformAttribute(ctx, f); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func signingNestedError(name string, err error) error {
 	err = nestedVerificationError(name, signingIOError(err))
 	var detail *VerificationError

@@ -75,6 +75,8 @@ metadata on Linux, Windows and macOS. UDIF retains Apple's sideband exemption.
 by default. `--strip-disallowed-xattrs` removes it through the APFS SDK, including
 explicit AppleDouble inputs. Removals also occur during dry runs and can remain
 after later failures. `--deep` applies to selected nested signing operations.
+[Signing permissions](docs/signing-permissions.md) cover readable code with denied
+write access, metadata failures and partial removal, using APFS v0.15.1.
 [`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.

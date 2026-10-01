@@ -63,6 +63,25 @@ func First(ctx context.Context, file *os.File, carrier appledouble.Value) (strin
 	return "", err
 }
 
+// CheckPlatformAttribute performs BundleDiskRep's early metadata query. The
+// attribute does not grant this implementation Apple platform-signing status;
+// only its read failure affects construction. Linux cannot query unnamespaced
+// names, so its native inventory establishes absence, as for sideband checks.
+func CheckPlatformAttribute(ctx context.Context, file *os.File) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if runtime.GOOS == "linux" {
+		_, err := hostdata.ListXattrNames(file, hostdata.MaxXattrListSize)
+		return err
+	}
+	_, _, err := hostdata.XattrSize(file, "com.apple.root.installed")
+	if runtime.GOOS == "darwin" && errors.Is(err, syscall.EPERM) {
+		return nil
+	}
+	return err
+}
+
 func inspectFile(ctx context.Context, file *os.File, carrier appledouble.Value, first bool) (Attributes, error) {
 	return inspectPolicy(ctx, runtime.GOOS,
 		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },

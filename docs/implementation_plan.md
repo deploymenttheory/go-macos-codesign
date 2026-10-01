@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after codesign PR71 and macOS-pkg PR72/PR73 merged. The upstream
+Status: updated 2026-10-01 after codesign PR74 merged and APFS v0.15.1 was published. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,21 +8,24 @@ codesign main pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current increment:** integrate [standalone sideband verification](sideband-policy.md)
-on a fresh branch from main after PR71. Explicit AppleDouble input supplements native
-attributes on every host; there is no automatic sidecar discovery or Linux xattr
-name remapping. Shared APFS streaming decode handles large forks. Native controls
-now compare both held attributes and explicit carriers; 29 captured snapshots are
-also tested on each CI host. Dependency guards, coverage above 95% per production
-package, three-OS/native acceptance and artifact checks remain unchanged.
-Standalone Mach-O now binds metadata and signature reads to one held object and
-supports sideband/plain/all CLI selectors, exact first-attribute diagnostics and
-an explicit single-operand `--appledouble FILE` input. The 386-case native/portable
-corpus covers failure ordering, selected architectures and aliases. UDIF ignores
-sideband metadata by Apple's distinct DiskImageRep policy, retained in a ten-body
-two-target Clang extraction. Bundle roots, main executables, ordinary/nested
-resources and followed links remain the next integration. Signing-time stripping
-is a separate mutation phase. Full strict equivalence remains incomplete.
+**Current increment:** [signing permission qualification](signing-permissions.md)
+on `feat/signing-permission-qualification`, cut from merged PR74 main. Published
+APFS v0.15.1 resolves denied-write replacement staging. Standalone and bundle
+sideband verification and signing-time stripping are implemented within the
+documented profiles. The new increment corrects executable construction/notice
+ordering, nested permission diagnostics, readable-resource traversal and metadata
+preparation ordering. It adds 400 native ACL comparisons, six real portable CLI
+write-denial cases, portable partial-removal API tests and fifteen-body Clang
+evidence on both architectures. Explicit AppleDouble inputs remain additive,
+with no implicit sidecar discovery or Linux attribute-name remapping.
+
+**Next obligations:** native executable ACL inheritance rather than automatic
+source-ACL preservation; inherited ACE ordering; remaining write-attribute,
+read/write-security, delete and append denials; sandbox/authorization contexts;
+alternate filesystems and concurrent mutation. Existing strict coverage above
+95% per production package, all three CI producers and native/foreign-artifact
+acceptance remain gates. This increment is not fully qualified until its CI
+passes, and it does not declare full strict or filesystem parity.
 
 The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
@@ -30,7 +33,7 @@ behavior remains outstanding. The [dependency and research work](sideband-policy
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
-remains next. Released APFS v0.15.0 is the shared metadata/DMG dependency, with no local
+continues through the profiles above. Released APFS v0.15.1 is the shared metadata/DMG dependency, with no local
 replacement or generic FFI dependency. Native host operations use the approved
 typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;

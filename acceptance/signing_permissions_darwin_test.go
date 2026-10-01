@@ -5,7 +5,6 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -25,13 +24,14 @@ func TestSigningNativePermissions(t *testing.T) {
 					t.Run(shape+"/"+deny+"/"+state+"/"+policy, func(t *testing.T) {
 						dir := extractionDirectory(t)
 						type observation struct {
-							out, stderr string
-							status      int
-							data        []byte
-							attrs       map[string]string
-							replaced    bool
+							out, stderr  string
+							status       int
+							before, data []byte
+							attrs        map[string]string
+							replaced     bool
 						}
 						var results []observation
+						var evidence []map[string]any
 						for _, exe := range []string{apple(t), binaryPath} {
 							operand, target := filepath.Join(dir, "tool"), filepath.Join(dir, "tool")
 							bundle := strings.Contains(shape, "-")
@@ -83,19 +83,42 @@ func TestSigningNativePermissions(t *testing.T) {
 								t.Fatal("dry run changed code bytes")
 							}
 							replaced := !os.SameFile(infoBefore, accessFileInfo(t, target))
-							results = append(results, observation{out, stderr, status, after, attrsAfter, replaced})
-							attest(t, map[string]any{"executable": exe, "args": append(args, operand), "status": status, "stdout": out, "stderr": stderr, "attrs_before": attrsBefore, "attrs_after": attrsAfter, "bytes_before": hash(before), "bytes_after": hash(after), "object_replaced": replaced})
+							results = append(results, observation{out, stderr, status, before, after, attrsAfter, replaced})
+							evidence = append(evidence, map[string]any{"executable": exe, "args": append(args, operand), "status": status, "stdout": out, "stderr": stderr, "attrs_before": attrsBefore, "attrs_after": attrsAfter, "bytes_before": hash(before), "bytes_after": hash(after), "object_replaced": replaced})
 							if err := os.RemoveAll(operand); err != nil {
 								t.Fatal(err)
 							}
 						}
 						n, g := results[0], results[1]
+						record := map[string]any{"native": evidence[0], "go": evidence[1]}
+						defer attest(t, record)
+						nativeEqual(t, "permission initial bytes", g.before, n.before)
 						if n.status != g.status || n.out != g.out || n.stderr != g.stderr {
 							t.Fatalf("native %d %q %q; Go %d %q %q", n.status, n.out, n.stderr, g.status, g.out, g.stderr)
 						}
-						nativeEqual(t, "permission bytes", g.data, n.data)
+						if n.status != 0 && policy != "dryrun" && strings.HasSuffix(shape, "-resource") {
+							kind, _, _ := strings.Cut(shape, "-")
+							// Compare complete independent workers against an actual successful
+							// Apple signing control. A failed resource must leave every other
+							// member unchanged; only whole independent code may have committed.
+							operand, _ := sidebandBundleFixture(t, dir, kind)
+							mustRun(t, apple(t), "-fs", "-", "-i", "org.example.permissions", "--deep", "--no-strict", operand)
+							completed := signingSidebandBytes(t, operand, true)
+							independent := "Contents/Helpers/tool"
+							if kind == "framework" {
+								independent = "Versions/A/Helpers/tool;Versions/A/helper"
+							}
+							record["independent_children"] = independent
+							record["native_completion_control"] = executableDirectoryManifest(t, completed)
+							record["native_manifest"] = executableDirectoryManifest(t, n.data)
+							record["go_manifest"] = executableDirectoryManifest(t, g.data)
+							signingSidebandPartial(t, n.before, completed, n.data, independent, true)
+							signingSidebandPartial(t, g.before, completed, g.data, independent, false)
+						} else {
+							nativeEqual(t, "permission bytes", g.data, n.data)
+						}
 						if !maps.Equal(n.attrs, g.attrs) || n.replaced != g.replaced {
-							t.Fatalf("native attributes %v replaced=%t; Go %v replaced=%t (equal=%t)", n.attrs, n.replaced, g.attrs, g.replaced, reflect.DeepEqual(n.attrs, g.attrs))
+							t.Fatalf("native attributes %v replaced=%t; Go %v replaced=%t", n.attrs, n.replaced, g.attrs, g.replaced)
 						}
 					})
 				}

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Adopt APFS v0.15.1 and qualify signing under real ACL denials. Correct bundle
+  executable preflight/notice ordering, nested permission diagnostics, readable
+  resource traversal, disappearance during attribute removal and metadata
+  preparation ordering. Add 400 native comparisons, six portable CLI cases,
+  partial-removal API tests and fifteen-body Clang evidence. Native executable
+  ACL inheritance and broader filesystem parity remain outstanding.
+
 - Adopt published go-apfs-v2 v0.14.0 after upstream AppleDouble/resource-fork
   qualification and downstream package validation. Use `hostdata` and
   `hostdata/accesstime` for the existing replacement, directory metadata and

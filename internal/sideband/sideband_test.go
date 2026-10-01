@@ -30,6 +30,28 @@ func carrier(t *testing.T, f appledouble.File) *bytes.Reader {
 
 func missing(string) (int, bool, error) { return 0, false, nil }
 
+func TestPlatformAttributeQuery(t *testing.T) {
+	f, err := os.CreateTemp(t.TempDir(), "code")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := CheckPlatformAttribute(context.Background(), f); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := CheckPlatformAttribute(ctx, f); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckPlatformAttribute(context.Background(), f); err == nil {
+		t.Fatal("accepted closed executable")
+	}
+}
+
 func inspect(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), carrier appledouble.Value) (Attributes, error) {
 	return inspectPolicy(ctx, platform, list, size, carrier, false)
 }
