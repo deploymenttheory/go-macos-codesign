@@ -18,7 +18,6 @@ type bundleScan struct {
 	verifyVersions    bool
 	verifyLinks       bool // verification compares sealed text without resolving targets
 	signatureCleanup  bool // exclude stale entries; defer directory/symlink rejection to flush
-	removingSignature bool // CodeResources is also stale during removal
 	seen              map[string]bool
 	regular, writable map[string]os.FileInfo
 }

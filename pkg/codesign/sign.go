@@ -403,7 +403,8 @@ func RemoveSignature(ctx context.Context, path string) error {
 }
 
 // RemoveSignatureWithOptions removes only the selected version's signature.
-func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) error {
+func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) (err error) {
+	defer func() { err = signingIOError(err) }()
 	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return err

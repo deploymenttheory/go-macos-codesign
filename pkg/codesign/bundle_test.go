@@ -108,8 +108,17 @@ func TestBundleRejectsUnsupportedLayout(t *testing.T) {
 			if _, err := Verify(context.Background(), app, VerifyOptions{}); err == nil {
 				t.Fatal("verify")
 			}
-			if err := RemoveSignature(context.Background(), app); err == nil {
-				t.Fatal("remove")
+			// Removal has no resource seal to validate. These unrelated layout
+			// entries must remain untouched, except stale signature files.
+			if err := RemoveSignature(context.Background(), app); err != nil {
+				t.Fatal("remove", err)
+			}
+			if !strings.HasPrefix(name, "Contents/_CodeSignature/") {
+				if string(readTestFile(t, filepath.Join(app, name))) != "unsupported" {
+					t.Fatal("removal changed an unrelated member")
+				}
+			} else if _, err := os.Stat(filepath.Join(app, name)); !errors.Is(err, os.ErrNotExist) {
+				t.Fatalf("stale signature file retained: %v", err)
 			}
 		})
 	}

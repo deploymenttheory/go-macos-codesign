@@ -277,4 +277,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 		}
 	}
 	attest(t, map[string]any{"imported_removed_artifacts_byte_equal": count, "native_removal_cases": len(inputs)})
+	t.Run("shallow-resource-isolation", func(t *testing.T) {
+		verifyImportedRemovalResources(t, dir, reference)
+	})
 }

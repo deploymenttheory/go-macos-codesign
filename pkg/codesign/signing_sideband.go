@@ -27,15 +27,17 @@ func (b *appBundle) signingExecutable(ctx context.Context) ([]byte, error) {
 		}
 		return nil, err
 	}
+	return data, b.checkExecutablePlatformAttribute(ctx)
+}
+
+// Bundle construction queries executable metadata before either mutation path.
+func (b *appBundle) checkExecutablePlatformAttribute(ctx context.Context) error {
 	f, err := b.root.Open(b.executable)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer f.Close()
-	if err := sideband.CheckPlatformAttribute(ctx, f); err != nil {
-		return nil, err
-	}
-	return data, nil
+	return sideband.CheckPlatformAttribute(ctx, f)
 }
 
 func signingNestedError(name string, err error) error {

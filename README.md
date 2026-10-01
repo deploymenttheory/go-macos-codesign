@@ -80,6 +80,9 @@ write access, metadata failures and partial removal, using APFS v0.15.1.
 Final executable metadata restoration follows timestamp writes, with native
 comparisons of write-attribute, write-security and append ACLs. Destination ACL
 inheritance and broader removal/failure-artifact behavior remain roadmap items.
+[Signature removal](docs/signature-removal.md) leaves resources, nested code and
+unselected framework versions untouched, including when they are unreadable.
+It still requires access to the selected executable and its signature directory.
 [`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.

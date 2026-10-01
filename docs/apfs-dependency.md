@@ -42,7 +42,7 @@ codesign's downstream qualification.
 
 The unchanged dependency guard, native acceptance, per-package coverage above
 95%, three-OS CI, Apple verification of foreign signatures and GoReleaser artifact
-checks passed against this published pin in merged
+checks passed against the earlier v0.15.0 pin in merged
 [PR70](https://github.com/deploymenttheory/go-macos-codesign/pull/70),
 [run 36827217728](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36827217728).
 Codesign coverage was 95.39% on Linux, 95.31% on Windows and 95.55% on macOS;
@@ -78,9 +78,12 @@ prerequisites are satisfied.
 
 The read-only [sideband metadata adapter](sideband-policy.md), object/carrier
 binding and signing-time stripping are implemented within their documented
-profiles. Next obligations include destination ACL inheritance, removal under
-security-read denial and denied-delete allocation/cleanup artifacts; see
-[signing permissions](signing-permissions.md). Continue using the shared APFS
+profiles. [Shallow removal](signature-removal.md) now avoids unrelated resource
+and child reads. Next obligations include destination ACL inheritance, generic
+bundle fallback under security-read denial, directory-entry enumeration under
+metadata denial, and denied-delete allocation/cleanup artifacts; see
+[signing permissions](signing-permissions.md). Shared filesystem primitives belong
+in APFS. Continue using the shared APFS
 metadata APIs; do not duplicate filesystem code in codesign.
 No CLI capability or compatibility-inventory status changes merely because the
 SDK dependency is upgraded.

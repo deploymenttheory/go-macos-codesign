@@ -657,7 +657,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				fmt.Fprintln(stderr, outputError)
 				return 1 // Native fopen failure terminates even with --continue.
 			}
-			if o.operation == "verify" || o.operation == "sign" {
+			if o.operation == "verify" || o.operation == "sign" || o.operation == "remove" {
 				verificationDiagnostic(stdout, stderr, path, err, o)
 			} else {
 				fmt.Fprintf(stderr, "%s: %s\n", path, diagnostic(err))
