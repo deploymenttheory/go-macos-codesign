@@ -67,6 +67,7 @@ struct FileDesc {
  ssize_t getAttr(const char*,void*,size_t,u_int32_t,int);
  void removeAttr(const char*,int=0);
  bool hasExtendedAttribute(const char*) const;
+ size_t fileSize();
 };
 namespace UnixPlusPlus { struct AutoFileDesc : FileDesc { AutoFileDesc(string); }; }
 using ToleratedErrors=std::set<OSStatus>;
@@ -78,6 +79,14 @@ string cfStringRelease(CFURLRef);
 struct DiskRep { void strictValidate(const CodeDirectory*,const ToleratedErrors&,SecCSFlags); };
 struct SingleDiskRep : DiskRep {
  string mPath; FileDesc& fd(); size_t signingLimit();
+ void strictValidate(const CodeDirectory*,const ToleratedErrors&,SecCSFlags);
+};
+struct DiskImageRep : SingleDiskRep {
+ void strictValidate(const CodeDirectory*,const ToleratedErrors&,SecCSFlags);
+};
+struct Executable { bool isSuspicious(); };
+struct MachORep : SingleDiskRep {
+ Executable* mExecutable;
  void strictValidate(const CodeDirectory*,const ToleratedErrors&,SecCSFlags);
 };
 struct BundleDiskRep {
@@ -97,6 +106,8 @@ struct BundleDiskRep {
 		}},
 		{"singlediskrep.cpp", "libsecurity_codesigning", "321835f049a1b0dfef3d74559142a43d79a3205cb7e2f81285b968f1bb29baf4", []string{"void SingleDiskRep::strictValidate"}},
 		{"bundlediskrep.cpp", "libsecurity_codesigning", "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4", []string{"void BundleDiskRep::strictValidateStructure"}},
+		{"diskimagerep.cpp", "libsecurity_codesigning", "ca424f5b65da6534d332bcc64277bdf0133442e63586ed5cd8b01c3f125165df", []string{"void DiskImageRep::strictValidate"}},
+		{"machorep.cpp", "libsecurity_codesigning", "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6", []string{"void MachORep::strictValidate"}},
 	} {
 		data := read(".research/apple/" + source.file)
 		if hash(data) != source.sha {
@@ -138,7 +149,7 @@ struct BundleDiskRep {
 				functions[n.MangledName] = map[string]any{"ast_kinds": kinds, "references": refs}
 			}
 		})
-		if len(functions) != 8 {
+		if len(functions) != 10 {
 			panic(fmt.Sprintf("incomplete AST: %d bodies", len(functions)))
 		}
 		targets[target] = functions
@@ -147,10 +158,10 @@ struct BundleDiskRep {
 		"schema": 1, "driver_sha256": hash(read("scripts/extract-sideband.go")),
 		"compiler": strings.Split(string(run("", "clang++", "--version")), "\n")[0], "sdk": filepath.Base(sdk),
 		"sources": sources, "excerpt_sha256": excerpts, "translation_unit_sha256": hash([]byte(unit)), "targets": targets,
-		"scope": "Eight complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate and BundleDiskRep::strictValidateStructure. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or implement codesign sideband/strip flags. Native observations and the separately released APFS dependency are required before production integration. Production has no SDK/native runtime dependency.",
+		"scope": "Ten complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
 	}
 	b, err := json.MarshalIndent(record, "", "  ")
 	must(err)
 	must(os.WriteFile("spec/apple-sideband.json", append(b, '\n'), 0644))
-	fmt.Println("Wrote eight complete Apple sideband bodies on two targets")
+	fmt.Println("Wrote ten complete Apple sideband bodies on two targets")
 }

@@ -66,8 +66,11 @@ Explicit certificate trust remains required.
 wording, failing architecture and nested paths, with structured library errors.
 [Resource verification](docs/resource-verification.md) collects added, modified
 and missing paths, with explicit limits for native ordering and dangling links.
-[Strict verification](docs/strict-verification.md) supports bounded layout and
-symlink policies. [`--ignore-resources`](docs/ignore-resources.md) skips resource
+[Strict verification](docs/strict-verification.md) supports bounded layout,
+symlink and standalone Mach-O sideband policies. Explicit `--appledouble FILE`
+supplements native metadata on Linux, Windows and macOS; bundle sideband traversal
+remains outstanding. UDIF retains Apple's exemption from sideband rejection.
+[`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.
 Verbose output and the JSON `ResourcesIgnored` field identify this limited scope.

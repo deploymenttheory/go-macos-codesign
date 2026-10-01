@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -102,17 +103,29 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 }
 
 func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
+	if err := sidebandOptions(ctx, opts, false); err != nil {
+		return nil, err
+	}
 	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return nil, err
 	}
 	if bundle {
+		if opts.StrictSideband && !opts.NoStrict {
+			return nil, unsupported("strict sideband bundle traversal is not yet qualified")
+		}
 		return verifyBundle(ctx, path, opts)
 	}
-	data, err := readFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
+	data, err := readOpenFile(f, false)
+	if err != nil {
+		return nil, err
+	}
+	opts.sidebandFile, opts.sidebandPath = f, path
 	r, err := VerifyBytes(ctx, data, opts)
 	if r != nil {
 		r.Path = path
@@ -124,6 +137,9 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	var architecture string
 	defer func() { failure = verificationArchitecture(failure, architecture) }()
 	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if err := sidebandOptions(ctx, opts, !isDMG(data)); err != nil {
 		return nil, err
 	}
 	if opts.StrictSymlinks && !opts.NoStrict && !opts.IgnoreResources && opts.linkScope == nil && len(opts.Resources) > 0 {
@@ -288,6 +304,13 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 		return r, verificationFailure("object file format unrecognized, invalid, or unsuitable", fmt.Errorf("architecture %q not present", opts.Architecture))
 	}
 	if opts.linkScope == nil {
+		// DiskImageRep overrides SingleDiskRep strict validation and does not
+		// apply its sideband restriction. Retain ordinary UDIF signature checks.
+		if !isDMG(data) {
+			if err := verifySideband(ctx, opts); err != nil {
+				return r, err
+			}
+		}
 		if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
 			return r, err
 		}

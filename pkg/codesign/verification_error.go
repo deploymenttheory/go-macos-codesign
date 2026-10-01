@@ -12,6 +12,7 @@ type VerificationError struct {
 	AddedResources    []string
 	ModifiedResources []string
 	MissingResources  []string
+	AttachedData      []string // native sideband diagnostic descriptions, in policy order
 	cause             error
 	omitArchitecture  bool
 	resourceFailure   bool // a local, collectable resource failure

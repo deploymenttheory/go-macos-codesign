@@ -6,7 +6,10 @@ import (
 	"crypto"
 	"errors"
 	"fmt"
+	"os"
 	"time"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
 )
 
 var (
@@ -92,7 +95,7 @@ type VerifyOptions struct {
 	// pages, CMS/trust, non-resource slots, requirements and enabled structural
 	// policies are still checked. A successful report marks ResourcesIgnored.
 	IgnoreResources bool
-	// NoStrict disables the additional native layout and symlink policies.
+	// NoStrict disables the additional native layout, symlink and sideband policies.
 	// Cryptographic verification and safe parsing remain required; resource seals
 	// are still checked unless IgnoreResources is also set.
 	NoStrict bool
@@ -101,6 +104,17 @@ type VerifyOptions struct {
 	// must resolve inside /System or /Library on the verifying host. It does
 	// not enable sideband-attribute checks or the complete --strict=all policy.
 	StrictSymlinks bool
+	// StrictSideband rejects nonempty ResourceFork and FinderInfo metadata on
+	// standalone Mach-O inputs. UDIF verification ignores sideband data, matching
+	// Apple's DiskImageRep override. NoStrict disables it. Bundle traversal
+	// is not yet qualified and returns ErrUnsupported, never partial success.
+	// VerifyBytes cannot observe Mach-O metadata and rejects this option for it.
+	StrictSideband bool
+	// AppleDouble explicitly supplements native metadata on a standalone input.
+	// The caller owns the stable source and its lifetime. It requires enabled
+	// StrictSideband; it is not restored and no neighboring sidecar is inferred.
+	// UDIF's native strict override does not inspect this input.
+	AppleDouble appledouble.Value
 	// BundleVersion selects the input framework; nested frameworks check every
 	// physical version against the parent's sealed requirement.
 	BundleVersion string
@@ -137,6 +151,8 @@ type VerifyOptions struct {
 	directoryOnly bool   // internal shallow nested-code validation, never a public bypass
 	resourceBase  string // absolute resource base for nested verification diagnostics
 	linkScope     *verificationLinkScope
+	sidebandFile  *os.File // same held object used to read the signature bytes
+	sidebandPath  string   // resolved standalone path for native diagnostics
 }
 
 // Blob retains the complete encoding, including its magic and length fields.

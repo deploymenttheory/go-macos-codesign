@@ -28,6 +28,10 @@ func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
 		return nil, err
 	}
 	defer f.Close()
+	return readOpenFile(f, recordAccess)
+}
+
+func readOpenFile(f *os.File, recordAccess bool) ([]byte, error) {
 	st, err := f.Stat()
 	if err != nil {
 		return nil, err

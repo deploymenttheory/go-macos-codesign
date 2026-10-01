@@ -32,6 +32,7 @@ type options struct {
 	strictRequested                                                                      bool
 	strictMask                                                                           uint32
 	noStrict                                                                             bool
+	appleDoublePath                                                                      string
 	requirementsSet                                                                      bool
 	entitlementsSet                                                                      bool
 	fileList                                                                             bool
@@ -78,6 +79,7 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				fmt.Fprintln(stdout, "Verification: --ignore-resources skips resource envelopes and nested code, even with --deep. Code integrity, non-resource metadata, requirements and enabled layout checks remain enforced.")
+				fmt.Fprintln(stdout, "Standalone verification: --strict=sideband, --strict=all or --strict checks Mach-O attached metadata; DMGs retain Apple's sideband exemption. Portable --appledouble FILE adds an explicit metadata snapshot for one standalone operand; native attributes are still checked. Bundle sideband traversal is not yet supported.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
@@ -199,7 +201,7 @@ func parse(args []string) (options, error) {
 					return o, fmt.Errorf("--no-strict does not accept an argument")
 				}
 				o.strictRequested, o.noStrict = true, true
-			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list":
+			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list", "appledouble":
 				if has {
 					val = attached
 				} else {
@@ -209,6 +211,11 @@ func parse(args []string) (options, error) {
 					return o, err
 				}
 				switch name {
+				case "appledouble":
+					if val == "" {
+						return o, fmt.Errorf("--appledouble requires a nonempty file path")
+					}
+					o.appleDoublePath = val
 				case "file-list":
 					o.fileList, o.fileListPath = true, val
 				case "sign":
@@ -370,9 +377,12 @@ func parse(args []string) (options, error) {
 		o.verbose--
 	}
 	if o.strictRequested {
-		if o.operation != "verify" || o.strictMask & ^uint32(0x280) != 0 || o.strictMask&0x200 != 0 {
-			return o, fmt.Errorf("%w: --strict policy (supported: verification with symlinks, numeric 0/128, none or --no-strict)", codesign.ErrUnsupported)
+		if o.operation != "verify" || o.strictMask & ^uint32(0x280) != 0 {
+			return o, fmt.Errorf("%w: --strict policy (supported bits: symlinks=128, standalone sideband=512; none or --no-strict disables checks)", codesign.ErrUnsupported)
 		}
+	}
+	if o.appleDoublePath != "" && (o.operation != "verify" || o.strictMask&0x200 == 0 || o.noStrict || len(o.paths) != 1) {
+		return o, fmt.Errorf("--appledouble requires enabled --strict=sideband or --strict=all and exactly one standalone operand")
 	}
 	return o, nil
 }
@@ -575,7 +585,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			err = codesign.RemoveSignatureWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
 		case "verify":
 			var report *codesign.Report
-			report, err = codesign.Verify(ctx, path, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, IgnoreResources: o.ignoreResources})
+			report, err = verifyWithMetadata(ctx, path, o.appleDoublePath, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, StrictSideband: o.strictMask&0x200 != 0, IgnoreResources: o.ignoreResources})
 			if err == nil {
 				var passed bool
 				passed, err = checkVerificationRequirements(stderr, report, path, o)

@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after codesign PR70 and macOS-pkg PR72/PR73 merged. The upstream
+Status: updated 2026-10-01 after codesign PR71 and macOS-pkg PR72/PR73 merged. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,15 +8,21 @@ codesign main pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current increment:** qualify the read-only [sideband metadata adapter](sideband-policy.md)
-on a fresh branch from main. Explicit AppleDouble input supplements native
+**Current increment:** integrate [standalone sideband verification](sideband-policy.md)
+on a fresh branch from main after PR71. Explicit AppleDouble input supplements native
 attributes on every host; there is no automatic sidecar discovery or Linux xattr
 name remapping. Shared APFS streaming decode handles large forks. Native controls
 now compare both held attributes and explicit carriers; 29 captured snapshots are
 also tested on each CI host. Dependency guards, coverage above 95% per production
 package, three-OS/native acceptance and artifact checks remain unchanged.
-The next integration must bind these observations to verification objects, links,
-ordering and CLI selectors. Signing-time stripping is a separate mutation phase.
+Standalone Mach-O now binds metadata and signature reads to one held object and
+supports sideband/plain/all CLI selectors, exact first-attribute diagnostics and
+an explicit single-operand `--appledouble FILE` input. The 386-case native/portable
+corpus covers failure ordering, selected architectures and aliases. UDIF ignores
+sideband metadata by Apple's distinct DiskImageRep policy, retained in a ten-body
+two-target Clang extraction. Bundle roots, main executables, ordinary/nested
+resources and followed links remain the next integration. Signing-time stripping
+is a separate mutation phase. Full strict equivalence remains incomplete.
 
 The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
@@ -2012,6 +2018,9 @@ Full strict sideband/all policy, `--strip-disallowed-xattrs` and
 - [ ] Complete all/sideband policy and operation/selector combinations.
   Model plain/all, `symlinks`, `sideband`, combinations, invalid selectors and any
   additional selectors found by WP-01. Native strictness may evolve by OS version.
+  - [x] Standalone Mach-O sideband/plain/all selectors, disabled controls, native
+    and explicit-carrier input, first-attribute diagnostics and selected architectures.
+    Retain UDIF's native exemption and fail explicitly for enabled bundle traversal.
 - [ ] Match default versus strict treatment of broken, external, unsealed and
   cyclic resource links without weakening path containment during writes.
   - [x] Compare bounded default-verification link text without resolving targets.
@@ -3520,11 +3529,11 @@ Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image compariso
 are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
 Released APFS v0.9.0 remains pinned.
 
-### Active sideband work after PR #70
+### Active sideband work after PR #71
 
-The resource-suppression and published APFS v0.15.0 increments are merged. This
-phase starts from main at `8950d778a17caa9f7a6b51df15028efce50a6485` on
-`feat/strict-sideband-verification-v015`. The [sideband contract](sideband-policy.md)
+The resource-suppression, APFS v0.15.0 and read-only metadata adapter increments
+are merged. This phase starts from main at `ea4edf32218c4504cbd76f4078fbd428b20a55b2` on
+`feat/strict-sideband-object-integration`. The [sideband contract](sideband-policy.md)
 defines the shared API, source evidence, native controls and integration sequence.
 
 1. **Completed and released:** APFS PR #131's strict size/read/remove APIs on Linux,
@@ -3535,10 +3544,11 @@ defines the shared API, source evidence, native controls and integration sequenc
    native verification controls. Retain all 42 unavailable directory-fork setups
    explicitly; they are not successful tests. Separate generic attribute results
    from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
-3. **Dependency merged; adapter implemented:** native held-object inspection and
+3. **Dependency and adapter merged:** native held-object inspection and
    explicit additive AppleDouble input, plus 29 native-derived portable fixtures.
-   Qualify the adapter through unchanged CI. Next implement object/carrier binding,
-   sideband resource traversal, error order, selectors and
+   Standalone object/carrier binding, first-error order and selectors are now
+   implemented with native acceptance; qualify through unchanged CI. Next implement
+   bundle sideband resource traversal, error order, selectors and
    native diagnostics through that shared implementation. All three operating
    systems are required; a missing platform implementation cannot be waived.
 4. Measure signing-time strip, dry-run ordering and partial effects separately.

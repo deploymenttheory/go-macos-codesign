@@ -1,6 +1,6 @@
 {
   "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-  "driver_sha256": "4f29dc5e7ffe79d839672661579691f336bac9e64820ba6c30ff7f62baa2431d",
+  "driver_sha256": "b77eb94e4b23036586f968a68193824ebb3b6f5a0da8d2aba5051b0017700256",
   "excerpt_sha256": {
     "bool FileDesc::hasExtendedAttribute": "8b261cd5ccad4695fdfe5bc32fcd07eddf7a8cb5a913b0e4b99bffee81bffb79",
     "bool filehasExtendedAttribute": "db8d46d9d10b831087e78a726f07fc8910520d785b39355b208a8d69d27f10a1",
@@ -8,16 +8,26 @@
     "ssize_t FileDesc::getAttrLength": "3c1767a2a4057f2619ae7c49d063c2ef01aa81bb482b36a40763c3db003cdbc6",
     "static bool checkFork": "9215e7f129733439aaf968c8c1fb52e0b0dfc499926f8e8ab7152f2e0ad594cc",
     "void BundleDiskRep::strictValidateStructure": "f606d88a6f781e7c48dcd8c13769e406d758d948994d53ff37f2467799cb7950",
+    "void DiskImageRep::strictValidate": "005aadaeaee216596a58e1e9e15d640be039f54935887eed8165b3d1023619d8",
     "void FileDesc::removeAttr": "a13529bf0decb2673c9065866a82a4ecef825a8b6b60a8ff84bba36ab1bcbcf8",
+    "void MachORep::strictValidate": "ee17c73043a56d16f6e5067b592f5548a194df0c38422bb6b6c91d409185ae04",
     "void SingleDiskRep::strictValidate": "253a7d4587faf0c92841d72eb00a3054470dea80c1fae3b8b2232eb12af10eef"
   },
   "schema": 1,
-  "scope": "Eight complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate and BundleDiskRep::strictValidateStructure. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or implement codesign sideband/strip flags. Native observations and the separately released APFS dependency are required before production integration. Production has no SDK/native runtime dependency.",
+  "scope": "Ten complete verbatim pinned Apple bodies: strict size/read/remove utilities, checkFork, path/descriptor presence checks, SingleDiskRep::strictValidate, BundleDiskRep::strictValidateStructure, MachORep::strictValidate and DiskImageRep::strictValidate. Real SDK xattr/CoreFoundation/Security declarations and C++ library; private interfaces and the strip flag are declaration-only shims. Ordinary options-zero presence queries ignore empty values and ENOATTR/EPERM; generic utilities preserve other errors. Single/bundle bodies show ResourceFork before FinderInfo and strip before sideband rejection. MachORep calls SingleDiskRep before suspicious-layout checks; DiskImageRep calls DiskRep directly, bypassing sideband policy. This does not reconstruct the current private CLI, prove filesystem/race behavior, cover resource traversal or establish full codesign sideband/strip parity. Native observations and the separately released APFS dependency qualify bounded production integration. Production has no SDK/native runtime dependency.",
   "sdk": "MacOSX.sdk",
   "sources": {
     "bundlediskrep.cpp": {
       "sha256": "c69c5976a70a33292e5d565c1c7e6411a5c97aba829332f89a899d8cd89fbcb4",
       "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp"
+    },
+    "diskimagerep.cpp": {
+      "sha256": "ca424f5b65da6534d332bcc64277bdf0133442e63586ed5cd8b01c3f125165df",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/diskimagerep.cpp"
+    },
+    "machorep.cpp": {
+      "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
+      "url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
     },
     "singlediskrep.cpp": {
       "sha256": "321835f049a1b0dfef3d74559142a43d79a3205cb7e2f81285b968f1bb29baf4",
@@ -30,6 +40,36 @@
   },
   "targets": {
     "arm64-apple-macos27": {
+      "__ZN24CodesignSidebandResearch12DiskImageRep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 10,
+          "DeclStmt": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 13,
+          "MemberExpr": 5,
+          "ParmVarDecl": 3,
+          "VarDecl": 2
+        },
+        "references": {
+          "cd": 3,
+          "cd_limit": 2,
+          "dr_limit": 1,
+          "errSecCSSignatureInvalid": 1,
+          "fd": 1,
+          "fileSize": 1,
+          "flags": 1,
+          "signingLimit": 2,
+          "strictValidate": 1,
+          "throwMe": 1,
+          "tolerated": 1
+        }
+      },
       "__ZN24CodesignSidebandResearch13BundleDiskRep23strictValidateStructureEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
         "ast_kinds": {
           "BinaryOperator": 4,
@@ -266,6 +306,37 @@
           "rc": 2,
           "throwMe": 1,
           "value": 1
+        }
+      },
+      "__ZN24CodesignSidebandResearch8MachORep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 2,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 9,
+          "ExprWithCleanups": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 10,
+          "MaterializeTemporaryExpr": 3,
+          "MemberExpr": 5,
+          "ParmVarDecl": 3
+        },
+        "references": {
+          "cd": 1,
+          "end": 1,
+          "errSecCSBadMainExecutable": 2,
+          "find": 1,
+          "flags": 1,
+          "isSuspicious": 1,
+          "mExecutable": 1,
+          "operator==": 1,
+          "strictValidate": 1,
+          "throwMe": 1,
+          "tolerated": 3
         }
       },
       "__ZN24CodesignSidebandResearchL9checkForkEl": {
@@ -315,6 +386,36 @@
       }
     },
     "x86_64-apple-macos27": {
+      "__ZN24CodesignSidebandResearch12DiskImageRep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 10,
+          "DeclStmt": 2,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 13,
+          "MemberExpr": 5,
+          "ParmVarDecl": 3,
+          "VarDecl": 2
+        },
+        "references": {
+          "cd": 3,
+          "cd_limit": 2,
+          "dr_limit": 1,
+          "errSecCSSignatureInvalid": 1,
+          "fd": 1,
+          "fileSize": 1,
+          "flags": 1,
+          "signingLimit": 2,
+          "strictValidate": 1,
+          "throwMe": 1,
+          "tolerated": 1
+        }
+      },
       "__ZN24CodesignSidebandResearch13BundleDiskRep23strictValidateStructureEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
         "ast_kinds": {
           "BinaryOperator": 4,
@@ -553,6 +654,37 @@
           "value": 1
         }
       },
+      "__ZN24CodesignSidebandResearch8MachORep14strictValidateEPKNS_13CodeDirectoryERKNSt3__13setIiNS4_4lessIiEENS4_9allocatorIiEEEEj": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 1,
+          "CXXThisExpr": 2,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 9,
+          "ExprWithCleanups": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 10,
+          "MaterializeTemporaryExpr": 3,
+          "MemberExpr": 5,
+          "ParmVarDecl": 3
+        },
+        "references": {
+          "cd": 1,
+          "end": 1,
+          "errSecCSBadMainExecutable": 2,
+          "find": 1,
+          "flags": 1,
+          "isSuspicious": 1,
+          "mExecutable": 1,
+          "operator==": 1,
+          "strictValidate": 1,
+          "throwMe": 1,
+          "tolerated": 3
+        }
+      },
       "__ZN24CodesignSidebandResearchL9checkForkEl": {
         "ast_kinds": {
           "CXXBoolLiteralExpr": 4,
@@ -600,5 +732,5 @@
       }
     }
   },
-  "translation_unit_sha256": "f4cc172ed54dd5a5da44cf9ebacdfffbcef657d4e8bb30ca0858a38bf67e5ac4"
+  "translation_unit_sha256": "4e5b1a4c3d9924f82c9c081e0af2c544ade19457c7f31b137c93906cd8ef834c"
 }

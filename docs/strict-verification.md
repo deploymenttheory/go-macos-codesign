@@ -9,6 +9,8 @@ This is a bounded implementation, not full `codesign --strict` equivalence.
 ```sh
 macoscodesign --verify --strict=symlinks --deep Example.app
 macoscodesign --verify --no-strict executable
+macoscodesign --verify --strict=sideband executable
+macoscodesign --verify --strict=all --appledouble metadata.appledouble executable
 ```
 
 ## Selectors and API
@@ -26,13 +28,17 @@ The host rejects comma lists and uppercase names with
 wording. Only attached optional arguments are consumed: `--strict=symlinks`.
 
 Plain `--strict`, an empty selector, `all`, `sideband`, their prefixes and numeric
-sideband/unknown bits remain explicitly unsupported. This also applies when a
-disabling option is present: native sideband traversal has additional ordering
-behavior that is not implemented. Strict controls outside verification remain
+sideband masks are supported for standalone Mach-O and UDIF inputs. Mach-O rejects
+nonempty prohibited metadata; UDIF bypasses that policy, matching Apple's override.
+Bundle sideband traversal remains explicitly unsupported when enabled; a disabling
+option permits ordinary verification. Unknown bits and strict controls outside verification remain
 unsupported. Numeric overflow/unknown API masks are not claimed as native diagnostic
 parity. No unsupported policy silently falls back to ordinary verification.
 
-Library callers use `VerifyOptions.StrictSymlinks` and `VerifyOptions.NoStrict`.
+Library callers use `VerifyOptions.StrictSymlinks`, `VerifyOptions.StrictSideband`
+and `VerifyOptions.NoStrict`. Optional `VerifyOptions.AppleDouble` adds an explicit
+carrier for one standalone operand. See [sideband policy](sideband-policy.md) for
+held-object lifetime, format-specific behavior and first-error ordering.
 Zero-value options now reject additional malformed layouts that previously passed
 cryptographic checks. `NoStrict` is the explicit compatibility escape for those
 layout extensions, not a bypass for signature validation. Byte-only verification
