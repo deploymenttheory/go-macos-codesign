@@ -70,8 +70,14 @@ the inventory now has 30 partial, 50 unimplemented, eight blocked and zero verif
 The next [dependency/research phase](sideband-policy.md) supplies strict APFS
 attribute APIs for Linux, macOS and Windows, eight complete Apple bodies and
 203 native verification controls. Required Windows operations replace the
-initial unsupported proposal. Production integration waits for a published APFS
-release; this phase upgrades no inventory status.
+initial unsupported proposal. The shared APIs and consolidated AppleDouble work
+are now published in APFS v0.14.0. The current dependency phase migrates existing
+writer imports to `hostdata`/`hostdata/accesstime` and reruns codesign's full
+compatibility gates. Sideband/all/strip policy integration follows that
+qualification; dependency adoption upgrades no inventory status.
+The attempted v0.14.0 adoption currently fails the unchanged no-native-binding
+guard. The [upstream dependency correction](apfs-dependency.md) is therefore the
+immediate prerequisite, before any further sideband policy work.
 Inaccessible directories, broader planning/sibling failures and ACL
 inheritance/copying remain open. The expanded D01 inventory
 now retains 88 obligations; [native inventory](native-inventory.md) and

@@ -198,6 +198,11 @@ func nativeChainKeychain(t *testing.T) string {
 	const password = "public-codesign-test-only"
 	mustRun(t, "/usr/bin/security", "create-keychain", "-p", password, keychain)
 	created = true
+	// This fixture is reused across the bounded 20-minute native suite. The
+	// default 300-second timeout can lock it before requirement tests reuse it,
+	// leaving codesign waiting for UI authorization. Configure only our temporary
+	// keychain; preserve the user's keychain settings and the command deadlines.
+	mustRun(t, "/usr/bin/security", "set-keychain-settings", "-u", "-t", "1800", keychain)
 	mustRun(t, "/usr/bin/security", "unlock-keychain", "-p", password, keychain)
 	// All profiles reuse the same public test signing key. Import it once,
 	// then import every certificate before any native trust evaluation.

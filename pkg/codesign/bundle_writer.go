@@ -11,14 +11,15 @@ import (
 	"time"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/apfs"
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
 )
 
 type preparedBundleExecutable struct {
 	write       bundleWrite
 	original    os.FileInfo
 	staged      os.FileInfo
-	replacement *hostmeta.RootReplacement
+	replacement *hostdata.RootReplacement
 }
 
 type bundleAllocationError struct {
@@ -155,7 +156,7 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return hostmeta.CopyDirectoryStat(source, target)
+	return hostdata.CopyDirectoryStat(source, target)
 }
 
 // Purge regular signature files after executable commit. Keep the directory and
@@ -268,7 +269,7 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	}
 	// Dry runs reach allocation without writing envelopes or committing children.
 	if dryRun {
-		if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		if err := accesstime.RecordReadAccess(source); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 			return nil, err
 		}
 	}
@@ -276,7 +277,7 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if st.ModTime().Before(created) {
 		created = st.ModTime()
 	}
-	r, err := hostmeta.PrepareReplacementAt(source, root, filepath.Dir(write.name))
+	r, err := hostdata.PrepareReplacementAt(source, root, filepath.Dir(write.name))
 	if err != nil {
 		if errors.Is(err, os.ErrPermission) {
 			return nil, &bundleAllocationError{err: err, original: st}
@@ -299,7 +300,7 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	}
 	// Darwin's new executable inherits an earlier source modification time as
 	// its creation time. Other hosts retain their replacement metadata policy.
-	if err := hostmeta.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostmeta.ErrCreationTimeUnsupported) {
+	if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
 		return nil, err
 	}
 	if err := r.RestoreMetadata(); err != nil {
@@ -312,9 +313,9 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if err != nil {
 		return nil, err
 	}
-	if err := r.File.Close(); err != nil {
-		return nil, err
-	}
+	// Keep the SDK's writable handle through the deferred access-time update.
+	// Reopening after metadata restoration may lose write access (in particular
+	// for a readonly Windows replacement). copySourceAccess closes it before rename.
 	if err := source.Close(); err != nil {
 		return nil, err
 	}
@@ -365,21 +366,26 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 		return err
 	}
 	defer func() { result = errors.Join(result, source.Close()) }()
+	// Validate the staged pathname, but update metadata through the retained
+	// writer: this read handle does not grant Windows write-attribute access.
 	target, err := openBundleExecutable(root, p.replacement.Path, p.staged)
 	if err != nil {
 		return err
 	}
 	defer func() { result = errors.Join(result, target.Close()) }()
-	if err := hostmeta.RecordReadAccess(source); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+	if err := accesstime.RecordReadAccess(source); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 		return err
 	}
-	if err := hostmeta.CopyAccessTime(source, target); err != nil {
-		if errors.Is(err, hostmeta.ErrAccessTimeUnsupported) {
-			return nil
+	if err := accesstime.CopyAccessTime(source, p.replacement.File); err != nil {
+		if errors.Is(err, accesstime.ErrAccessTimeUnsupported) {
+			return p.replacement.File.Close()
 		}
-		return err
+		return fmt.Errorf("copy staged executable access time: %w", err)
 	}
-	return target.Sync()
+	if err := p.replacement.File.Sync(); err != nil {
+		return fmt.Errorf("sync staged executable metadata: %w", err)
+	}
+	return p.replacement.File.Close()
 }
 
 func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) error {
@@ -388,7 +394,7 @@ func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) er
 		return err
 	}
 	defer file.Close()
-	if err := hostmeta.RecordReadAccess(file); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+	if err := accesstime.RecordReadAccess(file); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 		return err
 	}
 	return file.Close()

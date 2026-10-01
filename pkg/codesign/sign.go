@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
 )
 
 // maxFileSize bounds in-memory operations. Larger files fail explicitly.
@@ -45,7 +45,7 @@ func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
 	}
 	// Native Mach-O signing maps its input; UDIF and read-only operations do not.
 	if recordAccess && !isDMG(data) {
-		if err := hostmeta.RecordReadAccess(f); err != nil && !errors.Is(err, hostmeta.ErrReadAccessUnsupported) {
+		if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 			return nil, err
 		}
 	}

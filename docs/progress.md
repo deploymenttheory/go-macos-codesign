@@ -1,12 +1,31 @@
 # Project progress
 
-Updated 2026-09-27. This page describes the implementation in this branch and
+Updated 2026-10-01. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current strict-attribute dependency and research
+## Current published APFS dependency
+
+Codesign pins [APFS v0.15.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.0)
+and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
+directory metadata and read/access-time operations. No local APFS replacement or
+duplicated filesystem implementation is used. The published correction removes
+purego through the approved finite typed Darwin wrappers and preserves portable
+metadata support on Linux and Windows.
+
+[APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184) passed all
+64 applicable checks; wrapper coverage on the Mac runner was 98.8%. Both downstream
+PRs now adopt the published module: codesign PR70 and macOS-pkg PR72 remain draft
+while their final revisions run downstream qualification. See the
+[dependency boundary and validation gate](apfs-dependency.md). The prior
+purego publication blocker is resolved; native acceptance, coverage and artifact
+qualification must still validate the released pin before policy work resumes.
+Sideband/plain/all verification and signing-time stripping remain next. No
+compatibility-inventory status changes in this dependency phase.
+
+## Strict-attribute research baseline
 
 [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131) adds strict
 size, bounded read and removal by descriptor or no-follow path on Linux, macOS
@@ -15,7 +34,7 @@ EA operations and required runtime tests. Its
 [corrected CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/36333046033)
 passed all three OS suites, six builds, lint and race; associated fuzz checks
 passed. Strict-API coverage is 98.85% Mac/Linux and 98.69% Windows, with zero
-skipped strict tests. Codesign retains v0.11.2 until the API is merged and published.
+skipped strict tests. Those APIs are included in the current v0.15.0 dependency.
 [The contract](sideband-policy.md) records eight complete Apple bodies on two
 Clang targets and 203 native verification controls. Another 42 directory-fork
 setups are unavailable and explicitly unexecuted. The probe establishes that

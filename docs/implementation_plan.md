@@ -1,14 +1,30 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-09-27 after [PR #68](https://github.com/deploymenttheory/go-macos-codesign/pull/68) merged.
+Status: updated 2026-10-01 after APFS v0.15.0 publication. The upstream
+AppleDouble/resource-fork implementation, hostdata separation and removal of
+purego are released. APFS PR184 passed all 64 applicable checks, including the
+strict native/portable harness and 98.8% typed-wrapper coverage. The current
+codesign branch pins the published SDK and uses `hostdata` and
+`hostdata/accesstime`; macOS-pkg draft PR72 adopts the same version. No local
+APFS replacement is used.
+
+**Current gate:** qualify both downstream PR revisions against the published
+v0.15.0 module. Keep the existing dependency guards, three-OS/native acceptance,
+coverage and artifact checks. The prior purego blocker is resolved by the approved
+typed Darwin extension; it does not justify changing any test threshold or CLI
+compatibility status. See [dependency qualification](apfs-dependency.md).
+After qualification and maintainer merge, cut the next sideband/plain/all and
+signing-time stripping phase from main.
+
 The merged [resource-suppression increment](ignore-resources.md) implements
 `--ignore-resources` within the supported verification profile. Full sideband/all
 behavior remains outstanding. The current [dependency and research phase](sideband-policy.md)
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
-verification controls. Production integration follows publication of the APFS API.
-Released APFS v0.11.2 is now the shared metadata/DMG dependency, with no local
-replacement or native production dependency. [PR #49](#merged-pr49) delivers DMG
+verification controls. The publication prerequisite is satisfied; policy integration
+remains next. Released APFS v0.15.0 is the shared metadata/DMG dependency, with no local
+replacement or generic FFI dependency. Native host operations use the approved
+typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
 [PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
 closes bundle-parent path selection/display and establishes the combined passing

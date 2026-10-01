@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostmeta"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"golang.org/x/sys/unix"
 )
 
@@ -20,7 +20,7 @@ func TestBundleDirectoryMetadataFailureBeforeCommit(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = unix.Chflags(app, 0) })
-	if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, hostmeta.ErrUnsupportedDirectoryStat) {
+	if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, hostdata.ErrUnsupportedDirectoryStat) {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(readTestFile(t, main), before) {
