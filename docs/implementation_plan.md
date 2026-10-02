@@ -1,12 +1,12 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR78 merged. APFS remains at v0.15.1. The upstream
+Status: updated 2026-10-02 after codesign PR78 merged. This branch adopts APFS v0.15.2. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
-codesign main pins the published SDK and uses `hostdata` and
-`hostdata/accesstime`; macOS-pkg main adopts the same version. No local
-APFS replacement is used.
+codesign branch pins the published SDK and uses `hostdata` and
+`hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
+discovery on Windows as well as Unix. No local APFS replacement is used.
 
 **Current increment:** [bundle-removal discovery](bundle-removal-discovery.md) on
 `feat/bundle-removal-fallback`, cut from PR78 main at
@@ -46,8 +46,9 @@ discovery or Linux attribute-name remapping.
 inheritance using the SDK's existing ACL policy; discard old inherited source
 entries and preserve native ACE ordering. Info.plist selection now preserves the
 executable under readattr/readsecurity denial, while selected data-read failures
-remain fatal. The existing rooted stat supplies this distinction without a new
-filesystem primitive. Broader CoreFoundation property/authorization discovery
+remain fatal. Released APFS v0.15.2 supplies this distinction through
+`hostdata.StatMetadata`; Go's Windows rooted stat requests file-data access and
+cannot supply the required authorization boundary. Broader CoreFoundation property/authorization discovery
 still needs qualification. Denied metadata reads inside the signature
 directory also need a shared APFS enumeration primitive that preserves rooted
 containment and directory-entry types without eager per-entry stat calls.
@@ -68,7 +69,7 @@ behavior remains outstanding. The [dependency and research work](sideband-policy
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
-continues through the profiles above. Released APFS v0.15.1 is the shared metadata/DMG dependency, with no local
+continues through the profiles above. Released APFS v0.15.2 is the shared metadata/DMG dependency, with no local
 replacement or generic FFI dependency. Native host operations use the approved
 typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -2810,7 +2811,7 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   writable-open denial, dry-run behavior and mandatory foreign/native comparisons.
 - [x] Qualify readsecurity/readattr discovery denial separately from denied data
   reads. Preserve selected-executable failures without redirecting removal. Use
-  rooted stat for this profile and the existing APFS-backed generic writer.
+  APFS `hostdata.StatMetadata` for this profile and the existing SDK generic writer.
 - [ ] Complete broader CoreFoundation metadata/property authorization contexts.
   Qualify missing or
   malformed plist, legacy/shallow layouts, widgets, resource-root policies, `.dist`

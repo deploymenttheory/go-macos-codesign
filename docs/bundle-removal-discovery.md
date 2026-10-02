@@ -9,7 +9,7 @@ signature in extended attributes on the plist. Removing it preserves the plist's
 data fork and inode, then removes the selected bundle's signature envelope.
 
 The same implementation runs on Linux, macOS and Windows. Native metadata uses
-APFS v0.15.1; foreign Apple metadata can be supplied through the existing explicit
+APFS v0.15.2; foreign Apple metadata can be supplied through the existing explicit
 `--appledouble-map`. There is no implicit sidecar discovery or Linux xattr renaming.
 Signing, display and verification retain their existing metadata requirements.
 
@@ -25,10 +25,12 @@ layouts, removal reads the bounded, valid Info.plist and:
    bundles also search their wrapper root. A found candidate proceeds through the
    existing Mach-O or generic remover. Read failure or malformed Mach-O after
    selection does not authorize fallback.
-3. If candidates are missing or their discovery stat is permission-denied, selects
-   Info.plist and uses the ordered generic writer. The native corpus records that
-   rooted stat rejects readattr/readsecurity denial, while read/readextattr denial
-   leaves selection intact. Later data/attribute-read failures remain fatal.
+3. Queries candidates with APFS `hostdata.StatMetadata`. If they are missing or
+   metadata discovery is permission-denied, selects Info.plist and uses the ordered
+   generic writer. The native corpus distinguishes readattr/readsecurity denial
+   from read/readextattr denial, which leaves selection intact. The SDK query
+   requests neither file data nor extended attributes on Windows, where Go's
+   `Root.Lstat` requests data access. Later data/attribute-read failures remain fatal.
    `CFBundleIdentifier` and `CFBundlePackageType` are not removal prerequisites.
    `IFMajorVersion` does not prevent this fallback.
 4. Requires writable access to the selected generic file, removes canonical
@@ -77,7 +79,12 @@ native result governs this profile. Source analysis alone is not a parity claim.
   readextattr across all three layouts, preserving bytes, inode identity, ACLs and
   unselected signature attributes. An additional explicit-carrier test requires
   an effective metadata-discovery denial on every host (Darwin readattr, NTFS
-  READ_ATTRIBUTES, Linux parent search), without claiming identical ACL models.
+  file READ_ATTRIBUTES plus parent directory-list denial, Linux parent search),
+  without claiming identical ACL models. NTFS otherwise permits child-attribute
+  discovery through directory listing; the fixture denies both sources of access
+  and restores the parent before the child. It checks the same SDK query used by
+  discovery before invoking the CLI. Existing unreadable-executable tests require
+  data denial to remain fatal and preserve the original signature.
   Unit tests cover failed loader ownership, unsupported metadata,
   path containment and malformed selected executables. The new discovery module
   has complete local unit statement coverage.
@@ -94,8 +101,8 @@ for valid metadata in the supported layouts.
 It does not close the following native behaviors:
 
 - Broader CoreFoundation property queries, filesystem errors and authorization
-  contexts. Rooted stat suffices for the retained discovery-denial profile; the
-  existing APFS metadata APIs remain the first place for any additional primitive.
+  contexts. The released SDK metadata-only query supplies the retained profile
+  on all three hosts; additional filesystem primitives belong in APFS.
 - Invalid or missing Info.plist, broader shallow/legacy layouts, widgets and
   `.dist` discovery, specialized resource-root policies and executable-path
   discovery outside the currently recognized directories.

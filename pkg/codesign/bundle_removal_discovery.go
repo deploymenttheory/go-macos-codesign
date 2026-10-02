@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // Removal does not need signing identifiers or package types. Keep its discovery
@@ -58,7 +60,7 @@ func (b *appBundle) discoverRemovalExecutable() error {
 		candidates = append(candidates, name)
 	}
 	for _, candidate := range candidates {
-		_, err := b.root.Lstat(candidate)
+		_, err := hostdata.StatMetadata(b.root, candidate)
 		// CoreFoundation's existence query rejects inaccessible metadata too.
 		// This is solely the discovery stat, before any data or attribute read;
 		// errors from opening a selected file must never trigger this fallback.

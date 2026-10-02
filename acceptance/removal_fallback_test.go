@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // Every fallback leaves a non-selected executable untouched (or absent) and
@@ -78,13 +80,25 @@ func TestRemovalFallbackMetadataDenial(t *testing.T) {
 	infoBefore := nativeRead(t, paths["info"])
 	mainIdentity, infoIdentity := accessFileInfo(t, paths["main"]), accessFileInfo(t, paths["info"])
 	var restore func()
+	t.Cleanup(func() {
+		if restore != nil {
+			restore()
+		}
+	})
 	switch runtime.GOOS {
 	case "darwin":
 		mustRun(t, "/bin/chmod", "+a", "everyone deny readattr", paths["main"])
 		restore = func() { mustRun(t, "/bin/chmod", "-N", paths["main"]) }
 	case "windows":
+		// NTFS also grants child-attribute visibility through directory listing.
+		// Deny both sources, without inheriting the directory ACE onto the file.
+		parent := filepath.Dir(paths["main"])
+		restore = func() {
+			mustRun(t, "icacls", parent, "/remove:d", "*S-1-1-0")
+			mustRun(t, "icacls", paths["main"], "/remove:d", "*S-1-1-0")
+		}
 		mustRun(t, "icacls", paths["main"], "/deny", "*S-1-1-0:(RA)")
-		restore = func() { mustRun(t, "icacls", paths["main"], "/remove:d", "*S-1-1-0") }
+		mustRun(t, "icacls", parent, "/deny", "*S-1-1-0:(RD)")
 	case "linux":
 		parent := filepath.Dir(paths["main"])
 		mode := accessFileInfo(t, parent).Mode().Perm()
@@ -99,12 +113,11 @@ func TestRemovalFallbackMetadataDenial(t *testing.T) {
 	default:
 		t.Fatal("unqualified host")
 	}
-	t.Cleanup(restore)
 	r, err := os.OpenRoot(operand)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = r.Lstat("Contents/MacOS/hello")
+	_, err = hostdata.StatMetadata(r, "Contents/MacOS/hello")
 	r.Close()
 	if !os.IsPermission(err) {
 		t.Fatal("metadata denial is ineffective", err)
