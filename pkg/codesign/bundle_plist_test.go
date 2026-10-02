@@ -289,7 +289,7 @@ func TestBinaryBundleClangFacts(t *testing.T) {
 	}
 }
 
-func TestBinaryMetadataFailurePreservesBundle(t *testing.T) {
+func TestBinaryMetadataSigningFailureAndRemovalFallback(t *testing.T) {
 	app := testBundle(t)
 	ctx := context.Background()
 	bundleFile(t, app, "Contents/Info.plist", binaryBundleInfo(t))
@@ -309,9 +309,6 @@ func TestBinaryMetadataFailurePreservesBundle(t *testing.T) {
 	if err := Sign(ctx, app, SignOptions{Force: true}); !errors.Is(err, ErrFormat) {
 		t.Fatal(err)
 	}
-	if err := RemoveSignature(ctx, app); !errors.Is(err, ErrFormat) {
-		t.Fatal(err)
-	}
 	mainAfter, err := os.ReadFile(mainPath)
 	if err != nil {
 		t.Fatal(err)
@@ -322,5 +319,17 @@ func TestBinaryMetadataFailurePreservesBundle(t *testing.T) {
 	}
 	if !bytes.Equal(mainBefore, mainAfter) || !bytes.Equal(envelopeBefore, envelopeAfter) {
 		t.Fatal("malformed metadata changed signed files")
+	}
+	// Removal interprets the cyclic dictionary as empty, retains the raw plist
+	// and purges the envelope. It must not touch the undiscovered executable.
+	infoBefore := readTestFile(t, filepath.Join(app, "Contents/Info.plist"))
+	if err := RemoveSignature(ctx, app); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(mainBefore, readTestFile(t, mainPath)) || !bytes.Equal(infoBefore, readTestFile(t, filepath.Join(app, "Contents/Info.plist"))) {
+		t.Fatal("fallback mutated data")
+	}
+	if _, err := os.Stat(envelopePath); !errors.Is(err, os.ErrNotExist) {
+		t.Fatal("fallback retained envelope", err)
 	}
 }

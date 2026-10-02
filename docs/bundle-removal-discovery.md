@@ -111,7 +111,7 @@ It does not close the following native behaviors:
 - Broader CoreFoundation property queries, filesystem errors and authorization
   contexts. The released SDK metadata-only query supplies the retained profile
   on all three hosts; additional filesystem primitives belong in APFS.
-- Nonempty invalid and platform-specific Info.plist, broader shallow/legacy layouts, widgets and
+- Broader plist encodings/grammar beyond the [qualified interpreter](removal-plist-interpretation.md), shallow/legacy layouts, widgets and
   `.dist` discovery, specialized resource-root policies and executable-path
   discovery outside the currently recognized directories.
 - Symlink/alias and dynamic-loader environment selection beyond existing supported

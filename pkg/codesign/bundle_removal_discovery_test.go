@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 6 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 8 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 6 {
+		if len(methods) != 8 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -54,6 +54,9 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		}
 		if methods["_CFBundleCopyInfoDictionaryInDirectoryWithVersion"].References["CFDictionaryCreateMutable"] != 2 || methods["_CFBundleCopyInfoPlistURL"].References["CFDictionaryGetValue"] != 2 {
 			t.Fatal("missing empty dictionary or real/raw plist URL contract", target)
+		}
+		if methods["CFDictionaryAddValue"].References["CFBasicHashAddValue"] != 1 || methods["CFDictionarySetValue"].References["CFBasicHashSetValue"] != 1 {
+			t.Fatal("missing insertion/replacement distinction", target)
 		}
 	}
 	var corpus struct {
@@ -235,7 +238,16 @@ func TestRemovalDiscoveryBoundaries(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if b, err := loadRemovalBundle(root, app, ""); err == nil {
+			b, loadErr := loadRemovalBundle(root, app, "")
+			if scenario == "bad-info" {
+				if loadErr != nil {
+					t.Fatal(loadErr)
+				}
+				if b.executable != "Contents/Info.plist" {
+					t.Fatal("lost raw plist fallback", b.executable)
+				}
+				b.close()
+			} else if loadErr == nil {
 				b.close()
 				t.Fatal("accepted unsupported discovery")
 			}

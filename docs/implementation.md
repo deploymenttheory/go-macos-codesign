@@ -4,11 +4,15 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR81 and roadmap PR82 with APFS v0.17.0.
+Current work continues after merged PR83 with APFS v0.17.0.
 Shared readers and rooted basic entry-type queries implement platform-specific
 plist selection for removal on all three hosts. The
 [discovery contract](removal-platform-metadata.md) records its 33-case corpus,
 18 native permission cases and remaining parsing/normalization/alias gaps.
+The [removal plist interpreter](removal-plist-interpretation.md) now qualifies
+bounded XML/OpenStep/binary input, invalid/non-dictionary fallback and duplicate
+order through 174 native cases and 348 mandatory foreign imports. Unsupported
+encodings/types and resource limits remain explicit; strict parsers are retained.
 Merged [missing/empty removal metadata](removal-empty-metadata.md) includes native
 executable-name selection and no-mutation errors. Supported layouts fall
 back to valid Info.plist when executable metadata is absent or inaccessible;

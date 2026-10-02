@@ -8,9 +8,25 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
+PR83 is merged at `e5aaee2c3dfb8530ba08c7fd129735e83ee216a5` after
+[all required gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37037417359).
+Audited codesign coverage was 95.08% Linux, 95.50% macOS and 95.02% Windows;
+all 66 platform-selection foreign records matched Apple. The next branch,
+`feat/removal-plist-interpretation`, starts from that main and retains APFS v0.17.0.
+
+The [plist interpretation phase](removal-plist-interpretation.md) adds bounded
+XML/OpenStep/binary removal semantics, including raw-plist fallback after parse
+failure and format-specific duplicate-key order. It retains 174 native cases,
+adds 348 mandatory foreign records, extends Clang evidence to eight complete
+bodies and adds a twelfth fuzz target. Resource limits remain fatal and the
+strict signing/verification parser remains unchanged. This increment requires
+its own complete CI; broader encodings and grammar remain explicit gaps.
+
+### Merged platform-plist profile
+
 PR81 is merged at `0701a24555d1e7cae7536260b25ae48a090c9657` after its
 [full compatibility run passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37013658411).
-The current `feat/platform-plist-selection` branch includes merged roadmap PR82
+The merged `feat/platform-plist-selection` branch includes roadmap PR82
 and pins published APFS v0.17.0.
 Resource reads now use the SDK content reader, and replacement staging uses its
 metadata reader; the duplicated native resource openers are removed. Fourteen

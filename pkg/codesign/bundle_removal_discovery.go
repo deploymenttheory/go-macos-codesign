@@ -29,15 +29,9 @@ func (b *appBundle) discoverRemovalExecutable() error {
 	if err != nil {
 		return err
 	}
-	// CoreFoundation supplies an empty dictionary for absent or empty metadata.
-	// Keep read failures and nonempty plist parsing errors distinct: neither is
-	// evidence that it is safe to reinterpret the input as an empty dictionary.
-	var values map[string]any
-	if len(info) != 0 {
-		values, err = decodeBundlePlist(info)
-		if err != nil {
-			return err
-		}
+	values, err := decodeRemovalPlist(info)
+	if err != nil {
+		return err
 	}
 	// These require separate disk representations or resource-root policies.
 	for _, key := range []string{"MainHTML", "CFBundleResourceSpecification"} {

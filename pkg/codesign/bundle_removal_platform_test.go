@@ -17,6 +17,17 @@ import (
 )
 
 func TestRemovalPlatformNativeReplay(t *testing.T) {
+	wanted := map[string]bool{}
+	for _, shape := range []string{"app", "flat-framework", "framework"} {
+		for _, state := range []string{"both", "only", "empty", "empty-dictionary", "missing-target", "directory", "macosx", "key-macos", "key-windows", "empty-key", "number-key"} {
+			wanted[shape+"/"+state] = true
+		}
+	}
+	replayRemovalPlists(t, "platform-selection.json", "probe-removal-platform-selection.go", wanted)
+}
+
+func replayRemovalPlists(t *testing.T, corpusName, driverName string, wanted map[string]bool) {
+	t.Helper()
 	var corpus struct {
 		Schema int
 		MacOS  string
@@ -36,21 +47,15 @@ func TestRemovalPlatformNativeReplay(t *testing.T) {
 			}
 		}
 	}
-	if err := json.Unmarshal(readTestFile(t, "../../testdata/bundle-removal/platform-selection.json"), &corpus); err != nil {
+	if err := json.Unmarshal(readTestFile(t, "../../testdata/bundle-removal/"+corpusName), &corpus); err != nil {
 		t.Fatal(err)
 	}
 	hash := func(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
-	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || corpus.Driver != hash(readTestFile(t, "../../scripts/probe-removal-platform-selection.go")) {
+	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || corpus.Driver != hash(readTestFile(t, "../../scripts/"+driverName)) {
 		t.Fatal("stale or incomplete platform evidence")
 	}
 	if _, err := hex.DecodeString(corpus.Native); err != nil {
 		t.Fatal(err)
-	}
-	wanted := map[string]bool{}
-	for _, shape := range []string{"app", "flat-framework", "framework"} {
-		for _, state := range []string{"both", "only", "empty", "empty-dictionary", "missing-target", "directory", "macosx", "key-macos", "key-windows", "empty-key", "number-key"} {
-			wanted[shape+"/"+state] = true
-		}
 	}
 	if len(corpus.Cases) != len(wanted) {
 		t.Fatal("incomplete platform cases")
@@ -128,7 +133,7 @@ func TestRemovalPlatformNativeReplay(t *testing.T) {
 }
 
 func TestRemovalPlatformBoundaries(t *testing.T) {
-	for _, scenario := range []string{"symlink", "malformed", "oversized", "escape"} {
+	for _, scenario := range []string{"symlink", "unsupported-encoding", "oversized", "escape"} {
 		t.Run(scenario, func(t *testing.T) {
 			app := testBundle(t)
 			platform := filepath.Join(app, "Contents/Info-macos.plist")
@@ -137,8 +142,8 @@ func TestRemovalPlatformBoundaries(t *testing.T) {
 				if err := os.Symlink("Info.plist", platform); err != nil {
 					t.Fatal(err)
 				}
-			case "malformed":
-				bundleFile(t, app, "Contents/Info-macos.plist", []byte("not a supported plist"))
+			case "unsupported-encoding":
+				bundleFile(t, app, "Contents/Info-macos.plist", []byte{0xff, 0xfe, '<', 0})
 			case "oversized":
 				bundleFile(t, app, "Contents/Info-macos.plist", make([]byte, maxBundlePlist+1))
 			case "escape":

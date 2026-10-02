@@ -49,6 +49,7 @@ func walk(n node, f func(node)) {
 func main() {
 	source := read(".research/apple/CFBundle.c")
 	infoSource := read(".research/apple/CFBundle_InfoPlist.c")
+	dictionarySource := read(".research/apple/CFDictionary.c")
 	names := []string{"_urlExists", "_binaryLoadable", "_CFBundleCopyExecutableName", "_CFBundleCopyInfoDictionaryInDirectoryWithVersion", "CFBundleGetInfoDictionary", "_CFBundleCopyInfoPlistURL"}
 	unit := `#include <CoreFoundation/CoreFoundation.h>
 #define DEPLOYMENT_TARGET_EMBEDDED 0
@@ -89,6 +90,31 @@ CFIndex _CFLengthAfterDeletingPathExtension2(CFStringRef);
 		unit += string(body) + "\n"
 		hashes[name] = hash(body)
 	}
+	unit += `
+#define CFDictionary 1
+#define CFSet 0
+#define CFBag 0
+typedef CFMutableDictionaryRef CFMutableHashRef;
+typedef const void *const_any_pointer_t;
+typedef struct __CFBasicHash *CFBasicHashRef;
+Boolean CFBasicHashIsMutable(CFBasicHashRef);
+void CFBasicHashAddValue(CFBasicHashRef, uintptr_t, uintptr_t);
+void CFBasicHashSetValue(CFBasicHashRef, uintptr_t, uintptr_t);
+#define CF_OBJC_FUNCDISPATCHV(...) ((void)0)
+#define __CFGenericValidateType(...) ((void)0)
+#define CFAssert2(condition, ...) ((void)(condition))
+#define CF_OBJC_KVO_WILLCHANGE(...) ((void)0)
+#define CF_OBJC_KVO_DIDCHANGE(...) ((void)0)
+`
+	for _, name := range []string{"CFDictionaryAddValue", "CFDictionarySetValue"} {
+		body := regexp.MustCompile(`(?ms)^#if CFDictionary\nvoid ` + name + `\(.*?^}`).Find(dictionarySource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -115,9 +141,12 @@ CFIndex _CFLengthAfterDeletingPathExtension2(CFStringRef);
 		}
 		targets[target] = facts
 	}
-	result := map[string]any{"schema": 1, "driver_sha256": hash(read("scripts/extract-removal-discovery.go")), "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c", "source_sha256": hash(source), "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c", "info_source_sha256": hash(infoSource), "body_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets, "scope": "Six complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. The host SDK supplies real CoreFoundation interfaces. This AST establishes name fallback, existence queries, synthesized empty dictionaries and platform/ordinary real/raw plist URL selection, not current macOS authorization, executable-key normalization or version-directory name behavior. Native corpora qualify those independently. Malformed nonempty metadata and broader dictionary normalization remain implementation obligations."}
+	result := map[string]any{"schema": 1, "driver_sha256": hash(read("scripts/extract-removal-discovery.go")), "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c", "source_sha256": hash(source), "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c", "info_source_sha256": hash(infoSource), "body_sha256": hashes, "translation_unit_sha256": hash([]byte(unit)), "targets": targets}
+	result["dictionary_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFDictionary.c"
+	result["dictionary_source_sha256"] = hash(dictionarySource)
+	result["scope"] = "Eight complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; broader parser encodings/types and normalization remain open."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted six discovery bodies for two targets")
+	fmt.Println("extracted eight discovery bodies for two targets")
 }

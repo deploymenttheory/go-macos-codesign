@@ -52,8 +52,9 @@ complete tree hashes and file/metadata outcomes. These 54 observations are
 additional to the existing 102 generic-removal records and all earlier artifacts.
 Three portable Mach-O architecture cases qualify dispatch with a missing plist.
 
-The [Clang record](../spec/apple-removal-discovery.json) now contains six complete
-Apple functions compiled for arm64 and x86_64 against the host SDK. The added
+The [Clang record](../spec/apple-removal-discovery.json) contains six complete
+bundle-discovery functions and two dictionary operations compiled for arm64 and
+x86_64 against the host SDK. The
 CoreFoundation functions synthesize empty dictionaries and retain real/raw plist
 URLs. Private bundle fields, locks, directory iteration, logging and key symbols
 are declaration shims; the function bodies are verbatim. Current native probes
@@ -65,8 +66,10 @@ race/fuzz, golangci-lint and six GoReleaser targets.
 
 ## Remaining work
 
-- Nonempty malformed plists, alternative plist syntaxes, duplicate-key and
-  platform-specific Info.plist selection, and wider property/authorization queries.
+- Broader encodings/grammar and property/authorization queries. Bounded
+  [plist interpretation](removal-plist-interpretation.md) and
+  [platform selection](removal-platform-metadata.md) now have their own native
+  and mandatory portable acceptance profiles.
 - Legacy/shallow layouts outside the supported profile, widgets, `.dist`
   discovery and executable-path aliases.
 - Signature-directory metadata denial, ACL inheritance and exact denied-delete
