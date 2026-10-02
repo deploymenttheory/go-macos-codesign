@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 12 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 15 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 12 {
+		if len(methods) != 15 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -64,6 +64,10 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		if methods["CFUniCharFromUTF32"].References["CFUniCharIsSurrogateHighCharacter"] != 2 || methods["CFUniCharFromUTF32"].References["CFUniCharIsSurrogateLowCharacter"] != 3 || methods["CFUniCharFromUTF32"].Kinds["ReturnStmt"] != 3 {
 			t.Fatal("missing strict scalar conversion contract", target)
 		}
+		if methods["parseStringTag"].References["parseCDSect_pl"] != 1 || methods["parseStringTag"].References["parseEntityReference_pl"] != 1 || methods["parseCDSect_pl"].References["CFDataAppendBytes"] != 1 || methods["parseEntityReference_pl"].References["CFStringGetBytes"] != 1 {
+			t.Fatal("missing native string assembly bodies", target)
+		}
+
 	}
 	var corpus struct {
 		Schema  int

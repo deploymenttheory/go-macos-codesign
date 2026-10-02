@@ -63,7 +63,7 @@ Tests that previously required removal to reject invalid metadata now assert the
 measured raw-plist selection and unchanged executable/data, while retaining the
 original signing/verification rejection and preservation assertions.
 
-The [Clang extraction](../scripts/extract-removal-discovery.go) now records twelve
+The [Clang extraction](../scripts/extract-removal-discovery.go) now records fifteen
 complete Apple function bodies for both Mac architectures. The bundle loader
 shows invalid/non-dictionary empty synthesis and raw-URL retention. Complete
 `CFDictionaryAddValue` and `CFDictionarySetValue` bodies retain distinct hash
@@ -98,3 +98,7 @@ required. See [progress](progress.md) for the implementation PR and validation.
 - Native has different resource ceilings. The documented bounded limits remain
   explicit compatibility constraints and must not silently change the target of
   a mutating operation.
+
+The [XML character phase](removal-xml-characters.md) extends removal strings/keys
+with native controls, NUL, noncharacters, line endings and CDATA/entity behavior.
+Its 228 API/CLI cases and 38 value observations retain all earlier profiles.

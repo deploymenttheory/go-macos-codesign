@@ -2,13 +2,19 @@
 
 ## Unreleased
 
+- Preserve native XML strings and keys during removal on every host, including
+  NUL, controls, noncharacters, original line endings and CDATA/entity behavior.
+  Add 192 native cases, promote 36 UTF-32 character cases to API/CLI parity,
+  require 456 additional foreign records and compare 38 complete native values.
+  Extend Clang evidence to fifteen bodies; retain strict parsers and all limits.
+
 - Interpret BOM-marked UTF-32LE/BE XML and OpenStep metadata during removal on
   every host. Match native whole-string scalar validation and incomplete-unit
   truncation while preserving original metadata and resource bounds. Add 276
   native cases, 552 required foreign records, scalar/complexity tests, fuzz seeds
   and three complete Apple Unicode conversion bodies to the Clang evidence.
-  Retain 36 native XML grammar research cases and reject unqualified character
-  forms before mutation; preserve OpenStep controls and ignored XML suffixes.
+  Retain 36 native XML grammar research cases, implemented by the subsequent
+  XML character phase; preserve OpenStep controls and ignored XML suffixes.
 
 - Interpret BOM-marked UTF-16LE/BE XML and OpenStep metadata during removal on
   all hosts, preserving native conversion-prefix behavior and original bytes.

@@ -54,9 +54,15 @@ jobs:
       - name: Capture native UTF-32 removal plists
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-plist-interpretation.go -profile utf32 -out artifacts/plist-utf32.json
-      - name: Capture remaining native XML character grammar
+      - name: Capture native UTF-32 XML character grammar
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-plist-interpretation.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
+      - name: Capture native XML strings and character selection
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-plist-interpretation.go -profile xml-characters -out artifacts/plist-xml-characters.json
+      - name: Capture native XML value fidelity
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:

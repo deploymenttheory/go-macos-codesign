@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32 or utf32-grammar")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar or xml-characters")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -61,6 +61,8 @@ func main() {
 		selectedInputs = utf32Inputs(false)
 	} else if *profile == "utf32-grammar" {
 		selectedInputs = utf32Inputs(true)
+	} else if *profile == "xml-characters" {
+		selectedInputs = xmlCharacterInputs()
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -163,6 +165,70 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	fmt.Println("Captured and checked", len(cases), "native plist-interpretation cases")
+}
+
+func xmlCharacterInputs() []input {
+	var result []input
+	prefix := `<plist><dict><key>CFBundleExecutable</key><string>second</string><key>Ignored</key><string>`
+	suffix := `</string></dict></plist>`
+	for _, item := range []struct {
+		name, value string
+		valid       bool
+	}{
+		{"literal-controls", "\x00\x01\x08\x0b\x0c\x0e\x1f", true},
+		{"literal-noncharacters", "\ufffe\uffff", true},
+		{"literal-newlines", "a\rb\r\nc\nd", true},
+		{"cdata", "<![CDATA[<>&\x00\x01\ufffe\uffff\r\n]]>", true},
+		{"mixed", "a&amp;<![CDATA[<\x01]]>&#0;b", true},
+		{"named", "&lt;&gt;&amp;&apos;&quot;", true},
+		{"decimal", "&#0;&#1;&#8;&#11;&#12;&#14;&#31;", true},
+		{"hex", "&#x0;&#x1;&#xFFFE;&#xffff;", true},
+		{"supplementary", "&#x10000;&#128512;&#x10FFFF;", true},
+		{"empty-entity", "&#;&#x;", true},
+		{"surrogate-high", "&#xD800;", false},
+		{"surrogate-low", "&#xDFFF;", false},
+		{"scalar-overflow", "&#x110000;", false},
+		{"integer-overflow", "&#4294967296;", false},
+		{"unknown-entity", "&unknown;", false},
+		{"uppercase-x", "&#X6e;", false},
+		{"bad-digit", "&#xg;", false},
+		{"missing-semicolon", "&#1", false},
+		{"cdata-unclosed", "<![CDATA[bad", false},
+		{"string-comment", "a<!--comment-->b", false},
+		{"string-pi", "a<?instruction?>b", false},
+		{"string-child", "a<string>b</string>", false},
+	} {
+		result = append(result, input{item.name, []byte(prefix + item.value + suffix), item.valid})
+	}
+	for _, item := range []struct {
+		name, value string
+		valid       bool
+	}{
+		{"key-entity", `<key>CFBundleExecu&#x74;able</key><string>second</string>`, true},
+		{"key-cdata", `<key>CFBundle<![CDATA[Executable]]></key><string>second</string>`, true},
+		{"key-controls", `<key>CFBundleExecutable</key><string>second</string><key>CFBundleExecutable` + "\x00\x01\ufffe" + `</key><string>first</string>`, true},
+		{"duplicate-escaped-key", `<key>CFBundleExecutable</key><string>first</string><key>CFBundleExecu&#116;able</key><string>second</string>`, true},
+		{"nested-strings", `<key>CFBundleExecutable</key><string>second</string><key>Ignored</key><array><string>` + "\x00\uffff" + `</string><dict><key>` + "\x01" + `</key><string><![CDATA[` + "\x0b" + `]]></string></dict></array>`, true},
+		{"empty-strings", `<key>CFBundleExecutable</key><string>second</string><key/><string/><key>Ignored</key><string></string>`, true},
+		{"mismatched-close", `<key>CFBundleExecutable</key><string>second</key>`, false},
+		{"container-text", `<key>CFBundleExecutable</key><string>second</string>bad`, false},
+	} {
+		result = append(result, input{item.name, []byte(`<plist><dict>` + item.value + `</dict></plist>`), item.valid})
+	}
+	for _, endian := range []string{"le", "be"} {
+		var order binary.AppendByteOrder = binary.LittleEndian
+		bom := []byte{0xff, 0xfe}
+		if endian == "be" {
+			order, bom = binary.BigEndian, []byte{0xfe, 0xff}
+		}
+		data := append([]byte{}, bom...)
+		for _, u := range utf16.Encode([]rune(prefix + "\x00\x01\ufffe\uffff\r\n" + suffix)) {
+			data = order.AppendUint16(data, u)
+		}
+		result = append(result, input{"utf16-" + endian, data, true})
+	}
+
+	return result
 }
 
 func encodingInputs() []input {
