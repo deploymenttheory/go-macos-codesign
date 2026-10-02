@@ -56,7 +56,9 @@ A separate [value probe](../scripts/probe-removal-xml-values.go) invokes native
 [the value corpus](../testdata/bundle-removal/plist-xml-values.json). These prove
 character/key fidelity, not only executable selection. Portable tests compare
 the full decoded maps and arrays, validate input/driver/corpus hashes and preserve
-the original input buffer. macOS CI recaptures both operation and value evidence.
+the original input buffer. macOS CI recaptures both operation and value evidence;
+the value probe's required `-check` compares fresh decoded contents and statuses
+with the retained observations and fails on any difference.
 This native tooling is used only for research and acceptance, never production.
 
 [Apple's pinned C source](https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c)
