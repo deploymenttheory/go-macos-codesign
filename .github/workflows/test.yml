@@ -38,6 +38,9 @@ jobs:
       - name: Check native sideband reference policy and retain attribute evidence
         if: runner.os == 'macOS'
         run: go run scripts/probe-sideband.go -check
+      - name: Check native platform plist research profile
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-platform-info.go -out artifacts/platform-info-research.json
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:

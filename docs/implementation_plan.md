@@ -2837,6 +2837,12 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
 - [ ] Qualify nonempty malformed and platform-specific plists, duplicate-key
   policy, legacy/shallow layouts, widgets, resource-root policies, `.dist`
   discovery, executable-path aliases and dynamic-loader environment selection.
+  Platform selection now has fourteen retained native research probes covering
+  alternate filenames, executable-key overrides and real permission boundaries.
+  It remains unimplemented pending the shared content-reader prerequisite in
+  APFS PR #190 and its published release. Follow the evidence and integration
+  sequence in [platform metadata research](removal-platform-metadata.md); data
+  acquisition must not request unrelated ACL/EA read rights on any host.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
   files, scripts, recognized bundle layouts, disk images and any additional format
   actually accepted by the baseline. Record rejection as a valid native result.
