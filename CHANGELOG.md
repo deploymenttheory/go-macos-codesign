@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Adopt published APFS v0.17.0 and implement macOS platform-plist selection for
+  removal in Contents apps, flat frameworks and versioned frameworks on Linux,
+  macOS and Windows. Preserve discovery/read authorization boundaries, acquired
+  empty-plist selection and macOS executable-key precedence. Keep explicit
+  AppleDouble identity checks working under unrelated ACL-read denial. Add 33
+  retained native cases, 18 native permission comparisons and 66 mandatory foreign
+  imports; broader parsing, normalization and alias behavior remain outstanding.
+
 - Reconcile the roadmap after PR81 and record the shared APFS basic entry-type
   prerequisite for platform-plist discovery. Keep codesign on published APFS
   v0.16.0 pending upstream qualification and release; no selection behavior or

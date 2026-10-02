@@ -10,22 +10,32 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 PR81 is merged at `0701a24555d1e7cae7536260b25ae48a090c9657` after its
 [full compatibility run passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37013658411).
-The current `feat/platform-plist-discovery` branch starts from that main;
-the published APFS dependency remains v0.16.0.
+The current `feat/platform-plist-selection` branch includes merged roadmap PR82
+and pins published APFS v0.17.0.
 Resource reads now use the SDK content reader, and replacement staging uses its
 metadata reader; the duplicated native resource openers are removed. Fourteen
 retained platform-plist research cases run on macOS, with provenance checks on
-all hosts. Platform-plist selection itself remains outstanding. See the
+all hosts. Platform-plist selection is now implemented for the bounded removal
+profile on all three hosts. See the
 [SDK integration and remaining discovery work](removal-platform-metadata.md).
 
-The next implementation is [APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192):
-`ReadEntryType`, a rooted basic-attribute query on Linux, macOS and Windows.
-Its 17 retained native cases distinguish `readattr` discovery failure from
-`readsecurity`, EA and data-read denials. The full stat and held content reader
-cannot provide this distinction by themselves. Adoption waits for passing SDK
-CI, maintainer merge and a published release. The codesign loader is unchanged
-in this tracking increment. See the [remaining PR estimates](implementation_plan.md)
-for the difference between finishing this discovery profile and full parity.
+[APFS PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) is merged and
+released in v0.17.0 after all 63 applicable upstream checks passed. Its rooted
+`ReadEntryType` separates basic-attribute discovery from content acquisition.
+Codesign now prefers `Info-macos.plist`, retains an acquired empty plist's raw
+URL and applies `CFBundleExecutable-macos` precedence on Linux, macOS and Windows.
+Explicit AppleDouble bindings retain object-identity checks when unrelated ACL
+visibility is denied, using the released content reader.
+
+The new corpus contains 33 native selection cases across Contents apps, flat
+frameworks and versioned frameworks. All replay through API/CLI tests; 66 foreign
+records are mandatory in Apple's import job. Eighteen additional live permission
+cases compare native removal with Go's native attributes and explicit carriers.
+Real Windows, Linux and Darwin authorization tests remain mandatory. Nonempty
+malformed metadata, broader key normalization, aliases and other operations
+remain gaps. This branch's full CI is pending; earlier green runs are not proof
+of these changes. See the [remaining PR estimates](implementation_plan.md) for
+the difference between this discovery profile and full parity.
 
 Merged [missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem
 selection where native removal permits it, the versioned-framework distinction,
@@ -91,7 +101,7 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.16.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0)
+Codesign pins [APFS v0.17.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.0)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes

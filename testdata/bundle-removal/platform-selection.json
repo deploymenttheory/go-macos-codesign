@@ -1,0 +1,1414 @@
+{
+  "cases": [
+    {
+      "Shape": "app",
+      "State": "both",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/platform",
+      "Files": {
+        "Contents/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "only",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/platform",
+      "Files": {
+        "Contents/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "empty",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/Info-macos.plist",
+      "Files": {
+        "Contents/Info-macos.plist": null,
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "empty-dictionary",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/Info-macos.plist",
+      "Files": {
+        "Contents/Info-macos.plist": "PHBsaXN0PjxkaWN0Lz48L3BsaXN0Pg==",
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "missing-target",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/Info-macos.plist",
+      "Files": {
+        "Contents/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs"
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "directory",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/normal",
+      "Files": {
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature",
+        "Contents/Info-macos.plist"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "macosx",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/normal",
+      "Files": {
+        "Contents/Info-macosx.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "key-macos",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/platform",
+      "Files": {
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmc+cGxhdGZvcm08L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "key-windows",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/MacOS/normal",
+      "Files": {
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS13aW5kb3dzPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "empty-key",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/Info.plist",
+      "Files": {
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmcvPjwvZGljdD48L3BsaXN0Pg==",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "app",
+      "State": "number-key",
+      "Base": "Contents/",
+      "Info": "Contents/Info.plist",
+      "Platform": "Contents/Info-macos.plist",
+      "Selected": "Contents/Info.plist",
+      "Files": {
+        "Contents/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxpbnRlZ2VyPjc8L2ludGVnZXI+PC9kaWN0PjwvcGxpc3Q+",
+        "Contents/MacOS/normal": "bm9ybWFs",
+        "Contents/MacOS/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Contents",
+        "Contents/MacOS/",
+        "Contents/_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Contents/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "both",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "platform",
+      "Files": {
+        "Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "only",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "platform",
+      "Files": {
+        "Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "empty",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "Resources/Info-macos.plist",
+      "Files": {
+        "Resources/Info-macos.plist": null,
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "empty-dictionary",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "Resources/Info-macos.plist",
+      "Files": {
+        "Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0Lz48L3BsaXN0Pg==",
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "missing-target",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "Resources/Info-macos.plist",
+      "Files": {
+        "Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs"
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "directory",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "normal",
+      "Files": {
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature",
+        "Resources/Info-macos.plist"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "macosx",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "normal",
+      "Files": {
+        "Resources/Info-macosx.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "key-macos",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "platform",
+      "Files": {
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmc+cGxhdGZvcm08L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "key-windows",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "normal",
+      "Files": {
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS13aW5kb3dzPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "empty-key",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "Resources/Info.plist",
+      "Files": {
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmcvPjwvZGljdD48L3BsaXN0Pg==",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "flat-framework",
+      "State": "number-key",
+      "Base": "",
+      "Info": "Resources/Info.plist",
+      "Platform": "Resources/Info-macos.plist",
+      "Selected": "Resources/Info.plist",
+      "Files": {
+        "Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxpbnRlZ2VyPjc8L2ludGVnZXI+PC9kaWN0PjwvcGxpc3Q+",
+        "normal": "bm9ybWFs",
+        "platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Resources",
+        "",
+        "_CodeSignature"
+      ],
+      "Links": {},
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Resources/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "both",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/platform",
+      "Files": {
+        "Versions/A/Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "only",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/platform",
+      "Files": {
+        "Versions/A/Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "empty",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/Resources/Info-macos.plist",
+      "Files": {
+        "Versions/A/Resources/Info-macos.plist": null,
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "empty-dictionary",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/Resources/Info-macos.plist",
+      "Files": {
+        "Versions/A/Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0Lz48L3BsaXN0Pg==",
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "missing-target",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/Resources/Info-macos.plist",
+      "Files": {
+        "Versions/A/Resources/Info-macos.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs"
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "directory",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/normal",
+      "Files": {
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature",
+        "Versions/A/Resources/Info-macos.plist"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "macosx",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/normal",
+      "Files": {
+        "Versions/A/Resources/Info-macosx.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "key-macos",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/platform",
+      "Files": {
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmc+cGxhdGZvcm08L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "key-windows",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/normal",
+      "Files": {
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS13aW5kb3dzPC9rZXk+PHN0cmluZz5wbGF0Zm9ybTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "empty-key",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/Resources/Info.plist",
+      "Files": {
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxzdHJpbmcvPjwvZGljdD48L3BsaXN0Pg==",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    {
+      "Shape": "framework",
+      "State": "number-key",
+      "Base": "Versions/A/",
+      "Info": "Versions/A/Resources/Info.plist",
+      "Platform": "Versions/A/Resources/Info-macos.plist",
+      "Selected": "Versions/A/Resources/Info.plist",
+      "Files": {
+        "Versions/A/Resources/Info.plist": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5ub3JtYWw8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZS1tYWNvczwva2V5PjxpbnRlZ2VyPjc8L2ludGVnZXI+PC9kaWN0PjwvcGxpc3Q+",
+        "Versions/A/normal": "bm9ybWFs",
+        "Versions/A/platform": "cGxhdGZvcm0="
+      },
+      "Directories": [
+        "Versions/A/Resources",
+        "Versions/A/",
+        "Versions/A/_CodeSignature"
+      ],
+      "Links": {
+        "A": "Versions/Current/A",
+        "Resources": "Versions/Current/Resources",
+        "Versions/Current": "A"
+      },
+      "Status": 0,
+      "Output": "",
+      "Envelope": false,
+      "After": {
+        "Versions/A/Resources/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Versions/A/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Versions/A/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    }
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "schema": 1,
+  "source_sha256": "1f55c27ce1546cce57478de317178d97fc53b79f9ca9e8e9232b8d742f5af0bb"
+}

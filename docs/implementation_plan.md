@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR81 merged. Main uses APFS v0.16.0. The upstream
+Status: updated 2026-10-02 after codesign PR82 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,17 +8,22 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [basic entry-type discovery prerequisite](removal-platform-metadata.md#basic-entry-type-prerequisite)
-in [APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192).
-The codesign tracking branch `feat/platform-plist-discovery` starts from PR81
-main at `0701a24555d1e7cae7536260b25ae48a090c9657`. PR81 passed its
-[full compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37013658411).
-APFS v0.16.0 replaced the duplicated resource openers; replacement sources
-retain explicit metadata access. The next SDK API must pass all CI, be merged
-and be released before codesign adopts it; this tracking change adds no runtime
-behavior or unpublished dependency.
-Platform-plist selection remains open and its fourteen native research cases are
-retained. The merged [missing/empty removal profile](removal-empty-metadata.md)
+**Current increment:** [platform-plist selection](removal-platform-metadata.md)
+on `feat/platform-plist-selection`, based on main including merged roadmap PR82
+at `d4a825538a834115f2d0c43f7e618764e7f1cfae`. The prerequisite
+[APFS PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) passed all 63
+applicable checks, merged and shipped as v0.17.0 before this adoption.
+The loader separates basic entry-type discovery, content acquisition and plist
+interpretation. It selects `Info-macos.plist` and `CFBundleExecutable-macos`
+under the same policy on Linux, macOS and Windows, retaining empty raw-plist
+selection and ordinary-plist fallback only for the qualified acquisition cases.
+Explicit AppleDouble bindings retain identity checks under unrelated ACL denial.
+The 33-case native corpus covers three layouts; API/CLI replay, 66 mandatory
+foreign imports and 18 native permission comparisons qualify the increment.
+Its own full CI is required before merge. Broader parsers, final plist aliases,
+other override keys and signing/display/verification remain open.
+The original fourteen native research cases are retained.
+The merged [missing/empty removal profile](removal-empty-metadata.md)
 continues to require its full acceptance matrix. Twenty-seven native cases cover
 three layouts, missing/empty/empty-dictionary metadata and executable-name
 selection. All replay through the portable API and CLI; 54 additional foreign
@@ -109,7 +114,7 @@ behavior remains outstanding. The [dependency and research work](sideband-policy
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
-continues through the profiles above. Released APFS v0.16.0 is the shared metadata/DMG dependency, with no local
+continues through the profiles above. Released APFS v0.17.0 is the shared metadata/DMG dependency, with no local
 replacement or generic FFI dependency. Native host operations use the approved
 typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;

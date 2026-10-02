@@ -7,11 +7,11 @@
     "_binaryLoadable": "567d8d5323b614ca68f05d29a630a22ecd0d7bd3d6015e06498d66daa391c849",
     "_urlExists": "320feaff9cd8954a7c34a223a11f7222e44e9a6c5259ef025de045cb8ccc1674"
   },
-  "driver_sha256": "f07791961efc7d2a4249965b8564c10e4552e9e9775a079a2d08eefc81d61596",
+  "driver_sha256": "e7e77df4f593f0e462615d42f2f41186b426d887611815090dd5ca79aa6a9a9b",
   "info_source_sha256": "bbd744b84f1dd0989d1d8494800a34f8a3d9545a64dabda587481f15986373a0",
   "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c",
   "schema": 1,
-  "scope": "Six complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. The host SDK supplies real CoreFoundation interfaces. This AST establishes name fallback, existence queries, synthesized empty dictionaries and real/raw plist URL selection, not current macOS authorization or version-directory name behavior. Native corpora qualify those independently; platform-specific plist selection and malformed nonempty metadata remain separate implementation obligations.",
+  "scope": "Six complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. The host SDK supplies real CoreFoundation interfaces. This AST establishes name fallback, existence queries, synthesized empty dictionaries and platform/ordinary real/raw plist URL selection, not current macOS authorization, executable-key normalization or version-directory name behavior. Native corpora qualify those independently. Malformed nonempty metadata and broader dictionary normalization remain implementation obligations.",
   "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
   "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
   "targets": {

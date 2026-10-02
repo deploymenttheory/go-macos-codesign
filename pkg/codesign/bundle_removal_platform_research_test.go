@@ -9,7 +9,7 @@ import (
 )
 
 // This checks retained research, not implementation parity. The loader's
-// platform-plist selection remains separate from the adopted SDK reader.
+// platform-plist selection additionally has a three-layout replay corpus.
 func TestRemovalPlatformResearchProvenance(t *testing.T) {
 	var corpus struct {
 		Schema int

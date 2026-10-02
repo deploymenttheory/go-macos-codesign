@@ -25,9 +25,8 @@ func (b *appBundle) discoverRemovalExecutable() error {
 	if err := b.discoverLayout(); err != nil {
 		return err
 	}
-	info, err := b.read(b.infoPath, maxBundlePlist)
-	infoPresent := err == nil
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
+	info, infoPresent, err := b.removalInfo()
+	if err != nil {
 		return err
 	}
 	// CoreFoundation supplies an empty dictionary for absent or empty metadata.
@@ -47,6 +46,9 @@ func (b *appBundle) discoverRemovalExecutable() error {
 		}
 	}
 	value, present := values["CFBundleExecutable"]
+	if platform, exists := values["CFBundleExecutable-macos"]; exists {
+		value, present = platform, true
+	}
 	if !present {
 		value = values["NSExecutable"]
 	}
