@@ -4,11 +4,14 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work resumes after merged PR74 with APFS v0.15.1 and
-[signing permission qualification](signing-permissions.md): 400 native ACL cases,
-six portable CLI write-denial cases, executable metadata preflight and resource
-traversal corrections. Native executable ACL inheritance and additional security
-rights remain outstanding; the full three-OS and coverage gates are unchanged.
+Current work continues after merged PR78 with APFS v0.15.2 and
+[bundle-removal discovery](bundle-removal-discovery.md). Supported layouts fall
+back to valid Info.plist when executable metadata is absent or inaccessible;
+selected-file data-read failures remain fatal. The SDK's metadata-only query
+preserves that distinction on Windows. Earlier signing, shallow-removal and
+generic-removal tests remain mandatory. Native executable ACL inheritance,
+broader discovery and additional security rights remain outstanding; the full
+three-OS and coverage gates are unchanged.
 
 The [detailed implementation plan](implementation_plan.md) expands this overview
 into a complete post-PR #25 backlog, with all 88 inventory entries mapped to
@@ -117,7 +120,7 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Certificate signing | PEM/PKCS#12 keys; RSA/ECDSA CMS; native allocation/BER; RSA byte parity; organization/Developer ID requirements, Team IDs and certificate metadata | Encrypted PEM, full Apple policy and requirement synthesis, native localized display, end-to-end Developer ID signing evidence and hybrid algorithms |
 | Timestamps | RFC 3161 verification/providers, nonce-bound SHA-256 exchanges, direct HTTP CLI acquisition, pinned Apple roots, deadlines and cancellation; live native verification on three Mach-O forms | Broader TSA/Apple policy, revocation, proxy/redirect behavior and additional CMS/BER forms |
 | Bundles and resources | Contents-based APPL/BNDL/XPC! and unversioned/multiple-version FMWK discovery; main-executable inputs, explicit selection and direct version-directory inputs; XML/binary metadata; deterministic v1/v2 CodeResources; nested and alternate-version requirements; relative symlink seals; staged recursive signing, shared budgets and deep verification; native byte/mutation comparisons | Wider discovery and symlink/xattr policy, requirement/digest variants, full strict verification |
-| Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2; generic attached-signature removal with native and explicit AppleDouble metadata | Large-image streaming, encrypted/segmented images, detached signatures, generic signing/verification/display, Info.plist selection and certificate interchange |
+| Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2; generic attached-signature removal with native and explicit AppleDouble metadata; absent-executable and metadata-denial Info.plist removal in supported layouts | Large-image streaming, encrypted/segmented images, detached signatures, generic signing/verification/display, broader Info.plist selection and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
 | Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 606 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and eleven fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |

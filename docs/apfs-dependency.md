@@ -1,10 +1,19 @@
-# APFS v0.15.1 integration
+# APFS v0.15.2 integration
 
 Codesign pins the published
-[APFS v0.15.1 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1).
+[APFS v0.15.2 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.2).
 There is no local APFS replacement or workspace override. Existing replacement,
 directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
 operations use `pkg/hostdata/accesstime`.
+
+Bundle removal uses `hostdata.StatMetadata` for executable discovery. This rooted,
+no-follow query does not request file-data or extended-attribute access. On
+Windows it uses the SDK's held-parent metadata opener instead of Go's
+`Root.Lstat`, whose generic-read request can confuse data denial with missing
+metadata. Selected-file read failures remain fatal. The SDK also uses this query
+before acquiring metadata handles. See the versioned
+[query contract](https://github.com/deploymenttheory/go-apfs-v2/blob/v0.15.2/docs/rooted-metadata-stat.md)
+and [bundle-removal acceptance](bundle-removal-discovery.md).
 
 PR186 and release PR187 fix denied-write source ACL staging. The SDK delays source
 ACL restoration until the temporary file has been opened and written. Codesign
@@ -32,6 +41,14 @@ that a foreign host can observe a live Darwin process. See the versioned
 [wrapper boundary and qualification](https://github.com/deploymenttheory/go-apfs-v2/blob/v0.15.0/docs/darwin-wrappers.md).
 
 ## Qualification
+
+The metadata-query correction passed all applicable checks in
+[APFS PR188](https://github.com/deploymenttheory/go-apfs-v2/pull/188),
+[run 36977991355](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/36977991355).
+The new query files had 100% statement coverage on Linux, macOS and Windows.
+Its live Windows tests distinguish denied data, denied extended attributes, and
+effective metadata denial. Codesign must independently pass its unchanged
+three-platform and native-import gates against the published v0.15.2 module.
 
 The upstream correction passed all 64 applicable checks in
 [APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184), including
@@ -67,7 +84,7 @@ make lint
 make check
 ```
 
-Package PR72 is merged on the same release. Its macOS 27 relocation-default gap
+Package PR72 merged on v0.15.0. Its macOS 27 relocation-default gap
 was resolved in merged [PR73](https://github.com/deploymenttheory/go-macos-pkg/pull/73),
 with macOS 27's default used on every host and older relocation behavior available
 explicitly. Its [qualification run](https://github.com/deploymenttheory/go-macos-pkg/actions/runs/36840133037)
@@ -79,8 +96,9 @@ prerequisites are satisfied.
 The read-only [sideband metadata adapter](sideband-policy.md), object/carrier
 binding and signing-time stripping are implemented within their documented
 profiles. [Shallow removal](signature-removal.md) now avoids unrelated resource
-and child reads. Next obligations include destination ACL inheritance, generic
-bundle fallback under security-read denial, directory-entry enumeration under
+and child reads. [Bundle discovery](bundle-removal-discovery.md) adds valid-plist
+fallback under executable metadata denial in supported layouts. Next obligations
+include destination ACL inheritance, broader discovery, directory-entry enumeration under
 metadata denial, and denied-delete allocation/cleanup artifacts; see
 [signing permissions](signing-permissions.md). Shared filesystem primitives belong
 in APFS. Continue using the shared APFS

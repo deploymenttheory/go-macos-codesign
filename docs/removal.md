@@ -64,5 +64,6 @@ claim acceptance of arbitrary real loaders or kernel extensions.
 
 Native-unsupported DMG removal remains unsupported. [Generic attached-signature
 removal](generic-removal.md) is now implemented separately, including explicit
-AppleDouble inputs. Detached signatures, full discovery and wider error/metadata
+AppleDouble inputs and [absent-executable Info.plist fallback](bundle-removal-discovery.md)
+in supported layouts. Detached signatures, full discovery and wider error/metadata
 behavior remain outstanding. The inventory keeps `--remove-signature` partial.

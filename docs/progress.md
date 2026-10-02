@@ -8,9 +8,23 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR77 is merged at `a5633fef987dac89e719749963ca625a982aa17c`. The current
-`feat/generic-signature-removal` branch starts from that main. The upstream
+PR78 is merged at `3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. The current
+`feat/bundle-removal-fallback` branch starts from that main. The upstream
 replacement prerequisite is now released in APFS v0.15.1 and adopted here.
+This branch adopts v0.15.2 for metadata-only executable discovery, including the
+Windows correction released after APFS PR188.
+
+[Bundle-removal discovery](bundle-removal-discovery.md) now selects Info.plist
+when executable candidates are missing or metadata discovery is denied in supported
+layouts. Removal has its own
+metadata requirements and modern/legacy/stem executable-name selection. Eight
+fallback shapes extend the native/carrier matrix; each foreign producer exports
+51 generic-removal records, all required by the existing native import job.
+Twenty retained native probes and three complete two-target Clang bodies qualify
+the research. Twelve native permission comparisons and effective metadata denials
+on each host qualify selection before data reads. Wider discovery remains open. PR78
+passed every CI gate; codesign coverage was 95.19% Linux, 95.44% macOS and 95.04%
+Windows. This increment must pass the same unchanged gates.
 
 [Generic removal](generic-removal.md) adds attribute-backed signature removal for
 standalone files and selected generic bundle executables. It preserves data forks,
@@ -18,7 +32,7 @@ requires writable access before mutation, and retains partial removals on later
 failure. Explicit AppleDouble carriers work on all producers alongside native
 metadata. Eight complete Apple methods have two-target Clang evidence; forty
 native probes retain dispatch and permission outcomes. Generic signing, display,
-verification and Info.plist fallback remain outstanding. The inventory now has
+verification and broader discovery remain outstanding. The inventory still has
 31 partial, 49 not implemented, eight blocked and zero fully verified obligations.
 
 [Signature removal](signature-removal.md) now operates on the selected executable
@@ -43,8 +57,8 @@ security restoration after the last explicit access-time write, retains the
 source handle until restoration, and adds 72 native comparisons of writeattr,
 writesecurity and append ACLs, including actual final ACL records. Shared lifecycle
 tests cover success, failure, cancellation and handle cleanup on all three hosts.
-Read-security/removal and denied-delete temporary-artifact differences discovered
-by wider probes remain explicit roadmap items alongside parent ACL inheritance.
+Broader discovery, signature-directory metadata denial and denied-delete
+temporary-artifact differences remain roadmap items alongside parent ACL inheritance.
 PR76 passed all CI, with codesign coverage of 95.32% on Linux, 95.18% on Windows
 and 95.54% on macOS. Its native and portable tests remain unchanged.
 Broader permission/concurrency profiles and the remaining compatibility inventory
@@ -52,9 +66,9 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.15.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1)
+Codesign pins [APFS v0.15.2](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.2)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
-directory metadata and read/access-time operations. No local APFS replacement or
+directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes
 purego through the approved finite typed Darwin wrappers and preserves portable
 metadata support on Linux and Windows.
@@ -62,6 +76,12 @@ metadata support on Linux and Windows.
 APFS PR186 fixes writable replacement staging with denied source ACLs; release
 PR187 publishes v0.15.1. Native executable ACL inheritance remains a separate
 codesign policy obligation and is not declared complete by that SDK fix.
+
+APFS PR188 supplies `hostdata.StatMetadata` and corrects Windows metadata-handle
+acquisition. Its query files reached 100% statement coverage on all three hosts;
+all upstream gates passed. Codesign uses the released API and tests an effective
+NTFS metadata denial with both file-attribute and parent directory-list access
+denied. Existing denied-data tests remain mandatory and must not select Info.plist.
 
 [APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184) passed all
 64 applicable checks; wrapper coverage on the Mac runner was 98.8%. Both downstream
@@ -80,7 +100,7 @@ EA operations and required runtime tests. Its
 [corrected CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/36333046033)
 passed all three OS suites, six builds, lint and race; associated fuzz checks
 passed. Strict-API coverage is 98.85% Mac/Linux and 98.69% Windows, with zero
-skipped strict tests. Those APIs are included in the current v0.15.0 dependency.
+skipped strict tests. Those APIs remain included in the current dependency.
 [The contract](sideband-policy.md) now records twelve complete Apple bodies on two
 Clang targets and 203 native verification controls. Another 42 directory-fork
 setups are unavailable and explicitly unexecuted. The probe establishes that

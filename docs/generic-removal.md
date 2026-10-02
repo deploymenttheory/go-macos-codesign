@@ -78,12 +78,12 @@ removal, and removal does not recurse into child bundles.
   prefix. Current macOS removes arbitrary names under `com.apple.cs.*`; the
   implementation follows the measured native behavior. This source discrepancy
   is recorded rather than silently changing the extracted C++ body.
-- The acceptance suite includes 54 native/carrier cases across nine shapes and
-  three attribute states, four effective write denials, four alias cases, two
+- The acceptance suite includes 102 native/carrier cases across seventeen shapes and
+  three attribute states, six effective write denials, four alias cases, four
   dry-run controls and a sparse data fork above 1 GiB. Native ACL acceptance adds
   48 comparisons, plus removal of a script signed by Apple's ad-hoc signer.
-- Foreign producers each export 27 generic-removal records. The existing native
-  artifact job requires all 54 and compares data hashes, metadata, diagnostics and
+- Foreign producers each export 51 generic-removal records. The existing native
+  artifact job requires all 102 and compares data hashes, metadata, diagnostics and
   inode-preservation results with independent Apple removals. Earlier artifact
   requirements remain mandatory.
 - Unit tests cover protocol ordering, list/removal failures, cancellation, readonly
@@ -97,9 +97,10 @@ identities only and does not require a login-keychain password.
 
 ## Next work
 
-Integrate Info.plist fallback with native executable discovery and its exact
-permission/error ordering. Retain the generic writer's partial-failure contract
-when selecting that representation. Signature-directory enumeration under
+[Info.plist fallback](bundle-removal-discovery.md) now preserves the generic writer's
+contract when candidates are absent or their discovery stat is permission-denied
+in supported bundle layouts. Broader property/authorization discovery remains open.
+Signature-directory enumeration under
 metadata denial, destination ACL inheritance and denied-delete staging cleanup
 still require the shared APFS work tracked in the
 [implementation plan](implementation_plan.md). Generic signing, verification,

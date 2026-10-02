@@ -18,7 +18,7 @@ import (
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
-var genericShapes = []string{"empty", "text", "script", "object", "short-header", "app", "framework", "flat-framework", "recursive"}
+var genericShapes = []string{"empty", "text", "script", "object", "short-header", "app", "framework", "flat-framework", "recursive", "fallback-app", "fallback-framework", "fallback-flat-framework", "fallback-installer", "fallback-missing-key", "fallback-empty-key", "fallback-bad-key", "fallback-historical-directory"}
 var genericSlots = []string{"CodeDirectory", "CodeRequirements", "CodeResources", "CodeTopDirectory", "CodeEntitlements", "CodeRepSpecific", "CodeEntitlementDER", "LaunchConstraintSelf", "LaunchConstraintParent", "LaunchConstraintResponsible", "LibraryConstraint", "CodeSignature", "CodeRequirements-1", "Unknown"}
 
 func genericMetadata(state string) appledouble.File {
@@ -37,6 +37,9 @@ func genericMetadata(state string) appledouble.File {
 
 func genericFixture(t *testing.T, dir, shape string) (operand, target string, bundle bool) {
 	t.Helper()
+	if strings.HasPrefix(shape, "fallback-") {
+		return fallbackFixture(t, dir, strings.TrimPrefix(shape, "fallback-"))
+	}
 	data := []byte("#!/bin/sh\nexit 0\n")
 	switch shape {
 	case "empty":
@@ -180,10 +183,10 @@ func TestGenericRemoval(t *testing.T) {
 						}
 						if bundle {
 							b := filepath.Join(operand, "Contents/_CodeSignature/CodeResources")
-							if shape == "framework" {
+							if strings.TrimPrefix(shape, "fallback-") == "framework" {
 								b = filepath.Join(operand, "Versions/A/_CodeSignature/CodeResources")
 							}
-							if shape == "flat-framework" {
+							if strings.TrimPrefix(shape, "fallback-") == "flat-framework" {
 								b = filepath.Join(operand, "_CodeSignature/CodeResources")
 							}
 							if _, err := os.Stat(b); !os.IsNotExist(err) {
@@ -331,7 +334,7 @@ func verifyImportedGenericRemoval(t *testing.T, dir, reference string) {
 }
 
 func TestGenericRemovalWriteDenial(t *testing.T) {
-	for _, shape := range []string{"text", "object", "app", "framework"} {
+	for _, shape := range []string{"text", "object", "app", "framework", "fallback-app", "fallback-framework"} {
 		t.Run(shape, func(t *testing.T) {
 			dir := extractionDirectory(t)
 			operand, target, bundle := genericFixture(t, dir, shape)
@@ -451,7 +454,7 @@ func TestGenericRemovalAliases(t *testing.T) {
 }
 
 func TestGenericRemovalDryRun(t *testing.T) {
-	for _, shape := range []string{"text", "app"} {
+	for _, shape := range []string{"text", "app", "fallback-app", "fallback-framework"} {
 		t.Run(shape, func(t *testing.T) {
 			dir := extractionDirectory(t)
 			metadata := genericMetadata("populated")

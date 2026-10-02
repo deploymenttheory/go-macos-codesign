@@ -75,6 +75,10 @@ func openAppBundle(path string) (*appBundle, error) {
 }
 
 func openAppBundleVersion(path, version string) (*appBundle, error) {
+	return openBundleVersion(path, version, false)
+}
+
+func openBundleVersion(path, version string, removal bool) (*appBundle, error) {
 	path, err := resolveBundleDirectory(path)
 	if err != nil {
 		return nil, err
@@ -89,6 +93,9 @@ func openAppBundleVersion(path, version string) (*appBundle, error) {
 	root, err := os.OpenRoot(path)
 	if err != nil {
 		return nil, err
+	}
+	if removal {
+		return loadRemovalBundle(root, path, version)
 	}
 	return loadAppBundleVersion(root, path, version)
 }
@@ -677,7 +684,7 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 }
 
 func removeBundle(ctx context.Context, path string, opts RemoveOptions) error {
-	b, err := openAppBundleVersion(path, opts.BundleVersion)
+	b, err := openBundleVersion(path, opts.BundleVersion, true)
 	if err != nil {
 		return err
 	}
