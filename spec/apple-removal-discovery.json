@@ -1,0 +1,199 @@
+{
+  "body_sha256": {
+    "_CFBundleCopyExecutableName": "3a0b6ecd99f505a4267363e99b2a3ece2ab7b228b408401eefbdfa3d2945d236",
+    "_binaryLoadable": "567d8d5323b614ca68f05d29a630a22ecd0d7bd3d6015e06498d66daa391c849",
+    "_urlExists": "320feaff9cd8954a7c34a223a11f7222e44e9a6c5259ef025de045cb8ccc1674"
+  },
+  "driver_sha256": "fd31453661c4eb66b9c706c5e4437b6ca6fef96ee185c53c03a9cd73249f7054",
+  "schema": 1,
+  "scope": "Three complete verbatim functions; private bundle layout and helper declarations are interface shims. This AST establishes name fallback and existence checks, not current macOS permission behavior or directory search order. Native corpus qualifies those independently.",
+  "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
+  "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
+  "targets": {
+    "arm64-apple-macos27": {
+      "_CFBundleCopyExecutableName": {
+        "ast_kinds": {
+          "BinaryOperator": 19,
+          "CStyleCastExpr": 4,
+          "CallExpr": 16,
+          "CompoundStmt": 7,
+          "DeclRefExpr": 61,
+          "DeclStmt": 6,
+          "FunctionDecl": 1,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 65,
+          "IntegerLiteral": 3,
+          "MemberExpr": 1,
+          "ParenExpr": 2,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "UnaryOperator": 4,
+          "VarDecl": 6
+        },
+        "references": {
+          "CFBundleGetInfoDictionary": 1,
+          "CFDictionaryGetValue": 2,
+          "CFGetTypeID": 1,
+          "CFRangeMake": 1,
+          "CFRelease": 2,
+          "CFRetain": 1,
+          "CFStringCreateWithSubstring": 1,
+          "CFStringGetLength": 2,
+          "CFStringGetTypeID": 1,
+          "CFURLCopyAbsoluteURL": 1,
+          "CFURLCopyFileSystemPath": 1,
+          "_CFLengthAfterDeletingPathExtension2": 1,
+          "_CFStartOfLastPathComponent2": 1,
+          "_kCFBundleOldExecutableKey": 1,
+          "absoluteURL": 2,
+          "bundle": 4,
+          "bundlePath": 6,
+          "endOfBundleName": 3,
+          "executableName": 11,
+          "infoDict": 5,
+          "kCFAllocatorSystemDefault": 1,
+          "kCFBundleExecutableKey": 1,
+          "kCFURLPOSIXPathStyle": 1,
+          "len": 2,
+          "startOfBundleName": 4,
+          "url": 4
+        }
+      },
+      "_binaryLoadable": {
+        "ast_kinds": {
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 3,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "_urlExists": 1,
+          "loadable": 1,
+          "url": 1
+        }
+      },
+      "_urlExists": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 7,
+          "IntegerLiteral": 6,
+          "ParenExpr": 6,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "_CFGetFileProperties": 1,
+          "exists": 2,
+          "kCFAllocatorSystemDefault": 1,
+          "url": 2
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "_CFBundleCopyExecutableName": {
+        "ast_kinds": {
+          "BinaryOperator": 19,
+          "CStyleCastExpr": 4,
+          "CallExpr": 16,
+          "CompoundStmt": 7,
+          "DeclRefExpr": 61,
+          "DeclStmt": 6,
+          "FunctionDecl": 1,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 65,
+          "IntegerLiteral": 3,
+          "MemberExpr": 1,
+          "ParenExpr": 2,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 1,
+          "UnaryOperator": 4,
+          "VarDecl": 6
+        },
+        "references": {
+          "CFBundleGetInfoDictionary": 1,
+          "CFDictionaryGetValue": 2,
+          "CFGetTypeID": 1,
+          "CFRangeMake": 1,
+          "CFRelease": 2,
+          "CFRetain": 1,
+          "CFStringCreateWithSubstring": 1,
+          "CFStringGetLength": 2,
+          "CFStringGetTypeID": 1,
+          "CFURLCopyAbsoluteURL": 1,
+          "CFURLCopyFileSystemPath": 1,
+          "_CFLengthAfterDeletingPathExtension2": 1,
+          "_CFStartOfLastPathComponent2": 1,
+          "_kCFBundleOldExecutableKey": 1,
+          "absoluteURL": 2,
+          "bundle": 4,
+          "bundlePath": 6,
+          "endOfBundleName": 3,
+          "executableName": 11,
+          "infoDict": 5,
+          "kCFAllocatorSystemDefault": 1,
+          "kCFBundleExecutableKey": 1,
+          "kCFURLPOSIXPathStyle": 1,
+          "len": 2,
+          "startOfBundleName": 4,
+          "url": 4
+        }
+      },
+      "_binaryLoadable": {
+        "ast_kinds": {
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 3,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "_urlExists": 1,
+          "loadable": 1,
+          "url": 1
+        }
+      },
+      "_urlExists": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CStyleCastExpr": 5,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "DeclStmt": 1,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 7,
+          "IntegerLiteral": 6,
+          "ParenExpr": 6,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "references": {
+          "_CFGetFileProperties": 1,
+          "exists": 2,
+          "kCFAllocatorSystemDefault": 1,
+          "url": 2
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "7066f18870a278f236c71c9bb02eed010d176af0bdfd5d8183e64828feb4edd6"
+}

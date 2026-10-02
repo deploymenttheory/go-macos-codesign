@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR77 merged. APFS remains at v0.15.1. The upstream
+Status: updated 2026-10-02 after codesign PR78 merged. APFS remains at v0.15.1. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,16 +8,22 @@ codesign main pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current increment:** [generic signature removal](generic-removal.md) on
-`feat/generic-signature-removal`, cut from PR77 main at
-`a5633fef987dac89e719749963ca625a982aa17c`. Attribute-backed signatures are removed
-in place, with writable-open authorization, canonical-slot-before-list ordering,
-partial-failure retention and explicit portable AppleDouble carriers. Supported
-bundle layouts can select a generic executable; resource traversal remains
-unnecessary. Native and portable acceptance, retained probe records, complete
-Clang AST bodies, cancellation/identity tests and mandatory foreign artifact
-comparisons qualify this bounded profile. Generic signing, verification and
-display remain unimplemented; Info.plist fallback is still the next discovery task.
+**Current increment:** [bundle-removal discovery](bundle-removal-discovery.md) on
+`feat/bundle-removal-fallback`, cut from PR78 main at
+`3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. Supported bundle layouts select
+Info.plist when no executable candidate exists, including modern/legacy/stem
+name selection and removal without signing-specific identifier/package metadata.
+The existing generic writer retains its mutation, partial-failure and explicit
+AppleDouble contracts. Twenty native probes and three complete two-target Clang
+bodies establish the bounded profile and distinguish remaining discovery gaps.
+Eight additional matrix shapes add 24 required foreign records per producer;
+all 102 generic records must match independent Apple results. Generic signing,
+verification/display and metadata-permission-driven fallback remain outstanding.
+
+PR78 passed all CI gates in
+[36940321259](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36940321259).
+Codesign coverage was 95.19% Linux, 95.44% macOS and 95.04% Windows. Its existing
+strict tests and 54 foreign generic records remain mandatory.
 
 PR77's shallow removal phase passed Linux, macOS 27 and Windows 2025, native
 comparisons and all twenty added foreign removal archives. Codesign coverage was
@@ -37,9 +43,10 @@ discovery or Linux attribute-name remapping.
 inheritance using the SDK's existing ACL policy; discard old inherited source
 entries and preserve native ACE ordering. Wider probes also show native bundle
 removal can succeed without replacing code under readsecurity denial, while Go
-fails discovery. The ordered generic attribute-removal writer is implemented in
-this increment; integrate Info.plist selection with exact CoreFoundation discovery
-and error ordering next. Denied metadata reads inside the signature
+fails discovery. Absent-executable Info.plist selection is implemented in this
+increment. Reproduce CoreFoundation's metadata query and exact authorization/error
+ordering through the shared APFS SDK next; keep denied data reads distinct from
+failed metadata selection. Denied metadata reads inside the signature
 directory also need a shared APFS enumeration primitive that preserves rooted
 containment and directory-entry types without eager per-entry stat calls.
 Deny-delete temporary-file names, contents and cleanup still differ (`.cstemp`
@@ -2785,8 +2792,9 @@ Container encoding and lookup should live in dedicated new representation files.
 APFS native metadata and explicit AppleDouble carriers on all three hosts.
 Eight complete Apple bodies, forty retained native probes, real permissions,
 large-file and foreign-artifact acceptance qualify its bounded removal contract.
-Generic signing, verification, display and broader representation selection
-(including Info.plist fallback) remain unimplemented.
+Absent-executable Info.plist fallback now works in supported layouts with valid
+metadata. Generic signing, verification, display and broader representation
+selection remain unimplemented, including metadata-authorization-driven fallback.
 
 **Implementation tasks:**
 
@@ -2794,6 +2802,15 @@ Generic signing, verification, display and broader representation selection
   object files and selected generic bundle executables. Preserve unrelated
   metadata, data forks and links; retain partial failures and require native
   writable-open authorization. Support explicit mutable AppleDouble carriers.
+- [x] Select valid Info.plist for removal when no executable candidate exists in
+  supported Contents/flat/versioned-framework layouts. Qualify name fallbacks,
+  optional signing metadata, native and explicit carriers, byte/inode preservation,
+  writable-open denial, dry-run behavior and mandatory foreign/native comparisons.
+- [ ] Complete CoreFoundation metadata-property and authorization discovery via
+  APFS, including readsecurity/readattr denial, before calling this full fallback
+  parity. Retain denied-data-read failures without mutation. Qualify missing or
+  malformed plist, legacy/shallow layouts, widgets, resource-root policies, `.dist`
+  discovery, executable-path aliases and dynamic-loader environment selection.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
   files, scripts, recognized bundle layouts, disk images and any additional format
   actually accepted by the baseline. Record rejection as a valid native result.

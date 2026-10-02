@@ -134,10 +134,13 @@ func TestExecutableDiscoveryBoundaries(t *testing.T) {
 				bundleFile(t, b, "Contents/Info.plist", []byte(strings.ReplaceAll(testBundleInfo, "APPL", "????")))
 			}
 			before := readTestFile(t, p)
-			for _, op := range []func() error{func() error { return Sign(ctx, p, SignOptions{}) }, func() error { _, e := Inspect(ctx, p); return e }, func() error { _, e := Verify(ctx, p, VerifyOptions{}); return e }, func() error { return RemoveSignature(ctx, p) }} {
+			for _, op := range []func() error{func() error { return Sign(ctx, p, SignOptions{}) }, func() error { _, e := Inspect(ctx, p); return e }, func() error { _, e := Verify(ctx, p, VerifyOptions{}); return e }} {
 				if err := op(); err == nil {
 					t.Fatal("accepted unsupported metadata")
 				}
+			}
+			if err := RemoveSignature(ctx, p); (err == nil) != (kind == "package-type") {
+				t.Fatal("removal package type is descriptive, other discovery errors remain fatal", err)
 			}
 			if !bytes.Equal(before, readTestFile(t, p)) {
 				t.Fatal("modified input after discovery failure")

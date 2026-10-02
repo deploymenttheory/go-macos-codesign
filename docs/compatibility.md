@@ -28,7 +28,9 @@ The [progress report](progress.md) identifies the exact tested revision and CI r
 [Generic attached-signature removal](generic-removal.md) additionally supports
 ordinary files, scripts and selected generic bundle executables, using native
 metadata plus explicit AppleDouble carriers on every host. Generic signing,
-verification, display and Info.plist fallback remain outstanding.
+verification and display remain outstanding. [Info.plist fallback](bundle-removal-discovery.md)
+works when no executable candidate exists in supported layouts with valid metadata;
+metadata-permission-driven discovery remains outstanding.
 
 ## Exact comparisons currently exercised
 

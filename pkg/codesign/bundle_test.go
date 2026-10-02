@@ -172,8 +172,9 @@ func TestBundleMetadataErrors(t *testing.T) {
 			if _, err := Verify(context.Background(), app, VerifyOptions{}); err == nil {
 				t.Fatal("verify metadata")
 			}
-			if err := RemoveSignature(context.Background(), app); err == nil {
-				t.Fatal("remove metadata")
+			removable := info == strings.Replace(testBundleInfo, "hello", "", 1) || info == strings.Replace(testBundleInfo, "org.example.bundle", "", 1) || info == strings.Replace(testBundleInfo, "APPL", "FMWK", 1)
+			if err := RemoveSignature(context.Background(), app); (err == nil) != removable {
+				t.Fatal("remove metadata", err, "removable", removable)
 			}
 		})
 	}
@@ -250,8 +251,12 @@ func TestBundleIOErrors(t *testing.T) {
 	if err := signBundle(ctx, app, SignOptions{}); err == nil {
 		t.Fatal("sign missing")
 	}
-	if err := removeBundle(ctx, app, RemoveOptions{}); err == nil {
-		t.Fatal("remove missing")
+	beforeInfo := readTestFile(t, filepath.Join(app, b.infoPath))
+	if err := removeBundle(ctx, app, RemoveOptions{}); err != nil {
+		t.Fatal("remove missing executable via Info.plist", err)
+	}
+	if !bytes.Equal(beforeInfo, readTestFile(t, filepath.Join(app, b.infoPath))) {
+		t.Fatal("fallback changed Info.plist bytes")
 	}
 	if err := b.root.Close(); err != nil {
 		t.Fatal(err)

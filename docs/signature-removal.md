@@ -68,8 +68,9 @@ This profile does not complete removal or filesystem parity:
   be selected under read-attribute or read-security denial. Probes show native
   removal then preserves the executable, removes `com.apple.cs.*` signature
   attributes from Info.plist and purges the envelope. Go still reports discovery
-  failure. The generic attribute-removal protocol now exists on all hosts;
-  integrate this fallback without treating arbitrary read failures as success.
+  failure for this metadata-denial case. [Absent-executable fallback](bundle-removal-discovery.md)
+  now uses the generic writer on all hosts. Complete metadata-driven selection
+  without treating arbitrary read failures as success.
 - Denied metadata reads on entries **inside the signature directory** remain a
   gap. Native enumeration can use directory-entry types without the eager stat
   calls performed by Go's rooted directory reader. A shared filesystem primitive

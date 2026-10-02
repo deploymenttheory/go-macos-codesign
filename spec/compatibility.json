@@ -701,8 +701,8 @@
     {
       "id": "generic-files",
       "status": "partial",
-      "notes": "Generic attribute-signature removal preserves data forks and hard links, opens the selected file read/write, removes canonical slots before listing remaining signature attributes, and preserves partial mutations on failure. Native attributes and explicit mutable AppleDouble carriers are supported on Linux, macOS and Windows. Generic selected executables in supported bundle layouts also purge their envelope. Generic signing, verification, display, Info.plist fallback and complete representation discovery remain outstanding; no full-parity claim.",
-      "evidence": ["spec/apple-generic-removal.json", "testdata/generic-removal/native.json", "acceptance/removal_generic_test.go", "acceptance/removal_generic_darwin_test.go", "docs/generic-removal.md"]
+      "notes": "Generic attribute-signature removal preserves data forks and hard links, opens the selected file read/write, removes canonical slots before listing remaining signature attributes, and preserves partial mutations on failure. Native attributes and explicit mutable AppleDouble carriers are supported on Linux, macOS and Windows. Supported bundle layouts purge their envelope after removing attributes from a selected generic executable or valid Info.plist when no executable exists. Generic signing, verification, display, metadata-permission-driven fallback and complete representation discovery remain outstanding; no full-parity claim.",
+      "evidence": ["spec/apple-generic-removal.json", "testdata/generic-removal/native.json", "acceptance/removal_generic_test.go", "acceptance/removal_generic_darwin_test.go", "docs/generic-removal.md", "spec/apple-removal-discovery.json", "testdata/bundle-removal/native.json", "acceptance/removal_fallback_test.go", "docs/bundle-removal-discovery.md"]
     },
     {
       "id": "legacy-formats",

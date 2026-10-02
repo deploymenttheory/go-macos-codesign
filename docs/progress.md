@@ -8,9 +8,19 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR77 is merged at `a5633fef987dac89e719749963ca625a982aa17c`. The current
-`feat/generic-signature-removal` branch starts from that main. The upstream
+PR78 is merged at `3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. The current
+`feat/bundle-removal-fallback` branch starts from that main. The upstream
 replacement prerequisite is now released in APFS v0.15.1 and adopted here.
+
+[Bundle-removal discovery](bundle-removal-discovery.md) now selects Info.plist
+when no executable candidate exists in supported layouts. Removal has its own
+metadata requirements and modern/legacy/stem executable-name selection. Eight
+fallback shapes extend the native/carrier matrix; each foreign producer exports
+51 generic-removal records, all required by the existing native import job.
+Twenty retained native probes and three complete two-target Clang bodies qualify
+the research. Metadata-permission-driven fallback remains outstanding. PR78
+passed every CI gate; codesign coverage was 95.19% Linux, 95.44% macOS and 95.04%
+Windows. This increment must pass the same unchanged gates.
 
 [Generic removal](generic-removal.md) adds attribute-backed signature removal for
 standalone files and selected generic bundle executables. It preserves data forks,
@@ -18,7 +28,7 @@ requires writable access before mutation, and retains partial removals on later
 failure. Explicit AppleDouble carriers work on all producers alongside native
 metadata. Eight complete Apple methods have two-target Clang evidence; forty
 native probes retain dispatch and permission outcomes. Generic signing, display,
-verification and Info.plist fallback remain outstanding. The inventory now has
+verification and broader discovery remain outstanding. The inventory still has
 31 partial, 49 not implemented, eight blocked and zero fully verified obligations.
 
 [Signature removal](signature-removal.md) now operates on the selected executable
