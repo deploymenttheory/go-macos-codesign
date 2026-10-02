@@ -73,6 +73,10 @@ func main() {
 		if strings.HasPrefix(scenario, "read") || strings.HasPrefix(scenario, "write") {
 			must(exec.Command("/bin/chmod", "+a", "everyone deny "+scenario, main).Run())
 		}
+		root, e := os.OpenRoot(app)
+		must(e)
+		_, discoveryErr := root.Lstat("Contents/MacOS/hello")
+		must(root.Close())
 		out, err := exec.Command("/usr/bin/codesign", "--remove-signature", app).CombinedOutput()
 		status := 0
 		if err != nil {
@@ -81,7 +85,7 @@ func main() {
 		must(exec.Command("/bin/chmod", "-RN", app).Run())
 		_, attrErr := exec.Command("/usr/bin/xattr", "-p", "com.apple.cs.CodeDirectory", info).Output()
 		_, envelopeErr := os.Stat(filepath.Join(app, "Contents/_CodeSignature/CodeResources"))
-		records = append(records, map[string]any{"scenario": scenario, "status": status, "output": strings.ReplaceAll(string(out), base, "$PROBE"), "info_signature_removed": attrErr != nil, "envelope_removed": os.IsNotExist(envelopeErr), "info_before_sha256": before, "info_after_sha256": digest(read(info))})
+		records = append(records, map[string]any{"scenario": scenario, "status": status, "output": strings.ReplaceAll(string(out), base, "$PROBE"), "info_signature_removed": attrErr != nil, "envelope_removed": os.IsNotExist(envelopeErr), "info_before_sha256": before, "info_after_sha256": digest(read(info)), "go_rooted_stat_permission_denied": os.IsPermission(discoveryErr)})
 		must(os.RemoveAll(app))
 	}
 	host, e := exec.Command("/usr/bin/sw_vers").Output()

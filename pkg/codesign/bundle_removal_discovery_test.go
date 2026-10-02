@@ -59,12 +59,13 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		Fixture string `json:"fixture_info_sha256"`
 		Native  string `json:"native_sha256"`
 		Cases   []struct {
-			Scenario string
-			Status   int
-			Removed  bool   `json:"info_signature_removed"`
-			Envelope bool   `json:"envelope_removed"`
-			Before   string `json:"info_before_sha256"`
-			After    string `json:"info_after_sha256"`
+			Scenario        string
+			Status          int
+			Removed         bool   `json:"info_signature_removed"`
+			Envelope        bool   `json:"envelope_removed"`
+			Before          string `json:"info_before_sha256"`
+			After           string `json:"info_after_sha256"`
+			DiscoveryDenied bool   `json:"go_rooted_stat_permission_denied"`
 		}
 	}
 	if err := json.Unmarshal(readTestFile(t, "../../testdata/bundle-removal/native.json"), &corpus); err != nil {
@@ -77,8 +78,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 	}
 	replayed := 0
 	for _, tc := range corpus.Cases {
-		// ACL-driven discovery and malformed Info.plist remain explicitly recorded
-		// prerequisites. Their native observations are retained, not relabelled parity.
+		if tc.DiscoveryDenied != (tc.Scenario == "readattr" || tc.Scenario == "readsecurity") {
+			t.Fatal("discovery permission boundary changed", tc.Scenario)
+		}
+		// Effective ACL cases run in native/portable acceptance rather than
+		// pretending their captured metadata applies permissions on this host.
+		// Malformed Info.plist remains an explicit discovery prerequisite.
 		if strings.HasPrefix(tc.Scenario, "read") || strings.HasPrefix(tc.Scenario, "write") || tc.Scenario == "malformed-info" {
 			continue
 		}

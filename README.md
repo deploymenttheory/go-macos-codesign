@@ -87,8 +87,8 @@ It still requires access to the selected executable and its signature directory.
 attributes from scripts, ordinary files and generic bundle executables without
 replacing their data. Explicit AppleDouble inputs carry macOS metadata on any host.
 [Bundle removal](docs/bundle-removal-discovery.md) can select Info.plist when no
-executable exists in a supported layout; metadata-permission-driven discovery
-remains on the roadmap.
+executable is discoverable in a supported layout, including metadata-permission
+denial. Wider discovery remains on the roadmap.
 [`--ignore-resources`](docs/ignore-resources.md) skips resource
 and nested-code checks, including with `--deep`, while retaining main-code
 integrity, trust, non-resource metadata, requirements and enabled structure checks.

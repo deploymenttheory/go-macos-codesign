@@ -2,6 +2,7 @@
   "cases": [
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": true,
@@ -11,6 +12,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "ae2460164dbc8f1336d0a1d32cb64daaaeffcdbd2be354e35dbd5deb70f28bdd",
       "info_before_sha256": "ae2460164dbc8f1336d0a1d32cb64daaaeffcdbd2be354e35dbd5deb70f28bdd",
       "info_signature_removed": true,
@@ -20,6 +22,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "427d66fbd4a6ddd717bb5df5508057ccbd37e517e77f780e5f5744487e429abd",
       "info_before_sha256": "427d66fbd4a6ddd717bb5df5508057ccbd37e517e77f780e5f5744487e429abd",
       "info_signature_removed": true,
@@ -29,6 +32,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "37e75270147def4edbc0e12786c68f037b0084f83d3c21ba752f4b90b0984edc",
       "info_before_sha256": "37e75270147def4edbc0e12786c68f037b0084f83d3c21ba752f4b90b0984edc",
       "info_signature_removed": true,
@@ -38,6 +42,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "6e4fbfe76b43fa1417ee708358891c2fe9f4431995564ea8df77d29bcc293852",
       "info_before_sha256": "6e4fbfe76b43fa1417ee708358891c2fe9f4431995564ea8df77d29bcc293852",
       "info_signature_removed": false,
@@ -47,6 +52,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "ae2460164dbc8f1336d0a1d32cb64daaaeffcdbd2be354e35dbd5deb70f28bdd",
       "info_before_sha256": "ae2460164dbc8f1336d0a1d32cb64daaaeffcdbd2be354e35dbd5deb70f28bdd",
       "info_signature_removed": false,
@@ -56,6 +62,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "440346946c3a190db6915d503db5c41d30d85c67ac9cfb71d362d57e6eb4e132",
       "info_before_sha256": "440346946c3a190db6915d503db5c41d30d85c67ac9cfb71d362d57e6eb4e132",
       "info_signature_removed": false,
@@ -65,6 +72,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "10c7234569cb5acac1095498d68e0039da7f3421ecbae0b70eb14a91b94d9839",
       "info_before_sha256": "10c7234569cb5acac1095498d68e0039da7f3421ecbae0b70eb14a91b94d9839",
       "info_signature_removed": false,
@@ -74,6 +82,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "91433a9fcb5a703faad3573491cf17fc39c165b63ec7419101347908abb6e876",
       "info_before_sha256": "91433a9fcb5a703faad3573491cf17fc39c165b63ec7419101347908abb6e876",
       "info_signature_removed": true,
@@ -83,6 +92,7 @@
     },
     {
       "envelope_removed": false,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -92,6 +102,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -101,6 +112,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -110,6 +122,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": true,
@@ -119,6 +132,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "9c77be83ca7feeaef40e7afa99506f3ee701dead6bb2c34317116a6344c45fd7",
       "info_before_sha256": "9c77be83ca7feeaef40e7afa99506f3ee701dead6bb2c34317116a6344c45fd7",
       "info_signature_removed": true,
@@ -128,6 +142,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": true,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": true,
@@ -137,6 +152,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": true,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": true,
@@ -146,6 +162,7 @@
     },
     {
       "envelope_removed": false,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -155,6 +172,7 @@
     },
     {
       "envelope_removed": false,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -164,6 +182,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -173,6 +192,7 @@
     },
     {
       "envelope_removed": true,
+      "go_rooted_stat_permission_denied": false,
       "info_after_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_before_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
       "info_signature_removed": false,
@@ -181,7 +201,7 @@
       "status": 0
     }
   ],
-  "driver_sha256": "8e6be938c2c47f16b75e8c822dd33770d239cf6394fa6191d24473c0c09c20d7",
+  "driver_sha256": "b5f21239fff7ff3369c9cd9ede5a552d4626c84002dcf29727ceaa0700d7aa06",
   "fixture_info_sha256": "7b0532274f1a0e9a6634c864bc42ef37e3f7802fa2ec0c246a09deaf74c0fcfd",
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",

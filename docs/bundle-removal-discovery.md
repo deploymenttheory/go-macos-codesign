@@ -1,9 +1,10 @@
 # Bundle discovery during signature removal
 
 `--remove-signature` can use a supported bundle's `Info.plist` as its nominal
-executable when no executable candidate exists. This matters for resource-only
+executable when no executable candidate is discoverable. This matters for resource-only
 bundles, an app whose declared executable has been removed, and installer-style
-metadata in an existing Contents layout. Apple stores this representation's
+metadata in an existing Contents layout, or metadata-attribute/security denial on
+the executable. Apple stores this representation's
 signature in extended attributes on the plist. Removing it preserves the plist's
 data fork and inode, then removes the selected bundle's signature envelope.
 
@@ -24,7 +25,10 @@ layouts, removal reads the bounded, valid Info.plist and:
    bundles also search their wrapper root. A found candidate proceeds through the
    existing Mach-O or generic remover. Read failure or malformed Mach-O after
    selection does not authorize fallback.
-3. If no candidate exists, selects Info.plist and uses the ordered generic writer.
+3. If candidates are missing or their discovery stat is permission-denied, selects
+   Info.plist and uses the ordered generic writer. The native corpus records that
+   rooted stat rejects readattr/readsecurity denial, while read/readextattr denial
+   leaves selection intact. Later data/attribute-read failures remain fatal.
    `CFBundleIdentifier` and `CFBundlePackageType` are not removal prerequisites.
    `IFMajorVersion` does not prevent this fallback.
 4. Requires writable access to the selected generic file, removes canonical
@@ -55,7 +59,8 @@ native result governs this profile. Source analysis alone is not a parity claim.
   [Clang evidence](../spec/apple-removal-discovery.json).
 - `go run scripts/probe-bundle-removal.go` captures twenty native cases in
   [the discovery corpus](../testdata/bundle-removal/native.json), including
-  permission and malformed-plist outcomes which remain roadmap prerequisites.
+  permission outcomes and the remaining malformed-plist prerequisite. It also
+  records the independent Go rooted-stat authorization result before removal.
 - Thirteen supported native corpus cases replay through the portable API with
   input/output hashes, plist inode identity, signature-carrier selection and
   envelope results. Evidence tests verify driver and fixture hashes.
@@ -68,7 +73,12 @@ native result governs this profile. Source analysis alone is not a parity claim.
   per producer. It compares complete tree hashes and metadata against independent
   native removals. Earlier required archives and records remain mandatory.
 - Fallback apps and frameworks also have effective write-denial and dry-run
-  acceptance. Unit tests cover failed loader ownership, unsupported metadata,
+  acceptance. Twelve native ACL comparisons cover readattr, readsecurity, read and
+  readextattr across all three layouts, preserving bytes, inode identity, ACLs and
+  unselected signature attributes. An additional explicit-carrier test requires
+  an effective metadata-discovery denial on every host (Darwin readattr, NTFS
+  READ_ATTRIBUTES, Linux parent search), without claiming identical ACL models.
+  Unit tests cover failed loader ownership, unsupported metadata,
   path containment and malformed selected executables. The new discovery module
   has complete local unit statement coverage.
 
@@ -79,14 +89,13 @@ GoReleaser build targets. Passing local tests do not replace those gates.
 
 ## Remaining discovery work
 
-This closes absent-executable fallback for valid metadata in the supported layouts.
+This closes absent-executable and the tested metadata-permission fallback profiles
+for valid metadata in the supported layouts.
 It does not close the following native behaviors:
 
-- Metadata-discovery authorization: native `readsecurity`/`readattr` denial on
-  the executable can prevent its selection and cause Info.plist fallback. A plain
-  rooted stat does not reproduce the complete CoreFoundation property query.
-  Reproduce its operation and authorization ordering through the shared APFS SDK;
-  do not simply catch all permission errors or attempt an unrelated data open.
+- Broader CoreFoundation property queries, filesystem errors and authorization
+  contexts. Rooted stat suffices for the retained discovery-denial profile; the
+  existing APFS metadata APIs remain the first place for any additional primitive.
 - Invalid or missing Info.plist, broader shallow/legacy layouts, widgets and
   `.dist` discovery, specialized resource-root policies and executable-path
   discovery outside the currently recognized directories.

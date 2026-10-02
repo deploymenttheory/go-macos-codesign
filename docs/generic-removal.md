@@ -98,8 +98,8 @@ identities only and does not require a login-keychain password.
 ## Next work
 
 [Info.plist fallback](bundle-removal-discovery.md) now preserves the generic writer's
-contract when no executable candidate exists in supported bundle layouts. Complete
-metadata-permission-driven discovery and its exact authorization/error ordering.
+contract when candidates are absent or their discovery stat is permission-denied
+in supported bundle layouts. Broader property/authorization discovery remains open.
 Signature-directory enumeration under
 metadata denial, destination ACL inheritance and denied-delete staging cleanup
 still require the shared APFS work tracked in the

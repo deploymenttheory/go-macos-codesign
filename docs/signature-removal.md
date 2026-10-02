@@ -64,13 +64,10 @@ counts, native regression matrices, race/fuzz, lint, GoReleaser and coverage
 
 This profile does not complete removal or filesystem parity:
 
-- Native bundle discovery can fall back to Info.plist when the executable cannot
-  be selected under read-attribute or read-security denial. Probes show native
-  removal then preserves the executable, removes `com.apple.cs.*` signature
-  attributes from Info.plist and purges the envelope. Go still reports discovery
-  failure for this metadata-denial case. [Absent-executable fallback](bundle-removal-discovery.md)
-  now uses the generic writer on all hosts. Complete metadata-driven selection
-  without treating arbitrary read failures as success.
+- [Info.plist fallback](bundle-removal-discovery.md) now handles absent executables
+  and discovery-stat permission denial, including the tested native readattr and
+  readsecurity cases. Read/readextattr errors after selection remain fatal. Broader
+  property-query, authorization, malformed-plist and layout profiles remain open.
 - Denied metadata reads on entries **inside the signature directory** remain a
   gap. Native enumeration can use directory-entry types without the eager stat
   calls performed by Go's rooted directory reader. A shared filesystem primitive

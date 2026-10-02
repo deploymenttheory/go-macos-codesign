@@ -59,7 +59,10 @@ func (b *appBundle) discoverRemovalExecutable() error {
 	}
 	for _, candidate := range candidates {
 		_, err := b.root.Lstat(candidate)
-		if errors.Is(err, os.ErrNotExist) {
+		// CoreFoundation's existence query rejects inaccessible metadata too.
+		// This is solely the discovery stat, before any data or attribute read;
+		// errors from opening a selected file must never trigger this fallback.
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
 			continue
 		}
 		if err != nil {

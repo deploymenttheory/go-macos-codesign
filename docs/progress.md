@@ -13,12 +13,14 @@ PR78 is merged at `3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. The current
 replacement prerequisite is now released in APFS v0.15.1 and adopted here.
 
 [Bundle-removal discovery](bundle-removal-discovery.md) now selects Info.plist
-when no executable candidate exists in supported layouts. Removal has its own
+when executable candidates are missing or metadata discovery is denied in supported
+layouts. Removal has its own
 metadata requirements and modern/legacy/stem executable-name selection. Eight
 fallback shapes extend the native/carrier matrix; each foreign producer exports
 51 generic-removal records, all required by the existing native import job.
 Twenty retained native probes and three complete two-target Clang bodies qualify
-the research. Metadata-permission-driven fallback remains outstanding. PR78
+the research. Twelve native permission comparisons and effective metadata denials
+on each host qualify selection before data reads. Wider discovery remains open. PR78
 passed every CI gate; codesign coverage was 95.19% Linux, 95.44% macOS and 95.04%
 Windows. This increment must pass the same unchanged gates.
 

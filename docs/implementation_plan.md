@@ -11,14 +11,17 @@ APFS replacement is used.
 **Current increment:** [bundle-removal discovery](bundle-removal-discovery.md) on
 `feat/bundle-removal-fallback`, cut from PR78 main at
 `3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. Supported bundle layouts select
-Info.plist when no executable candidate exists, including modern/legacy/stem
+Info.plist when executable candidates are absent or metadata discovery is denied,
+including modern/legacy/stem
 name selection and removal without signing-specific identifier/package metadata.
 The existing generic writer retains its mutation, partial-failure and explicit
 AppleDouble contracts. Twenty native probes and three complete two-target Clang
 bodies establish the bounded profile and distinguish remaining discovery gaps.
 Eight additional matrix shapes add 24 required foreign records per producer;
 all 102 generic records must match independent Apple results. Generic signing,
-verification/display and metadata-permission-driven fallback remain outstanding.
+verification/display and broader discovery remain outstanding. Twelve native ACL
+comparisons distinguish readattr/readsecurity discovery denial from later
+read/readextattr failures; effective discovery denials run on all three hosts.
 
 PR78 passed all CI gates in
 [36940321259](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36940321259).
@@ -41,12 +44,11 @@ discovery or Linux attribute-name remapping.
 
 **Next obligations:** merge explicit source ACL entries with destination-parent
 inheritance using the SDK's existing ACL policy; discard old inherited source
-entries and preserve native ACE ordering. Wider probes also show native bundle
-removal can succeed without replacing code under readsecurity denial, while Go
-fails discovery. Absent-executable Info.plist selection is implemented in this
-increment. Reproduce CoreFoundation's metadata query and exact authorization/error
-ordering through the shared APFS SDK next; keep denied data reads distinct from
-failed metadata selection. Denied metadata reads inside the signature
+entries and preserve native ACE ordering. Info.plist selection now preserves the
+executable under readattr/readsecurity denial, while selected data-read failures
+remain fatal. The existing rooted stat supplies this distinction without a new
+filesystem primitive. Broader CoreFoundation property/authorization discovery
+still needs qualification. Denied metadata reads inside the signature
 directory also need a shared APFS enumeration primitive that preserves rooted
 containment and directory-entry types without eager per-entry stat calls.
 Deny-delete temporary-file names, contents and cleanup still differ (`.cstemp`
@@ -2792,9 +2794,9 @@ Container encoding and lookup should live in dedicated new representation files.
 APFS native metadata and explicit AppleDouble carriers on all three hosts.
 Eight complete Apple bodies, forty retained native probes, real permissions,
 large-file and foreign-artifact acceptance qualify its bounded removal contract.
-Absent-executable Info.plist fallback now works in supported layouts with valid
+Absent-executable and metadata-denial Info.plist fallback now work in supported layouts with valid
 metadata. Generic signing, verification, display and broader representation
-selection remain unimplemented, including metadata-authorization-driven fallback.
+selection remain unimplemented beyond the qualified discovery-denial profile.
 
 **Implementation tasks:**
 
@@ -2806,9 +2808,11 @@ selection remain unimplemented, including metadata-authorization-driven fallback
   supported Contents/flat/versioned-framework layouts. Qualify name fallbacks,
   optional signing metadata, native and explicit carriers, byte/inode preservation,
   writable-open denial, dry-run behavior and mandatory foreign/native comparisons.
-- [ ] Complete CoreFoundation metadata-property and authorization discovery via
-  APFS, including readsecurity/readattr denial, before calling this full fallback
-  parity. Retain denied-data-read failures without mutation. Qualify missing or
+- [x] Qualify readsecurity/readattr discovery denial separately from denied data
+  reads. Preserve selected-executable failures without redirecting removal. Use
+  rooted stat for this profile and the existing APFS-backed generic writer.
+- [ ] Complete broader CoreFoundation metadata/property authorization contexts.
+  Qualify missing or
   malformed plist, legacy/shallow layouts, widgets, resource-root policies, `.dist`
   discovery, executable-path aliases and dynamic-loader environment selection.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
