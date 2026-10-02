@@ -7,6 +7,8 @@
   detection from changing the selected file. Add 408 native cases, 816 mandatory
   foreign results, 68 additional full native value observations and three complete
   Apple conversion/dispatch bodies; retain all limits and previous test gates.
+  Qualify the existing nested permission scheduling case against complete native
+  worker controls, with portable rejection tests for partial or unrelated writes.
 
 - Preserve native XML strings and keys during removal on every host, including
   NUL, controls, noncharacters, original line endings and CDATA/entity behavior.

@@ -94,6 +94,12 @@ without mutation. Unmarked seeds extend the existing parser fuzz target. The
 strict per-package coverage threshold, race, all twelve fuzz targets, native
 captures, foreign imports, lint and six-target GoReleaser gates are unchanged.
 
+The full local harness also exposed an existing nondeterministic native nested
+permission result. The [permission acceptance](signing-permissions.md) now checks
+that specific grandchild worker against a successful native control and rejects
+partial writes or ancestor changes. The portable signer's exact preservation
+requirement remains unchanged.
+
 ## Remaining work
 
 - Declared legacy codecs and invalid-byte conversion behavior need additional

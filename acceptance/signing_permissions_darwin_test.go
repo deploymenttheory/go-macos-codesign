@@ -114,6 +114,22 @@ func TestSigningNativePermissions(t *testing.T) {
 							record["go_manifest"] = executableDirectoryManifest(t, g.data)
 							signingSidebandPartial(t, n.before, completed, n.data, independent, true)
 							signingSidebandPartial(t, g.before, completed, g.data, independent, false)
+						} else if n.status != 0 && shape == "recursive-child-main" && deny == "readattr" && policy != "dryrun" {
+							// Native asynchronous resource work can finish the entire grandchild
+							// before the nested main's attribute failure is reported. Compare
+							// that one worker with an independent native completion control;
+							// the failed child, ancestors and all other members remain exact.
+							operand, _ := sidebandBundleFixture(t, dir, "recursive")
+							mustRun(t, apple(t), "-fs", "-", "-i", "org.example.permissions", "--deep", "--no-strict", operand)
+							completed := signingSidebandBytes(t, operand, true)
+							independent := "Contents/Library/LoginItems/Login.app/Contents/Helpers/Worker.app"
+							record["independent_children"] = independent
+							record["initial_manifest"] = executableDirectoryManifest(t, n.before)
+							record["native_completion_control"] = executableDirectoryManifest(t, completed)
+							record["native_manifest"] = executableDirectoryManifest(t, n.data)
+							record["go_manifest"] = executableDirectoryManifest(t, g.data)
+							signingSidebandPartial(t, n.before, completed, n.data, independent, true)
+							nativeEqual(t, "Go nested acquisition failure preserves all code", g.data, g.before)
 						} else {
 							nativeEqual(t, "permission bytes", g.data, n.data)
 						}
