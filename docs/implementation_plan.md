@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR84 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-02 after codesign PR85 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,7 +8,17 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [BOM-marked UTF-16 removal](removal-plist-encodings.md)
+**Current increment:** [BOM-marked UTF-32 removal](removal-plist-encodings.md)
+on `feat/removal-utf32-plists`, cut from PR85 main at
+`b5575bc3402a2628d7791f544147102116ccd393`. The shared pure-Go converter supports
+both byte orders, ignores incomplete trailing units and rejects the entire
+dictionary on an invalid scalar, including invalid values after a complete XML
+document. Original bytes and raw metadata selection remain intact. The new
+252-case native corpus requires 504 foreign records; Clang retains twelve
+complete Apple function bodies. All existing test/coverage gates remain required.
+Unmarked encodings, legacy declarations and broader grammar remain outstanding.
+
+**Merged UTF-16 increment:** [BOM-marked UTF-16 removal](removal-plist-encodings.md)
 on `feat/removal-plist-encodings`, cut from PR84 main at
 `905b6874d5f0c5eb883c953868c4397ceec891dd`. Pure-Go conversion supports both
 byte orders before bounded XML/OpenStep interpretation, preserves original
@@ -16,7 +26,7 @@ metadata and enforces a separate decoded-size ceiling. Native prefix behavior,
 declaration precedence and malformed cases have 120 retained observations and
 240 mandatory foreign imports. Nine complete Apple bodies have Clang evidence.
 All existing strict coverage and acceptance gates remain required. Unmarked
-UTF-16, UTF-32, legacy encodings, decoded NUL grammar and broader parser work
+UTF-16, unmarked UTF-32, legacy encodings, decoded NUL grammar and broader parser work
 remain explicit prerequisites for complete encoding parity.
 
 **Merged interpretation increment:** [removal plist interpretation](removal-plist-interpretation.md)
@@ -2898,7 +2908,10 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
 - [x] Interpret BOM-marked UTF-16LE/BE during removal with native conversion-prefix
   semantics, 120-case API/CLI replay, 240 mandatory foreign records and retained
   resource limits. See [encoding profile](removal-plist-encodings.md).
-- [ ] Qualify unmarked UTF-16, UTF-32, legacy declared encodings and decoded NUL
+- [x] Interpret BOM-marked UTF-32LE/BE with strict scalar validation across the
+  entire input, incomplete-unit truncation, 252-case API/CLI replay and 504
+  mandatory foreign records. Keep size/complexity limits and prior profiles.
+- [ ] Qualify unmarked UTF-16/32, legacy declared encodings and decoded NUL
   grammar before extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow

@@ -51,6 +51,7 @@ func main() {
 	infoSource := read(".research/apple/CFBundle_InfoPlist.c")
 	dictionarySource := read(".research/apple/CFDictionary.c")
 	plistSource := read(".research/apple/CFPropertyList.c")
+	unicodeSource := read(".research/apple/CFUniChar.h")
 	names := []string{"_urlExists", "_binaryLoadable", "_CFBundleCopyExecutableName", "_CFBundleCopyInfoDictionaryInDirectoryWithVersion", "CFBundleGetInfoDictionary", "_CFBundleCopyInfoPlistURL"}
 	unit := `#include <CoreFoundation/CoreFoundation.h>
 #define DEPLOYMENT_TARGET_EMBEDDED 0
@@ -124,6 +125,16 @@ void CFBasicHashSetValue(CFBasicHashRef, uintptr_t, uintptr_t);
 	unit += string(encodingBody) + "\n"
 	hashes["encodingForXMLData"] = hash(encodingBody)
 	names = append(names, "encodingForXMLData")
+	unit += "\n#include <CoreFoundation/CFByteOrder.h>\n"
+	for _, name := range []string{"CFUniCharIsSurrogateHighCharacter", "CFUniCharIsSurrogateLowCharacter", "CFUniCharFromUTF32"} {
+		body := regexp.MustCompile(`(?ms)^CF_INLINE bool ` + name + `\(.*?^}`).Find(unicodeSource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -155,9 +166,11 @@ void CFBasicHashSetValue(CFBasicHashRef, uintptr_t, uintptr_t);
 	result["dictionary_source_sha256"] = hash(dictionarySource)
 	result["plist_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c"
 	result["plist_source_sha256"] = hash(plistSource)
-	result["scope"] = "Nine complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body; broader parser encodings/types and normalization remain open."
+	result["unicode_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h"
+	result["unicode_source_sha256"] = hash(unicodeSource)
+	result["scope"] = "Twelve complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; broader parser encodings/types and normalization remain open."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted nine discovery bodies for two targets")
+	fmt.Println("extracted twelve discovery bodies for two targets")
 }

@@ -19,6 +19,7 @@ ordinary-plist retry. Selected executable read/format failures remain fatal.
 | XML dictionary, with or without the plist wrapper | Use its executable key |
 | UTF-8 BOM | Interpret the following UTF-8 document |
 | UTF-16LE/BE BOM | Apply the [qualified conversion profile](removal-plist-encodings.md) before interpretation |
+| UTF-32LE/BE BOM | Decode valid scalar values; any complete invalid scalar invalidates the dictionary |
 | XML duplicate keys | Last value wins |
 | Complete XML value followed by trailing text or another root | Use the first value |
 | OpenStep dictionary or strings-file syntax | Use its executable key |
@@ -62,7 +63,7 @@ Tests that previously required removal to reject invalid metadata now assert the
 measured raw-plist selection and unchanged executable/data, while retaining the
 original signing/verification rejection and preservation assertions.
 
-The [Clang extraction](../scripts/extract-removal-discovery.go) now records nine
+The [Clang extraction](../scripts/extract-removal-discovery.go) now records twelve
 complete Apple function bodies for both Mac architectures. The bundle loader
 shows invalid/non-dictionary empty synthesis and raw-URL retention. Complete
 `CFDictionaryAddValue` and `CFDictionarySetValue` bodies retain distinct hash
@@ -81,7 +82,7 @@ required. See [progress](progress.md) for the implementation PR and validation.
 
 ## Remaining differences
 
-- Unmarked UTF-16, UTF-32 and other text encodings, wider XML grammar/scalar/DTD/entity behavior,
+- Unmarked UTF-16/32 and other text encodings, wider XML grammar/scalar/DTD/entity behavior,
   legacy text corner cases and unsupported binary object types/large integers
   still require native qualification and implementation. This is a captured
   interpretation profile, not a complete CoreFoundation parser replacement.

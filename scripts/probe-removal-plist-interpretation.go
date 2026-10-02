@@ -52,11 +52,13 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation or encodings")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings or utf32")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
 		selectedInputs = encodingInputs()
+	} else if *profile == "utf32" {
+		selectedInputs = utf32Inputs()
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -201,6 +203,54 @@ func encodingInputs() []input {
 		result = append(result, input{"truncated-" + endian, encode(`<plist><dict>`, true), false})
 	}
 	result = append(result, input{"bom-only-le", []byte{0xff, 0xfe}, false}, input{"bom-only-be", []byte{0xfe, 0xff}, false})
+	return result
+}
+
+func utf32Inputs() []input {
+	xml := `<plist><dict><key>CFBundleExecutable</key><string>second</string><key>Ignored</key><string>é水😀</string></dict></plist>`
+	var result []input
+	for _, endian := range []string{"le", "be"} {
+		var order binary.AppendByteOrder = binary.LittleEndian
+		bom := []byte{0xff, 0xfe, 0, 0}
+		if endian == "be" {
+			order, bom = binary.BigEndian, []byte{0, 0, 0xfe, 0xff}
+		}
+		encode := func(s string) []byte {
+			data := append([]byte{}, bom...)
+			for _, r := range s {
+				data = order.AppendUint32(data, uint32(r))
+			}
+			return data
+		}
+		for _, item := range []struct{ name, text string }{
+			{"xml", xml}, {"openstep", `{CFBundleExecutable=second;Ignored="é水😀";}`},
+			{"declared", `<?xml version="1.0" encoding="UTF-32"?>` + xml},
+			{"mismatch", `<?xml version="1.0" encoding="ISO-8859-1"?>` + xml},
+		} {
+			result = append(result, input{item.name + "-" + endian, encode(item.text), true})
+		}
+		for n := 1; n <= 3; n++ {
+			result = append(result, input{fmt.Sprintf("partial-%d-%s", n, endian), append(encode(xml), []byte{0xff, 0xff, 0xff}[:n]...), true})
+			result = append(result, input{fmt.Sprintf("partial-only-%d-%s", n, endian), append(encode(""), []byte{0xff, 0xff, 0xff}[:n]...), false})
+		}
+		result = append(result, input{"scalar-boundaries-" + endian, encode(strings.Replace(xml, "é水😀", "\u007f\u0080\u07ff\u0800\ud7ff\ue000\ufffd\U00010000\U0010ffff", 1)), true})
+		for _, scalar := range []uint32{0xd800, 0xdc00, 0x110000, 0xffffffff} {
+			for _, tail := range []bool{false, true} {
+				data := encode(`<plist><dict><key>Ignored</key><string>`)
+				position := "inside"
+				if tail {
+					data = encode(xml)
+					position = "tail"
+				}
+				data = order.AppendUint32(data, scalar)
+				if !tail {
+					data = append(data, encode(`</string><key>CFBundleExecutable</key><string>second</string></dict></plist>`)[4:]...)
+				}
+				result = append(result, input{fmt.Sprintf("invalid-%x-%s-%s", scalar, position, endian), data, false})
+			}
+		}
+		result = append(result, input{"bom-only-" + endian, bom, false}, input{"truncated-" + endian, encode(`<plist><dict>`), false})
+	}
 	return result
 }
 

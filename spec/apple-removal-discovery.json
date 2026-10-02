@@ -3,6 +3,9 @@
     "CFBundleGetInfoDictionary": "5a1a1a059df0b9dc45280c209eb8f99cf48ed390dfe3a4740a59e3ae9ce9e9bc",
     "CFDictionaryAddValue": "4b8b7e1f53ba1293c420d85b5a6860f94b17f40bbe9e65765a80def9ae5d71c9",
     "CFDictionarySetValue": "4e1aa50721fdba4b0a0e30c11291951b522bbd977f2ade3f2103e12e56086f91",
+    "CFUniCharFromUTF32": "58e44311777c1029160aa79cdda9792c0923789d582759b24c196a970680a954",
+    "CFUniCharIsSurrogateHighCharacter": "355331a2578fd60941886df7908c27087386096918907bb47a46bb4a75b2e61e",
+    "CFUniCharIsSurrogateLowCharacter": "74ca953716b8af50ae22cd19f24dd9807e77ba115c65c4da74a91d625bee8ea8",
     "_CFBundleCopyExecutableName": "3a0b6ecd99f505a4267363e99b2a3ece2ab7b228b408401eefbdfa3d2945d236",
     "_CFBundleCopyInfoDictionaryInDirectoryWithVersion": "cf4ad33f85ebecea6ca5b1cace96e32fab7add9abab82e35df54153580116dfc",
     "_CFBundleCopyInfoPlistURL": "1734595b2d14ac27eed9a85f7de58b75725e0bdb09f53ede88610c1081e308bd",
@@ -12,13 +15,13 @@
   },
   "dictionary_source_sha256": "493b1c406ff3d4709817027034490565a8b43bc7e1c57870ef85415100ab78e6",
   "dictionary_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFDictionary.c",
-  "driver_sha256": "76a67efb00844e65b540188b15852ef56af1bbcca5b54226f60273e5c9559dc2",
+  "driver_sha256": "26ac781b822817630af4b9a4c7e293f17645fbaf0c5652c133c0734e2feef756",
   "info_source_sha256": "bbd744b84f1dd0989d1d8494800a34f8a3d9545a64dabda587481f15986373a0",
   "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c",
   "plist_source_sha256": "ced92800b4651fc47e9a1f53626170c7c7324db50bf6740541fd56844b7bead3",
   "plist_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c",
   "schema": 1,
-  "scope": "Nine complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body; broader parser encodings/types and normalization remain open.",
+  "scope": "Twelve complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; broader parser encodings/types and normalization remain open.",
   "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
   "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
   "targets": {
@@ -100,6 +103,79 @@
           "hc": 4,
           "key": 1,
           "value": 1
+        }
+      },
+      "CFUniCharFromUTF32": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 22,
+          "CStyleCastExpr": 2,
+          "CallExpr": 9,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 12,
+          "ConditionalOperator": 2,
+          "DeclRefExpr": 48,
+          "DeclStmt": 3,
+          "FunctionDecl": 1,
+          "IfStmt": 9,
+          "ImplicitCastExpr": 65,
+          "IntegerLiteral": 15,
+          "ParenExpr": 12,
+          "ParmVarDecl": 5,
+          "ReturnStmt": 3,
+          "UnaryOperator": 14,
+          "VarDecl": 3,
+          "WhileStmt": 1
+        },
+        "references": {
+          "CFSwapInt32BigToHost": 2,
+          "CFSwapInt32LittleToHost": 2,
+          "CFUniCharIsSurrogateHighCharacter": 2,
+          "CFUniCharIsSurrogateLowCharacter": 3,
+          "allowLossy": 2,
+          "character": 16,
+          "dst": 3,
+          "isBigEndien": 2,
+          "length": 1,
+          "limit": 2,
+          "otherCharacter": 5,
+          "src": 8
+        }
+      },
+      "CFUniCharIsSurrogateHighCharacter": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 3,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 4,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "character": 2
+        }
+      },
+      "CFUniCharIsSurrogateLowCharacter": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 3,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 4,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "character": 2
         }
       },
       "_CFBundleCopyExecutableName": {
@@ -453,6 +529,79 @@
           "value": 1
         }
       },
+      "CFUniCharFromUTF32": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 22,
+          "CStyleCastExpr": 2,
+          "CallExpr": 9,
+          "CompoundAssignOperator": 1,
+          "CompoundStmt": 12,
+          "ConditionalOperator": 2,
+          "DeclRefExpr": 48,
+          "DeclStmt": 3,
+          "FunctionDecl": 1,
+          "IfStmt": 9,
+          "ImplicitCastExpr": 65,
+          "IntegerLiteral": 15,
+          "ParenExpr": 12,
+          "ParmVarDecl": 5,
+          "ReturnStmt": 3,
+          "UnaryOperator": 14,
+          "VarDecl": 3,
+          "WhileStmt": 1
+        },
+        "references": {
+          "CFSwapInt32BigToHost": 2,
+          "CFSwapInt32LittleToHost": 2,
+          "CFUniCharIsSurrogateHighCharacter": 2,
+          "CFUniCharIsSurrogateLowCharacter": 3,
+          "allowLossy": 2,
+          "character": 16,
+          "dst": 3,
+          "isBigEndien": 2,
+          "length": 1,
+          "limit": 2,
+          "otherCharacter": 5,
+          "src": 8
+        }
+      },
+      "CFUniCharIsSurrogateHighCharacter": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 3,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 4,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "character": 2
+        }
+      },
+      "CFUniCharIsSurrogateLowCharacter": {
+        "ast_kinds": {
+          "AlwaysInlineAttr": 1,
+          "BinaryOperator": 3,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 5,
+          "IntegerLiteral": 4,
+          "ParenExpr": 3,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1
+        },
+        "references": {
+          "character": 2
+        }
+      },
       "_CFBundleCopyExecutableName": {
         "ast_kinds": {
           "BinaryOperator": 19,
@@ -725,5 +874,7 @@
       }
     }
   },
-  "translation_unit_sha256": "2e80a78bff950721c2436798ad206a63653b6e350adbf5f52f355c96a3ca8366"
+  "translation_unit_sha256": "2fd5b3cbffb166c215d312bc7e54138984e76af1729bbad298dce526ff237f7d",
+  "unicode_source_sha256": "dd8d0a16c8f35da2b33c37b2088c1e379cd72ccc928e8a91bf823e0d2a8bee99",
+  "unicode_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h"
 }
