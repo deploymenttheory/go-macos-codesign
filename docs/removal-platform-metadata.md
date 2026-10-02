@@ -12,7 +12,7 @@ The [capture script](../scripts/probe-removal-platform-info.go) exercises fourte
 disposable Contents apps with attached generic signature attributes. It needs
 no private keys or keychain access. The [retained results](../testdata/bundle-removal/platform-info-research.json)
 identify the macOS build, native binary hash, script hash, status, diagnostic,
-selected object, before/after content hashes, held file identity and envelope
+selected object, before/after content hashes, file identity and envelope
 effect. Every case asserts the expected selection and unchanged bytes/identity.
 Test ACLs are removed before reading attributes so an attribute-read denial
 cannot be mistaken for a removed signature.
