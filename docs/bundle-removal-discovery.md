@@ -9,7 +9,7 @@ signature in extended attributes on the plist. Removing it preserves the plist's
 data fork and inode, then removes the selected bundle's signature envelope.
 
 The same implementation runs on Linux, macOS and Windows. Native metadata uses
-APFS v0.15.2; foreign Apple metadata can be supplied through the existing explicit
+APFS v0.16.0; foreign Apple metadata can be supplied through the existing explicit
 `--appledouble-map`. There is no implicit sidecar discovery or Linux xattr renaming.
 Signing, display and verification retain their existing metadata requirements.
 

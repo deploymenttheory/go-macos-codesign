@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR79 merged. This branch retains APFS v0.15.2. The upstream
+Status: updated 2026-10-02 after codesign PR80 merged. This branch adopts APFS v0.16.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,9 +8,13 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [missing/empty removal metadata](removal-empty-metadata.md)
-on `feat/removal-empty-metadata`, cut from PR79 main at
-`d436fdd5ba6126b516af9fba870144b8c4186bd4`. Twenty-seven native cases cover
+**Current increment:** [shared reader integration and platform-plist research](removal-platform-metadata.md)
+on `feat/removal-platform-info`, cut from PR80 main at
+`a7d1d16f4774a3089f3331602fbddd17edb15d6f`. APFS v0.16.0 replaces the
+duplicated resource openers; replacement sources retain explicit metadata access.
+Platform-plist selection remains open and its fourteen native research cases are
+retained. The merged [missing/empty removal profile](removal-empty-metadata.md)
+continues to require its full acceptance matrix. Twenty-seven native cases cover
 three layouts, missing/empty/empty-dictionary metadata and executable-name
 selection. All replay through the portable API and CLI; 54 additional foreign
 observations are mandatory in Apple's import job. Native version arbitration
@@ -64,7 +68,7 @@ safe. Preserve default behavior for other SDK consumers and qualify both native
 host ACLs and transported Apple policy on Linux, macOS and Windows before adoption.
 Info.plist selection now preserves the
 executable under readattr/readsecurity denial, while selected data-read failures
-remain fatal. Released APFS v0.15.2 supplies this distinction through
+remain fatal. Released APFS v0.16.0 supplies this distinction through
 `hostdata.StatMetadata`; Go's Windows rooted stat requests file-data access and
 cannot supply the required authorization boundary. Broader CoreFoundation property/authorization discovery
 still needs qualification. Denied metadata reads inside the signature
@@ -87,7 +91,7 @@ behavior remains outstanding. The [dependency and research work](sideband-policy
 adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
 eight complete Apple bodies with two-target Clang evidence, and 203 native
 verification controls. The publication prerequisite is satisfied; policy integration
-continues through the profiles above. Released APFS v0.15.2 is the shared metadata/DMG dependency, with no local
+continues through the profiles above. Released APFS v0.16.0 is the shared metadata/DMG dependency, with no local
 replacement or generic FFI dependency. Native host operations use the approved
 typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
 dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
@@ -2839,8 +2843,10 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   discovery, executable-path aliases and dynamic-loader environment selection.
   Platform selection now has fourteen retained native research probes covering
   alternate filenames, executable-key overrides and real permission boundaries.
-  It remains unimplemented pending the shared content-reader prerequisite in
-  APFS PR #190 and its published release. Follow the evidence and integration
+  APFS v0.16.0 is adopted and its shared content reader replaces the duplicated
+  resource openers; replacement sources use its metadata reader. Platform plist
+  selection remains unimplemented, including distinct discovery authorization
+  versus content-acquisition failures. Follow the evidence and integration
   sequence in [platform metadata research](removal-platform-metadata.md); data
   acquisition must not request unrelated ACL/EA read rights on any host.
 - [ ] Inventory native representation dispatch from source and probes: ordinary

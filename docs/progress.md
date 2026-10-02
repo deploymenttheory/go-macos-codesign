@@ -8,9 +8,15 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR79 is merged at `d436fdd5ba6126b516af9fba870144b8c4186bd4`. The current
-`feat/removal-empty-metadata` branch starts from that main and retains APFS v0.15.2.
-[Missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem
+PR80 is merged at `a7d1d16f4774a3089f3331602fbddd17edb15d6f`. The current
+`feat/removal-platform-info` branch starts from that main and adopts APFS v0.16.0.
+Resource reads now use the SDK content reader, and replacement staging uses its
+metadata reader; the duplicated native resource openers are removed. Fourteen
+retained platform-plist research cases run on macOS, with provenance checks on
+all hosts. Platform-plist selection itself remains outstanding. See the
+[SDK integration and remaining discovery work](removal-platform-metadata.md).
+
+Merged [missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem
 selection where native removal permits it, the versioned-framework distinction,
 and a no-mutation error when neither executable nor plist exists. Twenty-seven
 native cases replay on every host and add 54 mandatory foreign observations.
@@ -74,7 +80,7 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.15.2](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.2)
+Codesign pins [APFS v0.16.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes

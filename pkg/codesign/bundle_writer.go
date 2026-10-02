@@ -274,7 +274,9 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if !st.Mode().IsRegular() {
 		return nil, unsupported("writing non-regular bundle file")
 	}
-	source, err := openResourceFile(root, write.name)
+	// Replacement restores owner/group, ACLs and EAs from the held source. A
+	// content-only Windows handle deliberately lacks the ACL-read right.
+	source, err := hostdata.OpenMetadataFileRead(root, write.name)
 	if err != nil {
 		return nil, err
 	}

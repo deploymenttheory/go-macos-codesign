@@ -1,10 +1,10 @@
-# Platform-specific removal metadata: research and prerequisite
+# Platform-specific removal metadata: research and SDK integration
 
 Native macOS `codesign --remove-signature` can select `Info-macos.plist` instead
 of `Info.plist`. This policy must ultimately be the same on Linux, macOS and
 Windows. It is **not implemented yet**. The current removal loader still selects
-ordinary metadata; this document records the next phase and its shared SDK
-prerequisite rather than claiming the gap is closed.
+ordinary metadata. APFS v0.16.0 is now adopted for shared content acquisition;
+the selection-policy gap remains open.
 
 ## Measured native behavior
 
@@ -52,13 +52,13 @@ qualification and native cases together before implementing key normalization.
 ## Shared filesystem prerequisite
 
 Reading plist data must not require reading its ACL or extended attributes.
-The existing codesign Windows opener requests `FILE_GENERIC_READ`, including
-`READ_CONTROL` and `FILE_READ_EA`. A denied unrelated right could therefore
-cause a false ordinary-plist fallback. A preliminary metadata stat can likewise
-impose rights absent from native content acquisition.
+The former codesign Windows resource opener requested `FILE_GENERIC_READ`,
+including `READ_CONTROL` and `FILE_READ_EA`. That also prevented content-only
+resource signing under unrelated metadata denials. A preliminary metadata stat
+can likewise impose rights absent from native content acquisition.
 
-[APFS draft PR #190](https://github.com/deploymenttheory/go-apfs-v2/pull/190) adds
-`hostdata.OpenContentFileRead` on all three supported hosts. It keeps contained
+[APFS v0.16.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0)
+provides `hostdata.OpenContentFileRead` on all three supported hosts. It keeps contained
 parent resolution, rejects final links/nonregular objects and verifies held
 identity without an extra pathname stat. Real data denial remains an error.
 The APFS gate covers twelve live/retained C cases on macOS, effective Windows
@@ -66,13 +66,30 @@ rights denials and portable containment/lifetime tests, with over 95% required
 per tracked implementation file. Parent-directory authorization remains the
 host's responsibility.
 
+Codesign's resource traversal and hashing now use this published reader. The
+duplicated Unix `Openat` and Windows `NtCreateFile` implementations have been
+removed. Sideband queries still use APFS's held-identity attribute operations;
+content success does not waive a required metadata query. Replacement staging
+uses `OpenMetadataFileRead`, because restoring owner/group, ACLs and EAs requires
+metadata access that a content-only Windows handle deliberately lacks. Existing
+replacement and sideband acceptance remain required on all three hosts.
+
+The Windows integration tests apply effective ACL-read, EA-read and data-read
+denials. Content-only signing must succeed for the unrelated metadata denials,
+produce a valid resource seal and preserve resource bytes. Data denial must
+fail without committing a replacement executable. OWNER RIGHTS makes the ACL
+denial effective for the fixture's owner; restoration uses a previously held
+security handle.
+
 The macOS `readattr` case above is a separate **discovery policy** failure, not
 evidence that the held content reader should fail. Do not conflate those stages.
 
 ## Remaining integration
 
-1. Merge and publish the qualified APFS reader; adopt its released version here.
-   Keep the module free of local replacements and duplicate OS primitives.
+1. The released reader is adopted. Keep discovery authorization separate from
+   content acquisition: the captured `readattr` ambiguity and `readsecurity`
+   success must both be reproduced before enabling platform-plist selection.
+   Keep the module free of local APFS replacements and duplicate OS primitives.
 2. Extend the loader with distinct metadata selection, content acquisition and
    dictionary interpretation stages. Retain the selected raw plist URL even
    when its dictionary supplies no executable name.
