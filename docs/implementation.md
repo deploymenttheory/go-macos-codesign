@@ -4,8 +4,10 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR79 with APFS v0.15.2 and
-[missing/empty removal metadata](removal-empty-metadata.md), including native
+Current work continues after merged PR80 with APFS v0.16.0. Shared content and
+metadata readers replace the duplicated resource openers; platform-specific
+plist selection remains in the [discovery integration plan](removal-platform-metadata.md).
+Merged [missing/empty removal metadata](removal-empty-metadata.md) includes native
 executable-name selection and no-mutation errors. Supported layouts fall
 back to valid Info.plist when executable metadata is absent or inaccessible;
 selected-file data-read failures remain fatal. The SDK's metadata-only query

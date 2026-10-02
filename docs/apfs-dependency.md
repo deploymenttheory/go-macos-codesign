@@ -1,10 +1,23 @@
-# APFS v0.15.2 integration
+# APFS v0.16.0 integration
 
 Codesign pins the published
-[APFS v0.15.2 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.2).
+[APFS v0.16.0 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0).
 There is no local APFS replacement or workspace override. Existing replacement,
 directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
 operations use `pkg/hostdata/accesstime`.
+
+Resource traversal and hashing use `hostdata.OpenContentFileRead`, replacing the
+Unix and Windows resource-opening implementations formerly in codesign. This
+regular-file reader confines paths and avoids unrelated ACL/EA access rights.
+Bundle replacement sources use `hostdata.OpenMetadataFileRead`: restoring source
+ACLs requires metadata rights, even though resource hashing does not. Sideband
+queries remain independent operations against the same held identity.
+
+Windows integration tests enforce real ACL/EA denials, successful content-only
+signing with valid seals, and refusal of actual data-read denial without an
+executable commit. Existing strict sideband, replacement, native acceptance and
+foreign-import tests remain required. Platform-plist selection is still a
+separate [discovery policy increment](removal-platform-metadata.md).
 
 Bundle removal uses `hostdata.StatMetadata` for executable discovery. This rooted,
 no-follow query does not request file-data or extended-attribute access. On
@@ -12,7 +25,7 @@ Windows it uses the SDK's held-parent metadata opener instead of Go's
 `Root.Lstat`, whose generic-read request can confuse data denial with missing
 metadata. Selected-file read failures remain fatal. The SDK also uses this query
 before acquiring metadata handles. See the versioned
-[query contract](https://github.com/deploymenttheory/go-apfs-v2/blob/v0.15.2/docs/rooted-metadata-stat.md)
+[query contract](https://github.com/deploymenttheory/go-apfs-v2/blob/v0.16.0/docs/rooted-metadata-stat.md)
 and [bundle-removal acceptance](bundle-removal-discovery.md).
 
 PR186 and release PR187 fix denied-write source ACL staging. The SDK delays source
@@ -48,7 +61,7 @@ The metadata-query correction passed all applicable checks in
 The new query files had 100% statement coverage on Linux, macOS and Windows.
 Its live Windows tests distinguish denied data, denied extended attributes, and
 effective metadata denial. Codesign must independently pass its unchanged
-three-platform and native-import gates against the published v0.15.2 module.
+three-platform and native-import gates against the published v0.16.0 module.
 
 The upstream correction passed all 64 applicable checks in
 [APFS PR184](https://github.com/deploymenttheory/go-apfs-v2/pull/184), including

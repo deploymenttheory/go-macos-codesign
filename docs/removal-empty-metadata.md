@@ -4,7 +4,7 @@ Signature removal does not need an Info.plist dictionary to construct a new
 signature. For supported directory operands, a missing or zero-byte Info.plist
 now supplies no executable-name keys. This lets resource-only bundles and apps
 with incomplete metadata use the representation that native `codesign` selects.
-The policy is the same on Linux, macOS and Windows and uses published APFS v0.15.2.
+The policy is the same on Linux, macOS and Windows and uses published APFS v0.16.0.
 
 ## Selection
 

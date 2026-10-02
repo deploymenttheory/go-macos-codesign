@@ -5,7 +5,7 @@ existing data in place. Codesign writes a private replacement and commits it
 after preparing its content and metadata. Published
 [APFS v0.15.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1)
 fixes this staging prerequisite: a source deny-write ACL no longer prevents the
-SDK from opening its temporary copy. Codesign retains this fix in v0.15.2, with
+SDK from opening its temporary copy. Codesign retains this fix in v0.16.0, with
 no local module replacement.
 
 ## Operational behavior

@@ -1,0 +1,468 @@
+{
+  "cases": [
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "macos",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macosx.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": false
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macosx.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "macosx",
+      "output": "",
+      "selected": "Contents/MacOS/normal",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "macos-only",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature_present": false
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "empty-macos",
+      "output": "",
+      "selected": "Contents/Info-macos.plist",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": false
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa"
+      },
+      "envelope_present": false,
+      "name": "missing-target",
+      "output": "",
+      "selected": "Contents/Info-macos.plist",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info.plist": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "key-macos",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": false
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info.plist": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "key-windows",
+      "output": "",
+      "selected": "Contents/MacOS/normal",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": false
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "directory",
+      "output": "",
+      "selected": "Contents/MacOS/normal",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": false
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "read",
+      "output": "",
+      "selected": "Contents/MacOS/normal",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": true
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": true,
+      "name": "readattr",
+      "output": "\u003cBUNDLE\u003e: bundle format is ambiguous (could be app or framework)\n",
+      "selected": "",
+      "status": 1
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "readsecurity",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "readextattr",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "write",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    },
+    {
+      "after": {
+        "Contents/Info-macos.plist": {
+          "same_identity": true,
+          "sha256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "signature_present": true
+        },
+        "Contents/Info.plist": {
+          "same_identity": true,
+          "sha256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "signature_present": true
+        },
+        "Contents/MacOS/normal": {
+          "same_identity": true,
+          "sha256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "signature_present": true
+        },
+        "Contents/MacOS/platform": {
+          "same_identity": true,
+          "sha256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "signature_present": false
+        }
+      },
+      "before_sha256": {
+        "Contents/Info-macos.plist": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+        "Contents/Info.plist": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+        "Contents/MacOS/normal": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+        "Contents/MacOS/platform": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5"
+      },
+      "envelope_present": false,
+      "name": "writeextattr",
+      "output": "",
+      "selected": "Contents/MacOS/platform",
+      "status": 0
+    }
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "schema": 1,
+  "source_sha256": "83c0c09fe7b8a2357173e68ca4a3f7154703f9d36b8e44dcac3ef3cde592b2f6"
+}

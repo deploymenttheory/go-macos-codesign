@@ -5,7 +5,7 @@ file bytes. Apple's strict sideband policy rejects nonempty ResourceFork and
 FinderInfo attributes on applicable objects. Reading those attributes correctly
 is a prerequisite for matching its verification decisions and diagnostics.
 
-Codesign uses published [APFS v0.15.2](apfs-dependency.md) for native metadata and
+Codesign uses published [APFS v0.16.0](apfs-dependency.md) for native metadata and
 AppleDouble decoding. The dependency upgrade is merged in codesign PR70 and
 macOS-pkg PR72; macOS-pkg PR73 resolves its macOS 27 relocation-default gap.
 The former purego dependency blocker is resolved. No local SDK replacement or
