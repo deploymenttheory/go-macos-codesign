@@ -8,24 +8,34 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR85 is merged at `b5575bc3402a2628d7791f544147102116ccd393` after
+PR86 is merged at `db5a89a67f9f35d2f6d58588f648895b2dea0882` after
+[all applicable CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37061814256).
+Audited codesign coverage was 95.20% Linux, 95.62% macOS and 95.15% Windows.
+All 760 source hashes matched each OS checkout. All 552 UTF-32 foreign records
+matched fresh native operations; the earlier UTF-16/parser profiles remain required.
+
+`feat/removal-xml-characters` starts from that main and retains APFS v0.17.0.
+The [XML character phase](removal-xml-characters.md) preserves native string/key
+characters, line endings, CDATA and entity interpretation on every host. It adds
+192 native selection cases and promotes the existing 36 UTF-32 grammar cases to
+API/CLI parity tests: 456 additional foreign records are mandatory. Thirty-eight
+native value observations check full character/key fidelity. Clang evidence now
+contains fifteen complete Apple bodies for both Darwin targets.
+All resource bounds, strict parsers and previous tests remain mandatory. This
+branch requires its own complete CI; PR86's run does not validate these changes.
+Unmarked/legacy codecs and wider markup/scalar/discovery behavior remain open.
+
+### Merged UTF-32 profile
+
+PR85 merged at `b5575bc3402a2628d7791f544147102116ccd393` after
 [all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37056093290).
 Audited codesign coverage was 95.20% Linux, 95.61% macOS and 95.14% Windows.
 All 757 source hashes matched each OS checkout; all 240 UTF-16 foreign records
 matched fresh native operations, with the earlier 360 parser records retained.
-
-`feat/removal-utf32-plists` starts from that main and retains APFS v0.17.0.
-The [encoding profile](removal-plist-encodings.md) now adds BOM-marked UTF-32LE/BE
-XML/OpenStep interpretation. Invalid scalar values invalidate the whole dictionary;
-incomplete trailing units are ignored. The 276-case native corpus adds 552
-mandatory foreign records, and twelve complete Apple bodies have Clang evidence.
-All resource bounds, strict parsers and prior tests remain mandatory. This branch
-requires its own complete CI; the merged PR85 run does not validate these changes.
-Unmarked encodings, declared legacy codecs and wider grammar remain open.
-An additional 36 native cases retain Apple-valid XML character grammar that
-Go's parser cannot yet interpret. Explicit errors preserve the bundle instead
-of silently selecting its raw plist. OpenStep controls and ignored trailing XML
-controls have matching native/Go cases; all earlier profiles remain required.
+PR86 added BOM-marked UTF-32LE/BE interpretation with whole-string scalar
+validation and incomplete-unit truncation: 276 native cases, 552 foreign records
+and twelve complete Apple bodies. Its 36 character research cases became the
+input to the current phase rather than a completed parity claim at that merge.
 
 ### Merged UTF-16 profile
 

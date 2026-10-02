@@ -84,6 +84,8 @@ func TestRemovalPlistInterpretationBoundaries(t *testing.T) {
 }
 
 func FuzzRemovalPlist(f *testing.F) {
+	f.Add([]byte("<dict><key>a\x00b</key><string><![CDATA[\x01]]>&#0;&#x10FFFF;</string></dict>"))
+	f.Add([]byte(`<dict><key>&#xD800;</key><string/></dict>`))
 	f.Add(removalUTF32(`<plist><dict><key>CFBundleExecutable</key><string>😀</string></dict></plist>`))
 	f.Add([]byte{0, 0, 0xfe, 0xff, 0, 0x11, 0, 0})
 	f.Add(removalUTF16(`<plist><dict><key>CFBundleExecutable</key><string>😀</string></dict></plist>`))

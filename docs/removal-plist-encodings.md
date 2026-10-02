@@ -33,8 +33,9 @@ authorizing fallback to a different removal target.
 
 The [pure-Go converter](../pkg/codesign/bundle_removal_encoding.go) runs before
 the existing bounded interpreter. It has no host-dependent path or native
-binding. Unmarked UTF-16/32, decoded NUL characters, XML character restrictions and other unqualified
-encoding forms remain explicit errors. The platform loader's unsupported-input
+binding. The [XML character interpreter](removal-xml-characters.md) now handles
+NUL, controls and noncharacters in strings/keys. Unmarked UTF-16/32, legacy
+codecs and unqualified character contexts remain explicit errors. The platform loader's unsupported-input
 cleanup test uses a declared legacy encoding; UTF-16/32 success and malformed
 interpretation have their own native replay tests. UTF-32 never expands beyond
 its encoded input size, but retains the same input and structural limits.
@@ -45,7 +46,8 @@ its encoded input size, but retains the same input and structural limits.
 detects a BOM before a declaration and converts non-UTF-8 input before parsing.
 Its `encodingForXMLData` body is retained through the
 [Clang extraction](../scripts/extract-removal-discovery.go), bringing the evidence
-to twelve complete bodies on both Darwin targets. Error-construction and existing
+to fifteen complete bodies on both Darwin targets, including the subsequent
+string, CDATA and entity extraction. Error-construction and existing
 private interfaces use declarations; the complete encoding decision body is
 compiled against the host SDK. Current native results, rather than historical
 source alone, establish the supported behavior.
@@ -68,11 +70,12 @@ were recaptured after the shared driver changed. `-profile utf32` records
 the same locations/layouts, including both byte orders, XML/OpenStep, declarations,
 scalar boundaries, invalid values inside/after a dictionary, incomplete code units,
 empty BOMs, truncated dictionaries, OpenStep controls and ignored trailing XML
-controls. A separate [36-case research corpus](../testdata/bundle-removal/plist-utf32-grammar.json)
+controls. A separate [36-case character corpus](../testdata/bundle-removal/plist-utf32-grammar.json)
 retains native acceptance of controls, noncharacters and NUL inside XML strings.
-`-profile utf32-grammar` recaptures it in macOS CI. These cases document a remaining
-grammar gap, not successful native/Go equivalence: unit tests require an explicit
-unsupported error, and public API tests require unchanged bundles on all hosts.
+`-profile utf32-grammar` recaptures it in macOS CI. These cases now have matching API/CLI
+replay on all hosts and 72 mandatory foreign results; the subsequent
+[XML character phase](removal-xml-characters.md) also adds 192 cases and 384
+foreign results.
 
 API and CLI replay run on every OS. macOS compares Go with fresh native
 operations; the foreign-import job requires **240 additional records**, one
@@ -90,12 +93,9 @@ lint and six GoReleaser build gates remain unchanged.
   the equivalent XML or big-endian OpenStep. Those observations are not an
   implemented portable contract and must not be generalized into BOM detection.
 - Unmarked UTF-32 and declared legacy encodings need native corpora and bounded codecs.
-- Native accepts controls, U+FFFE/U+FFFF and NUL inside XML strings; Go's XML parser
-  rejects that grammar. NUL is rejected before parsing. Other illegal-character
-  token errors are explicit unsupported errors, never empty-dictionary fallback.
-  This restriction applies only when the XML parser reaches that character;
-  OpenStep controls and text after the first complete XML value remain supported.
-  A compatible XML grammar is still required to close the retained 36-case gap.
+- XML string/key controls, U+FFFE/U+FFFF and NUL are implemented in the
+  [character phase](removal-xml-characters.md). Unqualified contexts outside
+  strings/keys and OpenStep NUL still require native evidence and implementation.
 - Wider XML grammar, binary representations, key normalization, plist aliases
   and the other CLI operations remain in the [implementation plan](implementation_plan.md).
 

@@ -1,0 +1,315 @@
+{
+  "cases": [
+    {
+      "Name": "plist-xml-characters.json/ordinary-literal-controls",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPgABCAsMDh88L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0001\b\u000b\f\u000e\u001f",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-literal-noncharacters",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPu+/vu+/vzwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 0,
+      "Value": {
+        "Ignored": "￾￿",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-literal-newlines",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPmENYg0KYwpkPC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 0,
+      "Value": {
+        "Ignored": "a\rb\r\nc\nd",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-cdata",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPjwhW0NEQVRBWzw+JgAB77++77+/DQpdXT48L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u003c\u003e\u0026\u0000\u0001￾￿\r\n",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-mixed",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPmEmYW1wOzwhW0NEQVRBWzwBXV0+JiMwO2I8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "a\u0026\u003c\u0001\u0000b",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-named",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiZsdDsmZ3Q7JmFtcDsmYXBvczsmcXVvdDs8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u003c\u003e\u0026'\"",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-decimal",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjMDsmIzE7JiM4OyYjMTE7JiMxMjsmIzE0OyYjMzE7PC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0001\b\u000b\f\u000e\u001f",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-hex",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeDA7JiN4MTsmI3hGRkZFOyYjeGZmZmY7PC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0001￾￿",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-supplementary",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeDEwMDAwOyYjMTI4NTEyOyYjeDEwRkZGRjs8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "𐀀😀􏿿",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-empty-entity",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjOyYjeDs8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0000",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-surrogate-high",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeEQ4MDA7PC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-surrogate-low",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeERGRkY7PC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-scalar-overflow",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeDExMDAwMDs8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-integer-overflow",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjNDI5NDk2NzI5Njs8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-unknown-entity",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiZ1bmtub3duOzwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-uppercase-x",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjWDZlOzwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-bad-digit",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjeGc7PC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-missing-semicolon",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPiYjMTwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-cdata-unclosed",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPjwhW0NEQVRBW2JhZDwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-string-comment",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPmE8IS0tY29tbWVudC0tPmI8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-string-pi",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPmE8P2luc3RydWN0aW9uPz5iPC9zdHJpbmc+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-string-child",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPmE8c3RyaW5nPmI8L3N0cmluZz48L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-key-entity",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdSYjeDc0O2FibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 0,
+      "Value": {
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-key-cdata",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGU8IVtDREFUQVtFeGVjdXRhYmxlXV0+PC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 0,
+      "Value": {
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-key-controls",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZQAB77++PC9rZXk+PHN0cmluZz5maXJzdDwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 0,
+      "Value": {
+        "CFBundleExecutable\u0000\u0001￾": "first",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-duplicate-escaped-key",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5maXJzdDwvc3RyaW5nPjxrZXk+Q0ZCdW5kbGVFeGVjdSYjMTE2O2FibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 0,
+      "Value": {
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-nested-strings",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Pklnbm9yZWQ8L2tleT48YXJyYXk+PHN0cmluZz4A77+/PC9zdHJpbmc+PGRpY3Q+PGtleT4BPC9rZXk+PHN0cmluZz48IVtDREFUQVsLXV0+PC9zdHJpbmc+PC9kaWN0PjwvYXJyYXk+PC9kaWN0PjwvcGxpc3Q+",
+      "Status": 0,
+      "Value": {
+        "Ignored": [
+          "\u0000￿",
+          {
+            "\u0001": "\u000b"
+          }
+        ],
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-empty-strings",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5Lz48c3RyaW5nLz48a2V5Pklnbm9yZWQ8L2tleT48c3RyaW5nPjwvc3RyaW5nPjwvZGljdD48L3BsaXN0Pg==",
+      "Status": 0,
+      "Value": {
+        "": "",
+        "Ignored": "",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-mismatched-close",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L2tleT48L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-container-text",
+      "Input": "PHBsaXN0PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz5iYWQ8L2RpY3Q+PC9wbGlzdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-utf16-le",
+      "Input": "//48AHAAbABpAHMAdAA+ADwAZABpAGMAdAA+ADwAawBlAHkAPgBDAEYAQgB1AG4AZABsAGUARQB4AGUAYwB1AHQAYQBiAGwAZQA8AC8AawBlAHkAPgA8AHMAdAByAGkAbgBnAD4AcwBlAGMAbwBuAGQAPAAvAHMAdAByAGkAbgBnAD4APABrAGUAeQA+AEkAZwBuAG8AcgBlAGQAPAAvAGsAZQB5AD4APABzAHQAcgBpAG4AZwA+AAAAAQD+////DQAKADwALwBzAHQAcgBpAG4AZwA+ADwALwBkAGkAYwB0AD4APAAvAHAAbABpAHMAdAA+AA==",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0001￾￿\r\n",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-xml-characters.json/ordinary-utf16-be",
+      "Input": "/v8APABwAGwAaQBzAHQAPgA8AGQAaQBjAHQAPgA8AGsAZQB5AD4AQwBGAEIAdQBuAGQAbABlAEUAeABlAGMAdQB0AGEAYgBsAGUAPAAvAGsAZQB5AD4APABzAHQAcgBpAG4AZwA+AHMAZQBjAG8AbgBkADwALwBzAHQAcgBpAG4AZwA+ADwAawBlAHkAPgBJAGcAbgBvAHIAZQBkADwALwBrAGUAeQA+ADwAcwB0AHIAaQBuAGcAPgAAAAH//v//AA0ACgA8AC8AcwB0AHIAaQBuAGcAPgA8AC8AZABpAGMAdAA+ADwALwBwAGwAaQBzAHQAPg==",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0000\u0001￾￿\r\n",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-controls-le",
+      "Input": "//4AADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAABAAAACAAAAAsAAAAMAAAADgAAAB8AAAA8AAAALwAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAA8AAAALwAAAGQAAABpAAAAYwAAAHQAAAA+AAAAPAAAAC8AAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0001\b\u000b\f\u000e\u001f",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-noncharacters-le",
+      "Input": "//4AADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAD+/wAA//8AADwAAAAvAAAAcwAAAHQAAAByAAAAaQAAAG4AAABnAAAAPgAAADwAAAAvAAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAALwAAAHAAAABsAAAAaQAAAHMAAAB0AAAAPgAAAA==",
+      "Status": 0,
+      "Value": {
+        "Ignored": "￾￿",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-nul-le",
+      "Input": "//4AADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAABhAAAAAAAAAGIAAAA8AAAALwAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAA8AAAALwAAAGQAAABpAAAAYwAAAHQAAAA+AAAAPAAAAC8AAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "a\u0000b",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-controls-be",
+      "Input": "AAD+/wAAADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAABAAAACAAAAAsAAAAMAAAADgAAAB8AAAA8AAAALwAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAA8AAAALwAAAGQAAABpAAAAYwAAAHQAAAA+AAAAPAAAAC8AAABwAAAAbAAAAGkAAABzAAAAdAAAAD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "\u0001\b\u000b\f\u000e\u001f",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-noncharacters-be",
+      "Input": "AAD+/wAAADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAP/+AAD//wAAADwAAAAvAAAAcwAAAHQAAAByAAAAaQAAAG4AAABnAAAAPgAAADwAAAAvAAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAALwAAAHAAAABsAAAAaQAAAHMAAAB0AAAAPg==",
+      "Status": 0,
+      "Value": {
+        "Ignored": "￾￿",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-utf32-grammar.json/ordinary-nul-be",
+      "Input": "AAD+/wAAADwAAABwAAAAbAAAAGkAAABzAAAAdAAAAD4AAAA8AAAAZAAAAGkAAABjAAAAdAAAAD4AAAA8AAAAawAAAGUAAAB5AAAAPgAAAEMAAABGAAAAQgAAAHUAAABuAAAAZAAAAGwAAABlAAAARQAAAHgAAABlAAAAYwAAAHUAAAB0AAAAYQAAAGIAAABsAAAAZQAAADwAAAAvAAAAawAAAGUAAAB5AAAAPgAAADwAAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAcwAAAGUAAABjAAAAbwAAAG4AAABkAAAAPAAAAC8AAABzAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA+AAAAPAAAAGsAAABlAAAAeQAAAD4AAABJAAAAZwAAAG4AAABvAAAAcgAAAGUAAABkAAAAPAAAAC8AAABrAAAAZQAAAHkAAAA+AAAAPAAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAABhAAAAAAAAAGIAAAA8AAAALwAAAHMAAAB0AAAAcgAAAGkAAABuAAAAZwAAAD4AAAA8AAAALwAAAGQAAABpAAAAYwAAAHQAAAA+AAAAPAAAAC8AAABwAAAAbAAAAGkAAABzAAAAdAAAAD4=",
+      "Status": 0,
+      "Value": {
+        "Ignored": "a\u0000b",
+        "CFBundleExecutable": "second"
+      }
+    }
+  ],
+  "corpus_sha256": {
+    "plist-utf32-grammar.json": "f4127ffc19b08f68828bb5afdc34c104d0b9e00ef3fed9bda8e08e2fdad5bfef",
+    "plist-xml-characters.json": "d79f69448dcefffa6ba96e7812f82e4cd048f25385e59416df394ab143912753"
+  },
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "native_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
+  "schema": 1,
+  "source_sha256": "6a36e6e6573b0bae842927481bb98109df727e9231bdd0267c44796261fc2a97"
+}

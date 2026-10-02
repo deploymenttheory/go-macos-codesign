@@ -62,7 +62,10 @@ func removalPlistText(data []byte) ([]byte, error) {
 	} else {
 		data = bytes.TrimPrefix(data, []byte{0xef, 0xbb, 0xbf})
 	}
-	if !utf8.Valid(data) || bytes.IndexByte(data, 0) >= 0 {
+	if bytes.HasPrefix(data, []byte{'<', 0}) {
+		return nil, unsupported("unmarked removal plist encoding")
+	}
+	if !utf8.Valid(data) || (bytes.IndexByte(data, 0) >= 0 && !bytes.HasPrefix(bytes.TrimSpace(data), []byte("<"))) {
 		return nil, unsupported("removal plist text encoding")
 	}
 	return data, nil

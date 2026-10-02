@@ -2,10 +2,7 @@ package codesign
 
 import (
 	"bytes"
-	"encoding/xml"
 	"errors"
-	"io"
-	"strings"
 
 	"howett.net/plist"
 )
@@ -49,11 +46,13 @@ func decodeRemovalPlist(data []byte) (map[string]any, error) {
 		}
 		text := bytes.TrimSpace(data)
 		if len(text) > 0 && text[0] == '<' {
-			err = boundRemovalXML(text)
+			var value any
+			value, err = decodeRemovalXML(text)
+			values, _ = value.(map[string]any)
 		} else {
 			err = boundRemovalOpenStep(text)
 		}
-		if err == nil {
+		if err == nil && (len(text) == 0 || text[0] != '<') {
 			var value any
 			var format int
 			format, err = plist.Unmarshal(data, &value)
@@ -69,46 +68,6 @@ func decodeRemovalPlist(data []byte) (map[string]any, error) {
 	// Syntax failures and non-dictionary roots produce no executable keys. This
 	// policy applies only to removal; signing and verification retain strict parsing.
 	return values, nil
-}
-
-// Bound the first XML value that CoreFoundation interprets. Its historical and
-// live parsers ignore subsequent roots/trailing text, including the plist close.
-func boundRemovalXML(data []byte) error {
-	decoder := xml.NewDecoder(bytes.NewReader(data))
-	depth, count, valueDepth := 0, 0, 0
-	for {
-		token, err := decoder.Token()
-		if err != nil {
-			var syntax *xml.SyntaxError
-			// CoreFoundation accepts characters that encoding/xml forbids in
-			// strings. Do not turn that parser restriction into an empty dict.
-			// Check only tokens reached before the first value ends: trailing
-			// text remains ignored under the captured native XML policy.
-			if errors.As(err, &syntax) && strings.HasPrefix(syntax.Msg, "illegal character code ") {
-				return unsupported("removal plist XML characters")
-			}
-			if !errors.Is(err, io.EOF) && !errors.As(err, &syntax) {
-				return unsupported("removal plist XML encoding: " + err.Error())
-			}
-			return malformed("removal plist XML: %v", err)
-		}
-		switch t := token.(type) {
-		case xml.StartElement:
-			depth++
-			count++
-			if depth > maxBundlePlistDepth || count > maxBundlePlistValues {
-				return plistLimit("complexity")
-			}
-			if valueDepth == 0 && t.Name.Local != "plist" {
-				valueDepth = depth
-			}
-		case xml.EndElement:
-			if depth == valueDepth || depth == 1 {
-				return nil
-			}
-			depth--
-		}
-	}
 }
 
 // OpenStep has no shared references. Count containers and scalar/key tokens
