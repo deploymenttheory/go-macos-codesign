@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR80 merged. This branch adopts APFS v0.16.0. The upstream
+Status: updated 2026-10-02 after codesign PR81 merged. Main uses APFS v0.16.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,10 +8,15 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [shared reader integration and platform-plist research](removal-platform-metadata.md)
-on `feat/removal-platform-info`, cut from PR80 main at
-`a7d1d16f4774a3089f3331602fbddd17edb15d6f`. APFS v0.16.0 replaces the
-duplicated resource openers; replacement sources retain explicit metadata access.
+**Current increment:** [basic entry-type discovery prerequisite](removal-platform-metadata.md#basic-entry-type-prerequisite)
+in [APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192).
+The codesign tracking branch `feat/platform-plist-discovery` starts from PR81
+main at `0701a24555d1e7cae7536260b25ae48a090c9657`. PR81 passed its
+[full compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37013658411).
+APFS v0.16.0 replaced the duplicated resource openers; replacement sources
+retain explicit metadata access. The next SDK API must pass all CI, be merged
+and be released before codesign adopts it; this tracking change adds no runtime
+behavior or unpublished dependency.
 Platform-plist selection remains open and its fourteen native research cases are
 retained. The merged [missing/empty removal profile](removal-empty-metadata.md)
 continues to require its full acceptance matrix. Twenty-seven native cases cover
@@ -22,6 +27,19 @@ does not select the framework-stem executable without a usable name key.
 When neither executable nor plist exists, removal returns the native diagnostic
 without mutation. Nonempty malformed metadata remains a separate parser gap.
 Clang evidence now includes six complete functions on two targets.
+
+**Remaining PR estimate after PR81:** approximately 2–4 implementation PRs for
+platform-plist discovery, including the shared SDK prerequisite; approximately
+6–10 for the wider current filesystem/discovery work. These ranges overlap and
+must not be added together. Full native CLI/operational parity is much larger:
+roughly 50–100+ implementation PRs at the current review size, with substantial
+uncertainty until provider, trust, live-state and newer signature prerequisites
+are resolved. This is a planning estimate, not a completion guarantee or a target
+number of PRs; related work should be combined when it remains reviewable.
+The plan contains 24 work packages and 249 top-level unchecked actions, with
+additional nested actions. The authoritative inventory has 32 partial, 48
+not-implemented and eight blocked obligations, not 88 equally sized tasks.
+Documentation-only and automated release PRs are outside these estimates.
 
 PR79 passed [all unchanged gates](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36985960267),
 including all 102 generic-removal imports. Codesign coverage was 95.25% Linux,
@@ -157,7 +175,7 @@ remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
-The current inventory retains 88 obligations: 31 partial, 49 not implemented,
+The current inventory retains 88 obligations: 32 partial, 48 not implemented,
 eight blocked and zero fully verified. Certificate extraction moved to partial
 in PR #51, file lists in PR #53, strict/no-strict in PR #66 and ignore-resources
 in PR #68. The dependency/research phase changes no inventory status.

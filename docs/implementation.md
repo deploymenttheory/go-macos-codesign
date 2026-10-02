@@ -78,7 +78,7 @@ open. Merged PR #68's [`--ignore-resources` increment](ignore-resources.md) supp
 resource/nested verification while retaining integrity, trust, requirements and
 enabled structure. There are 385 portable cases and 11 Mac-only controls, plus
 four complete Apple bodies on two Clang targets. Only this option moves to partial;
-the inventory now has 31 partial, 49 unimplemented, eight blocked and zero verified.
+the inventory now has 32 partial, 48 unimplemented, eight blocked and zero verified.
 The next [dependency/research phase](sideband-policy.md) supplies strict APFS
 attribute APIs for Linux, macOS and Windows, eight complete Apple bodies and
 203 native verification controls. Required Windows operations replace the
