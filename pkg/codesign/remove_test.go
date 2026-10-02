@@ -164,8 +164,10 @@ func TestRemovalRejectsUnsafeRanges(t *testing.T) {
 			if err := os.WriteFile(path, b, 0600); err != nil {
 				t.Fatal(err)
 			}
-			if err := RemoveSignature(context.Background(), path); err == nil {
-				t.Fatal("path removal accepted")
+			// MH_OBJECT uses the generic attribute representation; its data
+			// is not rewritten. The byte-only Mach-O API still rejects it above.
+			if err := RemoveSignature(context.Background(), path); (err == nil) != (tc.name == "filetype") {
+				t.Fatal("unexpected path removal result", err)
 			}
 			got, err := os.ReadFile(path)
 			if err != nil || !bytes.Equal(got, before) {

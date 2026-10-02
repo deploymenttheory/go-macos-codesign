@@ -40,6 +40,17 @@ type PathOptions struct {
 	BundleVersion string
 }
 
+// RemoveOptions selects a bundle version and explicitly supplied metadata.
+// Generic files remove their signature attributes in place. AppleDouble inputs
+// supplement native attributes and must implement MutableAppleDouble when a
+// signature attribute is present. Bundle bindings follow VerifyOptions rules.
+// Mach-O signatures remain embedded; their attached metadata is not removed.
+type RemoveOptions struct {
+	BundleVersion    string
+	AppleDouble      appledouble.Value
+	AppleDoubleFiles map[string]appledouble.Value
+}
+
 // SignOptions controls the signed representation. A nil Identity requests ad-hoc signing.
 type SignOptions struct {
 	// BundleVersion has the same meaning as PathOptions.BundleVersion.
@@ -101,7 +112,7 @@ type SignOptions struct {
 	teamID    string
 }
 
-// MutableAppleDouble permits signing to remove a named attribute from an
+// MutableAppleDouble permits signing and removal to remove an attribute from an
 // explicit AppleDouble input. Each removal must preserve unrelated values,
 // update subsequent reads and report errors. The caller owns its lifetime.
 type MutableAppleDouble interface {

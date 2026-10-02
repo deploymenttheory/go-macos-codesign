@@ -71,14 +71,14 @@ func TestStandaloneAliasErrors(t *testing.T) {
 				t.Fatal(err)
 			}
 			ctx := context.Background()
-			for _, op := range []func() error{
+			for i, op := range []func() error{
 				func() error { return Sign(ctx, alias, SignOptions{}) },
 				func() error { return RemoveSignature(ctx, alias) },
 				func() error { _, err := Inspect(ctx, alias); return err },
 				func() error { _, err := Verify(ctx, alias, VerifyOptions{}); return err },
 			} {
-				if err := op(); err == nil {
-					t.Fatal("accepted invalid target")
+				if err := op(); (err == nil) != (kind == "malformed" && i == 1) {
+					t.Fatal("unexpected alias operation result", i, err)
 				}
 				if got, err := os.Readlink(alias); err != nil || got != destination {
 					t.Fatal("changed alias on failure", got, err)

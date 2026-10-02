@@ -280,4 +280,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("shallow-resource-isolation", func(t *testing.T) {
 		verifyImportedRemovalResources(t, dir, reference)
 	})
+	t.Run("generic-signatures", func(t *testing.T) {
+		verifyImportedGenericRemoval(t, dir, reference)
+	})
 }

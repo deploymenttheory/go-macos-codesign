@@ -62,6 +62,7 @@ those forms. Unindexed nonzero inter-slice padding is not preserved by the Go
 universal assembler. Dylinker/kext fixture cases mutate file types and do not
 claim acceptance of arbitrary real loaders or kernel extensions.
 
-Native-unsupported DMG removal remains unsupported. Detached/generic signatures,
-xattrs and exact error text are separate outstanding work. The compatibility
-inventory therefore keeps `--remove-signature` partial.
+Native-unsupported DMG removal remains unsupported. [Generic attached-signature
+removal](generic-removal.md) is now implemented separately, including explicit
+AppleDouble inputs. Detached signatures, full discovery and wider error/metadata
+behavior remain outstanding. The inventory keeps `--remove-signature` partial.

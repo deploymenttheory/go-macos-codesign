@@ -25,6 +25,11 @@ The [progress report](progress.md) identifies the exact tested revision and CI r
 | Formats | Embedded Mach-O signatures; bounded APPL/BNDL/XPC! Contents layouts and unversioned/multiple-version FMWK frameworks; main-executable inputs, explicit selection, direct version directories and alternate-version requirement checks; recursive bundle/Mach-O seals and relative resource symlinks; single-segment UDIF DMGs via go-apfs-v2 | Wider discovery and symlink/xattr policy, wider replacement metadata, encrypted/segmented images, streaming large images, detached and generic files |
 | Host state | Explicit unsupported errors | Hosting/PID verification, system detached database, keychain selection and non-exportable keys |
 
+[Generic attached-signature removal](generic-removal.md) additionally supports
+ordinary files, scripts and selected generic bundle executables, using native
+metadata plus explicit AppleDouble carriers on every host. Generic signing,
+verification, display and Info.plist fallback remain outstanding.
+
 ## Exact comparisons currently exercised
 
 The live macOS suite signs the same unsigned files using Apple and the compiled

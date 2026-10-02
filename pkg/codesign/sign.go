@@ -396,15 +396,26 @@ func updateLinkedit(out []byte, im *image, end int) {
 	}
 }
 
-// RemoveSignature removes embedded Mach-O and supported app-bundle signatures.
+// RemoveSignature removes embedded Mach-O, generic attached and supported
+// app-bundle signatures. Use Remove to supply explicit AppleDouble metadata.
 // Native codesign does not support removing a UDIF signature; that returns ErrUnsupported.
 func RemoveSignature(ctx context.Context, path string) error {
 	return RemoveSignatureWithOptions(ctx, path, PathOptions{})
 }
 
 // RemoveSignatureWithOptions removes only the selected version's signature.
-func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) (err error) {
+func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptions) error {
+	return Remove(ctx, path, RemoveOptions{BundleVersion: opts.BundleVersion})
+}
+
+// Remove removes the selected embedded or generic attached signature. Generic
+// removal preserves the data fork and hard links; completed attribute removals
+// survive later failures. Only explicit AppleDouble inputs are considered.
+func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	defer func() { err = signingIOError(err) }()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	path, bundle, err := resolveCodePath(path)
 	if err != nil {
 		return err
@@ -412,12 +423,30 @@ func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptio
 	if bundle {
 		return removeBundle(ctx, path, opts)
 	}
-	data, err := readFileWithAccess(path, true)
+	if opts.AppleDoubleFiles != nil {
+		return unsupported("standalone removal requires AppleDouble, not AppleDoubleFiles")
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	generic, err := genericRemovalCandidate(ctx, f)
+	if err != nil {
+		return err
+	}
+	if generic {
+		return removeGenericSignature(ctx, f, func() (*os.File, error) { return os.OpenFile(path, os.O_RDWR, 0) }, opts.AppleDouble)
+	}
+	data, err := readOpenFile(f, true)
 	if err != nil {
 		return err
 	}
 	out, err := RemoveSignatureBytes(ctx, data)
 	if err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
 		return err
 	}
 	return replaceFile(ctx, path, out)

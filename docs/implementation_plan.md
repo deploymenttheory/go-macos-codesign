@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-01 after codesign PR76 merged and APFS v0.15.1 was published. The upstream
+Status: updated 2026-10-02 after codesign PR77 merged. APFS remains at v0.15.1. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,13 +8,22 @@ codesign main pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`; macOS-pkg main adopts the same version. No local
 APFS replacement is used.
 
-**Current increment:** [shallow signature removal](signature-removal.md) on
-`feat/removal-security-boundaries`, cut from merged PR76 main. Removal no longer
-walks unrelated resources, nested code or unselected framework versions. It
-retains selected-layout validation, executable/platform-metadata preflight and
-the existing commit/cleanup boundary. Permission errors keep their API cause and
-use native CLI diagnostics. The increment adds 27 portable cases, 79 native
-comparisons and twenty mandatory foreign-produced removal archives.
+**Current increment:** [generic signature removal](generic-removal.md) on
+`feat/generic-signature-removal`, cut from PR77 main at
+`a5633fef987dac89e719749963ca625a982aa17c`. Attribute-backed signatures are removed
+in place, with writable-open authorization, canonical-slot-before-list ordering,
+partial-failure retention and explicit portable AppleDouble carriers. Supported
+bundle layouts can select a generic executable; resource traversal remains
+unnecessary. Native and portable acceptance, retained probe records, complete
+Clang AST bodies, cancellation/identity tests and mandatory foreign artifact
+comparisons qualify this bounded profile. Generic signing, verification and
+display remain unimplemented; Info.plist fallback is still the next discovery task.
+
+PR77's shallow removal phase passed Linux, macOS 27 and Windows 2025, native
+comparisons and all twenty added foreign removal archives. Codesign coverage was
+95.32%, 95.56% and 95.16%, respectively. Its 27 portable cases and 79 native
+comparisons remain mandatory. The passing run is
+[36934385188](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36934385188).
 
 PR75 qualified signing permissions with APFS v0.15.1. PR76 corrected final
 security-restoration order and passed all three producers, native comparisons,
@@ -28,8 +37,9 @@ discovery or Linux attribute-name remapping.
 inheritance using the SDK's existing ACL policy; discard old inherited source
 entries and preserve native ACE ordering. Wider probes also show native bundle
 removal can succeed without replacing code under readsecurity denial, while Go
-fails discovery. Implement the Info.plist-backed generic representation and its
-ordered signature-attribute removals. Denied metadata reads inside the signature
+fails discovery. The ordered generic attribute-removal writer is implemented in
+this increment; integrate Info.plist selection with exact CoreFoundation discovery
+and error ordering next. Denied metadata reads inside the signature
 directory also need a shared APFS enumeration primitive that preserves rooted
 containment and directory-entry types without eager per-entry stat calls.
 Deny-delete temporary-file names, contents and cleanup still differ (`.cstemp`
@@ -115,7 +125,7 @@ remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
 Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
 complete; merge and release remain maintainer gates.
 
-The current inventory retains 88 obligations: 30 partial, 50 not implemented,
+The current inventory retains 88 obligations: 31 partial, 49 not implemented,
 eight blocked and zero fully verified. Certificate extraction moved to partial
 in PR #51, file lists in PR #53, strict/no-strict in PR #66 and ignore-resources
 in PR #68. The dependency/research phase changes no inventory status.
@@ -1519,7 +1529,7 @@ plan. The work-package column maps every existing entry to remaining work.
 | `bundles` | partial | WP-02/WP-03/WP-04/WP-09/WP-21: layout, resources, metadata, requirements and limits |
 | `dmg` | partial | WP-17/WP-07/WP-13/WP-19: APFS-backed representations, digests, timestamps and ticket policy |
 | `hybrid-pqc` | not-implemented | WP-18: complete evidenced native algorithms, combined signatures and interchange |
-| `generic-files` | not-implemented | WP-16: native non-Mach-O/xattr representations |
+| `generic-files` | partial | WP-16: generic removal implemented; native signing, verification, display and broader discovery remain |
 | `legacy-formats` | not-implemented | WP-06/WP-07/WP-12: native-supported old architectures, digests and signature structures |
 | `live-process-verification` | blocked | WP-22: actual process/kernel state and dynamic validity |
 | `hardware-identities` | blocked | WP-22/WP-11/WP-18: access to the original non-exportable key/device/service |
@@ -2770,12 +2780,20 @@ Container encoding and lookup should live in dedicated new representation files.
 <a id="wp-16"></a>
 ## WP-16: Generic files, xattr signatures and representation dispatch
 
-**Starting point:** the current public workflows concentrate on Mach-O, supported
-bundles and supported UDIF images. Native generic-file signatures and wider
-representation selection remain unimplemented.
+**Starting point:** Mach-O, supported bundles and UDIF have existing workflows.
+[Generic removal](generic-removal.md) now removes attached signatures through
+APFS native metadata and explicit AppleDouble carriers on all three hosts.
+Eight complete Apple bodies, forty retained native probes, real permissions,
+large-file and foreign-artifact acceptance qualify its bounded removal contract.
+Generic signing, verification, display and broader representation selection
+(including Info.plist fallback) remain unimplemented.
 
 **Implementation tasks:**
 
+- [x] Implement ordered, in-place generic removal for ordinary files, scripts,
+  object files and selected generic bundle executables. Preserve unrelated
+  metadata, data forks and links; retain partial failures and require native
+  writable-open authorization. Support explicit mutable AppleDouble carriers.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
   files, scripts, recognized bundle layouts, disk images and any additional format
   actually accepted by the baseline. Record rejection as a valid native result.

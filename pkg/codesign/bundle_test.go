@@ -232,8 +232,11 @@ func TestBundleIOErrors(t *testing.T) {
 	if _, err := inspectBundle(ctx, app, PathOptions{}); err == nil {
 		t.Fatal("inspect malformed")
 	}
-	if err := removeBundle(ctx, app, PathOptions{}); err == nil {
-		t.Fatal("remove malformed")
+	if err := removeBundle(ctx, app, RemoveOptions{}); err != nil {
+		t.Fatal("generic removal", err)
+	}
+	if string(readTestFile(t, filepath.Join(app, b.executable))) != "not Mach-O" {
+		t.Fatal("generic removal changed data")
 	}
 	if err := os.Remove(filepath.Join(app, b.executable)); err != nil {
 		t.Fatal(err)
@@ -247,7 +250,7 @@ func TestBundleIOErrors(t *testing.T) {
 	if err := signBundle(ctx, app, SignOptions{}); err == nil {
 		t.Fatal("sign missing")
 	}
-	if err := removeBundle(ctx, app, PathOptions{}); err == nil {
+	if err := removeBundle(ctx, app, RemoveOptions{}); err == nil {
 		t.Fatal("remove missing")
 	}
 	if err := b.root.Close(); err != nil {

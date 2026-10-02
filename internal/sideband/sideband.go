@@ -1,4 +1,4 @@
-// Package sideband inspects inputs for codesign's disallowed attached data.
+// Package sideband handles codesign's disallowed data and attached signatures.
 // It owns policy only; native metadata and AppleDouble decoding belong to APFS.
 package sideband
 

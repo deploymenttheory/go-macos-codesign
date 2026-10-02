@@ -1,7 +1,9 @@
 # Signature removal
 
-`--remove-signature` removes the signature from the selected Mach-O executable
-and purges the selected bundle's signature directory. It does not construct or
+`--remove-signature` removes the signature from the selected executable and
+purges the selected bundle's signature directory. Mach-O signatures use executable
+replacement; [generic signatures](generic-removal.md) use attribute removal in
+place. It does not construct or
 validate a resource envelope. Resources, nested code and unselected framework
 versions do not need to be readable. `--deep` does not make removal recursive.
 This policy is shared by Linux, macOS and Windows.
@@ -66,8 +68,8 @@ This profile does not complete removal or filesystem parity:
   be selected under read-attribute or read-security denial. Probes show native
   removal then preserves the executable, removes `com.apple.cs.*` signature
   attributes from Info.plist and purges the envelope. Go still reports discovery
-  failure. Implement the generic representation and ordered attribute-removal
-  protocol across all hosts; do not treat arbitrary read failures as success.
+  failure. The generic attribute-removal protocol now exists on all hosts;
+  integrate this fallback without treating arbitrary read failures as success.
 - Denied metadata reads on entries **inside the signature directory** remain a
   gap. Native enumeration can use directory-entry types without the eager stat
   calls performed by Go's rooted directory reader. A shared filesystem primitive
@@ -75,7 +77,7 @@ This profile does not complete removal or filesystem parity:
 - Destination ACL inheritance and deny-delete temporary-file names, contents and
   cleanup need allocation-level qualification and shared SDK work. This phase
   does not change that writer contract.
-- Generic/xattr-backed code, detached signatures, additional filesystem and
+- Generic signing/verification/display, detached signatures, additional filesystem and
   authorization contexts, concurrent mutation and large streamed inputs remain
   in the [implementation plan](implementation_plan.md).
 
