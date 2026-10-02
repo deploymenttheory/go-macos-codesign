@@ -33,8 +33,9 @@ records are mandatory in Apple's import job. Eighteen additional live permission
 cases compare native removal with Go's native attributes and explicit carriers.
 Real Windows, Linux and Darwin authorization tests remain mandatory. Nonempty
 malformed metadata, broader key normalization, aliases and other operations
-remain gaps. This branch's full CI is pending; earlier green runs are not proof
-of these changes. See the [remaining PR estimates](implementation_plan.md) for
+remain gaps. [PR83](https://github.com/deploymenttheory/go-macos-codesign/pull/83)
+records this increment's validation results and current CI status; earlier green
+runs are not proof of these changes. See the [remaining PR estimates](implementation_plan.md) for
 the difference between this discovery profile and full parity.
 
 Merged [missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem

@@ -2861,17 +2861,19 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
 - [x] Qualify missing/zero-byte metadata and empty dictionaries in supported
   layouts, versioned-framework name arbitration, no-mutation bad-bundle errors,
   and portable/native/carrier outcomes with mandatory foreign imports.
-- [ ] Qualify nonempty malformed and platform-specific plists, duplicate-key
-  policy, legacy/shallow layouts, widgets, resource-root policies, `.dist`
-  discovery, executable-path aliases and dynamic-loader environment selection.
-  Platform selection now has fourteen retained native research probes covering
-  alternate filenames, executable-key overrides and real permission boundaries.
-  APFS v0.16.0 is adopted and its shared content reader replaces the duplicated
-  resource openers; replacement sources use its metadata reader. Platform plist
-  selection remains unimplemented, including distinct discovery authorization
-  versus content-acquisition failures. Follow the evidence and integration
-  sequence in [platform metadata research](removal-platform-metadata.md); data
-  acquisition must not request unrelated ACL/EA read rights on any host.
+- [x] Implement the bounded macOS platform-plist and executable-key profile on
+  all three hosts using published APFS v0.17.0. Preserve acquired-empty raw URLs,
+  ordinary acquisition fallback and distinct basic-attribute discovery errors.
+  Retain the original fourteen research cases, 33 three-layout native cases,
+  eighteen native permission comparisons and 66 mandatory foreign imports.
+  [PR83](https://github.com/deploymenttheory/go-macos-codesign/pull/83) records
+  validation and merge status; an implementation checkbox does not waive CI.
+- [ ] Qualify nonempty malformed and other plist encodings, duplicate-key policy,
+  broader platform/product key normalization, final plist aliases, legacy/shallow
+  layouts, widgets, resource-root policies, `.dist` discovery, executable-path
+  aliases and dynamic-loader environment selection. Extend the
+  [platform metadata contract](removal-platform-metadata.md) using native/Clang
+  evidence and require the same policy on every producer.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
   files, scripts, recognized bundle layouts, disk images and any additional format
   actually accepted by the baseline. Record rejection as a valid native result.
