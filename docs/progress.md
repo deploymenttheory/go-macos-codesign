@@ -21,6 +21,8 @@ adds 348 mandatory foreign records, extends Clang evidence to eight complete
 bodies and adds a twelfth fuzz target. Resource limits remain fatal and the
 strict signing/verification parser remains unchanged. This increment requires
 its own complete CI; broader encodings and grammar remain explicit gaps.
+[PR84](https://github.com/deploymenttheory/go-macos-codesign/pull/84) records its
+validation results and current CI/merge status.
 
 ### Merged platform-plist profile
 
