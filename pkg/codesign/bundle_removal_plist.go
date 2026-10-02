@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
-	"unicode/utf8"
 
 	"howett.net/plist"
 )
@@ -43,9 +42,9 @@ func decodeRemovalPlist(data []byte) (map[string]any, error) {
 	if bytes.HasPrefix(data, []byte("bplist")) {
 		values, err = decodeBinaryBundlePlistMode(data, true)
 	} else {
-		data = bytes.TrimPrefix(data, []byte{0xef, 0xbb, 0xbf})
-		if !utf8.Valid(data) || bytes.IndexByte(data, 0) >= 0 {
-			return nil, unsupported("removal plist text encoding")
+		data, err = removalPlistText(data)
+		if err != nil {
+			return nil, err
 		}
 		text := bytes.TrimSpace(data)
 		if len(text) > 0 && text[0] == '<' {

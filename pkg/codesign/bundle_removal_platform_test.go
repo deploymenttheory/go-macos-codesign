@@ -143,7 +143,7 @@ func TestRemovalPlatformBoundaries(t *testing.T) {
 					t.Fatal(err)
 				}
 			case "unsupported-encoding":
-				bundleFile(t, app, "Contents/Info-macos.plist", []byte{0xff, 0xfe, '<', 0})
+				bundleFile(t, app, "Contents/Info-macos.plist", []byte{0xff, 0xfe, 0, 0, '<', 0, 0, 0})
 			case "oversized":
 				bundleFile(t, app, "Contents/Info-macos.plist", make([]byte, maxBundlePlist+1))
 			case "escape":

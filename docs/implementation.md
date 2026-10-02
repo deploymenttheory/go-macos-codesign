@@ -4,7 +4,10 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR83 with APFS v0.17.0.
+Current work continues after merged PR84 with APFS v0.17.0.
+The [BOM-marked UTF-16 profile](removal-plist-encodings.md) adds 120 native cases
+and 240 mandatory foreign records for both byte orders, native prefix conversion
+and declaration precedence. Unmarked UTF-16 and other codecs remain outstanding.
 Shared readers and rooted basic entry-type queries implement platform-specific
 plist selection for removal on all three hosts. The
 [discovery contract](removal-platform-metadata.md) records its 33-case corpus,

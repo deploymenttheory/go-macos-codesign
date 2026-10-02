@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Interpret BOM-marked UTF-16LE/BE XML and OpenStep metadata during removal on
+  all hosts, preserving native conversion-prefix behavior and original bytes.
+  Add 120 native cases, 240 required foreign imports, decoded-size safeguards
+  and complete Apple encoding-detection Clang evidence. Retain strict parsers
+  and explicit errors for unqualified encodings and grammar.
+
 - Interpret bounded XML, OpenStep and binary metadata during signature removal
   on every host. Retain the selected raw plist on syntax/non-dictionary failure,
   use last duplicate keys for XML/OpenStep and first keys for binary dictionaries,

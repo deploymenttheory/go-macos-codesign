@@ -292,4 +292,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("plist-interpretation", func(t *testing.T) {
 		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-interpretation.json", 180), "plist-interpretation-")
 	})
+	t.Run("plist-encodings", func(t *testing.T) {
+		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-encodings.json", 120), "plist-encodings-")
+	})
 }
