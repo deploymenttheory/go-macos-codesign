@@ -52,6 +52,7 @@ func main() {
 	dictionarySource := read(".research/apple/CFDictionary.c")
 	plistSource := read(".research/apple/CFPropertyList.c")
 	unicodeSource := read(".research/apple/CFUniChar.h")
+	oldStyleSource := read(".research/apple/CFOldStylePList.c")
 	names := []string{"_urlExists", "_binaryLoadable", "_CFBundleCopyExecutableName", "_CFBundleCopyInfoDictionaryInDirectoryWithVersion", "CFBundleGetInfoDictionary", "_CFBundleCopyInfoPlistURL"}
 	unit := `#include <CoreFoundation/CoreFoundation.h>
 #define DEPLOYMENT_TARGET_EMBEDDED 0
@@ -155,6 +156,41 @@ extern const char *CFXMLPlistTags[];
 		hashes[name] = hash(body)
 		names = append(names, name)
 	}
+
+	unit += `
+void initStatics(void);
+Boolean __CFTryParseBinaryPlist(CFAllocatorRef,CFDataRef,CFOptionFlags,CFTypeRef *,CFErrorRef *);
+Boolean _CFPropertyListCreateFromUTF8Data(CFAllocatorRef,CFDataRef,CFIndex,CFStringRef,CFStringEncoding,CFOptionFlags,CFErrorRef *,Boolean,CFPropertyListFormat *,CFSetRef,CFTypeRef *);
+`
+	for _, name := range []string{"_createUTF8DataFromString", "_CFPropertyListCreateWithData"} {
+		body := regexp.MustCompile(`(?ms)^static (?:CFDataRef|Boolean) ` + name + `\(.*?^}`).Find(plistSource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
+	unit += `
+typedef struct { const UniChar *curr, *end; CFErrorRef error; } _CFStringsFileParseInfo;
+Boolean advanceToNonSpace(_CFStringsFileParseInfo *);
+CFTypeRef parsePlistDict(_CFStringsFileParseInfo *),parsePlistArray(_CFStringsFileParseInfo *),parsePlistData(_CFStringsFileParseInfo *);
+CFStringRef parseQuotedPlistString(_CFStringsFileParseInfo *,UniChar),parseUnquotedPlistString(_CFStringsFileParseInfo *);
+CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
+`
+	predicate := regexp.MustCompile(`(?m)^#define isValidUnquotedStringCharacter.*$`).Find(oldStyleSource)
+	if len(predicate) == 0 {
+		panic("unquoted predicate")
+	}
+	unit += string(predicate) + "\n"
+	// Anchor the definition rather than the earlier forward declaration.
+	body := regexp.MustCompile(`(?ms)^static CFTypeRef parsePlistObject\([^;\n]+\) \{.*?^}`).Find(oldStyleSource)
+	if len(body) == 0 {
+		panic("parsePlistObject")
+	}
+	unit += string(body) + "\n"
+	hashes["parsePlistObject"] = hash(body)
+	names = append(names, "parsePlistObject")
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -188,9 +224,12 @@ extern const char *CFXMLPlistTags[];
 	result["plist_source_sha256"] = hash(plistSource)
 	result["unicode_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h"
 	result["unicode_source_sha256"] = hash(unicodeSource)
-	result["scope"] = "Fifteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. Broader parser encodings/types remain open."
+	result["old_style_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFOldStylePList.c"
+	result["old_style_source_sha256"] = hash(oldStyleSource)
+	result["unquoted_predicate_sha256"] = hash(predicate)
+	result["scope"] = "Eighteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted fifteen discovery bodies for two targets")
+	fmt.Println("extracted eighteen discovery bodies for two targets")
 }

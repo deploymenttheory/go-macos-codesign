@@ -33,8 +33,9 @@ authorizing fallback to a different removal target.
 
 The [pure-Go converter](../pkg/codesign/bundle_removal_encoding.go) runs before
 the existing bounded interpreter. It has no host-dependent path or native
-binding. The [XML character interpreter](removal-xml-characters.md) now handles
-NUL, controls and noncharacters in strings/keys. Unmarked UTF-16/32, legacy
+binding. The [unmarked encoding phase](removal-unmarked-plists.md) adds the
+native leading-zero heuristic and parser-selection contract. The [XML character interpreter](removal-xml-characters.md) now handles
+NUL, controls and noncharacters in strings/keys. Declared legacy
 codecs and unqualified character contexts remain explicit errors. The platform loader's unsupported-input
 cleanup test uses a declared legacy encoding; UTF-16/32 success and malformed
 interpretation have their own native replay tests. UTF-32 never expands beyond
@@ -46,8 +47,8 @@ its encoded input size, but retains the same input and structural limits.
 detects a BOM before a declaration and converts non-UTF-8 input before parsing.
 Its `encodingForXMLData` body is retained through the
 [Clang extraction](../scripts/extract-removal-discovery.go), bringing the evidence
-to fifteen complete bodies on both Darwin targets, including the subsequent
-string, CDATA and entity extraction. Error-construction and existing
+to eighteen complete bodies on both Darwin targets, including the subsequent
+string/entity and unmarked conversion/dispatch extraction. Error-construction and existing
 private interfaces use declarations; the complete encoding decision body is
 compiled against the host SDK. Current native results, rather than historical
 source alone, establish the supported behavior.
@@ -88,11 +89,11 @@ lint and six GoReleaser build gates remain unchanged.
 
 ## Outstanding work
 
-- Unmarked UTF-16 needs separate XML/OpenStep qualification. Exploratory native
-  probes accepted little-endian OpenStep but did not select executable keys for
-  the equivalent XML or big-endian OpenStep. Those observations are not an
-  implemented portable contract and must not be generalized into BOM detection.
-- Unmarked UTF-32 and declared legacy encodings need native corpora and bounded codecs.
+- [Unmarked UTF-16/32 interpretation](removal-unmarked-plists.md) is now
+  qualified with 408 native cases. A leading zero selects little-endian UTF-16
+  after discarding two bytes; standard unmarked UTF-32 is not guessed as UTF-32.
+- Declared legacy encodings and invalid-byte conversion need native corpora and
+  bounded codecs; remaining OpenStep NUL contexts retain explicit errors.
 - XML string/key controls, U+FFFE/U+FFFF and NUL are implemented in the
   [character phase](removal-xml-characters.md). Unqualified contexts outside
   strings/keys and OpenStep NUL still require native evidence and implementation.

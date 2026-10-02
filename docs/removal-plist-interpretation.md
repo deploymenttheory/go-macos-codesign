@@ -63,7 +63,7 @@ Tests that previously required removal to reject invalid metadata now assert the
 measured raw-plist selection and unchanged executable/data, while retaining the
 original signing/verification rejection and preservation assertions.
 
-The [Clang extraction](../scripts/extract-removal-discovery.go) now records fifteen
+The [Clang extraction](../scripts/extract-removal-discovery.go) now records eighteen
 complete Apple function bodies for both Mac architectures. The bundle loader
 shows invalid/non-dictionary empty synthesis and raw-URL retention. Complete
 `CFDictionaryAddValue` and `CFDictionarySetValue` bodies retain distinct hash
@@ -82,7 +82,7 @@ required. See [progress](progress.md) for the implementation PR and validation.
 
 ## Remaining differences
 
-- Unmarked UTF-16/32 and other text encodings, wider XML grammar/scalar/DTD/entity behavior,
+- Declared legacy text encodings, wider XML grammar/scalar/DTD/entity behavior,
   legacy text corner cases and unsupported binary object types/large integers
   still require native qualification and implementation. This is a captured
   interpretation profile, not a complete CoreFoundation parser replacement.
@@ -102,3 +102,7 @@ required. See [progress](progress.md) for the implementation PR and validation.
 The [XML character phase](removal-xml-characters.md) extends removal strings/keys
 with native controls, NUL, noncharacters, line endings and CDATA/entity behavior.
 Its 228 API/CLI cases and 38 value observations retain all earlier profiles.
+
+The [unmarked phase](removal-unmarked-plists.md) qualifies native leading-zero
+detection and explicit OpenStep dispatch, adding 408 cases without weakening
+resource bounds or allowing a second codec guess.

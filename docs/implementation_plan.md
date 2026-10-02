@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR86 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-02 after codesign PR87 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,17 +8,24 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [XML characters during removal](removal-xml-characters.md)
-on `feat/removal-xml-characters`, cut from PR86 main at
-`db5a89a67f9f35d2f6d58588f648895b2dea0882`. Pure-Go interpretation preserves
-NUL, controls, noncharacters and original line endings in strings/keys; CDATA and
-entity composition follow current native observations. The new 192-case corpus
-and promoted 36-case UTF-32 grammar corpus require 456 additional foreign results.
-Thirty-eight native value observations verify full key/string fidelity, while
-Clang retains fifteen complete Apple bodies on both Darwin targets. Historical
-16-bit entity behavior is distinguished from current Unicode scalar behavior.
-All limits, strict parsers, native captures and existing CI gates remain required.
-Unmarked/legacy codecs and broader markup/scalar/discovery behavior remain open.
+**Current increment:** [unmarked removal encodings](removal-unmarked-plists.md)
+on `feat/removal-unmarked-plists`, cut from PR87 main at
+`f65572d61b9d9459c6c83a31c1478710d1a280cb`. The pure-Go converter implements
+native leading-zero detection, discards the first unit and uses little-endian
+UTF-16 on every host. OpenStep interpretation cannot be silently replaced by a
+second XML/codec guess. The 408-case corpus requires 816 additional foreign
+results; full native value observations increase to 106, and Clang retains
+eighteen complete bodies. All limits, strict parsers and CI gates remain required.
+Declared legacy codecs, remaining NUL contexts and broader grammar remain open.
+
+**Merged XML character increment:** PR87 implemented the retained controls,
+NUL/noncharacters, line endings and CDATA/entity profile. Its 192 new cases plus
+36 promoted grammar cases required 456 foreign results; 38 native value
+observations and fifteen complete Apple bodies qualified that increment.
+[Final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37068263784):
+codesign coverage 95.26% Linux, 95.67% macOS, 95.21% Windows. All 765 source
+hashes matched each actual OS checkout, and all required foreign records were
+present. The mandatory native value drift gate and earlier profiles remain intact.
 
 **Merged UTF-32 increment:** PR86 qualified BOM-marked UTF-32LE/BE using 276
 native cases and 552 foreign results. Its [final CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37061814256)
@@ -36,8 +43,8 @@ metadata and enforces a separate decoded-size ceiling. Native prefix behavior,
 declaration precedence and malformed cases have 120 retained observations and
 240 mandatory foreign imports. Nine complete Apple bodies have Clang evidence.
 All existing strict coverage and acceptance gates remain required. Unmarked
-UTF-16, unmarked UTF-32, legacy encodings and broader parser work remain
-prerequisites for complete encoding parity. XML string NUL is implemented above.
+UTF-16/32 detection is now qualified above. Legacy encodings, remaining NUL
+contexts and broader parser work remain prerequisites for complete encoding parity.
 
 **Merged interpretation increment:** [removal plist interpretation](removal-plist-interpretation.md)
 on `feat/removal-plist-interpretation`, cut from PR83 main at
@@ -2925,8 +2932,12 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   NUL inside strings). Add 192 native key/string/entity/CDATA cases, 38 native
   value observations and 456 mandatory foreign records. Preserve accepted
   OpenStep controls, ignored XML suffixes and fatal resource/representation limits.
-- [ ] Qualify unmarked UTF-16/32, legacy declared encodings and remaining NUL
-  contexts before extending the portable decoder; retain explicit errors meanwhile.
+- [x] Qualify native unmarked UTF-16/32 interpretation: zero-byte heuristic,
+  discarded unit, fixed little-endian policy, short/partial/surrogate boundaries
+  and secondary parser/codec prevention. Retain 408 API/CLI cases, 816 foreign
+  records, 106 total native value observations and all resource/strict-parser gates.
+- [ ] Qualify legacy declared encodings, invalid-byte conversion and remaining
+  NUL contexts before extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow
   layouts, widgets, resource-root policies, `.dist` discovery, executable-path

@@ -7,7 +7,7 @@ import (
 	"unicode/utf8"
 )
 
-// A BOM selects the text codec before CoreFoundation inspects XML declarations.
+// A BOM or the native unmarked heuristic selects the codec before declarations.
 // Convert only for interpretation: the acquired plist and its raw URL stay intact.
 func removalPlistText(data []byte) ([]byte, error) {
 	var order binary.ByteOrder
@@ -21,6 +21,11 @@ func removalPlistText(data []byte) ([]byte, error) {
 		order = binary.LittleEndian
 	case bytes.HasPrefix(data, []byte{0xfe, 0xff}):
 		order = binary.BigEndian
+	case len(data) > 2 && (data[0] == 0 || data[1] == 0):
+		// Apple's unmarked heuristic skips one code unit and uses native UTF-16.
+		// Both supported Mac architectures are little-endian, independent of the
+		// producer host. This is deliberately not a UTF-32 or byte-order guess.
+		order = binary.LittleEndian
 	}
 	if order != nil {
 		var converted []byte
@@ -51,7 +56,7 @@ func removalPlistText(data []byte) ([]byte, error) {
 			converted = utf8.AppendRune(converted, r)
 		}
 		data = converted
-		// The native parser skips the declaration after BOM-based conversion.
+		// The native parser skips the declaration after wide-character conversion.
 		// Remove it from the interpretation buffer so encoding/xml does not
 		// attempt to select the declared codec for already converted UTF-8.
 		if bytes.HasPrefix(data, []byte("<?xml")) {
@@ -62,10 +67,18 @@ func removalPlistText(data []byte) ([]byte, error) {
 	} else {
 		data = bytes.TrimPrefix(data, []byte{0xef, 0xbb, 0xbf})
 	}
-	if bytes.HasPrefix(data, []byte{'<', 0}) {
-		return nil, unsupported("unmarked removal plist encoding")
+
+	if !utf8.Valid(data) {
+		return nil, unsupported("removal plist text encoding")
 	}
-	if !utf8.Valid(data) || (bytes.IndexByte(data, 0) >= 0 && !bytes.HasPrefix(bytes.TrimSpace(data), []byte("<"))) {
+	text := bytes.TrimSpace(data)
+	if bytes.IndexByte(data, 0) >= 0 && !bytes.HasPrefix(text, []byte("<")) {
+		// Known invalid initial objects and tiny inputs still go through resource
+		// preflight before dictionary interpretation. Other NUL contexts remain
+		// explicit representation limits until separately qualified.
+		if len(data) <= 2 || !removalTextStart(text) {
+			return data, nil
+		}
 		return nil, unsupported("removal plist text encoding")
 	}
 	return data, nil

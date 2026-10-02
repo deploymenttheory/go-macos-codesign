@@ -4,7 +4,11 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR86 with APFS v0.17.0.
+Current work continues after merged PR87 with APFS v0.17.0.
+The [unmarked encoding phase](removal-unmarked-plists.md) adds 408 native cases
+and 816 mandatory foreign results for native prefix removal and byte order,
+while preventing secondary XML/codec guesses. Full native value observations
+increase to 106; all prior profiles and strict coverage gates remain required.
 The [BOM-marked UTF-32 profile](removal-plist-encodings.md) adds 276 native cases
 and 552 mandatory foreign records for strict scalar validation and trailing-unit
 handling on all three hosts, retaining size/complexity limits and strict parsers.
@@ -14,7 +18,7 @@ character cases and adds 192 selection cases, 38 complete value observations and
 line endings and native CDATA/entity composition. Broader grammar remains open.
 The [BOM-marked UTF-16 profile](removal-plist-encodings.md) adds 120 native cases
 and 240 mandatory foreign records for both byte orders, native prefix conversion
-and declaration precedence. Unmarked UTF-16 and other codecs remain outstanding.
+and declaration precedence. Declared legacy codecs and wider grammar remain outstanding.
 Shared readers and rooted basic entry-type queries implement platform-specific
 plist selection for removal on all three hosts. The
 [discovery contract](removal-platform-metadata.md) records its 33-case corpus,

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Interpret unmarked wide-character removal metadata using macOS's leading-zero
+  heuristic and discarded-unit rule on every host. Prevent secondary XML/codec
+  detection from changing the selected file. Add 408 native cases, 816 mandatory
+  foreign results, 68 additional full native value observations and three complete
+  Apple conversion/dispatch bodies; retain all limits and previous test gates.
+
 - Preserve native XML strings and keys during removal on every host, including
   NUL, controls, noncharacters, original line endings and CDATA/entity behavior.
   Add 192 native cases, promote 36 UTF-32 character cases to API/CLI parity,

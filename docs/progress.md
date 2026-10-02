@@ -8,22 +8,33 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR86 is merged at `db5a89a67f9f35d2f6d58588f648895b2dea0882` after
-[all applicable CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37061814256).
-Audited codesign coverage was 95.20% Linux, 95.62% macOS and 95.15% Windows.
-All 760 source hashes matched each OS checkout. All 552 UTF-32 foreign records
-matched fresh native operations; the earlier UTF-16/parser profiles remain required.
+PR87 is merged at `f65572d61b9d9459c6c83a31c1478710d1a280cb` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37068263784).
+Audited codesign coverage was 95.26% Linux, 95.67% macOS and 95.21% Windows.
+All 765 source hashes matched each OS checkout; all 456 new character foreign
+results matched fresh native operations, with every earlier profile retained.
 
-`feat/removal-xml-characters` starts from that main and retains APFS v0.17.0.
-The [XML character phase](removal-xml-characters.md) preserves native string/key
-characters, line endings, CDATA and entity interpretation on every host. It adds
-192 native selection cases and promotes the existing 36 UTF-32 grammar cases to
-API/CLI parity tests: 456 additional foreign records are mandatory. Thirty-eight
-native value observations check full character/key fidelity. Clang evidence now
-contains fifteen complete Apple bodies for both Darwin targets.
+`feat/removal-unmarked-plists` starts from that main and retains APFS v0.17.0.
+The [unmarked encoding phase](removal-unmarked-plists.md) implements the native
+zero-byte heuristic, discarded leading unit and fixed little-endian interpretation
+on every host. It prevents secondary codec/XML detection from changing a removal
+target. The 408-case native corpus requires 816 additional foreign results;
+complete native value observations increase from 38 to 106. Clang evidence now
+contains eighteen complete Apple bodies for both Darwin targets.
 All resource bounds, strict parsers and previous tests remain mandatory. This
-branch requires its own complete CI; PR86's run does not validate these changes.
-Unmarked/legacy codecs and wider markup/scalar/discovery behavior remain open.
+branch requires its own complete CI; PR87's run does not validate these changes.
+Legacy codecs, remaining NUL contexts and wider grammar/discovery behavior remain open.
+
+### Merged XML character profile
+
+PR86 merged at `db5a89a67f9f35d2f6d58588f648895b2dea0882` after
+[all applicable CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37061814256).
+Audited codesign coverage was 95.20% Linux, 95.62% macOS and 95.15% Windows;
+all 760 source hashes and 552 UTF-32 foreign results matched.
+PR87 then implemented native strings/keys, line endings, CDATA and entities:
+192 new cases plus 36 promoted grammar cases, 456 foreign results, 38 full value
+observations and fifteen complete Apple bodies. Its required native value drift
+check, limits and all earlier acceptance remain part of the current harness.
 
 ### Merged UTF-32 profile
 

@@ -69,6 +69,10 @@ func TestRemovalXMLGrammar(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-utf32-grammar.json", 36), "plist-xml-grammar-")
 }
 
+func TestRemovalPlistUnmarked(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-unmarked.json", 408), "plist-unmarked-")
+}
+
 func checkRemovalPlistCases(t *testing.T, cases []emptyInfoCase, prefix string) {
 	t.Helper()
 	for _, tc := range cases {
