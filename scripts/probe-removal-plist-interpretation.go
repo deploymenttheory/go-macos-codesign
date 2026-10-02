@@ -196,6 +196,7 @@ func inputs() []input {
 		{"binary-dict", map[string]any{"CFBundleExecutable": "second"}, true},
 		{"binary-array", []any{"first"}, false}, {"binary-string", "first", false},
 		{"binary-uid", map[string]any{"CFBundleExecutable": "second", "Ignored": plist.UID(1)}, true},
+		{"binary-uid-overflow", map[string]any{"CFBundleExecutable": "second", "Ignored": plist.UID(1 << 32)}, false},
 	} {
 		b, e := plist.Marshal(item.value, plist.BinaryFormat)
 		must(e)

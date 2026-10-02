@@ -20,6 +20,15 @@ func plistLimit(reason string) error {
 	return &bundlePlistLimitError{malformed("bundle plist %s limit", reason)}
 }
 
+// The strict parser predates permissive removal. Some of its rejections are
+// representation limits rather than proof that Apple's parser returns no dict.
+func plistRestriction(removal bool, reason string) error {
+	if removal {
+		return unsupported(reason)
+	}
+	return malformed("%s", reason)
+}
+
 // Removal keeps the acquired raw URL when native dictionary interpretation
 // fails. It must still distinguish unsupported formats and resource limits.
 func decodeRemovalPlist(data []byte) (map[string]any, error) {

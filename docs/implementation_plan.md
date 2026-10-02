@@ -15,7 +15,7 @@ binary dictionaries now have removal-specific interpretation: invalid/non-dict
 metadata retains its raw URL, XML/OpenStep duplicates keep the last value and
 binary duplicates keep the first. Unsupported formats and resource limits remain
 fatal; signing/display/verification retain their strict parser. The native corpus
-contains 174 cases across both plist locations and three layouts, adding 348
+contains 180 cases across both plist locations and three layouts, adding 360
 mandatory foreign imports. Eight complete Apple bodies have two-target Clang
 evidence, and a twelfth fuzz target exercises the decoder. Complete final-head CI
 is required before merge; wider encodings, grammar and object types remain open.
@@ -2882,7 +2882,7 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   validation and merge status; an implementation checkbox does not waive CI.
 - [x] Qualify bounded XML/OpenStep/binary removal interpretation, captured invalid
   and non-dictionary raw-plist fallback, XML/OpenStep last-duplicate and binary
-  first-duplicate semantics. Retain 174 native cases and 348 mandatory foreign
+  first-duplicate semantics. Retain 180 native cases and 360 mandatory foreign
   imports; keep resource bounds fatal and strict signing/verification parsing.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow

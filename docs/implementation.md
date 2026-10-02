@@ -11,7 +11,7 @@ plist selection for removal on all three hosts. The
 18 native permission cases and remaining parsing/normalization/alias gaps.
 The [removal plist interpreter](removal-plist-interpretation.md) now qualifies
 bounded XML/OpenStep/binary input, invalid/non-dictionary fallback and duplicate
-order through 174 native cases and 348 mandatory foreign imports. Unsupported
+order through 180 native cases and 360 mandatory foreign imports. Unsupported
 encodings/types and resource limits remain explicit; strict parsers are retained.
 Merged [missing/empty removal metadata](removal-empty-metadata.md) includes native
 executable-name selection and no-mutation errors. Supported layouts fall

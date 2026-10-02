@@ -2,14 +2,16 @@ package codesign
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
 func TestRemovalPlistNativeReplay(t *testing.T) {
-	states := []string{"xml-valid", "xml-duplicate", "xml-no-wrapper", "xml-trailing", "xml-second-root", "xml-array", "xml-string", "xml-broken", "xml-unknown", "xml-integer-overflow", "xml-missing-value", "openstep", "openstep-duplicate", "openstep-comments", "openstep-no-semicolon", "openstep-trailing", "openstep-array", "openstep-strings", "openstep-escape", "openstep-unicode", "random", "spaces", "binary-truncated", "binary-dict", "binary-array", "binary-string", "binary-uid", "binary-duplicate", "binary-cycle"}
+	states := []string{"xml-valid", "xml-duplicate", "xml-no-wrapper", "xml-trailing", "xml-second-root", "xml-array", "xml-string", "xml-broken", "xml-unknown", "xml-integer-overflow", "xml-missing-value", "openstep", "openstep-duplicate", "openstep-comments", "openstep-no-semicolon", "openstep-trailing", "openstep-array", "openstep-strings", "openstep-escape", "openstep-unicode", "random", "spaces", "binary-truncated", "binary-dict", "binary-array", "binary-string", "binary-uid", "binary-duplicate", "binary-cycle", "binary-uid-overflow"}
 	wanted := map[string]bool{}
 	for _, shape := range []string{"app", "flat-framework", "framework"} {
 		for _, location := range []string{"ordinary", "platform"} {
@@ -91,4 +93,45 @@ func FuzzRemovalPlist(f *testing.F) {
 		}
 		_, _ = decodeRemovalPlist(data)
 	})
+}
+
+func TestRemovalPlistRestrictionsDoNotRedirect(t *testing.T) {
+	wideOffset := rawBundlePlist([][]byte{{0xd1, 1, 2}, {0x51, 'k'}, {9}}, 16, 1)
+	wideDict := make([]byte, 33)
+	wideDict[0], wideDict[16], wideDict[32] = 0xd1, 1, 2
+	wideReference := rawBundlePlist([][]byte{wideDict, {0x51, 'k'}, {9}}, 1, 16)
+	for name, data := range map[string][]byte{
+		"offset-width": wideOffset, "reference-width": wideReference,
+		"length-width":   scalarBundlePlist(append([]byte{0x4f, 0x14}, make([]byte, 16)...)),
+		"date-range":     scalarBundlePlist([]byte{0x33, 0x7f, 0xf0, 0, 0, 0, 0, 0, 0}),
+		"surrogate":      scalarBundlePlist([]byte{0x61, 0xdc, 0}),
+		"non-string-key": rawBundlePlist([][]byte{{0xd1, 1, 2}, {9}, {0x51, 'v'}}, 1, 1),
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
+				t.Fatal("restriction became fallback", err)
+			}
+			if _, err := decodeBundlePlist(data); !errors.Is(err, ErrFormat) {
+				t.Fatal("strict rejection changed", err)
+			}
+			app := testBundle(t)
+			main := readTestFile(t, filepath.Join(app, "Contents/MacOS/hello"))
+			bundleFile(t, app, "Contents/Info.plist", data)
+			bundleFile(t, app, bundleResourcesPath, []byte("unchanged envelope"))
+			if err := RemoveSignature(context.Background(), app); !errors.Is(err, ErrUnsupported) {
+				t.Fatal("restriction authorized removal", err)
+			}
+			if !bytes.Equal(main, readTestFile(t, filepath.Join(app, "Contents/MacOS/hello"))) || !bytes.Equal(data, readTestFile(t, filepath.Join(app, "Contents/Info.plist"))) || string(readTestFile(t, filepath.Join(app, bundleResourcesPath))) != "unchanged envelope" {
+				t.Fatal("restriction mutated bundle")
+			}
+		})
+	}
+	// A native frame can contain an unused header offset. Reject the unqualified
+	// profile explicitly instead of losing a valid dictionary's executable name.
+	unusedHeader := rawBundlePlist([][]byte{{0xd1, 1, 2}, {0x51, 'k'}, {9}, {9}}, 1, 1)
+	table := int(binary.BigEndian.Uint64(unusedHeader[len(unusedHeader)-8:]))
+	unusedHeader[table+3] = 0
+	if _, err := decodeRemovalPlist(unusedHeader); !errors.Is(err, ErrUnsupported) {
+		t.Fatal("unused entry became fallback", err)
+	}
 }

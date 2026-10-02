@@ -50,7 +50,7 @@ func TestRemovalPlatformInfo(t *testing.T) {
 }
 
 func TestRemovalPlistInterpretation(t *testing.T) {
-	checkRemovalPlistCases(t, removalPlistCases(t, "plist-interpretation.json", 174), "plist-interpretation-")
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-interpretation.json", 180), "plist-interpretation-")
 }
 
 func checkRemovalPlistCases(t *testing.T, cases []emptyInfoCase, prefix string) {

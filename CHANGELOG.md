@@ -6,7 +6,7 @@
   on every host. Retain the selected raw plist on syntax/non-dictionary failure,
   use last duplicate keys for XML/OpenStep and first keys for binary dictionaries,
   and preserve fatal resource bounds and strict signing/verification parsing.
-  Add 174 native cases, 348 mandatory foreign comparisons, two complete Apple
+  Add 180 native cases, 360 mandatory foreign comparisons, two complete Apple
   dictionary bodies to the Clang evidence and a dedicated parser fuzz target.
 
 - Adopt published APFS v0.17.0 and implement macOS platform-plist selection for

@@ -25,6 +25,7 @@ ordinary-plist retry. Selected executable read/format failures remain fatal.
 | OpenStep duplicate keys | Last value wins |
 | Binary dictionary duplicate keys | First value wins |
 | Binary UID in unrelated metadata | Retain its non-string character; it is not an executable name |
+| Binary UID beyond the native 32-bit range | Invalid dictionary; retain the raw plist URL |
 | Captured syntax errors, truncated/cyclic binary input or non-dictionary roots | Supply no executable keys and retain the raw plist URL |
 | Byte, nesting, object-count or expanded-graph limits exceeded | Fail before mutation; never reinterpret an operational limit as an empty dictionary |
 
@@ -43,7 +44,7 @@ binding, subprocess or new SDK primitive.
 ## Evidence and required tests
 
 The [Go capture script](../scripts/probe-removal-plist-interpretation.go) records
-[174 native cases](../testdata/bundle-removal/plist-interpretation.json): 29 inputs,
+[180 native cases](../testdata/bundle-removal/plist-interpretation.json): 30 inputs,
 ordinary/platform locations and Contents app, flat-framework and versioned-
 framework layouts. Expected selection is asserted independently against native
 `codesign`. Each record retains input bytes, links, status/output, selected file,
@@ -53,7 +54,7 @@ signature attributes and never access a personal signing identity or keychain.
 
 Every case replays through the Go API and production CLI on all three hosts.
 Mac acceptance also compares native attributes and explicit AppleDouble carriers
-with fresh Apple operations. The unchanged import job requires **348 new foreign
+with fresh Apple operations. The unchanged import job requires **360 new foreign
 records**, two producers per native case, in addition to every previous import.
 Resource-limit, unsupported-encoding and strict-parser tests remain mandatory.
 Tests that previously required removal to reject invalid metadata now assert the
@@ -83,6 +84,10 @@ required. See [progress](progress.md) for the implementation PR and validation.
   legacy text corner cases and unsupported binary object types/large integers
   still require native qualification and implementation. This is a captured
   interpretation profile, not a complete CoreFoundation parser replacement.
+- Binary address/length widths beyond eight bytes, unused header references,
+  non-string dictionary keys, unpaired UTF-16 and out-of-range dates remain
+  explicit representation errors. These strict-reader restrictions are not
+  treated as evidence that the native dictionary is empty.
 - Product/platform key normalization beyond the qualified executable override,
   plist aliases, case/Unicode discovery, other layouts and concurrent mutation
   retain their roadmap obligations.

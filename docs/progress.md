@@ -16,8 +16,8 @@ all 66 platform-selection foreign records matched Apple. The next branch,
 
 The [plist interpretation phase](removal-plist-interpretation.md) adds bounded
 XML/OpenStep/binary removal semantics, including raw-plist fallback after parse
-failure and format-specific duplicate-key order. It retains 174 native cases,
-adds 348 mandatory foreign records, extends Clang evidence to eight complete
+failure and format-specific duplicate-key order. It retains 180 native cases,
+adds 360 mandatory foreign records, extends Clang evidence to eight complete
 bodies and adds a twelfth fuzz target. Resource limits remain fatal and the
 strict signing/verification parser remains unchanged. This increment requires
 its own complete CI; broader encodings and grammar remain explicit gaps.

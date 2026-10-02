@@ -36,7 +36,10 @@ func decodeBinaryBundlePlistMode(data []byte, removal bool) (map[string]any, err
 	if n > maxBundlePlistValues {
 		return nil, plistLimit("object count")
 	}
-	if width < 1 || width > 8 || refs < 1 || refs > 8 || n == 0 || top >= n || table < 9 || table >= end || n > (end-table)/width || n*width != end-table {
+	if width > 8 || refs > 8 {
+		return nil, plistRestriction(removal, "binary bundle plist address width")
+	}
+	if width < 1 || refs < 1 || n == 0 || top >= n || table < 9 || table >= end || n > (end-table)/width || n*width != end-table {
 		return nil, malformed("binary bundle plist trailer")
 	}
 	if refs < 8 && n >= uint64(1)<<(8*refs) || width < 8 && table >= uint64(1)<<(8*width) {
@@ -45,6 +48,9 @@ func decodeBinaryBundlePlistMode(data []byte, removal bool) (map[string]any, err
 	p := binaryBundlePlist{data: data[:table], offsets: make([]uint64, n), refSize: refs, values: 1, active: map[uint64]bool{}, removal: removal}
 	for i := range p.offsets {
 		off := plistUint(data[table+uint64(i)*width : table+uint64(i+1)*width])
+		if off < 8 && uint64(i) != top {
+			return nil, plistRestriction(removal, "binary bundle plist unused header reference")
+		}
 		if off < 8 || off >= table {
 			return nil, malformed("binary bundle plist object offset")
 		}
@@ -87,8 +93,11 @@ func (p *binaryBundlePlist) length(off uint64, tag byte) (uint64, uint64, error)
 	if err != nil {
 		return 0, 0, err
 	}
-	if b[0]>>4 != 1 || b[0]&15 > 3 {
+	if b[0]>>4 != 1 {
 		return 0, 0, malformed("binary bundle plist length integer")
+	}
+	if b[0]&15 > 3 {
+		return 0, 0, plistRestriction(p.removal, "binary bundle plist length integer width")
 	}
 	size := uint64(1) << (b[0] & 15)
 	b, err = p.span(off+1, size)
@@ -121,6 +130,9 @@ func (p *binaryBundlePlist) object(ref uint64, depth int) (any, error) {
 			b, err := p.span(off, uint64(tag&15)+1)
 			if err != nil {
 				return nil, err
+			}
+			if plistUint(b) > math.MaxUint32 {
+				return nil, malformed("binary bundle plist UID range")
 			}
 			return append([]byte{}, b...), nil
 		}
@@ -166,7 +178,7 @@ func (p *binaryBundlePlist) object(ref uint64, depth int) (any, error) {
 			return v, nil
 		}
 		if math.IsNaN(v) || math.IsInf(v, 0) || v <= -1<<62 || v >= 1<<62 {
-			return nil, malformed("binary bundle plist date range")
+			return nil, plistRestriction(p.removal, "binary bundle plist date range")
 		}
 		seconds, fraction := math.Modf(v)
 		return time.Unix(int64(seconds)+978307200, int64(fraction*1e9)).UTC(), nil
@@ -213,7 +225,7 @@ func (p *binaryBundlePlist) object(ref uint64, depth int) (any, error) {
 			for i := 0; i < len(u); i++ {
 				if utf16.IsSurrogate(rune(u[i])) {
 					if u[i] >= 0xdc00 || i+1 == len(u) || u[i+1] < 0xdc00 || u[i+1] > 0xdfff {
-						return nil, malformed("binary bundle plist UTF-16 string")
+						return nil, plistRestriction(p.removal, "binary bundle plist UTF-16 string")
 					}
 					i++
 				}
@@ -261,7 +273,7 @@ func (p *binaryBundlePlist) collection(kind byte, start, n uint64, depth int) (a
 		}
 		s, ok := key.(string)
 		if !ok {
-			return nil, malformed("binary bundle plist dictionary key is not a string")
+			return nil, plistRestriction(p.removal, "binary bundle plist dictionary key is not a string")
 		}
 		if _, exists := m[s]; exists && !p.removal {
 			return nil, malformed("duplicate bundle plist key")
