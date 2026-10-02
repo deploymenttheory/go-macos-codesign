@@ -1,17 +1,21 @@
 {
   "body_sha256": {
     "CFBundleGetInfoDictionary": "5a1a1a059df0b9dc45280c209eb8f99cf48ed390dfe3a4740a59e3ae9ce9e9bc",
+    "CFDictionaryAddValue": "4b8b7e1f53ba1293c420d85b5a6860f94b17f40bbe9e65765a80def9ae5d71c9",
+    "CFDictionarySetValue": "4e1aa50721fdba4b0a0e30c11291951b522bbd977f2ade3f2103e12e56086f91",
     "_CFBundleCopyExecutableName": "3a0b6ecd99f505a4267363e99b2a3ece2ab7b228b408401eefbdfa3d2945d236",
     "_CFBundleCopyInfoDictionaryInDirectoryWithVersion": "cf4ad33f85ebecea6ca5b1cace96e32fab7add9abab82e35df54153580116dfc",
     "_CFBundleCopyInfoPlistURL": "1734595b2d14ac27eed9a85f7de58b75725e0bdb09f53ede88610c1081e308bd",
     "_binaryLoadable": "567d8d5323b614ca68f05d29a630a22ecd0d7bd3d6015e06498d66daa391c849",
     "_urlExists": "320feaff9cd8954a7c34a223a11f7222e44e9a6c5259ef025de045cb8ccc1674"
   },
-  "driver_sha256": "e7e77df4f593f0e462615d42f2f41186b426d887611815090dd5ca79aa6a9a9b",
+  "dictionary_source_sha256": "493b1c406ff3d4709817027034490565a8b43bc7e1c57870ef85415100ab78e6",
+  "dictionary_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFDictionary.c",
+  "driver_sha256": "c1d36097affb425741f1c5e65a5fde28d6d8aac929e1dc91c7ed9263a7725316",
   "info_source_sha256": "bbd744b84f1dd0989d1d8494800a34f8a3d9545a64dabda587481f15986373a0",
   "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c",
   "schema": 1,
-  "scope": "Six complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. The host SDK supplies real CoreFoundation interfaces. This AST establishes name fallback, existence queries, synthesized empty dictionaries and platform/ordinary real/raw plist URL selection, not current macOS authorization, executable-key normalization or version-directory name behavior. Native corpora qualify those independently. Malformed nonempty metadata and broader dictionary normalization remain implementation obligations.",
+  "scope": "Eight complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; broader parser encodings/types and normalization remain open.",
   "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
   "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
   "targets": {
@@ -39,6 +43,60 @@
           "__CFUnlock": 1,
           "bundle": 10,
           "kCFAllocatorSystemDefault": 1
+        }
+      },
+      "CFDictionaryAddValue": {
+        "ast_kinds": {
+          "CFAuditedTransferAttr": 1,
+          "CStyleCastExpr": 11,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 11,
+          "FunctionDecl": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 6,
+          "ParenExpr": 7,
+          "ParmVarDecl": 3,
+          "PredefinedExpr": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "CFBasicHashAddValue": 1,
+          "CFBasicHashIsMutable": 2,
+          "CFLog": 1,
+          "__builtin___CFStringMakeConstantString": 1,
+          "hc": 4,
+          "key": 1,
+          "value": 1
+        }
+      },
+      "CFDictionarySetValue": {
+        "ast_kinds": {
+          "CFAuditedTransferAttr": 1,
+          "CStyleCastExpr": 11,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 11,
+          "FunctionDecl": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 6,
+          "ParenExpr": 7,
+          "ParmVarDecl": 3,
+          "PredefinedExpr": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "CFBasicHashIsMutable": 2,
+          "CFBasicHashSetValue": 1,
+          "CFLog": 1,
+          "__builtin___CFStringMakeConstantString": 1,
+          "hc": 4,
+          "key": 1,
+          "value": 1
         }
       },
       "_CFBundleCopyExecutableName": {
@@ -281,6 +339,60 @@
           "kCFAllocatorSystemDefault": 1
         }
       },
+      "CFDictionaryAddValue": {
+        "ast_kinds": {
+          "CFAuditedTransferAttr": 1,
+          "CStyleCastExpr": 11,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 11,
+          "FunctionDecl": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 6,
+          "ParenExpr": 7,
+          "ParmVarDecl": 3,
+          "PredefinedExpr": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "CFBasicHashAddValue": 1,
+          "CFBasicHashIsMutable": 2,
+          "CFLog": 1,
+          "__builtin___CFStringMakeConstantString": 1,
+          "hc": 4,
+          "key": 1,
+          "value": 1
+        }
+      },
+      "CFDictionarySetValue": {
+        "ast_kinds": {
+          "CFAuditedTransferAttr": 1,
+          "CStyleCastExpr": 11,
+          "CallExpr": 5,
+          "CompoundStmt": 2,
+          "DeclRefExpr": 11,
+          "FunctionDecl": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 14,
+          "IntegerLiteral": 6,
+          "ParenExpr": 7,
+          "ParmVarDecl": 3,
+          "PredefinedExpr": 1,
+          "StringLiteral": 2,
+          "UnaryOperator": 1
+        },
+        "references": {
+          "CFBasicHashIsMutable": 2,
+          "CFBasicHashSetValue": 1,
+          "CFLog": 1,
+          "__builtin___CFStringMakeConstantString": 1,
+          "hc": 4,
+          "key": 1,
+          "value": 1
+        }
+      },
       "_CFBundleCopyExecutableName": {
         "ast_kinds": {
           "BinaryOperator": 19,
@@ -496,5 +608,5 @@
       }
     }
   },
-  "translation_unit_sha256": "2f5b4f4eb9c51c37f146f2a704a0557dc76d88e3295a0f898838d1d67e18d5bb"
+  "translation_unit_sha256": "1614b7293ae05b7dccb03c184982efca35dde9142da999a74dff623136716f50"
 }

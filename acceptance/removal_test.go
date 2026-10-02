@@ -289,4 +289,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("platform-info", func(t *testing.T) {
 		verifyImportedPlatformInfo(t, dir, reference)
 	})
+	t.Run("plist-interpretation", func(t *testing.T) {
+		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-interpretation.json", 180), "plist-interpretation-")
+	})
 }

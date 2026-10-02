@@ -90,7 +90,7 @@ reject combined ACL/data denial. No permission case is replaced with a skip.
 
 The [Clang extraction](../scripts/extract-removal-discovery.go) and
 [AST evidence](../spec/apple-removal-discovery.json) contain six complete Apple
-function bodies for both Mac architectures. The pinned
+bundle-discovery bodies plus two dictionary operations for both Mac architectures. The pinned
 `_CFBundleCopyInfoDictionaryInDirectoryWithVersion` body establishes platform
 read precedence, acquired-empty dictionaries and retained raw URLs. Current
 authorization and executable overrides are established independently by the
@@ -105,11 +105,11 @@ race, fuzz, provenance and six-target GoReleaser gates remain mandatory.
 
 ## Outstanding work
 
-1. **Property-list parsing:** nonempty malformed input, non-dictionary roots,
-   OpenStep and broader supported encodings need independent classification and
-   native error/fallback qualification. A blanket parser-error-to-empty-dictionary
-   conversion would hide valid unsupported formats. Current bounded parsing and
-   size limits remain explicit restrictions.
+1. **Property-list parsing:** the [bounded removal interpreter](removal-plist-interpretation.md)
+   now qualifies XML/OpenStep/binary interpretation, captured syntax failures,
+   non-dictionary roots and duplicate-key order. Other text encodings and broader
+   grammar/object types remain open. Unsupported formats and resource limits must
+   never be converted silently to empty metadata.
 2. **Aliases and discovery:** final plist symlinks, wider root aliases,
    alternate layouts, filename case/Unicode, concurrent replacement and broader
    parent authorization contexts need qualification. Final platform links and

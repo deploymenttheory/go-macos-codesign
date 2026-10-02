@@ -173,6 +173,9 @@ func TestBundleMetadataErrors(t *testing.T) {
 				t.Fatal("verify metadata")
 			}
 			removable := info == "" || info == strings.Replace(testBundleInfo, "hello", "", 1) || info == strings.Replace(testBundleInfo, "org.example.bundle", "", 1) || info == strings.Replace(testBundleInfo, "APPL", "FMWK", 1)
+			// Independently captured native interpretation: malformed/non-dict
+			// input keeps the raw plist; XML duplicate keys replace earlier values.
+			removable = removable || info == "not XML" || info == `<plist><array/></plist>` || info == `<plist><dict><key>bad` || info == strings.Replace(testBundleInfo, "</dict>", "<key>CFBundleIdentifier</key><string>duplicate</string></dict>", 1)
 			if err := RemoveSignature(context.Background(), app); (err == nil) != removable {
 				t.Fatal("remove metadata", err, "removable", removable)
 			}

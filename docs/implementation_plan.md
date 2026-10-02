@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR82 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-02 after codesign PR83 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,7 +8,19 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [platform-plist selection](removal-platform-metadata.md)
+**Current increment:** [removal plist interpretation](removal-plist-interpretation.md)
+on `feat/removal-plist-interpretation`, cut from PR83 main at
+`e5aaee2c3dfb8530ba08c7fd129735e83ee216a5`. Bounded UTF-8 XML/OpenStep and supported
+binary dictionaries now have removal-specific interpretation: invalid/non-dict
+metadata retains its raw URL, XML/OpenStep duplicates keep the last value and
+binary duplicates keep the first. Unsupported formats and resource limits remain
+fatal; signing/display/verification retain their strict parser. The native corpus
+contains 180 cases across both plist locations and three layouts, adding 360
+mandatory foreign imports. Eight complete Apple bodies have two-target Clang
+evidence, and a twelfth fuzz target exercises the decoder. Complete final-head CI
+is required before merge; wider encodings, grammar and object types remain open.
+
+**Merged preceding increment:** [platform-plist selection](removal-platform-metadata.md)
 on `feat/platform-plist-selection`, based on main including merged roadmap PR82
 at `d4a825538a834115f2d0c43f7e618764e7f1cfae`. The prerequisite
 [APFS PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) passed all 63
@@ -20,7 +32,7 @@ selection and ordinary-plist fallback only for the qualified acquisition cases.
 Explicit AppleDouble bindings retain identity checks under unrelated ACL denial.
 The 33-case native corpus covers three layouts; API/CLI replay, 66 mandatory
 foreign imports and 18 native permission comparisons qualify the increment.
-Its own full CI is required before merge. Broader parsers, final plist aliases,
+Its [full CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37037417359) before PR83 merged. Broader parsers, final plist aliases,
 other override keys and signing/display/verification remain open.
 The original fourteen native research cases are retained.
 The merged [missing/empty removal profile](removal-empty-metadata.md)
@@ -30,8 +42,8 @@ selection. All replay through the portable API and CLI; 54 additional foreign
 observations are mandatory in Apple's import job. Native version arbitration
 does not select the framework-stem executable without a usable name key.
 When neither executable nor plist exists, removal returns the native diagnostic
-without mutation. Nonempty malformed metadata remains a separate parser gap.
-Clang evidence now includes six complete functions on two targets.
+without mutation. Nonempty malformed metadata now has the bounded interpretation
+profile above; broader formats and encodings remain open.
 
 **Remaining PR estimate after PR81:** approximately 2–4 implementation PRs for
 platform-plist discovery, including the shared SDK prerequisite; approximately
@@ -2868,7 +2880,11 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   eighteen native permission comparisons and 66 mandatory foreign imports.
   [PR83](https://github.com/deploymenttheory/go-macos-codesign/pull/83) records
   validation and merge status; an implementation checkbox does not waive CI.
-- [ ] Qualify nonempty malformed and other plist encodings, duplicate-key policy,
+- [x] Qualify bounded XML/OpenStep/binary removal interpretation, captured invalid
+  and non-dictionary raw-plist fallback, XML/OpenStep last-duplicate and binary
+  first-duplicate semantics. Retain 180 native cases and 360 mandatory foreign
+  imports; keep resource bounds fatal and strict signing/verification parsing.
+- [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow
   layouts, widgets, resource-root policies, `.dist` discovery, executable-path
   aliases and dynamic-loader environment selection. Extend the

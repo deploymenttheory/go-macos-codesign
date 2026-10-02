@@ -44,6 +44,9 @@ jobs:
       - name: Check native platform plist selection across bundle layouts
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json
+      - name: Check native plist interpretation across bundle layouts
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-plist-interpretation.go -out artifacts/plist-interpretation.json
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:
@@ -158,6 +161,9 @@ jobs:
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRequirementSet$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'
+      - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRemovalPlist$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
         env:
           CGO_ENABLED: '0'
       - run: go test ./...

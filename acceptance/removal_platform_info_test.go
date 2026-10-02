@@ -12,6 +12,10 @@ import (
 )
 
 func platformInfoCases(t *testing.T) []emptyInfoCase {
+	return removalPlistCases(t, "platform-selection.json", 33)
+}
+
+func removalPlistCases(t *testing.T, corpusName string, count int) []emptyInfoCase {
 	t.Helper()
 	var corpus struct {
 		Cases []struct {
@@ -24,10 +28,10 @@ func platformInfoCases(t *testing.T) []emptyInfoCase {
 			After                                map[string]emptyInfoFile
 		}
 	}
-	if err := json.Unmarshal(nativeRead(t, filepath.Join(root, "testdata/bundle-removal/platform-selection.json")), &corpus); err != nil {
+	if err := json.Unmarshal(nativeRead(t, filepath.Join(root, "testdata/bundle-removal", corpusName)), &corpus); err != nil {
 		t.Fatal(err)
 	}
-	if len(corpus.Cases) != 33 {
+	if len(corpus.Cases) != count {
 		t.Fatal("incomplete platform selection corpus")
 	}
 	var cases []emptyInfoCase
@@ -37,12 +41,21 @@ func platformInfoCases(t *testing.T) []emptyInfoCase {
 	return cases
 }
 
-func platformInfoName(c emptyInfoCase) string {
-	return "platform-info-" + c.Shape + "-" + c.State + ".json"
+func removalPlistName(prefix string, c emptyInfoCase) string {
+	return prefix + c.Shape + "-" + c.State + ".json"
 }
 
 func TestRemovalPlatformInfo(t *testing.T) {
-	for _, tc := range platformInfoCases(t) {
+	checkRemovalPlistCases(t, platformInfoCases(t), "platform-info-")
+}
+
+func TestRemovalPlistInterpretation(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-interpretation.json", 180), "plist-interpretation-")
+}
+
+func checkRemovalPlistCases(t *testing.T, cases []emptyInfoCase, prefix string) {
+	t.Helper()
+	for _, tc := range cases {
 		t.Run(tc.Shape+"/"+tc.State, func(t *testing.T) {
 			got := observeEmptyInfo(t, binaryPath, tc, true)
 			if runtime.GOOS == "darwin" {
@@ -58,24 +71,28 @@ func TestRemovalPlatformInfo(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				bundleWrite(t, export, platformInfoName(tc), b)
+				bundleWrite(t, export, removalPlistName(prefix, tc), b)
 			}
 		})
 	}
 }
 
 func verifyImportedPlatformInfo(t *testing.T, dir, reference string) {
+	verifyImportedPlistCases(t, dir, reference, platformInfoCases(t), "platform-info-")
+}
+
+func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []emptyInfoCase, prefix string) {
 	t.Helper()
 	expected := map[string]emptyInfoResult{}
-	for _, tc := range platformInfoCases(t) {
-		expected[platformInfoName(tc)] = observeEmptyInfo(t, reference, tc, false)
+	for _, tc := range cases {
+		expected[removalPlistName(prefix, tc)] = observeEmptyInfo(t, reference, tc, false)
 	}
 	seen := map[string]int{}
 	if err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() || !strings.HasPrefix(d.Name(), "platform-info-") {
+		if d.IsDir() || !strings.HasPrefix(d.Name(), prefix) {
 			return nil
 		}
 		want, ok := expected[d.Name()]
