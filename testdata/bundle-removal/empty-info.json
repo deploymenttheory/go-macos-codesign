@@ -1,0 +1,509 @@
+{
+  "cases": [
+    {
+      "envelope": true,
+      "files": {
+        "Contents/MacOS/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "declared",
+      "main": "Contents/MacOS/hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "app",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/MacOS/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "stem",
+      "main": "Contents/MacOS/A",
+      "output": "",
+      "shape": "app",
+      "state": "missing",
+      "status": 0
+    },
+    {
+      "envelope": true,
+      "files": {},
+      "info": "Contents/Info.plist",
+      "location": "absent",
+      "main": "Contents/MacOS/hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "app",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        },
+        "Contents/MacOS/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "declared",
+      "main": "Contents/MacOS/hello",
+      "output": "",
+      "shape": "app",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": true
+        },
+        "Contents/MacOS/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "stem",
+      "main": "Contents/MacOS/A",
+      "output": "",
+      "shape": "app",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "absent",
+      "main": "Contents/MacOS/hello",
+      "output": "",
+      "shape": "app",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        },
+        "Contents/MacOS/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "declared",
+      "main": "Contents/MacOS/hello",
+      "output": "",
+      "shape": "app",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": true
+        },
+        "Contents/MacOS/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "stem",
+      "main": "Contents/MacOS/A",
+      "output": "",
+      "shape": "app",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Contents/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        }
+      },
+      "info": "Contents/Info.plist",
+      "location": "absent",
+      "main": "Contents/MacOS/hello",
+      "output": "",
+      "shape": "app",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": true,
+      "files": {
+        "hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "declared",
+      "main": "hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "flat-framework",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": false,
+      "files": {
+        "A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "stem",
+      "main": "A",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "missing",
+      "status": 0
+    },
+    {
+      "envelope": true,
+      "files": {},
+      "info": "Resources/Info.plist",
+      "location": "absent",
+      "main": "hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "flat-framework",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        },
+        "hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "declared",
+      "main": "hello",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        },
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": true
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "stem",
+      "main": "A",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "absent",
+      "main": "hello",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        },
+        "hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "declared",
+      "main": "hello",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": false
+        },
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": true
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "stem",
+      "main": "A",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        }
+      },
+      "info": "Resources/Info.plist",
+      "location": "absent",
+      "main": "hello",
+      "output": "",
+      "shape": "flat-framework",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": true,
+      "files": {
+        "Versions/A/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "declared",
+      "main": "Versions/A/hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "framework",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": true,
+      "files": {
+        "Versions/A/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "stem",
+      "main": "Versions/A/A",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "framework",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": true,
+      "files": {},
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "absent",
+      "main": "Versions/A/hello",
+      "output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "shape": "framework",
+      "state": "missing",
+      "status": 1
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        },
+        "Versions/A/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "declared",
+      "main": "Versions/A/hello",
+      "output": "",
+      "shape": "framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        },
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "stem",
+      "main": "Versions/A/A",
+      "output": "",
+      "shape": "framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": false
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "absent",
+      "main": "Versions/A/hello",
+      "output": "",
+      "shape": "framework",
+      "state": "empty",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        },
+        "Versions/A/hello": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "declared",
+      "main": "Versions/A/hello",
+      "output": "",
+      "shape": "framework",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/A": {
+          "same_inode": true,
+          "sha256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "signature": true
+        },
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "stem",
+      "main": "Versions/A/A",
+      "output": "",
+      "shape": "framework",
+      "state": "empty-dictionary",
+      "status": 0
+    },
+    {
+      "envelope": false,
+      "files": {
+        "Versions/A/Resources/Info.plist": {
+          "same_inode": true,
+          "sha256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "signature": false
+        }
+      },
+      "info": "Versions/A/Resources/Info.plist",
+      "location": "absent",
+      "main": "Versions/A/hello",
+      "output": "",
+      "shape": "framework",
+      "state": "empty-dictionary",
+      "status": 0
+    }
+  ],
+  "driver_sha256": "7f6a0b65349eed384c1bdfbc93845d4e027c62bb62562327ec70590f5c665c5e",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "native_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "schema": 1
+}

@@ -8,11 +8,19 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR78 is merged at `3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. The current
-`feat/bundle-removal-fallback` branch starts from that main. The upstream
-replacement prerequisite is now released in APFS v0.15.1 and adopted here.
-This branch adopts v0.15.2 for metadata-only executable discovery, including the
-Windows correction released after APFS PR188.
+PR79 is merged at `d436fdd5ba6126b516af9fba870144b8c4186bd4`. The current
+`feat/removal-empty-metadata` branch starts from that main and retains APFS v0.15.2.
+[Missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem
+selection where native removal permits it, the versioned-framework distinction,
+and a no-mutation error when neither executable nor plist exists. Twenty-seven
+native cases replay on every host and add 54 mandatory foreign observations.
+Clang evidence now covers six complete functions on both Mac architectures.
+
+PR79 passed [all CI gates](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36985960267).
+Codesign coverage was 95.25% Linux, 95.50% macOS and 95.09% Windows, with discovery
+functions at 100% on all three. Both Windows permission regression classes passed,
+as did Apple's comparison of all 102 generic-removal records. This increment
+must pass those unchanged gates plus its new cases.
 
 [Bundle-removal discovery](bundle-removal-discovery.md) now selects Info.plist
 when executable candidates are missing or metadata discovery is denied in supported
@@ -20,8 +28,8 @@ layouts. Removal has its own
 metadata requirements and modern/legacy/stem executable-name selection. Eight
 fallback shapes extend the native/carrier matrix; each foreign producer exports
 51 generic-removal records, all required by the existing native import job.
-Twenty retained native probes and three complete two-target Clang bodies qualify
-the research. Twelve native permission comparisons and effective metadata denials
+Twenty retained native probes qualify the earlier discovery profile. Twelve
+native permission comparisons and effective metadata denials
 on each host qualify selection before data reads. Wider discovery remains open. PR78
 passed every CI gate; codesign coverage was 95.19% Linux, 95.44% macOS and 95.04%
 Windows. This increment must pass the same unchanged gates.

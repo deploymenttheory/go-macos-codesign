@@ -5,7 +5,7 @@ existing data in place. Codesign writes a private replacement and commits it
 after preparing its content and metadata. Published
 [APFS v0.15.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.15.1)
 fixes this staging prerequisite: a source deny-write ACL no longer prevents the
-SDK from opening its temporary copy. Codesign uses this release directly, with
+SDK from opening its temporary copy. Codesign retains this fix in v0.15.2, with
 no local module replacement.
 
 ## Operational behavior
@@ -102,8 +102,9 @@ destination inheritance before restoration. Current replacement preserves the
 source ACL, so parent inheritance and inherited-entry ordering remain open.
 
 Broader exploratory probes found additional gaps outside the 72-case restoration
-profile: deny-readsecurity can make native bundle removal return success without
-replacing its executable, whereas Go fails during discovery; deny-delete
+profile: deny-readsecurity can make native bundle removal select Info.plist without
+replacing its executable. This bounded fallback is now implemented in PR79;
+broader authorization contexts remain open. Deny-delete
 can leave native `.cstemp` files while SDK private staging has different paths
 and cleanup. These require separate discovery/removal and allocation/cleanup
 work, including exact failure artifacts and nested completion boundaries.
@@ -112,8 +113,8 @@ They are not qualified by this increment. Reproduce the observations with
 
 The subsequent [shallow-removal phase](signature-removal.md) removes the
 unnecessary resource/child traversal and corrects removal's CLI permission
-diagnostics. Selected-executable fallback and signature-directory metadata
-denials remain distinct outstanding obligations.
+diagnostics. [Subsequent discovery work](bundle-removal-discovery.md) adds the
+selected-executable fallback. Signature-directory metadata denial remains open.
 
 Additional work includes alternate filesystems, sandbox/authorization contexts,
 concurrent path/content/ACL mutation, custom resource rules, generic/xattr-backed
