@@ -57,6 +57,10 @@ func TestRemovalPlistEncodings(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-encodings.json", 120), "plist-encodings-")
 }
 
+func TestRemovalPlistUTF32(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-utf32.json", 276), "plist-utf32-")
+}
+
 func checkRemovalPlistCases(t *testing.T, cases []emptyInfoCase, prefix string) {
 	t.Helper()
 	for _, tc := range cases {

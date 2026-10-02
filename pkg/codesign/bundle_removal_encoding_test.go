@@ -54,7 +54,7 @@ func TestRemovalPlistEncodingBoundaries(t *testing.T) {
 			t.Fatal(got, err)
 		}
 	}
-	for _, data := range [][]byte{{0xff, 0xfe, 0, 0}, {0, 0, 0xfe, 0xff}, {0xff}, removalUTF16("a\x00b"), removalUTF16(text)[2:]} {
+	for _, data := range [][]byte{{0xff}, removalUTF16("a\x00b"), removalUTF16(text)[2:]} {
 		if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unqualified representation redirected removal", err)
 		}

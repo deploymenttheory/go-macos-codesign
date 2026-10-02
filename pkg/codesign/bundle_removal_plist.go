@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"strings"
 
 	"howett.net/plist"
 )
@@ -79,6 +80,13 @@ func boundRemovalXML(data []byte) error {
 		token, err := decoder.Token()
 		if err != nil {
 			var syntax *xml.SyntaxError
+			// CoreFoundation accepts characters that encoding/xml forbids in
+			// strings. Do not turn that parser restriction into an empty dict.
+			// Check only tokens reached before the first value ends: trailing
+			// text remains ignored under the captured native XML policy.
+			if errors.As(err, &syntax) && strings.HasPrefix(syntax.Msg, "illegal character code ") {
+				return unsupported("removal plist XML characters")
+			}
 			if !errors.Is(err, io.EOF) && !errors.As(err, &syntax) {
 				return unsupported("removal plist XML encoding: " + err.Error())
 			}

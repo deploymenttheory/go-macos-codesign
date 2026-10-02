@@ -8,6 +8,27 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
+PR85 is merged at `b5575bc3402a2628d7791f544147102116ccd393` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37056093290).
+Audited codesign coverage was 95.20% Linux, 95.61% macOS and 95.14% Windows.
+All 757 source hashes matched each OS checkout; all 240 UTF-16 foreign records
+matched fresh native operations, with the earlier 360 parser records retained.
+
+`feat/removal-utf32-plists` starts from that main and retains APFS v0.17.0.
+The [encoding profile](removal-plist-encodings.md) now adds BOM-marked UTF-32LE/BE
+XML/OpenStep interpretation. Invalid scalar values invalidate the whole dictionary;
+incomplete trailing units are ignored. The 276-case native corpus adds 552
+mandatory foreign records, and twelve complete Apple bodies have Clang evidence.
+All resource bounds, strict parsers and prior tests remain mandatory. This branch
+requires its own complete CI; the merged PR85 run does not validate these changes.
+Unmarked encodings, declared legacy codecs and wider grammar remain open.
+An additional 36 native cases retain Apple-valid XML character grammar that
+Go's parser cannot yet interpret. Explicit errors preserve the bundle instead
+of silently selecting its raw plist. OpenStep controls and ignored trailing XML
+controls have matching native/Go cases; all earlier profiles remain required.
+
+### Merged UTF-16 profile
+
 PR84 is merged at `905b6874d5f0c5eb883c953868c4397ceec891dd` after
 [all applicable CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37050256576).
 Audited codesign coverage was 95.17% Linux, 95.59% macOS and 95.12% Windows;
@@ -20,8 +41,8 @@ XML/OpenStep interpretation with native prefix conversion and unchanged raw
 metadata. Its 120-case corpus adds 240 mandatory foreign records, extends
 Clang evidence to nine complete bodies and retains all twelve fuzz targets.
 Input/decoded-size and structural limits stay fatal. Unmarked UTF-16, UTF-32,
-legacy encodings and wider grammar remain outstanding. This branch requires
-its own complete CI; the merged PR84 run does not validate these changes.
+legacy encodings and wider grammar remained outstanding at that merge. PR85's
+complete CI passed as recorded above; UTF-32 is implemented in the current phase.
 
 ### Merged plist interpretation profile
 

@@ -4,7 +4,12 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR84 with APFS v0.17.0.
+Current work continues after merged PR85 with APFS v0.17.0.
+The [BOM-marked UTF-32 profile](removal-plist-encodings.md) adds 276 native cases
+and 552 mandatory foreign records for strict scalar validation and trailing-unit
+handling on all three hosts, retaining size/complexity limits and strict parsers.
+A separate 36-case native corpus documents remaining XML character grammar;
+explicit errors prevent that limitation from redirecting a removal operation.
 The [BOM-marked UTF-16 profile](removal-plist-encodings.md) adds 120 native cases
 and 240 mandatory foreign records for both byte orders, native prefix conversion
 and declaration precedence. Unmarked UTF-16 and other codecs remain outstanding.

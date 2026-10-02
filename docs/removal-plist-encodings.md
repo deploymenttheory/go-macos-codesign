@@ -1,6 +1,6 @@
 # Encoded property lists during removal
 
-Signature removal interprets UTF-16LE and UTF-16BE property lists carrying a
+Signature removal interprets UTF-16LE/BE and UTF-32LE/BE property lists carrying a
 byte-order mark on Linux, macOS and Windows. This applies to ordinary and
 platform metadata in supported apps and frameworks. Decoding supplies discovery
 keys; it never rewrites the acquired plist, changes its inode or switches its raw
@@ -12,26 +12,32 @@ existing strict parser.
 | Input | Removal interpretation |
 | --- | --- |
 | UTF-16LE/BE with BOM, XML or OpenStep | Decode before executable selection |
+| UTF-32LE/BE with BOM, XML or OpenStep | Decode before executable selection |
 | BMP and supplementary Unicode characters | Preserve decoded characters |
 | BOM with a conflicting XML encoding declaration | BOM controls conversion |
-| Odd final byte | Interpret the complete code-unit prefix |
-| Unmatched surrogate | Interpret the prefix before that surrogate |
+| Incomplete final code unit | Ignore the final byte in UTF-16 or final one to three bytes in UTF-32 |
+| UTF-16 unmatched surrogate | Interpret the prefix before that surrogate |
+| UTF-32 surrogate or value above U+10FFFF | Reject the entire decoded dictionary, even when the invalid value follows a complete XML document |
 | Invalid/truncated dictionary or BOM alone | Retain the raw plist target under the existing layout rules |
 | Decoded text exceeding 8 MiB | Fail before mutation |
 
-The prefix rule can preserve a complete XML dictionary followed by an invalid
+The UTF-16 prefix rule can preserve a complete XML dictionary followed by an invalid
 surrogate, while an invalid surrogate inside a dictionary leaves an incomplete
-document. The latter supplies no executable keys. Structural bounds still apply
+document. The latter supplies no executable keys. UTF-32 instead validates every
+complete scalar: an invalid value anywhere supplies no executable keys. The
+selected raw plist remains the fallback target under the existing layout rules.
+Structural bounds still apply
 after conversion: 32 levels and 100,000 values. Original encoded input also
 retains its 8 MiB bound. These operational limits remain fatal rather than
 authorizing fallback to a different removal target.
 
 The [pure-Go converter](../pkg/codesign/bundle_removal_encoding.go) runs before
 the existing bounded interpreter. It has no host-dependent path or native
-binding. UTF-32, unmarked UTF-16, decoded NUL characters and other unqualified
+binding. Unmarked UTF-16/32, decoded NUL characters, XML character restrictions and other unqualified
 encoding forms remain explicit errors. The platform loader's unsupported-input
-cleanup test now uses UTF-32; UTF-16 success and malformed-prefix behavior have
-their own native replay tests.
+cleanup test uses a declared legacy encoding; UTF-16/32 success and malformed
+interpretation have their own native replay tests. UTF-32 never expands beyond
+its encoded input size, but retains the same input and structural limits.
 
 ## Evidence and test contract
 
@@ -39,22 +45,40 @@ their own native replay tests.
 detects a BOM before a declaration and converts non-UTF-8 input before parsing.
 Its `encodingForXMLData` body is retained through the
 [Clang extraction](../scripts/extract-removal-discovery.go), bringing the evidence
-to nine complete bodies on both Darwin targets. Error-construction and existing
+to twelve complete bodies on both Darwin targets. Error-construction and existing
 private interfaces use declarations; the complete encoding decision body is
 compiled against the host SDK. Current native results, rather than historical
 source alone, establish the supported behavior.
 
+The extraction also retains the complete `CFUniCharFromUTF32` function and its
+two surrogate predicates from
+[Apple's Unicode header](https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h).
+Both strict and lossy branches remain in the AST. Apple's
+[string decoder](https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFStringEncodings.c)
+uses strict conversion for UTF-32, with complete-unit truncation before conversion;
+the new native matrix independently qualifies those results.
+
 The existing [capture driver](../scripts/probe-removal-plist-interpretation.go)
-accepts `-profile encodings`. Its [120-case corpus](../testdata/bundle-removal/plist-encodings.json)
+accepts `-profile encodings` for UTF-16. Its [120-case corpus](../testdata/bundle-removal/plist-encodings.json)
 contains 20 inputs across two metadata locations and three layouts. Capture
 asserts selected-file effects, unchanged bytes/inodes/control attributes and
 envelope removal. All 180 earlier interpretation cases remain mandatory and
-were recaptured after the shared driver changed.
+were recaptured after the shared driver changed. `-profile utf32` records
+[276 further cases](../testdata/bundle-removal/plist-utf32.json): 46 inputs across
+the same locations/layouts, including both byte orders, XML/OpenStep, declarations,
+scalar boundaries, invalid values inside/after a dictionary, incomplete code units,
+empty BOMs, truncated dictionaries, OpenStep controls and ignored trailing XML
+controls. A separate [36-case research corpus](../testdata/bundle-removal/plist-utf32-grammar.json)
+retains native acceptance of controls, noncharacters and NUL inside XML strings.
+`-profile utf32-grammar` recaptures it in macOS CI. These cases document a remaining
+grammar gap, not successful native/Go equivalence: unit tests require an explicit
+unsupported error, and public API tests require unchanged bundles on all hosts.
 
 API and CLI replay run on every OS. macOS compares Go with fresh native
 operations; the foreign-import job requires **240 additional records**, one
-Linux and one Windows result per case. Native CI also recaptures the corpus.
-UTF-16 seeds extend the existing parser fuzz target. Expansion/complexity limits,
+Linux and one Windows result per UTF-16 case. UTF-32 adds **552 mandatory records**;
+each of its 276 cases must have both producers. Native CI recaptures both corpora.
+UTF-16/32 seeds extend the existing parser fuzz target. Expansion/complexity limits,
 surrogate boundaries, unchanged input buffers and strict-parser isolation have
 focused unit tests. All existing coverage, race, twelve fuzz targets, provenance,
 lint and six GoReleaser build gates remain unchanged.
@@ -65,13 +89,16 @@ lint and six GoReleaser build gates remain unchanged.
   probes accepted little-endian OpenStep but did not select executable keys for
   the equivalent XML or big-endian OpenStep. Those observations are not an
   implemented portable contract and must not be generalized into BOM detection.
-- UTF-32 and declared legacy encodings need native corpora and bounded codecs.
-- Native accepted a decoded NUL in unrelated XML string metadata during research;
-  Go's XML parser rejects that grammar. It remains an explicit unsupported case,
-  requiring grammar work rather than silently discarding the executable key.
+- Unmarked UTF-32 and declared legacy encodings need native corpora and bounded codecs.
+- Native accepts controls, U+FFFE/U+FFFF and NUL inside XML strings; Go's XML parser
+  rejects that grammar. NUL is rejected before parsing. Other illegal-character
+  token errors are explicit unsupported errors, never empty-dictionary fallback.
+  This restriction applies only when the XML parser reaches that character;
+  OpenStep controls and text after the first complete XML value remain supported.
+  A compatible XML grammar is still required to close the retained 36-case gap.
 - Wider XML grammar, binary representations, key normalization, plist aliases
   and the other CLI operations remain in the [implementation plan](implementation_plan.md).
 
-This completes the BOM-marked UTF-16 removal profile, not all property-list
+This completes the BOM-marked UTF-16/32 removal profiles, not all property-list
 encoding support or full native `codesign` parity. See [progress](progress.md)
 for the current validation status.

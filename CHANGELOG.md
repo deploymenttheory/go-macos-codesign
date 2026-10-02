@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Interpret BOM-marked UTF-32LE/BE XML and OpenStep metadata during removal on
+  every host. Match native whole-string scalar validation and incomplete-unit
+  truncation while preserving original metadata and resource bounds. Add 276
+  native cases, 552 required foreign records, scalar/complexity tests, fuzz seeds
+  and three complete Apple Unicode conversion bodies to the Clang evidence.
+  Retain 36 native XML grammar research cases and reject unqualified character
+  forms before mutation; preserve OpenStep controls and ignored XML suffixes.
+
 - Interpret BOM-marked UTF-16LE/BE XML and OpenStep metadata during removal on
   all hosts, preserving native conversion-prefix behavior and original bytes.
   Add 120 native cases, 240 required foreign imports, decoded-size safeguards
