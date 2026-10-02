@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR83 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-02 after codesign PR84 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,7 +8,18 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [removal plist interpretation](removal-plist-interpretation.md)
+**Current increment:** [BOM-marked UTF-16 removal](removal-plist-encodings.md)
+on `feat/removal-plist-encodings`, cut from PR84 main at
+`905b6874d5f0c5eb883c953868c4397ceec891dd`. Pure-Go conversion supports both
+byte orders before bounded XML/OpenStep interpretation, preserves original
+metadata and enforces a separate decoded-size ceiling. Native prefix behavior,
+declaration precedence and malformed cases have 120 retained observations and
+240 mandatory foreign imports. Nine complete Apple bodies have Clang evidence.
+All existing strict coverage and acceptance gates remain required. Unmarked
+UTF-16, UTF-32, legacy encodings, decoded NUL grammar and broader parser work
+remain explicit prerequisites for complete encoding parity.
+
+**Merged interpretation increment:** [removal plist interpretation](removal-plist-interpretation.md)
 on `feat/removal-plist-interpretation`, cut from PR83 main at
 `e5aaee2c3dfb8530ba08c7fd129735e83ee216a5`. Bounded UTF-8 XML/OpenStep and supported
 binary dictionaries now have removal-specific interpretation: invalid/non-dict
@@ -18,7 +29,7 @@ fatal; signing/display/verification retain their strict parser. The native corpu
 contains 180 cases across both plist locations and three layouts, adding 360
 mandatory foreign imports. Eight complete Apple bodies have two-target Clang
 evidence, and a twelfth fuzz target exercises the decoder. Complete final-head CI
-is required before merge; wider encodings, grammar and object types remain open.
+passed before PR84 merged; wider encodings, grammar and object types remain open.
 
 **Merged preceding increment:** [platform-plist selection](removal-platform-metadata.md)
 on `feat/platform-plist-selection`, based on main including merged roadmap PR82
@@ -2884,6 +2895,11 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   and non-dictionary raw-plist fallback, XML/OpenStep last-duplicate and binary
   first-duplicate semantics. Retain 180 native cases and 360 mandatory foreign
   imports; keep resource bounds fatal and strict signing/verification parsing.
+- [x] Interpret BOM-marked UTF-16LE/BE during removal with native conversion-prefix
+  semantics, 120-case API/CLI replay, 240 mandatory foreign records and retained
+  resource limits. See [encoding profile](removal-plist-encodings.md).
+- [ ] Qualify unmarked UTF-16, UTF-32, legacy declared encodings and decoded NUL
+  grammar before extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow
   layouts, widgets, resource-root policies, `.dist` discovery, executable-path

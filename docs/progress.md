@@ -8,6 +8,23 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
+PR84 is merged at `905b6874d5f0c5eb883c953868c4397ceec891dd` after
+[all applicable CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37050256576).
+Audited codesign coverage was 95.17% Linux, 95.59% macOS and 95.12% Windows;
+all 360 interpretation foreign records matched Apple. Each OS's 754 source
+hashes matched its actual checkout bytes.
+
+`feat/removal-plist-encodings` starts from that main and retains APFS v0.17.0.
+The [UTF-16 phase](removal-plist-encodings.md) adds BOM-marked little-/big-endian
+XML/OpenStep interpretation with native prefix conversion and unchanged raw
+metadata. Its 120-case corpus adds 240 mandatory foreign records, extends
+Clang evidence to nine complete bodies and retains all twelve fuzz targets.
+Input/decoded-size and structural limits stay fatal. Unmarked UTF-16, UTF-32,
+legacy encodings and wider grammar remain outstanding. This branch requires
+its own complete CI; the merged PR84 run does not validate these changes.
+
+### Merged plist interpretation profile
+
 PR83 is merged at `e5aaee2c3dfb8530ba08c7fd129735e83ee216a5` after
 [all required gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37037417359).
 Audited codesign coverage was 95.08% Linux, 95.50% macOS and 95.02% Windows;
@@ -20,7 +37,7 @@ failure and format-specific duplicate-key order. It retains 180 native cases,
 adds 360 mandatory foreign records, extends Clang evidence to eight complete
 bodies and adds a twelfth fuzz target. Resource limits remain fatal and the
 strict signing/verification parser remains unchanged. This increment requires
-its own complete CI; broader encodings and grammar remain explicit gaps.
+its own complete CI, which passed as recorded above; broader encodings and grammar remain explicit gaps.
 [PR84](https://github.com/deploymenttheory/go-macos-codesign/pull/84) records its
 validation results and current CI/merge status.
 

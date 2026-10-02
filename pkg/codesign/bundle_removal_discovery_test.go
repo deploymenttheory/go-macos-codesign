@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 8 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 9 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 8 {
+		if len(methods) != 9 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -57,6 +57,9 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		}
 		if methods["CFDictionaryAddValue"].References["CFBasicHashAddValue"] != 1 || methods["CFDictionarySetValue"].References["CFBasicHashSetValue"] != 1 {
 			t.Fatal("missing insertion/replacement distinction", target)
+		}
+		if methods["encodingForXMLData"].References["CFStringConvertIANACharSetNameToEncoding"] != 1 || methods["encodingForXMLData"].Kinds["ReturnStmt"] < 10 {
+			t.Fatal("missing encoding detection body", target)
 		}
 	}
 	var corpus struct {

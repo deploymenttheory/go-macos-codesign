@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"unicode/utf16"
 
 	"howett.net/plist"
 )
@@ -51,13 +52,20 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
+	profile := flag.String("profile", "interpretation", "interpretation or encodings")
 	flag.Parse()
+	selectedInputs := inputs()
+	if *profile == "encodings" {
+		selectedInputs = encodingInputs()
+	} else if *profile != "interpretation" {
+		panic("unknown profile")
+	}
 	d, e := os.MkdirTemp("", "plist-interpretation-")
 	must(e)
 	defer os.RemoveAll(d)
 	var cases []record
 	for _, shape := range []string{"app", "flat-framework", "framework"} {
-		for _, input := range inputs() {
+		for _, input := range selectedInputs {
 			for _, location := range []string{"ordinary", "platform"} {
 				state := location + "-" + input.name
 				func() {
@@ -151,6 +159,49 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	fmt.Println("Captured and checked", len(cases), "native plist-interpretation cases")
+}
+
+func encodingInputs() []input {
+	xml := `<plist><dict><key>CFBundleExecutable</key><string>second</string><key>Ignored</key><string>é水😀</string></dict></plist>`
+	text := `{CFBundleExecutable=second;Ignored="é水😀";}`
+	var result []input
+	for _, endian := range []string{"le", "be"} {
+		var order binary.AppendByteOrder = binary.LittleEndian
+		bom := []byte{0xff, 0xfe}
+		if endian == "be" {
+			order, bom = binary.BigEndian, []byte{0xfe, 0xff}
+		}
+		encode := func(s string, mark bool) []byte {
+			var data []byte
+			if mark {
+				data = append(data, bom...)
+			}
+			for _, u := range utf16.Encode([]rune(s)) {
+				data = order.AppendUint16(data, u)
+			}
+			return data
+		}
+		for _, item := range []struct{ name, text string }{
+			{"xml", xml}, {"openstep", text},
+			{"declared", `<?xml version="1.0" encoding="UTF-16"?>` + xml},
+			{"mismatch", `<?xml version="1.0" encoding="ISO-8859-1"?>` + xml},
+		} {
+			result = append(result, input{item.name + "-" + endian + "-bom", encode(item.text, true), true})
+		}
+		result = append(result, input{"odd-" + endian, append(encode(xml, true), 0xff), true})
+		bad := encode(strings.Replace(xml, "é水😀", "", 1), true)
+		bad = append(bad, order.AppendUint16(nil, 0xd800)...)
+		result = append(result, input{"surrogate-tail-" + endian, bad, true})
+		for _, unit := range []uint16{0xd800, 0xdc00} {
+			prefix := encode(`<plist><dict><key>Ignored</key><string>`, true)
+			prefix = order.AppendUint16(prefix, unit)
+			prefix = append(prefix, encode(`</string><key>CFBundleExecutable</key><string>second</string></dict></plist>`, false)...)
+			result = append(result, input{fmt.Sprintf("surrogate-%x-%s", unit, endian), prefix, false})
+		}
+		result = append(result, input{"truncated-" + endian, encode(`<plist><dict>`, true), false})
+	}
+	result = append(result, input{"bom-only-le", []byte{0xff, 0xfe}, false}, input{"bom-only-be", []byte{0xfe, 0xff}, false})
+	return result
 }
 
 type input struct {
