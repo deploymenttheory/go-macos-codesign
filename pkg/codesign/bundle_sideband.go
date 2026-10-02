@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
@@ -53,7 +54,7 @@ func prepareBundleSideband(ctx context.Context, path string, opts VerifyOptions)
 		}
 		// Preserve physical path/.. semantics, and bind by held-file identity
 		// later. An alias cannot hide a target's explicitly supplied metadata.
-		info, err := os.Stat(name)
+		info, err := bindingFileInfo(name)
 		if err != nil {
 			return nil, err
 		}
@@ -65,6 +66,28 @@ func prepareBundleSideband(ctx context.Context, path string, opts VerifyOptions)
 		inputs.bindings = append(inputs.bindings, sidebandBinding{info, value})
 	}
 	return inputs, nil
+}
+
+// A binding needs object identity, not its ACL. Retain the ordinary stat path
+// for unreadable data and aliases; a held content handle can identify a regular
+// file when the host's full pathname stat additionally requires ACL visibility.
+func bindingFileInfo(name string) (info os.FileInfo, err error) {
+	info, err = os.Stat(name)
+	if !errors.Is(err, os.ErrPermission) {
+		return info, err
+	}
+	parent, base := filepath.Split(name)
+	root, err := os.OpenRoot(parent)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = errors.Join(err, root.Close()) }()
+	file, err := hostdata.OpenContentFileRead(root, base)
+	if err != nil {
+		return nil, err
+	}
+	info, err = file.Stat()
+	return info, errors.Join(err, file.Close())
 }
 
 func (s *bundleSidebandInputs) observe(file *os.File) *bundleSidebandObject {

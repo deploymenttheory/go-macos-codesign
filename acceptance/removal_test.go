@@ -286,4 +286,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("empty-info", func(t *testing.T) {
 		verifyImportedEmptyInfo(t, dir, reference)
 	})
+	t.Run("platform-info", func(t *testing.T) {
+		verifyImportedPlatformInfo(t, dir, reference)
+	})
 }

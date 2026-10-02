@@ -1,130 +1,125 @@
-# Platform-specific removal metadata: research and SDK integration
+# Platform-specific removal metadata
 
-Native macOS `codesign --remove-signature` can select `Info-macos.plist` instead
-of `Info.plist`. This policy must ultimately be the same on Linux, macOS and
-Windows. It is **not implemented yet**. The current removal loader still selects
-ordinary metadata. APFS v0.16.0 is now adopted for shared content acquisition;
-the selection-policy gap remains open.
+`--remove-signature` selects `Info-macos.plist` before `Info.plist` in supported
+Contents apps, flat frameworks and selected versioned frameworks. Selection uses
+the macOS policy on **Linux, macOS and Windows**. A Windows host does not select
+`Info-windows.plist` or substitute a Windows executable key.
 
-## Measured native behavior
+This is removal discovery. Signing, display and verification retain their
+existing metadata policies; this increment does not declare full CoreFoundation
+or native codesign parity.
 
-The [capture script](../scripts/probe-removal-platform-info.go) exercises fourteen
-disposable Contents apps with attached generic signature attributes. It needs
-no private keys or keychain access. The [retained results](../testdata/bundle-removal/platform-info-research.json)
-identify the macOS build, native binary hash, script hash, status, diagnostic,
-selected object, before/after content hashes, file identity and envelope
-effect. Every case asserts the expected selection and unchanged bytes/identity.
-Test ACLs are removed before reading attributes so an attribute-read denial
-cannot be mistaken for a removed signature.
+## Selection and authorization
 
-| Input | Native removal target |
+| Input | Removal target or result |
 | --- | --- |
 | Both ordinary and macOS-specific metadata | Executable named by `Info-macos.plist` |
 | Only macOS-specific metadata | Executable named by `Info-macos.plist` |
 | `Info-macosx.plist` beside ordinary metadata | Executable named by ordinary metadata |
-| Empty macOS-specific metadata | `Info-macos.plist` itself |
-| macOS-specific metadata names a missing executable | `Info-macos.plist` itself |
-| `CFBundleExecutable-macos` alongside the ordinary key | macOS-specific key's executable |
-| `CFBundleExecutable-windows` alongside the ordinary key | Ordinary key's executable, even for the future Windows implementation |
-| Platform plist is a directory, or denies data reads | Executable named by ordinary metadata |
-| Platform plist denies `readsecurity`, `readextattr`, `write` or `writeextattr` | Platform executable |
-| Platform plist denies `readattr` | Status 1, ambiguous app/framework diagnostic; no signature mutation |
+| Empty or empty-dictionary macOS-specific metadata, with no usable stem executable | `Info-macos.plist` itself |
+| MacOS-specific metadata names a missing executable | `Info-macos.plist` itself |
+| `CFBundleExecutable-macos` alongside the ordinary key | MacOS-specific key's value takes precedence |
+| Empty or non-string macOS executable override | Ordinary key is replaced; existing stem/raw-plist fallback applies |
+| `CFBundleExecutable-windows` alongside the ordinary key | Ordinary key's executable |
+| Platform plist is a directory, or acquisition denies data reads | Fall back to ordinary metadata |
+| Platform plist denies ACL reads, EA reads, data writes or EA writes | Platform executable remains selected |
+| Platform plist denies basic attribute discovery | Status 1, ambiguous app/framework diagnostic; no signature mutation |
 
-These are bounded removal observations on the recorded host. They do not yet
-qualify other layouts, malformed property lists, aliases, other override keys,
-signing, display or verification.
+Discovery, content acquisition and dictionary interpretation are separate steps.
+An acquired empty platform plist retains its raw URL. It does not cause an
+ordinary-plist retry. Existing app/flat-framework stem fallback and the distinct
+versioned-framework name arbitration still apply. Selected executable failures
+remain failures; they do not authorize retrying an ordinary executable.
 
-## Source and live behavior
+The selected generic file retains its bytes and inode while signature attributes
+are removed. Other files and their attributes remain untouched; successful
+removal then purges the selected signature envelope. Native attributes and
+explicit mutable AppleDouble bindings use the same selection policy. There is
+no automatic discovery of neighbouring AppleDouble files.
 
-The existing [Clang extraction](../scripts/extract-removal-discovery.go) and
-[AST evidence](../spec/apple-removal-discovery.json) include the complete
-`_CFBundleCopyInfoDictionaryInDirectoryWithVersion` body from Apple's pinned
-CoreFoundation source. Its platform-file read precedes the ordinary-file read;
-failed acquisition can fall back, while an acquired empty dictionary retains
-the platform plist URL. Preserve that distinction in the Go loader.
+## Shared APFS operations
 
-CoreFoundation revision `dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3` also has a
-`_isBlacklistedKey` implementation that lists `CFBundleExecutable`. The current
-native executable-key override probe contradicts that historical restriction.
-The old body must not be treated as current-host evidence. Extend the source/AST
-qualification and native cases together before implementing key normalization.
+The implementation pins published [APFS v0.17.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.0),
+which contains merged [PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192).
+All 63 applicable upstream checks passed in its
+[final workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/37027802219).
+No local SDK replacement or duplicate OS primitive is introduced.
 
-## Shared filesystem prerequisite
+`hostdata.ReadEntryType(root, name)` performs rooted basic-attribute discovery.
+On macOS the approved typed wrapper requests only `ATTR_CMN_OBJTYPE` through
+`getattrlistat`, without following the final link. Windows uses the SDK's typed
+NT opener with basic-attribute rights; Linux uses rooted Lstat. Actual host
+parent/basic-attribute authorization still applies. This query does not simulate
+foreign ACLs or hold the discovered object open.
 
-Reading plist data must not require reading its ACL or extended attributes.
-The former codesign Windows resource opener requested `FILE_GENERIC_READ`,
-including `READ_CONTROL` and `FILE_READ_EA`. That also prevented content-only
-resource signing under unrelated metadata denials. A preliminary metadata stat
-can likewise impose rights absent from native content acquisition.
+`hostdata.OpenContentFileRead` then acquires a contained regular file without
+requesting its ACL or extended attributes. Discovery denial produces the native
+ambiguity error, while content-read denial permits ordinary-plist fallback.
+The shared SDK also preserves physical parent `link/..` resolution on Windows.
 
-[APFS v0.16.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0)
-provides `hostdata.OpenContentFileRead` on all three supported hosts. It keeps contained
-parent resolution, rejects final links/nonregular objects and verifies held
-identity without an extra pathname stat. Real data denial remains an error.
-The APFS gate covers twelve live/retained C cases on macOS, effective Windows
-rights denials and portable containment/lifetime tests, with over 95% required
-per tracked implementation file. Parent-directory authorization remains the
-host's responsibility.
+Explicit AppleDouble bindings still check missing paths and reject duplicate
+object identities. If ordinary stat is denied only because it requests ACL
+visibility, the adapter can obtain regular-file identity through the shared
+content reader. Effective combined ACL/data denial remains an error. Existing
+replacement staging continues to use the metadata reader because restoring
+owner/group, ACLs and EAs requires that access.
 
-Codesign's resource traversal and hashing now use this published reader. The
-duplicated Unix `Openat` and Windows `NtCreateFile` implementations have been
-removed. Sideband queries still use APFS's held-identity attribute operations;
-content success does not waive a required metadata query. Replacement staging
-uses `OpenMetadataFileRead`, because restoring owner/group, ACLs and EAs requires
-metadata access that a content-only Windows handle deliberately lacks. Existing
-replacement and sideband acceptance remain required on all three hosts.
+## Native evidence and portable acceptance
 
-The Windows integration tests apply effective ACL-read, EA-read and data-read
-denials. Content-only signing must succeed for the unrelated metadata denials,
-produce a valid resource seal and preserve resource bytes. Data denial must
-fail without committing a replacement executable. OWNER RIGHTS makes the ACL
-denial effective for the fixture's owner; restoration uses a previously held
-security handle.
+The original [fourteen-case research capture](../testdata/bundle-removal/platform-info-research.json)
+remains required. The new [capture driver](../scripts/probe-removal-platform-selection.go)
+and [33-case corpus](../testdata/bundle-removal/platform-selection.json) cover
+eleven selection states across all three layouts. They record exact input bytes,
+layout links, selected object, status/output, content hashes, inode preservation
+and signature/envelope effects, with native binary and capture-source hashes.
+They use disposable generic signature attributes, with no private key or keychain.
 
-The macOS `readattr` case above is a separate **discovery policy** failure, not
-evidence that the held content reader should fail. Do not conflate those stages.
+The API replays every retained case. CLI acceptance runs every case with explicit
+AppleDouble bindings on all three producers and with native attributes on macOS.
+The existing foreign-import job requires **66 additional records**: each of the
+33 cases from both Linux and Windows, compared with fresh Apple observations.
+Another **18 native permission comparisons** cover six rights across the three
+layouts, checking Apple, Go native metadata and Go explicit bindings. They also
+check that the operation leaves the ACL unchanged.
 
-## Remaining integration
+Effective discovery denials run on all three hosts; Windows additionally tests
+ACL-read, EA-read and data-read boundaries, and non-root Linux tests a real
+data-read denial. Denial fixtures must first demonstrate that access is actually
+blocked. Darwin tests retain hard-link duplicate detection under ACL denial and
+reject combined ACL/data denial. No permission case is replaced with a skip.
 
-### Basic entry-type prerequisite
+The [Clang extraction](../scripts/extract-removal-discovery.go) and
+[AST evidence](../spec/apple-removal-discovery.json) contain six complete Apple
+function bodies for both Mac architectures. The pinned
+`_CFBundleCopyInfoDictionaryInDirectoryWithVersion` body establishes platform
+read precedence, acquired-empty dictionaries and retained raw URLs. Current
+authorization and executable overrides are established independently by the
+native captures. Apple's historical CF revision
+`dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3` blacklists
+`CFBundleExecutable` in `_isBlacklistedKey`; that restriction contradicts the
+current host's measured override and is not presented as its implementation.
 
-[APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) adds
-`hostdata.ReadEntryType(root, name)` for all three supported hosts. On Darwin,
-the approved typed extension requests only `ATTR_CMN_OBJTYPE` through
-descriptor-relative `getattrlistat`, with final-link following disabled. Full
-`stat`/`fstatat` also requires ACL visibility and fails on the captured
-`readsecurity` denial; the minimal attribute query succeeds. A held content
-`fstat` succeeds under `readattr`, so it cannot supply the discovery failure.
+See [progress](progress.md) for the tested revision and actual CI results. All
+existing coverage above 95% per production package, native/foreign acceptance,
+race, fuzz, provenance and six-target GoReleaser gates remain mandatory.
 
-The SDK's independent C observer and retained 17-case corpus cover separate and
-combined authorization denials, links, special file types and absence. Live
-macOS tests compare C, Go and the retained results. Windows uses the existing
-typed NT opener with basic-attribute rights only; Linux uses rooted Lstat.
-Every host retains its real parent/basic-attribute authorization. This is an
-entry-type observation, not a held identity or a foreign ACL simulator. The
-consumer still owns selection, fallback, captured-policy evaluation and later
-descriptor acquisition.
+## Outstanding work
 
-The shared API is implemented in the APFS draft, with local macOS and non-root
-Linux strict coverage gates passing and Windows build/lint checks passing.
-Actual Windows execution and the full existing SDK CI remain required. Codesign
-does not consume this unpublished API or claim platform selection is complete.
-
-### Integration order
-
-1. Qualify, merge and release the shared entry-type API, then pin that published
-   SDK version. The existing content reader is already adopted. Keep discovery authorization separate from
-   content acquisition: the captured `readattr` ambiguity and `readsecurity`
-   success must both be reproduced before enabling platform-plist selection.
-   Keep the module free of local APFS replacements and duplicate OS primitives.
-2. Extend the loader with distinct metadata selection, content acquisition and
-   dictionary interpretation stages. Retain the selected raw plist URL even
-   when its dictionary supplies no executable name.
-3. Qualify Contents, flat and versioned frameworks, permission discovery/read
-   boundaries, filename variants, key overrides, empty and malformed input.
-   Preserve existing unsupported cases until their native behavior is understood.
-4. Add API/CLI and native/explicit-carrier tests on Linux, macOS and Windows.
-   Import foreign-produced results on macOS and compare with native `codesign`.
-   Require identical selection, effects, errors and unchanged unrelated objects.
-5. Retain all existing coverage, native image, race, fuzz and release-build gates;
-   reconcile the public contract only after implementation and acceptance pass.
+1. **Property-list parsing:** nonempty malformed input, non-dictionary roots,
+   OpenStep and broader supported encodings need independent classification and
+   native error/fallback qualification. A blanket parser-error-to-empty-dictionary
+   conversion would hide valid unsupported formats. Current bounded parsing and
+   size limits remain explicit restrictions.
+2. **Aliases and discovery:** final plist symlinks, wider root aliases,
+   alternate layouts, filename case/Unicode, concurrent replacement and broader
+   parent authorization contexts need qualification. Final platform links and
+   nonregular files currently return unsupported; containment remains enforced.
+3. **Dictionary normalization:** other platform/product-qualified keys, legacy
+   combinations and precedence outside the captured executable-key profile
+   remain open. Extend source/AST evidence and native captures together.
+4. **Other operations:** apply independently qualified platform metadata policy
+   to signing, verification and display, including resource seals, raw plist
+   binding and operation-specific failure order.
+5. **Wider filesystem work:** signature-directory enumeration under metadata
+   denial, replacement ACL inheritance, temporary-artifact cleanup and sandbox/
+   process contexts retain their separate roadmap obligations.

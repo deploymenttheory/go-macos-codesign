@@ -24,6 +24,10 @@ type emptyInfoCase struct {
 	Status                                     int
 	Envelope                                   bool
 	Files                                      map[string]emptyInfoFile
+	InputFiles                                 map[string][]byte
+	Directories                                []string
+	Links                                      map[string]string
+	BeforeRun                                  func(*testing.T, string) func()
 }
 
 type emptyInfoResult struct {
@@ -53,6 +57,23 @@ func emptyInfoFixture(t *testing.T, dir string, tc emptyInfoCase) (string, strin
 	}
 	if tc.Shape == "framework" {
 		base = "Versions/A/"
+	}
+	if tc.InputFiles != nil {
+		for _, name := range tc.Directories {
+			if err := os.MkdirAll(filepath.Join(operand, name), 0755); err != nil {
+				t.Fatal(err)
+			}
+		}
+		for name, target := range tc.Links {
+			if err := os.Symlink(target, filepath.Join(operand, name)); err != nil {
+				t.Fatal(err)
+			}
+		}
+		for name, data := range tc.InputFiles {
+			bundleWrite(t, operand, name, data)
+		}
+		bundleWrite(t, operand, base+"_CodeSignature/CodeResources", []byte("envelope"))
+		return operand, base
 	}
 	for _, name := range []string{filepath.Dir(tc.Info), filepath.Dir(tc.Main), base + "_CodeSignature"} {
 		if err := os.MkdirAll(filepath.Join(operand, name), 0755); err != nil {
@@ -122,7 +143,14 @@ func observeEmptyInfo(t *testing.T, exe string, tc emptyInfoCase, carrier bool) 
 		bundleWrite(t, dir, "map.json", b)
 		args = append(args, "--appledouble-map", filepath.Join(dir, "map.json"))
 	}
+	var afterRun func()
+	if tc.BeforeRun != nil {
+		afterRun = tc.BeforeRun(t, operand)
+	}
 	out, stderr, status := run(t, exe, append(args, operand)...)
+	if afterRun != nil {
+		afterRun()
+	}
 	got := emptyInfoResult{Status: status, Output: strings.ReplaceAll(stderr, operand, "$BUNDLE"), Tree: hash(layoutArchive(t, operand)), Files: map[string]emptyInfoFile{}}
 	if out != "" || got.Status != tc.Status || got.Output != tc.Output {
 		t.Fatalf("native discovery outcome differs: %d %q %q; want %d %q", status, out, stderr, tc.Status, tc.Output)
