@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Reconcile the roadmap after PR81 and record the shared APFS basic entry-type
+  prerequisite for platform-plist discovery. Keep codesign on published APFS
+  v0.16.0 pending upstream qualification and release; no selection behavior or
+  compatibility status changes in this documentation increment.
+
 - Adopt APFS v0.15.1 and qualify signing under real ACL denials. Correct bundle
   executable preflight/notice ordering, nested permission diagnostics, readable
   resource traversal, disappearance during attribute removal and metadata

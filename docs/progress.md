@@ -8,13 +8,24 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 
 ## Current removal phase
 
-PR80 is merged at `a7d1d16f4774a3089f3331602fbddd17edb15d6f`. The current
-`feat/removal-platform-info` branch starts from that main and adopts APFS v0.16.0.
+PR81 is merged at `0701a24555d1e7cae7536260b25ae48a090c9657` after its
+[full compatibility run passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37013658411).
+The current `feat/platform-plist-discovery` branch starts from that main;
+the published APFS dependency remains v0.16.0.
 Resource reads now use the SDK content reader, and replacement staging uses its
 metadata reader; the duplicated native resource openers are removed. Fourteen
 retained platform-plist research cases run on macOS, with provenance checks on
 all hosts. Platform-plist selection itself remains outstanding. See the
 [SDK integration and remaining discovery work](removal-platform-metadata.md).
+
+The next implementation is [APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192):
+`ReadEntryType`, a rooted basic-attribute query on Linux, macOS and Windows.
+Its 17 retained native cases distinguish `readattr` discovery failure from
+`readsecurity`, EA and data-read denials. The full stat and held content reader
+cannot provide this distinction by themselves. Adoption waits for passing SDK
+CI, maintainer merge and a published release. The codesign loader is unchanged
+in this tracking increment. See the [remaining PR estimates](implementation_plan.md)
+for the difference between finishing this discovery profile and full parity.
 
 Merged [missing/empty metadata discovery](removal-empty-metadata.md) adds bundle-stem
 selection where native removal permits it, the versioned-framework distinction,
@@ -47,7 +58,7 @@ failure. Explicit AppleDouble carriers work on all producers alongside native
 metadata. Eight complete Apple methods have two-target Clang evidence; forty
 native probes retain dispatch and permission outcomes. Generic signing, display,
 verification and broader discovery remain outstanding. The inventory still has
-31 partial, 49 not implemented, eight blocked and zero fully verified obligations.
+32 partial, 48 not implemented, eight blocked and zero fully verified obligations.
 
 [Signature removal](signature-removal.md) now operates on the selected executable
 and signature directory without scanning resources, nested code or unselected

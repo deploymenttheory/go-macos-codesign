@@ -86,7 +86,34 @@ evidence that the held content reader should fail. Do not conflate those stages.
 
 ## Remaining integration
 
-1. The released reader is adopted. Keep discovery authorization separate from
+### Basic entry-type prerequisite
+
+[APFS draft PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) adds
+`hostdata.ReadEntryType(root, name)` for all three supported hosts. On Darwin,
+the approved typed extension requests only `ATTR_CMN_OBJTYPE` through
+descriptor-relative `getattrlistat`, with final-link following disabled. Full
+`stat`/`fstatat` also requires ACL visibility and fails on the captured
+`readsecurity` denial; the minimal attribute query succeeds. A held content
+`fstat` succeeds under `readattr`, so it cannot supply the discovery failure.
+
+The SDK's independent C observer and retained 17-case corpus cover separate and
+combined authorization denials, links, special file types and absence. Live
+macOS tests compare C, Go and the retained results. Windows uses the existing
+typed NT opener with basic-attribute rights only; Linux uses rooted Lstat.
+Every host retains its real parent/basic-attribute authorization. This is an
+entry-type observation, not a held identity or a foreign ACL simulator. The
+consumer still owns selection, fallback, captured-policy evaluation and later
+descriptor acquisition.
+
+The shared API is implemented in the APFS draft, with local macOS and non-root
+Linux strict coverage gates passing and Windows build/lint checks passing.
+Actual Windows execution and the full existing SDK CI remain required. Codesign
+does not consume this unpublished API or claim platform selection is complete.
+
+### Integration order
+
+1. Qualify, merge and release the shared entry-type API, then pin that published
+   SDK version. The existing content reader is already adopted. Keep discovery authorization separate from
    content acquisition: the captured `readattr` ambiguity and `readsecurity`
    success must both be reproduced before enabling platform-plist selection.
    Keep the module free of local APFS replacements and duplicate OS primitives.
