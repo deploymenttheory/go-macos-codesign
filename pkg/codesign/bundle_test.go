@@ -172,7 +172,7 @@ func TestBundleMetadataErrors(t *testing.T) {
 			if _, err := Verify(context.Background(), app, VerifyOptions{}); err == nil {
 				t.Fatal("verify metadata")
 			}
-			removable := info == strings.Replace(testBundleInfo, "hello", "", 1) || info == strings.Replace(testBundleInfo, "org.example.bundle", "", 1) || info == strings.Replace(testBundleInfo, "APPL", "FMWK", 1)
+			removable := info == "" || info == strings.Replace(testBundleInfo, "hello", "", 1) || info == strings.Replace(testBundleInfo, "org.example.bundle", "", 1) || info == strings.Replace(testBundleInfo, "APPL", "FMWK", 1)
 			if err := RemoveSignature(context.Background(), app); (err == nil) != removable {
 				t.Fatal("remove metadata", err, "removable", removable)
 			}

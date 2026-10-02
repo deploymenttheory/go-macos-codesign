@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 3 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 6 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 3 {
+		if len(methods) != 6 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -51,6 +51,9 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		}
 		if methods["_CFBundleCopyExecutableName"].References["CFDictionaryGetValue"] != 2 || methods["_urlExists"].References["_CFGetFileProperties"] != 1 {
 			t.Fatal("missing lookup contract", target)
+		}
+		if methods["_CFBundleCopyInfoDictionaryInDirectoryWithVersion"].References["CFDictionaryCreateMutable"] != 2 || methods["_CFBundleCopyInfoPlistURL"].References["CFDictionaryGetValue"] != 2 {
+			t.Fatal("missing empty dictionary or real/raw plist URL contract", target)
 		}
 	}
 	var corpus struct {

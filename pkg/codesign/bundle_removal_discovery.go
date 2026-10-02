@@ -26,12 +26,19 @@ func (b *appBundle) discoverRemovalExecutable() error {
 		return err
 	}
 	info, err := b.read(b.infoPath, maxBundlePlist)
-	if err != nil {
+	infoPresent := err == nil
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	values, err := decodeBundlePlist(info)
-	if err != nil {
-		return err
+	// CoreFoundation supplies an empty dictionary for absent or empty metadata.
+	// Keep read failures and nonempty plist parsing errors distinct: neither is
+	// evidence that it is safe to reinterpret the input as an empty dictionary.
+	var values map[string]any
+	if len(info) != 0 {
+		values, err = decodeBundlePlist(info)
+		if err != nil {
+			return err
+		}
 	}
 	// These require separate disk representations or resource-root policies.
 	for _, key := range []string{"MainHTML", "CFBundleResourceSpecification"} {
@@ -44,6 +51,7 @@ func (b *appBundle) discoverRemovalExecutable() error {
 		value = values["NSExecutable"]
 	}
 	name, _ := value.(string)
+	unnamedVersion := name == "" && b.version != ""
 	if name == "" {
 		name = strings.TrimSuffix(filepath.Base(b.path), filepath.Ext(b.path))
 	}
@@ -58,6 +66,11 @@ func (b *appBundle) discoverRemovalExecutable() error {
 	candidates := []string{b.base + "MacOS/" + name, b.base + name}
 	if b.base == "Contents/" {
 		candidates = append(candidates, name)
+	}
+	// Native version arbitration uses the version directory's dot URL. Without
+	// an executable name it selects the real plist, not the framework-name file.
+	if unnamedVersion {
+		candidates = nil
 	}
 	for _, candidate := range candidates {
 		_, err := hostdata.StatMetadata(b.root, candidate)
@@ -74,6 +87,9 @@ func (b *appBundle) discoverRemovalExecutable() error {
 		// directory, denied read, or malformed Mach-O must fail without fallback.
 		b.executable = candidate
 		return nil
+	}
+	if !infoPresent {
+		return verificationFailure("bundle format unrecognized, invalid, or unsuitable", malformed("bundle has no discoverable executable or Info.plist"))
 	}
 	// BundleDiskRep uses FileDiskRep for this nominal main executable. A valid
 	// plist cannot be a Mach-O, so the existing generic remover handles it.

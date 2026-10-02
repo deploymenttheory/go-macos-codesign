@@ -16,11 +16,13 @@ Signing, display and verification retain their existing metadata requirements.
 ## Selection and mutation
 
 For directory operands in supported Contents, flat-framework and versioned-framework
-layouts, removal reads the bounded, valid Info.plist and:
+layouts, removal reads bounded metadata and:
 
 1. Uses a nonempty string `CFBundleExecutable`. If the key is absent, tries the
    historical `NSExecutable` key. An empty or non-string value falls back to the
    bundle directory's stem; a present invalid modern key does not select the old key.
+   [Missing or empty metadata](removal-empty-metadata.md) supplies no keys.
+   Versioned framework arbitration does not use a framework-stem fallback.
 2. Searches the selected base's `MacOS` directory, then the base itself. Contents
    bundles also search their wrapper root. A found candidate proceeds through the
    existing Mach-O or generic remover. Read failure or malformed Mach-O after
@@ -33,6 +35,8 @@ layouts, removal reads the bounded, valid Info.plist and:
    `Root.Lstat` requests data access. Later data/attribute-read failures remain fatal.
    `CFBundleIdentifier` and `CFBundlePackageType` are not removal prerequisites.
    `IFMajorVersion` does not prevent this fallback.
+   If no real plist exists either, removal returns the native bad-bundle diagnostic
+   without mutating files or the signature envelope.
 4. Requires writable access to the selected generic file, removes canonical
    signature attributes before the remaining signature namespace, and preserves
    earlier changes if a later operation fails. Only successful attribute removal
@@ -50,7 +54,8 @@ establishes the modern-key, old-key and bundle-stem selection order.
 [BundleDiskRep::setup](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/bundlediskrep.cpp)
 selects FileDiskRep on a real Info.plist when executable discovery fails.
 The existing bundle-layout AST also records the setup body. Three additional
-complete CoreFoundation functions are compiled through Clang against the host SDK
+complete executable-name/existence functions plus three metadata-dictionary/URL
+functions are compiled through Clang against the host SDK
 for arm64 and x86_64; private types/helpers are explicit declaration shims.
 
 The historical source searches alternate platform folders. Current macOS 27
@@ -88,6 +93,9 @@ native result governs this profile. Source analysis alone is not a parity claim.
   Unit tests cover failed loader ownership, unsupported metadata,
   path containment and malformed selected executables. The new discovery module
   has complete local unit statement coverage.
+- The [missing/empty metadata corpus](removal-empty-metadata.md) adds 27 portable
+  API/CLI cases and 54 mandatory foreign observations, with native comparisons
+  of signature selection, complete tree hashes, data and inode preservation.
 
 Native probes use temporary fixtures and no private signing identity or keychain.
 Existing CI requirements remain unchanged: every production package above 95%,
@@ -97,13 +105,13 @@ GoReleaser build targets. Passing local tests do not replace those gates.
 ## Remaining discovery work
 
 This closes absent-executable and the tested metadata-permission fallback profiles
-for valid metadata in the supported layouts.
+for valid, missing or zero-byte metadata in the documented supported layouts.
 It does not close the following native behaviors:
 
 - Broader CoreFoundation property queries, filesystem errors and authorization
   contexts. The released SDK metadata-only query supplies the retained profile
   on all three hosts; additional filesystem primitives belong in APFS.
-- Invalid or missing Info.plist, broader shallow/legacy layouts, widgets and
+- Nonempty invalid and platform-specific Info.plist, broader shallow/legacy layouts, widgets and
   `.dist` discovery, specialized resource-root policies and executable-path
   discovery outside the currently recognized directories.
 - Symlink/alias and dynamic-loader environment selection beyond existing supported

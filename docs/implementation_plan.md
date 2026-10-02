@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR78 merged. This branch adopts APFS v0.15.2. The upstream
+Status: updated 2026-10-02 after codesign PR79 merged. This branch retains APFS v0.15.2. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,9 +8,21 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [bundle-removal discovery](bundle-removal-discovery.md) on
-`feat/bundle-removal-fallback`, cut from PR78 main at
-`3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db`. Supported bundle layouts select
+**Current increment:** [missing/empty removal metadata](removal-empty-metadata.md)
+on `feat/removal-empty-metadata`, cut from PR79 main at
+`d436fdd5ba6126b516af9fba870144b8c4186bd4`. Twenty-seven native cases cover
+three layouts, missing/empty/empty-dictionary metadata and executable-name
+selection. All replay through the portable API and CLI; 54 additional foreign
+observations are mandatory in Apple's import job. Native version arbitration
+does not select the framework-stem executable without a usable name key.
+When neither executable nor plist exists, removal returns the native diagnostic
+without mutation. Nonempty malformed metadata remains a separate parser gap.
+Clang evidence now includes six complete functions on two targets.
+
+PR79 passed [all unchanged gates](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36985960267),
+including all 102 generic-removal imports. Codesign coverage was 95.25% Linux,
+95.50% macOS and 95.09% Windows; both discovery functions reached 100% everywhere.
+The merged [bundle-removal discovery](bundle-removal-discovery.md) selects
 Info.plist when executable candidates are absent or metadata discovery is denied,
 including modern/legacy/stem
 name selection and removal without signing-specific identifier/package metadata.
@@ -44,7 +56,13 @@ discovery or Linux attribute-name remapping.
 
 **Next obligations:** merge explicit source ACL entries with destination-parent
 inheritance using the SDK's existing ACL policy; discard old inherited source
-entries and preserve native ACE ordering. Info.plist selection now preserves the
+entries and preserve native ACE ordering. The SDK replacement API needs an
+allocation-time destination ACL snapshot and a configurable single final
+security restoration; its current restoration unconditionally reinstalls the
+source ACL. A second write after a deny-write-security ACL is restored is not
+safe. Preserve default behavior for other SDK consumers and qualify both native
+host ACLs and transported Apple policy on Linux, macOS and Windows before adoption.
+Info.plist selection now preserves the
 executable under readattr/readsecurity denial, while selected data-read failures
 remain fatal. Released APFS v0.15.2 supplies this distinction through
 `hostdata.StatMetadata`; Go's Windows rooted stat requests file-data access and
@@ -2813,8 +2831,11 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   reads. Preserve selected-executable failures without redirecting removal. Use
   APFS `hostdata.StatMetadata` for this profile and the existing SDK generic writer.
 - [ ] Complete broader CoreFoundation metadata/property authorization contexts.
-  Qualify missing or
-  malformed plist, legacy/shallow layouts, widgets, resource-root policies, `.dist`
+- [x] Qualify missing/zero-byte metadata and empty dictionaries in supported
+  layouts, versioned-framework name arbitration, no-mutation bad-bundle errors,
+  and portable/native/carrier outcomes with mandatory foreign imports.
+- [ ] Qualify nonempty malformed and platform-specific plists, duplicate-key
+  policy, legacy/shallow layouts, widgets, resource-root policies, `.dist`
   discovery, executable-path aliases and dynamic-loader environment selection.
 - [ ] Inventory native representation dispatch from source and probes: ordinary
   files, scripts, recognized bundle layouts, disk images and any additional format

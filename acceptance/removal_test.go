@@ -283,4 +283,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("generic-signatures", func(t *testing.T) {
 		verifyImportedGenericRemoval(t, dir, reference)
 	})
+	t.Run("empty-info", func(t *testing.T) {
+		verifyImportedEmptyInfo(t, dir, reference)
+	})
 }

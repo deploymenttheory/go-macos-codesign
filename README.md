@@ -83,6 +83,9 @@ inheritance and broader removal/failure-artifact behavior remain roadmap items.
 [Signature removal](docs/signature-removal.md) leaves resources, nested code and
 unselected framework versions untouched, including when they are unreadable.
 It still requires access to the selected executable and its signature directory.
+[Missing or empty bundle metadata](docs/removal-empty-metadata.md) now follows
+native executable-name selection and preserves all files when no representation
+can be selected.
 [Generic signature removal](docs/generic-removal.md) removes attached signature
 attributes from scripts, ordinary files and generic bundle executables without
 replacing their data. Explicit AppleDouble inputs carry macOS metadata on any host.

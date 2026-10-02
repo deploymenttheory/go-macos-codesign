@@ -4,13 +4,14 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR78 with APFS v0.15.2 and
-[bundle-removal discovery](bundle-removal-discovery.md). Supported layouts fall
+Current work continues after merged PR79 with APFS v0.15.2 and
+[missing/empty removal metadata](removal-empty-metadata.md), including native
+executable-name selection and no-mutation errors. Supported layouts fall
 back to valid Info.plist when executable metadata is absent or inaccessible;
 selected-file data-read failures remain fatal. The SDK's metadata-only query
 preserves that distinction on Windows. Earlier signing, shallow-removal and
 generic-removal tests remain mandatory. Native executable ACL inheritance,
-broader discovery and additional security rights remain outstanding; the full
+nonempty malformed metadata, broader discovery and additional security rights remain outstanding; the full
 three-OS and coverage gates are unchanged.
 
 The [detailed implementation plan](implementation_plan.md) expands this overview
