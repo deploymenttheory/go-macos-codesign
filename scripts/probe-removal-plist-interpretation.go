@@ -52,13 +52,15 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings or utf32")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32 or utf32-grammar")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
 		selectedInputs = encodingInputs()
 	} else if *profile == "utf32" {
-		selectedInputs = utf32Inputs()
+		selectedInputs = utf32Inputs(false)
+	} else if *profile == "utf32-grammar" {
+		selectedInputs = utf32Inputs(true)
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -206,7 +208,7 @@ func encodingInputs() []input {
 	return result
 }
 
-func utf32Inputs() []input {
+func utf32Inputs(grammar bool) []input {
 	xml := `<plist><dict><key>CFBundleExecutable</key><string>second</string><key>Ignored</key><string>é水😀</string></dict></plist>`
 	var result []input
 	for _, endian := range []string{"le", "be"} {
@@ -222,6 +224,12 @@ func utf32Inputs() []input {
 			}
 			return data
 		}
+		if grammar {
+			for _, item := range []struct{ name, value string }{{"controls", "\x01\x08\x0b\x0c\x0e\x1f"}, {"noncharacters", "\ufffe\uffff"}, {"nul", "a\x00b"}} {
+				result = append(result, input{item.name + "-" + endian, encode(strings.Replace(xml, "é水😀", item.value, 1)), true})
+			}
+			continue
+		}
 		for _, item := range []struct{ name, text string }{
 			{"xml", xml}, {"openstep", `{CFBundleExecutable=second;Ignored="é水😀";}`},
 			{"declared", `<?xml version="1.0" encoding="UTF-32"?>` + xml},
@@ -234,6 +242,8 @@ func utf32Inputs() []input {
 			result = append(result, input{fmt.Sprintf("partial-only-%d-%s", n, endian), append(encode(""), []byte{0xff, 0xff, 0xff}[:n]...), false})
 		}
 		result = append(result, input{"scalar-boundaries-" + endian, encode(strings.Replace(xml, "é水😀", "\u007f\u0080\u07ff\u0800\ud7ff\ue000\ufffd\U00010000\U0010ffff", 1)), true})
+		result = append(result, input{"openstep-controls-" + endian, encode("{CFBundleExecutable=second;Ignored=\"\x01\x08\x0b\x0c\x0e\x1f\ufffe\uffff\";}"), true})
+		result = append(result, input{"xml-trailing-controls-" + endian, encode(xml + "\x01\x08\x0b\x0c\x0e\x1f\ufffe\uffff"), true})
 		for _, scalar := range []uint32{0xd800, 0xdc00, 0x110000, 0xffffffff} {
 			for _, tail := range []bool{false, true} {
 				data := encode(`<plist><dict><key>Ignored</key><string>`)

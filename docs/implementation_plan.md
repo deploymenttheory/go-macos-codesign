@@ -14,9 +14,13 @@ on `feat/removal-utf32-plists`, cut from PR85 main at
 both byte orders, ignores incomplete trailing units and rejects the entire
 dictionary on an invalid scalar, including invalid values after a complete XML
 document. Original bytes and raw metadata selection remain intact. The new
-252-case native corpus requires 504 foreign records; Clang retains twelve
+276-case native corpus requires 552 foreign records; Clang retains twelve
 complete Apple function bodies. All existing test/coverage gates remain required.
 Unmarked encodings, legacy declarations and broader grammar remain outstanding.
+Thirty-six additional native research cases capture Apple-valid XML controls,
+noncharacters and NUL. The portable interpreter rejects those unqualified string
+forms explicitly before mutation; OpenStep controls and ignored XML suffixes
+remain supported. A compatible XML grammar is an outstanding prerequisite.
 
 **Merged UTF-16 increment:** [BOM-marked UTF-16 removal](removal-plist-encodings.md)
 on `feat/removal-plist-encodings`, cut from PR84 main at
@@ -2909,8 +2913,11 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   semantics, 120-case API/CLI replay, 240 mandatory foreign records and retained
   resource limits. See [encoding profile](removal-plist-encodings.md).
 - [x] Interpret BOM-marked UTF-32LE/BE with strict scalar validation across the
-  entire input, incomplete-unit truncation, 252-case API/CLI replay and 504
+  entire input, incomplete-unit truncation, 276-case API/CLI replay and 552
   mandatory foreign records. Keep size/complexity limits and prior profiles.
+- [ ] Implement the retained 36-case XML character grammar (controls, U+FFFE/U+FFFF,
+  NUL inside strings); maintain explicit no-mutation errors until then. Preserve
+  accepted OpenStep controls and ignored XML suffixes while extending the parser.
 - [ ] Qualify unmarked UTF-16/32, legacy declared encodings and decoded NUL
   grammar before extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,

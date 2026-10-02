@@ -33,7 +33,7 @@ authorizing fallback to a different removal target.
 
 The [pure-Go converter](../pkg/codesign/bundle_removal_encoding.go) runs before
 the existing bounded interpreter. It has no host-dependent path or native
-binding. Unmarked UTF-16/32, decoded NUL characters and other unqualified
+binding. Unmarked UTF-16/32, decoded NUL characters, XML character restrictions and other unqualified
 encoding forms remain explicit errors. The platform loader's unsupported-input
 cleanup test uses a declared legacy encoding; UTF-16/32 success and malformed
 interpretation have their own native replay tests. UTF-32 never expands beyond
@@ -64,15 +64,20 @@ contains 20 inputs across two metadata locations and three layouts. Capture
 asserts selected-file effects, unchanged bytes/inodes/control attributes and
 envelope removal. All 180 earlier interpretation cases remain mandatory and
 were recaptured after the shared driver changed. `-profile utf32` records
-[252 further cases](../testdata/bundle-removal/plist-utf32.json): 42 inputs across
+[276 further cases](../testdata/bundle-removal/plist-utf32.json): 46 inputs across
 the same locations/layouts, including both byte orders, XML/OpenStep, declarations,
 scalar boundaries, invalid values inside/after a dictionary, incomplete code units,
-empty BOMs and truncated dictionaries.
+empty BOMs, truncated dictionaries, OpenStep controls and ignored trailing XML
+controls. A separate [36-case research corpus](../testdata/bundle-removal/plist-utf32-grammar.json)
+retains native acceptance of controls, noncharacters and NUL inside XML strings.
+`-profile utf32-grammar` recaptures it in macOS CI. These cases document a remaining
+grammar gap, not successful native/Go equivalence: unit tests require an explicit
+unsupported error, and public API tests require unchanged bundles on all hosts.
 
 API and CLI replay run on every OS. macOS compares Go with fresh native
 operations; the foreign-import job requires **240 additional records**, one
-Linux and one Windows result per UTF-16 case. UTF-32 adds **504 mandatory records**;
-each of its 252 cases must have both producers. Native CI recaptures both corpora.
+Linux and one Windows result per UTF-16 case. UTF-32 adds **552 mandatory records**;
+each of its 276 cases must have both producers. Native CI recaptures both corpora.
 UTF-16/32 seeds extend the existing parser fuzz target. Expansion/complexity limits,
 surrogate boundaries, unchanged input buffers and strict-parser isolation have
 focused unit tests. All existing coverage, race, twelve fuzz targets, provenance,
@@ -85,9 +90,12 @@ lint and six GoReleaser build gates remain unchanged.
   the equivalent XML or big-endian OpenStep. Those observations are not an
   implemented portable contract and must not be generalized into BOM detection.
 - Unmarked UTF-32 and declared legacy encodings need native corpora and bounded codecs.
-- Native accepted a decoded NUL in unrelated XML string metadata during research;
-  Go's XML parser rejects that grammar. It remains an explicit unsupported case,
-  requiring grammar work rather than silently discarding the executable key.
+- Native accepts controls, U+FFFE/U+FFFF and NUL inside XML strings; Go's XML parser
+  rejects that grammar. NUL is rejected before parsing. Other illegal-character
+  token errors are explicit unsupported errors, never empty-dictionary fallback.
+  This restriction applies only when the XML parser reaches that character;
+  OpenStep controls and text after the first complete XML value remain supported.
+  A compatible XML grammar is still required to close the retained 36-case gap.
 - Wider XML grammar, binary representations, key normalization, plist aliases
   and the other CLI operations remain in the [implementation plan](implementation_plan.md).
 

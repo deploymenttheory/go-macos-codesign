@@ -17,11 +17,15 @@ matched fresh native operations, with the earlier 360 parser records retained.
 `feat/removal-utf32-plists` starts from that main and retains APFS v0.17.0.
 The [encoding profile](removal-plist-encodings.md) now adds BOM-marked UTF-32LE/BE
 XML/OpenStep interpretation. Invalid scalar values invalidate the whole dictionary;
-incomplete trailing units are ignored. The 252-case native corpus adds 504
+incomplete trailing units are ignored. The 276-case native corpus adds 552
 mandatory foreign records, and twelve complete Apple bodies have Clang evidence.
 All resource bounds, strict parsers and prior tests remain mandatory. This branch
 requires its own complete CI; the merged PR85 run does not validate these changes.
 Unmarked encodings, declared legacy codecs and wider grammar remain open.
+An additional 36 native cases retain Apple-valid XML character grammar that
+Go's parser cannot yet interpret. Explicit errors preserve the bundle instead
+of silently selecting its raw plist. OpenStep controls and ignored trailing XML
+controls have matching native/Go cases; all earlier profiles remain required.
 
 ### Merged UTF-16 profile
 
