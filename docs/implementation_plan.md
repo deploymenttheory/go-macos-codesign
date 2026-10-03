@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-03 after codesign PR89 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-03 after codesign PR90 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,30 +8,35 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** implement [declared legacy plist conversion](removal-legacy-plists.md)
-in the local `pkg/plist` package, on a fresh branch from merged PR89 main at
-`2acb8793ac6f4b8069629bd6306fb17d56384e3c`. All 55 retained charset names use
-native-qualified portable tables. Keep declaration selection separate from XML
-parsing, preserve BOM priority and convert the complete legacy stream before
-interpreting its first value. Undefined bytes are native format failures;
-unqualified codecs remain explicit unsupported errors. Expansion limits remain
-fatal before mutation, and original metadata bytes are never rewritten.
+**Current increment:** implement [Shift-JIS plist interpretation](removal-shift-jis-plists.md)
+on a fresh branch from merged PR90 main at
+`188ed3a4a1602710958c6e0d34872bc0be250b4f`. Eight declarations use two distinct
+native-qualified mapping families. Exhaustive body/EOF capture retains 1,052,672
+observations and 2,272 independent plutil comparisons. Conversion validates the
+complete stream and enforces the existing budget before mutation. Exact UTF-8
+executable-name discovery is enabled for removal with existing path safety limits;
+normalization and alias matching remain outstanding.
 
-Qualification retains 14,080 per-byte observations, adds 792 native operation
-cases and 1,584 required Linux/Windows imports, and expands complete native values
-to 238. Three more complete Apple C converter bodies bring Clang evidence to 21
-on both targets. Deterministic generation, native recapture, all 13 fuzz targets,
->95% coverage for every production package/host, race, guards, lint and six
-GoReleaser targets remain mandatory. PR89's passing CI is the baseline only;
-this branch's final results belong in its draft PR before user merge.
+The increment adds 912 native operation cases, 1,824 mandatory foreign results
+and 152 complete values (390 total). All 48 Unicode executable cases stay in the
+passing matrix on every host. Clang retains 23 complete Apple bodies on both
+targets. Deterministic generation, native recapture, all 13 fuzz targets, >95%
+coverage for every production package/host, race, guards, lint and six GoReleaser
+targets remain mandatory. All seven earlier case arrays remain unchanged.
 
-**Next encoding work:** qualify multibyte/stateful stream behavior and additional
-aliases independently; single-byte tables cannot establish their contracts.
-Retain explicit unsupported errors until conversion, invalid-sequence behavior,
-expansion bounds, native values and file-selection effects are qualified together.
-Remaining OpenStep NUL contexts, XML grammar/types, malformed binary graphs,
-metadata normalization and aliases also remain outstanding. Codesign continues
-to own operation policy, schemas and byte-exact serialization; APFS owns metadata.
+**Merged legacy increment:** PR90 implemented 55 single-byte names from 14,080
+native observations. Its [final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37110254399):
+codesign coverage 95.09% Linux, 95.45% macOS and 95.03% Windows; plist 99.11%
+on all hosts. All 786 committed source hashes matched each OS checkout and all
+4,008 required plist foreign results matched native operations. This is the
+baseline; the current branch requires its own final CI before user merge.
+
+**Next work:** qualify remaining multibyte/stateful codecs and aliases separately,
+including EUC-JP, ISO-2022-JP and GB18030. Native stream/error contracts must be
+captured before removing their explicit unsupported errors. Unicode normalization
+and aliases, remaining OpenStep NUL contexts, XML grammar/types, malformed binary
+graphs and metadata normalization remain outstanding. Codesign owns operation
+policy, schemas and serialization; APFS owns filesystem metadata.
 
 **Merged unmarked increment:** [unmarked removal encodings](removal-unmarked-plists.md)
 implements native leading-zero detection, discarded units and little-endian UTF-16
@@ -2960,6 +2965,11 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   discarded unit, fixed little-endian policy, short/partial/surrogate boundaries
   and secondary parser/codec prevention. Retain 408 API/CLI cases, 816 foreign
   records, 106 total native value observations and all resource/strict-parser gates.
+- [x] Implement eight qualified Shift-JIS/Windows Japanese names, distinct native
+  mappings and whole-stream failure behavior. Retain 1,052,672 byte-stream
+  observations, 912 removal cases, 1,824 mandatory imports and 390 complete values.
+  Enable exact UTF-8 removal executable names without dropping the 48 native
+  Unicode cases; broader normalization and alias semantics remain outstanding.
 - [x] Implement the qualified 55 declared single-byte charset names, exact native
   mappings, declaration/BOM selection and invalid-byte stream behavior. Retain
   14,080 byte replays, 792 native operation cases, 1,584 mandatory foreign results

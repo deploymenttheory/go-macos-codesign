@@ -75,13 +75,28 @@ Conversion is capped at 8 MiB before declaration neutralization and parsing. XML
 when a declaration is followed by OpenStep text. No API
 rewrites the source. See the [qualified behavior and evidence](../../docs/removal-legacy-plists.md).
 
+## Declared Shift-JIS encodings
+
+`Decode` also supports eight qualified Japanese charset names. `shift_jis` selects
+Apple's Shift-JIS family; `shift-jis`, `sjis`, `ms_kanji`, `csshiftjis`, `cp932`,
+`windows-31j` and `windows-932` select its Windows Japanese family. Their mappings
+are distinct. Entire-stream validation rejects undefined pairs and incomplete
+leads, including ignored suffixes, before interpretation. The same 8 MiB decoded
+budget and original-byte ownership apply.
+
+Generated Go tables retain native observations, including mappings that differ
+from conventional Shift-JIS decoders. Every one- and two-byte input is replayed
+in body and EOF contexts for every name: 1,052,672 observations. Native CI
+recaptures them with a test-only C property-list oracle plus 2,272 direct plutil
+comparisons. See [Shift-JIS behavior and evidence](../../docs/removal-shift-jis-plists.md).
+
 ## Evidence and tests
 
-The package is tested directly against 238 retained complete native values and
+The package is tested directly against 390 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.
-The twenty-one complete Apple C bodies and Clang evidence remain in
+The twenty-three complete Apple C bodies and Clang evidence remain in
 [`spec/apple-removal-discovery.json`](../../spec/apple-removal-discovery.json).
 
 All 14,080 native byte observations are replayed through `Decode`. The
@@ -96,7 +111,7 @@ dependency guards and six GoReleaser targets remain mandatory.
 
 ## Outstanding work
 
-- **Other encodings and aliases:** multibyte/stateful codecs need their own native
+- **Other encodings and aliases:** remaining multibyte/stateful codecs need their own native
   stream contracts; single-byte observations cannot establish their behavior.
 - **Remaining grammar:** additional OpenStep NUL contexts, XML/binary types,
   malformed graphs and wider parser behavior remain explicitly unqualified.

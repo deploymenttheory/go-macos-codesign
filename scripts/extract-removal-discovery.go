@@ -55,6 +55,8 @@ func main() {
 	oldStyleSource := read(".research/apple/CFOldStylePList.c")
 	builtinSource := read(".research/apple/CFBuiltinConverters.c")
 	encodingSource := read(".research/apple/CFStringEncodings.c")
+	icuSource := read(".research/apple/CFICUConverters.c")
+	converterHeader := read(".research/apple/CFStringEncodingConverter.h")
 	names := []string{"_urlExists", "_binaryLoadable", "_CFBundleCopyExecutableName", "_CFBundleCopyInfoDictionaryInDirectoryWithVersion", "CFBundleGetInfoDictionary", "_CFBundleCopyInfoPlistURL"}
 	unit := `#include <CoreFoundation/CoreFoundation.h>
 #define DEPLOYMENT_TARGET_EMBEDDED 0
@@ -207,6 +209,41 @@ CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
 		hashes[name] = hash(body)
 		names = append(names, name)
 	}
+
+	unit += `
+#include <stdio.h>
+#include <CoreFoundation/CFStringEncodingExt.h>
+typedef struct UConverter UConverter;
+typedef UniChar UChar;
+typedef int32_t UErrorCode;
+extern const UErrorCode U_ZERO_ERROR, U_BUFFER_OVERFLOW_ERROR;
+const char *ucnv_getAlias(const char *,uint16_t,UErrorCode *);
+void ucnv_toUnicode(UConverter *,UChar **,const UChar *,const char **,const char *,int32_t *,bool,UErrorCode *);
+void ucnv_getInvalidChars(const UConverter *,char *,int8_t *,UErrorCode *);
+uint16_t __CFStringEncodingGetWindowsCodePage(CFStringEncoding);
+bool __CFStringEncodingGetCanonicalName(CFStringEncoding,char *,CFIndex);
+UConverter *__CFStringEncodingConverterCreateICUConverter(const char *,uint32_t,bool);
+CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFIndex);
+#define MAX_BUFFER_SIZE (1000)
+#define HAS_ICU_BUG_6024743 (1)
+#define HAS_ICU_BUG_6025527 (1)
+`
+	enums := regexp.MustCompile(`(?ms)^enum \{\n    kCFStringEncoding(?:AllowLossyConversion|ConversionSuccess).*?^};`).FindAll(converterHeader, -1)
+	if len(enums) != 2 {
+		panic("conversion constants")
+	}
+	for _, e := range enums {
+		unit += string(e) + "\n"
+	}
+	for _, name := range []string{"__CFStringEncodingGetICUName", "__CFStringEncodingICUToUnicode"} {
+		body := regexp.MustCompile(`(?ms)^CF_PRIVATE (?:const char \*|CFIndex )` + name + `\(.*?^}`).Find(icuSource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -250,8 +287,12 @@ CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
 	result["converter_table_sha256"] = hash(converterTable)
 	result["scope"] = "Eighteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open."
 	result["scope"] = strings.Replace(result["scope"].(string), "Eighteen", "Twenty-one", 1) + " Three complete built-in byte converters and the verbatim Windows-1252 table retain failure versus mapping branches. The larger CFStringEncodings bulk decoder is source-reviewed and source-hashed, not claimed as a compiled body: its ASCII/Latin-1 fast path bypasses the strict built-in ASCII converter. Current mappings and whole-stream behavior are qualified separately with native byte and operation corpora."
+	result["icu_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFICUConverters.c"
+	result["icu_source_sha256"] = hash(icuSource)
+	result["converter_header_sha256"] = hash(converterHeader)
+	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-one", "Twenty-three", 1) + " Two complete ICU selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS mappings/errors are established by live property-list and codesign observations."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted twenty-one discovery bodies for two targets")
+	fmt.Println("extracted twenty-three discovery bodies for two targets")
 }

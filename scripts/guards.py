@@ -21,7 +21,7 @@ def main():
         for path in (ROOT / directory).rglob("*.go"):
             if path.name.endswith("_test.go"):
                 continue
-            source = path.read_text()
+            source = path.read_text(encoding="utf-8")
             if re.search(r'"(?:C|os/exec|crypto/x509|crypto/tls|net/http|github.com/ebitengine/purego)"', source):
                 errors.append(f"Forbidden production dependency: {path.relative_to(ROOT)}")
             if "go:linkname" in source or "go:cgo_" in source:
@@ -37,7 +37,7 @@ def main():
             if cgo or name.startswith("crypto/x509/internal/macos") or name in ("crypto/x509", "crypto/tls", "net/http", "github.com/ebitengine/purego"):
                 errors.append(f"Native dependency for {goos}: {line}")
     fixtures = ROOT / "testdata/macho"
-    manifest = json.loads((fixtures / "manifest.json").read_text())
+    manifest = json.loads((fixtures / "manifest.json").read_text(encoding="utf-8"))
     for name, entry in manifest["fixtures"].items():
         path = fixtures / name
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]:
@@ -48,11 +48,11 @@ def main():
     if len(records) != 12:
         errors.append("Expected twelve native Apple certificate fixtures")
     for record in records:
-        entry = json.loads(record.read_text())
+        entry = json.loads(record.read_text(encoding="utf-8"))
         path = record.with_suffix("")
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]:
             errors.append(f"Missing or changed native certificate fixture: {path.name}")
-    upstream = json.loads((dependency / "UPSTREAM.json").read_text())
+    upstream = json.loads((dependency / "UPSTREAM.json").read_text(encoding="utf-8"))
     for name, expected in upstream["files"].items():
         if hashlib.sha256((dependency / name).read_bytes()).hexdigest() != expected:
             errors.append(f"Unrecorded third-party modification: afero/{name}")
@@ -71,13 +71,13 @@ def main():
                                      ("testdata/dmg", "manifest.json"),
                                      ("pkg/codesign/trust", "manifest.json")):
         base = ROOT / directory
-        record = json.loads((base / manifest_name).read_text())
+        record = json.loads((base / manifest_name).read_text(encoding="utf-8"))
         for name, expected in record["files"].items():
             path = base / name
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
                 errors.append(f"Missing or changed pinned file: {directory}/{name}")
-    spec = json.loads((ROOT / "spec/compatibility.json").read_text())
-    native = json.loads((ROOT / spec["native_inventory"]).read_text())
+    spec = json.loads((ROOT / "spec/compatibility.json").read_text(encoding="utf-8"))
+    native = json.loads((ROOT / spec["native_inventory"]).read_text(encoding="utf-8"))
     if native["driver_sha256"] != hashlib.sha256((ROOT / "scripts/probe-cli.go").read_bytes()).hexdigest():
         errors.append("Native inventory driver changed without refreshed evidence")
     for key in ("codesign_sha256", "manual_sha256"):

@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked or legacy")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked, legacy or shift-jis")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -67,6 +67,8 @@ func main() {
 		selectedInputs = unmarkedInputs()
 	} else if *profile == "legacy" {
 		selectedInputs = legacyInputs()
+	} else if *profile == "shift-jis" {
+		selectedInputs = shiftJISInputs()
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -102,10 +104,15 @@ func main() {
 					if location == "platform" {
 						selectedInfo = platform
 					}
+					executableName := "second"
+					if strings.HasPrefix(input.name, "unicode-executable-") {
+						executableName = "あ"
+						tc.Files[main+executableName] = []byte("unicode executable")
+					}
 					tc.Files[selectedInfo] = input.data
 					tc.Selected = selectedInfo
 					if input.executable {
-						tc.Selected = main + "second"
+						tc.Selected = main + executableName
 					}
 					if input.name == "binary-duplicate" {
 						tc.Selected = main + "first"
@@ -173,6 +180,63 @@ func main() {
 
 // Inputs use the independent native byte corpus, never the production decoder.
 // Native codesign must confirm each predicted target and every mutation invariant.
+// Multibyte stream states use independent native observations for the complete
+// mapping stream; invalid and declaration controls are explicit raw-byte inputs.
+func shiftJISInputs() []input {
+	var corpus struct {
+		Codecs []struct {
+			Name  string
+			Table int
+		}
+		Tables []struct{ Singles, Pairs []*string }
+	}
+	must(json.Unmarshal(read("testdata/bundle-removal/plist-shift-jis-values.json"), &corpus))
+	const body = `<dict><key>CFBundleExecutable</key><string>second</string><key>value</key><string><![CDATA[%s]]></string></dict>`
+	var result []input
+	for _, c := range corpus.Codecs {
+		decl := `<?xml version="1.0" encoding="` + c.Name + `"?>`
+		var valid []byte
+		for b, v := range corpus.Tables[c.Table].Singles {
+			if v != nil {
+				valid = append(valid, byte(b), '|')
+			}
+		}
+		for pair, v := range corpus.Tables[c.Table].Pairs {
+			lead := pair >> 8
+			if (lead >= 0x81 && lead <= 0x9f || lead >= 0xe0 && lead <= 0xfc) && v != nil {
+				valid = append(valid, byte(lead), byte(pair), '|')
+			}
+		}
+		result = append(result, input{"all-defined-" + c.Name, []byte(decl + fmt.Sprintf(body, string(valid)) + string(valid)), true})
+		for _, tc := range []struct {
+			name, value, tail string
+			valid             bool
+		}{
+			{"variant-mappings", "\\~\x81\x60\x81\x61\x81\x7c\x81\x91\x81\x92\x81\xca", "", true},
+			{"halfwidth-composition", "\xb6\xde\xca\xdf", "", true},
+			{"invalid-single-body", "\x80", "", false},
+			{"invalid-single-tail", "ok", "\x80", false},
+			{"accepted-del-trail-body", "\x81\x7f", "", true},
+			{"accepted-del-trail-tail", "ok", "\x81\x7f", true},
+			{"invalid-trail-body", "\x81\x3f", "", false},
+			{"invalid-trail-tail", "ok", "\x81\x3f", false},
+			{"undefined-pair-body", "\x81\xad", "", false},
+			{"undefined-pair-tail", "ok", "\x81\xad", false},
+			{"incomplete-tail-low", "ok", "\x81", false},
+			{"incomplete-tail-high", "ok", "\xfc", false},
+			{"lead-at-markup", "\x81", "", false},
+			{"valid-pair-tail", "ok", "\x82\xa0", true},
+		} {
+			result = append(result, input{tc.name + "-" + c.Name, []byte(decl + fmt.Sprintf(body, tc.value) + tc.tail), tc.valid})
+		}
+		result = append(result, input{"unicode-executable-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "\x82\xa0", 1)), true})
+		result = append(result, input{"declared-openstep-" + c.Name, []byte(decl + `{CFBundleExecutable=second;}`), false})
+		result = append(result, input{"bom-priority-" + c.Name, []byte("\xef\xbb\xbf" + decl + fmt.Sprintf(body, "あ😀")), true})
+		result = append(result, input{"mixed-case-" + c.Name, []byte(strings.Replace(decl, c.Name, strings.ToUpper(c.Name), 1) + fmt.Sprintf(body, "\x82\xa0")), true})
+	}
+	return result
+}
+
 func legacyInputs() []input {
 	var corpus struct {
 		Codecs []struct {

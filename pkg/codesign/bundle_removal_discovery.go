@@ -54,7 +54,7 @@ func (b *appBundle) discoverRemovalExecutable() error {
 	if name == "." || strings.Contains(name, "/") {
 		return malformed("CFBundleExecutable must name one file")
 	}
-	if err := bundleRelativePath(name); err != nil {
+	if err := bundleRelativePathProfile(name, true); err != nil {
 		return err
 	}
 	// macOS 27 probes select MacOS, the support-files directory, then the

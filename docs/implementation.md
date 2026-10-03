@@ -4,9 +4,14 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR89 with APFS v0.17.0.
+Current work continues after merged PR90 with APFS v0.17.0.
 The [`plist` package](../pkg/plist/README.md) owns bounded parsing and text
 conversion; codesign retains file selection, operation policy and serialization.
+The [Shift-JIS phase](removal-shift-jis-plists.md) implements eight names with two
+native families, whole-stream failure handling and exact UTF-8 removal executable
+names. Its 912 cases require 1,824 additional foreign results; 1,052,672 native
+stream observations qualify the codec and complete native values total 390.
+Other multibyte/stateful codecs and Unicode normalization/alias matching remain open.
 The [declared legacy encoding phase](removal-legacy-plists.md) implements 55
 charset names from 14,080 native byte observations, with whole-stream validation,
 declaration selection and conversion budgets. It adds 792 native operation cases,
