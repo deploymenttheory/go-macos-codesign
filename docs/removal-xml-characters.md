@@ -21,7 +21,7 @@ unchanged. Signing, display and verification retain their strict parser.
 | Equivalent literal/escaped duplicate keys | Keep the last value |
 | NUL/control-bearing keys | Preserve the entire key; do not truncate or confuse it with an executable key |
 
-The [removal-only parser](../pkg/codesign/bundle_removal_xml.go) uses Go's XML
+The [native-profile parser](../pkg/plist/xml.go) uses Go's XML
 markup tokenizer with its own bounded matching stack. It reads string/key
 content directly, following native CDATA/entity composition, without placeholder
 substitution or changing source bytes. Other scalar values retain the existing

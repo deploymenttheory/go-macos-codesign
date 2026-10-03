@@ -1,29 +1,41 @@
 # Project progress
 
-Updated 2026-10-02. This page describes the implementation in this branch and
+Updated 2026-10-03. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current removal phase
+## Current plist package phase
 
-PR87 is merged at `f65572d61b9d9459c6c83a31c1478710d1a280cb` after
-[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37068263784).
-Audited codesign coverage was 95.26% Linux, 95.67% macOS and 95.21% Windows.
-All 765 source hashes matched each OS checkout; all 456 new character foreign
-results matched fresh native operations, with every earlier profile retained.
+PR88 is merged at `c77e62b723be6bdf16de3e9f05f39aa514dd2cd7` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37076434876).
+Audited codesign coverage was 95.27% Linux, 95.68% macOS and 95.22% Windows.
+All 768 committed source hashes matched each OS checkout; all 816 unmarked
+foreign results matched fresh native operations, with every earlier profile retained.
 
-`feat/removal-unmarked-plists` starts from that main and retains APFS v0.17.0.
+This branch extracts the bounded XML, binary and OpenStep parser into
+[`pkg/plist`](../pkg/plist/README.md), retaining APFS v0.17.0. Codesign keeps
+file selection, removal fallback, strict validation requirements and signature
+serialization. The package has direct API/error tests and replays all 106 native
+value observations. Its own fuzz target supplements all twelve existing targets;
+the unchanged coverage gate applies separately to the new production package.
+
+Legacy-encoding research continues with 14,080 native byte observations across
+55 charset names and a mandatory fresh macOS drift check. This evidence does not
+yet enable production legacy conversion. The next functional increment must
+qualify declaration selection, stream failures, resource budgets and removal
+mutations on every host. Remaining NUL contexts and wider grammar also stay open.
+This branch requires its own complete CI; PR88's run does not validate these changes.
+
+### Merged unmarked encoding profile
+
 The [unmarked encoding phase](removal-unmarked-plists.md) implements the native
 zero-byte heuristic, discarded leading unit and fixed little-endian interpretation
 on every host. It prevents secondary codec/XML detection from changing a removal
-target. The 408-case native corpus requires 816 additional foreign results;
-complete native value observations increase from 38 to 106. Clang evidence now
-contains eighteen complete Apple bodies for both Darwin targets.
-All resource bounds, strict parsers and previous tests remain mandatory. This
-branch requires its own complete CI; PR87's run does not validate these changes.
-Legacy codecs, remaining NUL contexts and wider grammar/discovery behavior remain open.
+target. Its 408-case corpus requires 816 foreign results; complete native value
+observations total 106. Clang evidence contains eighteen complete Apple bodies
+for both Darwin targets. All resource bounds and previous tests remain mandatory.
 
 ### Merged XML character profile
 

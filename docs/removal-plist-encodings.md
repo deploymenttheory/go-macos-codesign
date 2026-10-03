@@ -31,7 +31,7 @@ after conversion: 32 levels and 100,000 values. Original encoded input also
 retains its 8 MiB bound. These operational limits remain fatal rather than
 authorizing fallback to a different removal target.
 
-The [pure-Go converter](../pkg/codesign/bundle_removal_encoding.go) runs before
+The [pure-Go converter](../pkg/plist/encoding.go) runs before
 the existing bounded interpreter. It has no host-dependent path or native
 binding. The [unmarked encoding phase](removal-unmarked-plists.md) adds the
 native leading-zero heuristic and parser-selection contract. The [XML character interpreter](removal-xml-characters.md) now handles

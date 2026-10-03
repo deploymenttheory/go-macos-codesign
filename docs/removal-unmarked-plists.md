@@ -35,7 +35,7 @@ big-endian or unmarked UTF-32 codec guess.
 
 ## Parser selection and bounds
 
-The [converter](../pkg/codesign/bundle_removal_encoding.go) retains the existing
+The [converter](../pkg/plist/encoding.go) retains the existing
 UTF-16 prefix and size rules. The [removal interpreter](../pkg/codesign/bundle_removal_plist.go)
 checks the first native object character after resource preflight, so invalid
 converted prefixes cannot be reinterpreted by the dependency as another codec

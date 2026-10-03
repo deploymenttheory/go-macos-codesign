@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-02 after codesign PR87 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-03 after codesign PR88 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,15 +8,30 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** [unmarked removal encodings](removal-unmarked-plists.md)
-on `feat/removal-unmarked-plists`, cut from PR87 main at
-`f65572d61b9d9459c6c83a31c1478710d1a280cb`. The pure-Go converter implements
-native leading-zero detection, discards the first unit and uses little-endian
-UTF-16 on every host. OpenStep interpretation cannot be silently replaced by a
-second XML/codec guess. The 408-case corpus requires 816 additional foreign
-results; full native value observations increase to 106, and Clang retains
-eighteen complete bodies. All limits, strict parsers and CI gates remain required.
-Declared legacy codecs, remaining NUL contexts and broader grammar remain open.
+**Current increment:** extract [`pkg/plist`](../pkg/plist/README.md) from codesign
+on the branch cut from PR88 main at `c77e62b723be6bdf16de3e9f05f39aa514dd2cd7`.
+Parsing and bounded conversion now have a reusable package; codesign retains
+operation policy, schemas and byte-exact serialization. Direct API/native-value
+checks and an additional fuzz target retain every existing gate, with >95%
+coverage required separately for the new package. No new CLI mode is introduced.
+
+**Next encoding increment:** 14,080 native byte observations for 55 charset names
+are retained and freshly checked on macOS. Implement declared legacy conversion
+only after qualifying declaration precedence and spelling, invalid-byte stream
+behavior, expansion limits, value fidelity and executable selection/mutation.
+Add API/CLI replay and mandatory Linux/Windows exports verified by native codesign.
+Extend complete-source/Clang evidence for relevant conversion paths. Single-byte
+research does not qualify multibyte/stateful codecs or unobserved aliases.
+Remaining NUL contexts and broader grammar stay outstanding.
+
+**Merged unmarked increment:** [unmarked removal encodings](removal-unmarked-plists.md)
+implements native leading-zero detection, discarded units and little-endian UTF-16
+on every host, preventing secondary XML/codec guesses. PR88's
+[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37076434876):
+codesign coverage 95.27% Linux, 95.68% macOS and 95.22% Windows. All 768 committed
+source hashes matched each actual OS checkout; all 816 new foreign results were
+present alongside earlier profiles. Full native value observations total 106 and
+Clang retains eighteen complete bodies. All limits and strict parsers remain required.
 
 **Merged XML character increment:** PR87 implemented the retained controls,
 NUL/noncharacters, line endings and CDATA/entity profile. Its 192 new cases plus
@@ -2453,7 +2468,7 @@ Runtime authorization to exercise an entitlement is a separate host policy claim
 
 **Touchpoints:** [entitlements.go](../pkg/codesign/entitlements.go),
 [entitlement_metadata.go](../pkg/codesign/entitlement_metadata.go),
-[bundle_plist.go](../pkg/codesign/bundle_plist.go),
+[plist/binary.go](../pkg/plist/binary.go),
 [sign.go](../pkg/codesign/sign.go), [CLI](../internal/cli/cli.go).
 
 <a id="wp-09"></a>

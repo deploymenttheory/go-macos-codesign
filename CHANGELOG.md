@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Extract bounded plist parsing and text conversion into the pure-Go `pkg/plist`
+  package. Preserve codesign selection, fallback, validation and serialization
+  contracts. Add direct API/native-value tests and a thirteenth fuzz target while
+  retaining every existing gate. Continue legacy-encoding research with 14,080
+  native byte observations and a mandatory fresh macOS comparison; production
+  legacy conversion remains outstanding.
+
 - Interpret unmarked wide-character removal metadata using macOS's leading-zero
   heuristic and discarded-unit rule on every host. Prevent secondary XML/codec
   detection from changing the selected file. Add 408 native cases, 816 mandatory

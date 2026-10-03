@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"howett.net/plist"
+	"github.com/deploymenttheory/go-macos-codesign/pkg/plist"
 )
 
 var (

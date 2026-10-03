@@ -1,147 +1,46 @@
 package codesign
 
 import (
-	"bytes"
 	"errors"
-	"strings"
 
-	"howett.net/plist"
+	"github.com/deploymenttheory/go-macos-codesign/pkg/plist"
 )
 
-// Resource bounds are operational limits, not evidence of an invalid native
-// dictionary. Never turn their errors into a raw-plist removal decision.
-type bundlePlistLimitError struct{ error }
+type bundlePlistLimitError = plist.LimitError
 
-func (e *bundlePlistLimitError) Unwrap() error { return e.error }
-
-func plistLimit(reason string) error {
-	return &bundlePlistLimitError{malformed("bundle plist %s limit", reason)}
-}
-
-// The strict parser predates permissive removal. Some of its rejections are
-// representation limits rather than proof that Apple's parser returns no dict.
-func plistRestriction(removal bool, reason string) error {
-	if removal {
-		return unsupported(reason)
-	}
-	return malformed("%s", reason)
-}
-
-// Removal keeps the acquired raw URL when native dictionary interpretation
-// fails. It must still distinguish unsupported formats and resource limits.
+// Parsing is shared; only codesign decides whether native-invalid metadata
+// permits discovery to retain the acquired raw plist URL. Limits and unsupported
+// representations remain fatal before any signature mutation.
 func decodeRemovalPlist(data []byte) (map[string]any, error) {
-	if len(data) > maxBundlePlist {
-		return nil, plistLimit("size")
+	value, err := plist.Decode(data)
+	var limit *plist.LimitError
+	if errors.As(err, &limit) || errors.Is(err, plist.ErrUnsupported) {
+		return nil, plistOperationError{err}
 	}
-	if len(data) == 0 {
+	if err != nil {
 		return nil, nil
 	}
-	var values map[string]any
-	var err error
-	if bytes.HasPrefix(data, []byte("bplist")) {
-		values, err = decodeBinaryBundlePlistMode(data, true)
-	} else {
-		data, err = removalPlistText(data)
-		if err != nil {
-			return nil, err
-		}
-		text := bytes.TrimSpace(data)
-		if len(text) > 0 && text[0] == '<' {
-			var value any
-			value, err = decodeRemovalXML(text)
-			values, _ = value.(map[string]any)
-		} else {
-			err = boundRemovalOpenStep(text)
-		}
-		if err == nil && (len(text) == 0 || text[0] != '<') && removalTextStart(text) {
-			var value any
-			var format int
-			// The dependency has no format selector. A neutral OpenStep comment
-			// with invalid XML markup forces its text parser before any user tag
-			// can be mistaken for an XML document. It also prevents a second text
-			// encoding guess. Only this bounded interpretation copy is prefixed.
-			input := append([]byte("/*<*/"), data...)
-			format, err = plist.Unmarshal(input, &value)
-			if err == nil && format == plist.OpenStepFormat {
-				values, _ = value.(map[string]any)
-			}
-		}
-	}
-	var limit *bundlePlistLimitError
-	if errors.As(err, &limit) || errors.Is(err, ErrUnsupported) {
-		return nil, err
-	}
-	// Syntax failures and non-dictionary roots produce no executable keys. This
-	// policy applies only to removal; signing and verification retain strict parsing.
+	values, _ := value.(map[string]any)
 	return values, nil
 }
 
-// CoreFoundation's initial XML/OpenStep object dispatch accepts these ASCII
-// characters. Check after resource preflight: a malformed prefix cannot hide a
-// later limit. Prevent the dependency from guessing another codec at a converted
-// NUL prefix or stripping a second BOM, either of which can change selection.
-func removalTextStart(text []byte) bool {
-	return len(text) == 0 || strings.ContainsRune("{(<\"'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$/:.-", rune(text[0]))
+func decodeBundlePlist(data []byte) (map[string]any, error) {
+	values, err := plist.DecodeDictionary(data)
+	if err != nil {
+		return nil, plistOperationError{err}
+	}
+	return values, nil
 }
 
-// OpenStep has no shared references. Count containers and scalar/key tokens
-// before the dependency allocates a graph; strings/comments/data are opaque.
-// The decoder still owns grammar validation, escaping and duplicate-key order.
-func boundRemovalOpenStep(data []byte) error {
-	depth, count := 0, 0
-	word := false
-	for i := 0; i < len(data); i++ {
-		c := data[i]
-		switch {
-		case c == '/' && i+1 < len(data) && data[i+1] == '/':
-			for i < len(data) && data[i] != '\n' && data[i] != '\r' {
-				i++
-			}
-			word = false
-		case c == '/' && i+1 < len(data) && data[i+1] == '*':
-			end := bytes.Index(data[i+2:], []byte("*/"))
-			if end < 0 {
-				return malformed("unterminated plist comment")
-			}
-			i += end + 3
-			word = false
-		case c == '"':
-			count++
-			word = false
-			for i++; i < len(data); i++ {
-				if data[i] == '\\' {
-					i++
-					continue
-				}
-				if data[i] == '"' {
-					break
-				}
-			}
-		case c == '<':
-			count++
-			word = false
-			for i++; i < len(data) && data[i] != '>'; i++ {
-			}
-		case c == '(' || c == '{':
-			depth++
-			count++
-			word = false
-		case c == ')' || c == '}':
-			if depth > 0 {
-				depth--
-			}
-			word = false
-		case c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f' || c == '=' || c == ';' || c == ',':
-			word = false
-		default:
-			if !word {
-				count++
-				word = true
-			}
-		}
-		if depth > maxBundlePlistDepth || count > maxBundlePlistValues {
-			return plistLimit("complexity")
-		}
+// Preserve codesign diagnostics and errors.Is while retaining the codec's
+// classified cause, including errors.As for resource limits.
+type plistOperationError struct{ cause error }
+
+func (e plistOperationError) kind() error {
+	if errors.Is(e.cause, plist.ErrUnsupported) {
+		return ErrUnsupported
 	}
-	return nil
+	return ErrFormat
 }
+func (e plistOperationError) Error() string   { return e.kind().Error() + ": " + e.cause.Error() }
+func (e plistOperationError) Unwrap() []error { return []error{e.kind(), e.cause} }

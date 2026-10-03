@@ -66,6 +66,9 @@ jobs:
       - name: Capture native XML value fidelity
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
+      - name: Check native legacy encoding research byte observations
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:
@@ -183,6 +186,9 @@ jobs:
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRemovalPlist$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        env:
+          CGO_ENABLED: '0'
+      - run: go test ./pkg/plist -run '^$' -fuzz '^FuzzDecode$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
         env:
           CGO_ENABLED: '0'
       - run: go test ./...

@@ -199,6 +199,11 @@ signature defaults do not depend on ambient configuration.
 
 ## Library
 
+The local [`pkg/plist`](pkg/plist/README.md) package provides bounded XML, binary
+and OpenStep parsing on all three hosts. Codesign retains signature schemas,
+file selection and operation policy; the package documents its qualified native
+profiles and remaining encoding work.
+
 ```go
 err := codesign.Sign(ctx, path, codesign.SignOptions{
     Identifier: "org.example.hello",
