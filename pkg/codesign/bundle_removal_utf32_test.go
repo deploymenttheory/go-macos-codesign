@@ -69,7 +69,10 @@ func TestRemovalPlistUTF32Boundaries(t *testing.T) {
 	if _, err := decodeBundlePlist(data); err == nil {
 		t.Fatal("strict parser weakened")
 	}
-	for _, invalid := range [][]byte{removalUTF32("a\x00b"), data[4:]} {
+	if got, err := decodeRemovalPlist(data[4:]); err != nil || len(got) != 0 {
+		t.Fatal("unmarked XML native fallback", got, err)
+	}
+	for _, invalid := range [][]byte{removalUTF32("a\x00b")} {
 		if _, err := decodeRemovalPlist(invalid); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unqualified text redirected removal", err)
 		}

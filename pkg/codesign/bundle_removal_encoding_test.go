@@ -47,6 +47,9 @@ func TestRemovalPlistEncodingBoundaries(t *testing.T) {
 	if _, err := decodeBundlePlist(removalUTF16(text)); err == nil {
 		t.Fatal("strict parser changed")
 	}
+	if got, err := decodeRemovalPlist(removalUTF16(text)[2:]); err != nil || len(got) != 0 {
+		t.Fatal("unmarked XML native fallback", got, err)
+	}
 	for _, units := range [][]byte{{0, 0xd8}, {0, 0xdc}, {0, 0xd8, 'x', 0}} {
 		data := append(removalUTF16("prefix"), units...)
 		got, err := removalPlistText(data)
@@ -54,7 +57,7 @@ func TestRemovalPlistEncodingBoundaries(t *testing.T) {
 			t.Fatal(got, err)
 		}
 	}
-	for _, data := range [][]byte{{0xff}, removalUTF16("a\x00b"), removalUTF16(text)[2:]} {
+	for _, data := range [][]byte{{0xff}, removalUTF16("a\x00b")} {
 		if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unqualified representation redirected removal", err)
 		}

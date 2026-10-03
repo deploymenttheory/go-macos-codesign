@@ -57,6 +57,30 @@ unchanged or entirely completed independent child is permitted; failed ancestors
 and unrelated members must remain unchanged. Completed manifests are retained in
 the evidence. Arbitrary partial child bytes never pass.
 
+One additional native scheduling case is qualified narrowly: a denied attribute
+read on the nested main during signing can leave the grandchild `Worker.app`
+wholly unchanged or wholly signed before reporting the failure. A repeated
+100-operation native comparison exposed both outcomes; an independently
+successful native control matched the changed result across all 59 archived
+members, including the 22 members inside that worker. A separate 100-operation
+controlled replay passed. CI independently observed the same completed-worker
+bytes with the default policy. The test records initial, native, Go and successful
+control manifests for this case. The Go acquisition failure must still preserve
+the complete tree exactly; the native result may differ only by the entire
+independent worker. Status, diagnostics, all target attributes and replacement
+identity remain exact comparisons. This does not permit partially signed children
+or changes to the failed child or its ancestors. Default, stripping and no-strict
+signing compare against these controls; dry runs still require exact whole-tree
+preservation and never admit a completed worker.
+
+The pinned Apple [`Signer::buildResources`](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/signer.cpp)
+enqueues nested resource work and waits for its group; its exception-aware
+dispatcher may suppress work after another operation fails. Current native
+observations establish the qualified outcomes. Portable adversarial tests in
+[`signing_partial_test.go`](../acceptance/signing_partial_test.go) reject partial
+executables/envelopes, changed ancestors, missing or extra members and prefix
+neighbours. No worker is ignored by the manifest comparison.
+
 [`signing_permissions_test.go`](../acceptance/signing_permissions_test.go) exercises
 six actual CLI write-denial cases on **every** producer using Darwin ACLs, Windows
 DACLs or Linux modes, verifies that the denial is effective, and compares the

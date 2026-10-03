@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar or xml-characters")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters or unmarked")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -63,6 +63,8 @@ func main() {
 		selectedInputs = utf32Inputs(true)
 	} else if *profile == "xml-characters" {
 		selectedInputs = xmlCharacterInputs()
+	} else if *profile == "unmarked" {
+		selectedInputs = unmarkedInputs()
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -165,6 +167,67 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	fmt.Println("Captured and checked", len(cases), "native plist-interpretation cases")
+}
+
+func unmarkedInputs() []input {
+	xml := `<plist><dict><key>CFBundleExecutable</key><string>second</string><key>Ignored</key><string>é水😀</string></dict></plist>`
+	text := `{CFBundleExecutable=second;Ignored="é水😀";}`
+	literalXML := `{CFBundleExecutable=second;Ignored="<dict><key>CFBundleExecutable</key><string>first</string></dict>";}`
+	var result []input
+	for _, codec := range []string{"16le", "16be", "32le", "32be"} {
+		var order binary.AppendByteOrder = binary.LittleEndian
+		if strings.HasSuffix(codec, "be") {
+			order = binary.BigEndian
+		}
+		encode := func(s string) []byte {
+			var data []byte
+			if strings.HasPrefix(codec, "16") {
+				for _, u := range utf16.Encode([]rune(s)) {
+					data = order.AppendUint16(data, u)
+				}
+			} else {
+				for _, r := range s {
+					data = order.AppendUint32(data, uint32(r))
+				}
+			}
+			return data
+		}
+		for _, item := range []struct {
+			name, text string
+			executable bool
+		}{
+			{"xml", xml, false}, {"openstep", text, true}, {"padded-xml", " " + xml, true},
+			{"prefixed-xml", "x" + xml, true}, {"strings", "xCFBundleExecutable=second;", true},
+			{"comments", "x/*head*/" + text, true}, {"nul-prefix", "\x00" + text, true},
+			{"double-bom", "x\ufeff" + xml, false},
+			{"openstep-xml-literal", "x" + literalXML, true},
+			{"declared", `x<?xml version="1.0" encoding="UTF-16"?>` + xml, true},
+			{"mismatch", `x<?xml version="1.0" encoding="ISO-8859-1"?>` + xml, true},
+		} {
+			result = append(result, input{item.name + "-" + codec, encode(item.text), item.executable && codec == "16le"})
+		}
+		result = append(result, input{"odd-tail-" + codec, append(encode("x"+xml), 0xff), codec == "16le"})
+		data := encode("x" + xml)
+		if strings.HasPrefix(codec, "16") {
+			data = order.AppendUint16(data, 0xd800)
+		} else {
+			data = order.AppendUint32(data, 0xd800)
+		}
+		result = append(result, input{"surrogate-tail-" + codec, data, codec == "16le"})
+		result = append(result, input{"short-" + codec, encode(text)[:3], false})
+	}
+	for _, prefix := range [][]byte{{'x', 0}, {0, 'x'}, {0, 0}, {0xff, 0}, {0, 0xff}} {
+		data := append([]byte{}, prefix...)
+		for _, u := range utf16.Encode([]rune(xml)) {
+			data = binary.LittleEndian.AppendUint16(data, u)
+		}
+		result = append(result, input{fmt.Sprintf("prefix-%x", prefix), data, true})
+	}
+	for _, data := range [][]byte{{0}, {'x', 0}, {0, 'x'}, {0, 0}, {'x', 0, 0}, {'{', 0, '}'}} {
+		result = append(result, input{fmt.Sprintf("short-bytes-%x", data), data, false})
+	}
+	result = append(result, input{"openstep-xml-literal-utf8", []byte(literalXML), true})
+	return result
 }
 
 func xmlCharacterInputs() []input {

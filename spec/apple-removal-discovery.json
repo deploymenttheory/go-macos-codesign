@@ -9,22 +9,27 @@
     "_CFBundleCopyExecutableName": "3a0b6ecd99f505a4267363e99b2a3ece2ab7b228b408401eefbdfa3d2945d236",
     "_CFBundleCopyInfoDictionaryInDirectoryWithVersion": "cf4ad33f85ebecea6ca5b1cace96e32fab7add9abab82e35df54153580116dfc",
     "_CFBundleCopyInfoPlistURL": "1734595b2d14ac27eed9a85f7de58b75725e0bdb09f53ede88610c1081e308bd",
+    "_CFPropertyListCreateWithData": "291b102875c06cd4155638630027612f7d2e5d5962dc5a5e5e8c262178248ff2",
     "_binaryLoadable": "567d8d5323b614ca68f05d29a630a22ecd0d7bd3d6015e06498d66daa391c849",
+    "_createUTF8DataFromString": "83dc8bfa765b3db066fddfeb706e5271eaa0d6ddcf4b76c412158e55956b1cb9",
     "_urlExists": "320feaff9cd8954a7c34a223a11f7222e44e9a6c5259ef025de045cb8ccc1674",
     "encodingForXMLData": "faa35d45c5d76bcb051fe2a1b4c131af35aed0efc0977d44b601942837e4e496",
     "parseCDSect_pl": "116d28c14dab61c9f49d18d440d1f2610ef6f17c0dab86a8f0cccdf94496da78",
     "parseEntityReference_pl": "7d5c795fbd2af1161c76f661df774712f1e822ec6ed7bfd7dc41323d78abd23d",
+    "parsePlistObject": "367cf91786a3854216a5eea0e398edc61ec118a6d41a328306943104ad09ad79",
     "parseStringTag": "969f253f9118328f8a9aef5f497d15de4cf15a5b06be6a9022db6ac3ac37c781"
   },
   "dictionary_source_sha256": "493b1c406ff3d4709817027034490565a8b43bc7e1c57870ef85415100ab78e6",
   "dictionary_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFDictionary.c",
-  "driver_sha256": "e21428ce2ee7c9ffcff2cb38e45a09aa979bbec03b986929e6b4438c26cbf156",
+  "driver_sha256": "249e085b8b29a094d6936cf50aa0fb72eebf89263ffdb5f637c983fc1b575f43",
   "info_source_sha256": "bbd744b84f1dd0989d1d8494800a34f8a3d9545a64dabda587481f15986373a0",
   "info_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle_InfoPlist.c",
+  "old_style_source_sha256": "9c0635f05e28b5780321a5ae1be23ab08136f51cc3d7d79bbcd58fe80bb0a4b1",
+  "old_style_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFOldStylePList.c",
   "plist_source_sha256": "ced92800b4651fc47e9a1f53626170c7c7324db50bf6740541fd56844b7bead3",
   "plist_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c",
   "schema": 1,
-  "scope": "Fifteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. Broader parser encodings/types remain open.",
+  "scope": "Eighteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open.",
   "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
   "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
   "targets": {
@@ -352,6 +357,56 @@
           "url": 4
         }
       },
+      "_CFPropertyListCreateWithData": {
+        "ast_kinds": {
+          "BinaryOperator": 18,
+          "CStyleCastExpr": 7,
+          "CallExpr": 19,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 85,
+          "DeclStmt": 6,
+          "FunctionDecl": 1,
+          "IfStmt": 13,
+          "ImplicitCastExpr": 105,
+          "IntegerLiteral": 16,
+          "ParenExpr": 9,
+          "ParmVarDecl": 8,
+          "ReturnStmt": 6,
+          "StringLiteral": 3,
+          "UnaryOperator": 12,
+          "VarDecl": 6
+        },
+        "references": {
+          "CFDataGetBytePtr": 1,
+          "CFDataGetLength": 2,
+          "CFRelease": 3,
+          "CFStringCreateWithBytes": 1,
+          "_CFPropertyListCreateFromUTF8Data": 2,
+          "__CFPropertyListCreateError": 3,
+          "__CFTryParseBinaryPlist": 1,
+          "__builtin___CFStringMakeConstantString": 3,
+          "_createUTF8DataFromString": 1,
+          "allocator": 5,
+          "allowNewTypes": 2,
+          "data": 7,
+          "encoding": 5,
+          "encodingForXMLData": 1,
+          "format": 4,
+          "initStatics": 1,
+          "kCFPropertyListBinaryFormat_v1_0": 1,
+          "kCFPropertyListReadCorruptError": 3,
+          "kCFStringEncodingUTF8": 1,
+          "option": 3,
+          "out": 3,
+          "outError": 11,
+          "result": 1,
+          "skip": 4,
+          "subError": 6,
+          "topLevelKeys": 2,
+          "utf8Data": 3,
+          "xmlString": 5
+        }
+      },
       "_binaryLoadable": {
         "ast_kinds": {
           "CallExpr": 1,
@@ -368,6 +423,36 @@
           "_urlExists": 1,
           "loadable": 1,
           "url": 1
+        }
+      },
+      "_createUTF8DataFromString": {
+        "ast_kinds": {
+          "CStyleCastExpr": 5,
+          "CallExpr": 8,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 24,
+          "DeclStmt": 3,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 34,
+          "IntegerLiteral": 11,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "CFAllocatorAllocate": 1,
+          "CFDataCreateWithBytesNoCopy": 1,
+          "CFRangeMake": 2,
+          "CFStringGetBytes": 2,
+          "CFStringGetLength": 2,
+          "allocator": 3,
+          "bytes": 2,
+          "bytesNeeded": 4,
+          "kCFStringEncodingUTF8": 2,
+          "str": 4,
+          "utf8Data": 1
         }
       },
       "_urlExists": {
@@ -538,6 +623,44 @@
           "stringData": 2,
           "tmpBuf": 2,
           "tmpBufLength": 2
+        }
+      },
+      "parsePlistObject": {
+        "ast_kinds": {
+          "BinaryOperator": 32,
+          "CStyleCastExpr": 4,
+          "CallExpr": 11,
+          "CharacterLiteral": 17,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 49,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 76,
+          "IntegerLiteral": 2,
+          "MemberExpr": 6,
+          "ParenExpr": 21,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 7,
+          "StringLiteral": 2,
+          "UnaryOperator": 5,
+          "VarDecl": 2
+        },
+        "references": {
+          "__CFPropertyListCreateError": 2,
+          "__builtin___CFStringMakeConstantString": 2,
+          "advanceToNonSpace": 1,
+          "ch": 20,
+          "foundChar": 1,
+          "kCFPropertyListReadCorruptError": 2,
+          "lineNumberStrings": 1,
+          "pInfo": 13,
+          "parsePlistArray": 1,
+          "parsePlistData": 1,
+          "parsePlistDict": 1,
+          "parseQuotedPlistString": 1,
+          "parseUnquotedPlistString": 1,
+          "requireObject": 2
         }
       },
       "parseStringTag": {
@@ -912,6 +1035,56 @@
           "url": 4
         }
       },
+      "_CFPropertyListCreateWithData": {
+        "ast_kinds": {
+          "BinaryOperator": 18,
+          "CStyleCastExpr": 7,
+          "CallExpr": 19,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 85,
+          "DeclStmt": 6,
+          "FunctionDecl": 1,
+          "IfStmt": 13,
+          "ImplicitCastExpr": 105,
+          "IntegerLiteral": 16,
+          "ParenExpr": 9,
+          "ParmVarDecl": 8,
+          "ReturnStmt": 6,
+          "StringLiteral": 3,
+          "UnaryOperator": 12,
+          "VarDecl": 6
+        },
+        "references": {
+          "CFDataGetBytePtr": 1,
+          "CFDataGetLength": 2,
+          "CFRelease": 3,
+          "CFStringCreateWithBytes": 1,
+          "_CFPropertyListCreateFromUTF8Data": 2,
+          "__CFPropertyListCreateError": 3,
+          "__CFTryParseBinaryPlist": 1,
+          "__builtin___CFStringMakeConstantString": 3,
+          "_createUTF8DataFromString": 1,
+          "allocator": 5,
+          "allowNewTypes": 2,
+          "data": 7,
+          "encoding": 5,
+          "encodingForXMLData": 1,
+          "format": 4,
+          "initStatics": 1,
+          "kCFPropertyListBinaryFormat_v1_0": 1,
+          "kCFPropertyListReadCorruptError": 3,
+          "kCFStringEncodingUTF8": 1,
+          "option": 3,
+          "out": 3,
+          "outError": 11,
+          "result": 1,
+          "skip": 4,
+          "subError": 6,
+          "topLevelKeys": 2,
+          "utf8Data": 3,
+          "xmlString": 5
+        }
+      },
       "_binaryLoadable": {
         "ast_kinds": {
           "CallExpr": 1,
@@ -928,6 +1101,36 @@
           "_urlExists": 1,
           "loadable": 1,
           "url": 1
+        }
+      },
+      "_createUTF8DataFromString": {
+        "ast_kinds": {
+          "CStyleCastExpr": 5,
+          "CallExpr": 8,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 24,
+          "DeclStmt": 3,
+          "FunctionDecl": 1,
+          "ImplicitCastExpr": 34,
+          "IntegerLiteral": 11,
+          "ParenExpr": 2,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 3
+        },
+        "references": {
+          "CFAllocatorAllocate": 1,
+          "CFDataCreateWithBytesNoCopy": 1,
+          "CFRangeMake": 2,
+          "CFStringGetBytes": 2,
+          "CFStringGetLength": 2,
+          "allocator": 3,
+          "bytes": 2,
+          "bytesNeeded": 4,
+          "kCFStringEncodingUTF8": 2,
+          "str": 4,
+          "utf8Data": 1
         }
       },
       "_urlExists": {
@@ -1100,6 +1303,44 @@
           "tmpBufLength": 2
         }
       },
+      "parsePlistObject": {
+        "ast_kinds": {
+          "BinaryOperator": 32,
+          "CStyleCastExpr": 4,
+          "CallExpr": 11,
+          "CharacterLiteral": 17,
+          "CompoundStmt": 10,
+          "DeclRefExpr": 49,
+          "DeclStmt": 2,
+          "FunctionDecl": 1,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 76,
+          "IntegerLiteral": 2,
+          "MemberExpr": 6,
+          "ParenExpr": 21,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 7,
+          "StringLiteral": 2,
+          "UnaryOperator": 5,
+          "VarDecl": 2
+        },
+        "references": {
+          "__CFPropertyListCreateError": 2,
+          "__builtin___CFStringMakeConstantString": 2,
+          "advanceToNonSpace": 1,
+          "ch": 20,
+          "foundChar": 1,
+          "kCFPropertyListReadCorruptError": 2,
+          "lineNumberStrings": 1,
+          "pInfo": 13,
+          "parsePlistArray": 1,
+          "parsePlistData": 1,
+          "parsePlistDict": 1,
+          "parseQuotedPlistString": 1,
+          "parseUnquotedPlistString": 1,
+          "requireObject": 2
+        }
+      },
       "parseStringTag": {
         "ast_kinds": {
           "BinaryOperator": 29,
@@ -1149,7 +1390,8 @@
       }
     }
   },
-  "translation_unit_sha256": "74a776892b4de52fa4aca9ad196d7e66e0681ba133262d3de2578018a87819ca",
+  "translation_unit_sha256": "faf98af5d462fe6d6d7090e0e200f4f856590d363358d978d127eec1c123e540",
   "unicode_source_sha256": "dd8d0a16c8f35da2b33c37b2088c1e379cd72ccc928e8a91bf823e0d2a8bee99",
-  "unicode_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h"
+  "unicode_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h",
+  "unquoted_predicate_sha256": "cbeadc05c4a4c7e202bc29d80bd84c3609df06ff73e8690ef5aee3a1a1060bf1"
 }

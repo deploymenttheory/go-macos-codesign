@@ -3,6 +3,7 @@ package acceptance
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"maps"
 	"os"
 	"path/filepath"
@@ -262,6 +263,12 @@ func TestSigningSideband(t *testing.T) {
 func signingSidebandPartial(t *testing.T, before, completed, actual []byte, independent string, native bool) {
 	t.Helper()
 	prior, full, got := executableDirectoryManifest(t, before), executableDirectoryManifest(t, completed), executableDirectoryManifest(t, actual)
+	if err := signingSidebandPartialResult(prior, full, got, independent, native); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func signingSidebandPartialResult(prior, full, got map[string]string, independent string, native bool) error {
 	expected := map[string]string{}
 	for name, digest := range prior {
 		expected[name] = digest
@@ -283,19 +290,19 @@ func signingSidebandPartial(t *testing.T, before, completed, actual []byte, inde
 		}
 	}
 	if reflect.DeepEqual(got, expected) {
-		return
+		return nil
 	}
 	for name, digest := range expected {
 		if got[name] != digest {
-			t.Errorf("unexpected partial result at %s: got=%s want=%s", name, got[name], digest)
+			return fmt.Errorf("unexpected partial result at %s: got=%s want=%s", name, got[name], digest)
 		}
 	}
 	for name := range got {
 		if _, ok := expected[name]; !ok {
-			t.Errorf("unexpected new member %s", name)
+			return fmt.Errorf("unexpected new member %s", name)
 		}
 	}
-	t.FailNow()
+	return fmt.Errorf("unexpected partial result")
 }
 
 func signingSidebandBytes(t *testing.T, operand string, bundle bool) []byte {

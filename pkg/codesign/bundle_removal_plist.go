@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"errors"
+	"strings"
 
 	"howett.net/plist"
 )
@@ -52,11 +53,16 @@ func decodeRemovalPlist(data []byte) (map[string]any, error) {
 		} else {
 			err = boundRemovalOpenStep(text)
 		}
-		if err == nil && (len(text) == 0 || text[0] != '<') {
+		if err == nil && (len(text) == 0 || text[0] != '<') && removalTextStart(text) {
 			var value any
 			var format int
-			format, err = plist.Unmarshal(data, &value)
-			if err == nil && format != plist.GNUStepFormat {
+			// The dependency has no format selector. A neutral OpenStep comment
+			// with invalid XML markup forces its text parser before any user tag
+			// can be mistaken for an XML document. It also prevents a second text
+			// encoding guess. Only this bounded interpretation copy is prefixed.
+			input := append([]byte("/*<*/"), data...)
+			format, err = plist.Unmarshal(input, &value)
+			if err == nil && format == plist.OpenStepFormat {
 				values, _ = value.(map[string]any)
 			}
 		}
@@ -68,6 +74,14 @@ func decodeRemovalPlist(data []byte) (map[string]any, error) {
 	// Syntax failures and non-dictionary roots produce no executable keys. This
 	// policy applies only to removal; signing and verification retain strict parsing.
 	return values, nil
+}
+
+// CoreFoundation's initial XML/OpenStep object dispatch accepts these ASCII
+// characters. Check after resource preflight: a malformed prefix cannot hide a
+// later limit. Prevent the dependency from guessing another codec at a converted
+// NUL prefix or stripping a second BOM, either of which can change selection.
+func removalTextStart(text []byte) bool {
+	return len(text) == 0 || strings.ContainsRune("{(<\"'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$/:.-", rune(text[0]))
 }
 
 // OpenStep has no shared references. Count containers and scalar/key tokens

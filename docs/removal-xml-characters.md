@@ -52,8 +52,9 @@ must each supply all 228 cases. The preceding 180 interpretation, 120 UTF-16 and
 276 UTF-32 cases remain mandatory. No OS feature or test gate is skipped.
 
 A separate [value probe](../scripts/probe-removal-xml-values.go) invokes native
-`plutil` and retains **38 complete value observations** in
-[the value corpus](../testdata/bundle-removal/plist-xml-values.json). These prove
+`plutil` initially retained **38 complete character value observations** in
+[the value corpus](../testdata/bundle-removal/plist-xml-values.json). The subsequent
+[unmarked phase](removal-unmarked-plists.md) expands that corpus to 106 observations. These prove
 character/key fidelity, not only executable selection. Portable tests compare
 the full decoded maps and arrays, validate input/driver/corpus hashes and preserve
 the original input buffer. macOS CI recaptures both operation and value evidence;
@@ -64,7 +65,8 @@ This native tooling is used only for research and acceptance, never production.
 [Apple's pinned C source](https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c)
 supplies complete `parseStringTag`, `parseCDSect_pl` and
 `parseEntityReference_pl` bodies to the [Clang extraction](../scripts/extract-removal-discovery.go).
-There are now **15 complete bodies on both Darwin targets**. Parser state,
+This phase brought the evidence to **15 complete bodies on both Darwin targets**;
+the subsequent unmarked phase raises the current total to 18. Parser state,
 string-interning/error interfaces and the `NO` Boolean definition are compile
 shims; function bodies remain verbatim. The historical entity implementation
 uses a 16-bit accumulator. Current macOS instead preserves supplementary scalar
@@ -78,7 +80,8 @@ provenance, lint and six-target GoReleaser checks remain required.
 
 ## Remaining work
 
-- Unmarked UTF-16/32 and declared legacy codecs still need qualified conversion.
+- Unmarked UTF-16/32 interpretation is qualified in the [next profile](removal-unmarked-plists.md).
+  Declared legacy codecs still need qualified conversion.
 - NUL in OpenStep and XML control characters outside strings/keys remain explicit
   unsupported errors where the existing parser cannot establish native behavior.
 - Wider XML markup/DTD/scalar behavior, binary representations, metadata key

@@ -53,7 +53,7 @@ func main() {
 	}
 	var cases []observation
 	sources := map[string]string{}
-	for _, file := range []string{"plist-xml-characters.json", "plist-utf32-grammar.json"} {
+	for _, file := range []string{"plist-xml-characters.json", "plist-utf32-grammar.json", "plist-unmarked.json"} {
 		data := read("testdata/bundle-removal/" + file)
 		sources[file] = hash(data)
 		var corpus struct {

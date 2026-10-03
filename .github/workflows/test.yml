@@ -60,6 +60,9 @@ jobs:
       - name: Capture native XML strings and character selection
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-plist-interpretation.go -profile xml-characters -out artifacts/plist-xml-characters.json
+      - name: Capture native unmarked plist encodings
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-plist-interpretation.go -profile unmarked -out artifacts/plist-unmarked.json
       - name: Capture native XML value fidelity
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
