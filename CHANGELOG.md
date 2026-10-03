@@ -2,12 +2,17 @@
 
 ## Unreleased
 
+- Interpret 55 native-qualified declared single-byte plist encodings on Linux,
+  macOS and Windows. Preserve declaration/BOM precedence, exact byte mappings,
+  whole-stream failures and conversion budgets. Add 792 native removal cases,
+  1,584 mandatory foreign results, 132 complete native values and three complete
+  Apple converter bodies; retain every existing test and coverage gate.
+
 - Extract bounded plist parsing and text conversion into the pure-Go `pkg/plist`
   package. Preserve codesign selection, fallback, validation and serialization
   contracts. Add direct API/native-value tests and a thirteenth fuzz target while
   retaining every existing gate. Continue legacy-encoding research with 14,080
-  native byte observations and a mandatory fresh macOS comparison; production
-  legacy conversion remains outstanding.
+  native byte observations and a mandatory fresh macOS comparison.
 
 - Interpret unmarked wide-character removal metadata using macOS's leading-zero
   heuristic and discarded-unit rule on every host. Prevent secondary XML/codec

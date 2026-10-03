@@ -35,7 +35,15 @@ func removalPlistCases(t *testing.T, corpusName string, count int) []emptyInfoCa
 		t.Fatal("incomplete platform selection corpus")
 	}
 	var cases []emptyInfoCase
+	names := map[string]bool{}
 	for _, c := range corpus.Cases {
+		// These labels become artifact filenames on every producer. Preserve the
+		// native input bytes, but require portable, unique evidence names up front.
+		name := strings.ToLower(c.Shape + "-" + c.State)
+		if c.Shape == "" || c.State == "" || strings.ContainsAny(name, "\"<>:|*?\\/\r\n\x00") || strings.TrimRight(name, " .") != name || names[name] {
+			t.Fatal("nonportable or duplicate corpus case label", corpusName, name)
+		}
+		names[name] = true
 		cases = append(cases, emptyInfoCase{Shape: c.Shape, State: c.State, Info: c.Info, Main: c.Selected, Output: c.Output, Status: c.Status, Envelope: c.Envelope, Files: c.After, InputFiles: c.Files, Directories: c.Directories, Links: c.Links})
 	}
 	return cases
@@ -137,4 +145,8 @@ func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []empty
 		}
 	}
 	attest(t, map[string]any{"native_cases": len(expected), "per_case_producers": seen})
+}
+
+func TestRemovalPlistLegacy(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-legacy.json", 792), "plist-legacy-")
 }

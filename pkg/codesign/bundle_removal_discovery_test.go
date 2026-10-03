@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 18 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 21 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 18 {
+		if len(methods) != 21 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -66,6 +66,10 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		}
 		if methods["parseStringTag"].References["parseCDSect_pl"] != 1 || methods["parseStringTag"].References["parseEntityReference_pl"] != 1 || methods["parseCDSect_pl"].References["CFDataAppendBytes"] != 1 || methods["parseEntityReference_pl"].References["CFStringGetBytes"] != 1 {
 			t.Fatal("missing native string assembly bodies", target)
+		}
+
+		if methods["__CFFromWinLatin1"].References["cp1252_to_uni"] != 1 || methods["__CFFromASCII"].Kinds["ReturnStmt"] != 2 || methods["__CFFromISOLatin1"].Kinds["ReturnStmt"] != 1 {
+			t.Fatal("missing byte conversion and invalid-byte branches", target)
 		}
 
 		if methods["_CFPropertyListCreateWithData"].References["encodingForXMLData"] != 1 || methods["_CFPropertyListCreateWithData"].References["CFStringCreateWithBytes"] != 1 || methods["_createUTF8DataFromString"].References["CFStringGetBytes"] != 2 || methods["parsePlistObject"].References["parseUnquotedPlistString"] != 1 {

@@ -44,7 +44,7 @@ func TestRemovalXMLNativeValues(t *testing.T) {
 		t.Fatal(err)
 	}
 	hash := func(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
-	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || len(corpus.Cases) != 106 || len(corpus.Sources) != 3 || corpus.Driver != hash(readTestFile(t, "../../scripts/probe-removal-xml-values.go")) {
+	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || len(corpus.Cases) != 238 || len(corpus.Sources) != 4 || corpus.Driver != hash(readTestFile(t, "../../scripts/probe-removal-xml-values.go")) {
 		t.Fatal("incomplete native value evidence")
 	}
 	if _, err := hex.DecodeString(corpus.Native); err != nil {
@@ -135,7 +135,7 @@ func TestRemovalXMLBoundaries(t *testing.T) {
 	// mutation; they cannot silently select the raw Info.plist for removal.
 	for name, data := range map[string][]byte{
 		"outside-string":  []byte("<dict>\x01</dict>"),
-		"legacy-encoding": []byte(`<?xml version="1.0" encoding="ISO-8859-1"?><dict/>`),
+		"legacy-encoding": []byte(`<?xml version="1.0" encoding="Shift_JIS"?><dict/>`),
 		"depth":           []byte(strings.Repeat(`<array>`, 33) + strings.Repeat(`</array>`, 33)),
 		"string-values":   []byte(`<array>` + strings.Repeat(`<string/>`, maxBundlePlistValues) + `</array>`),
 	} {

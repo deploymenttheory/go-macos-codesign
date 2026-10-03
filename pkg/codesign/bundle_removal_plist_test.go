@@ -56,7 +56,7 @@ func TestRemovalPlistLimitsRemainFatal(t *testing.T) {
 }
 
 func TestRemovalPlistInterpretationBoundaries(t *testing.T) {
-	for _, data := range [][]byte{[]byte(`<?xml version="1.0" encoding="ISO-8859-1"?><plist><dict/></plist>`), scalarBundlePlist([]byte{0xf0})} {
+	for _, data := range [][]byte{[]byte(`<?xml version="1.0" encoding="Shift_JIS"?><plist><dict/></plist>`), scalarBundlePlist([]byte{0xf0})} {
 		if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unsupported input became fallback", err)
 		}
@@ -84,6 +84,9 @@ func TestRemovalPlistInterpretationBoundaries(t *testing.T) {
 }
 
 func FuzzRemovalPlist(f *testing.F) {
+	f.Add([]byte(`<?xml encoding="ISO-8859-1"?>{CFBundleExecutable=second;}`))
+	f.Add([]byte("<?xml encoding=\"windows-1252\"?><dict/>\x81"))
+	f.Add([]byte("\xef\xbb\xbf<?xml encoding=\"macintosh\"?><dict/>"))
 	f.Add(removalUTF16(`x<dict><key>CFBundleExecutable</key><string>second</string></dict>`)[2:])
 	f.Add(removalUTF32(`{CFBundleExecutable=second;}`)[4:])
 	f.Add([]byte("<dict><key>a\x00b</key><string><![CDATA[\x01]]>&#0;&#x10FFFF;</string></dict>"))

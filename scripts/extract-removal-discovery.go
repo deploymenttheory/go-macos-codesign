@@ -53,6 +53,8 @@ func main() {
 	plistSource := read(".research/apple/CFPropertyList.c")
 	unicodeSource := read(".research/apple/CFUniChar.h")
 	oldStyleSource := read(".research/apple/CFOldStylePList.c")
+	builtinSource := read(".research/apple/CFBuiltinConverters.c")
+	encodingSource := read(".research/apple/CFStringEncodings.c")
 	names := []string{"_urlExists", "_binaryLoadable", "_CFBundleCopyExecutableName", "_CFBundleCopyInfoDictionaryInDirectoryWithVersion", "CFBundleGetInfoDictionary", "_CFBundleCopyInfoPlistURL"}
 	unit := `#include <CoreFoundation/CoreFoundation.h>
 #define DEPLOYMENT_TARGET_EMBEDDED 0
@@ -191,6 +193,20 @@ CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
 	unit += string(body) + "\n"
 	hashes["parsePlistObject"] = hash(body)
 	names = append(names, "parsePlistObject")
+	converterTable := regexp.MustCompile(`(?ms)^static const uint16_t cp1252_to_uni\[32\] = \{.*?^};`).Find(builtinSource)
+	if len(converterTable) == 0 {
+		panic("cp1252_to_uni")
+	}
+	unit += string(converterTable) + "\n"
+	for _, name := range []string{"__CFFromASCII", "__CFFromISOLatin1", "__CFFromWinLatin1"} {
+		body := regexp.MustCompile(`(?ms)^static bool ` + name + `\(.*?^}`).Find(builtinSource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -227,9 +243,15 @@ CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
 	result["old_style_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFOldStylePList.c"
 	result["old_style_source_sha256"] = hash(oldStyleSource)
 	result["unquoted_predicate_sha256"] = hash(predicate)
+	result["builtin_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBuiltinConverters.c"
+	result["builtin_source_sha256"] = hash(builtinSource)
+	result["encoding_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFStringEncodings.c"
+	result["encoding_source_sha256"] = hash(encodingSource)
+	result["converter_table_sha256"] = hash(converterTable)
 	result["scope"] = "Eighteen complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open."
+	result["scope"] = strings.Replace(result["scope"].(string), "Eighteen", "Twenty-one", 1) + " Three complete built-in byte converters and the verbatim Windows-1252 table retain failure versus mapping branches. The larger CFStringEncodings bulk decoder is source-reviewed and source-hashed, not claimed as a compiled body: its ASCII/Latin-1 fast path bypasses the strict built-in ASCII converter. Current mappings and whole-stream behavior are qualified separately with native byte and operation corpora."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted eighteen discovery bodies for two targets")
+	fmt.Println("extracted twenty-one discovery bodies for two targets")
 }

@@ -1,19 +1,23 @@
 package plist_test
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/deploymenttheory/go-macos-codesign/pkg/plist"
 )
 
-// This is retained research for the next encoding increment, not a claim that
-// Decode already supports the declared codecs. CI recaptures all native bytes.
-func TestLegacyResearchProvenance(t *testing.T) {
+// Replay every native byte, including conversion failures, through the public
+// decoder. CI independently recaptures all observations with the host plutil.
+func TestLegacyNativeBytes(t *testing.T) {
 	read := func(name string) []byte {
 		t.Helper()
 		b, err := os.ReadFile(name)
@@ -71,6 +75,26 @@ func TestLegacyResearchProvenance(t *testing.T) {
 			if n < 128 && r != int32(n) || r != -1 && !utf8.ValidRune(r) {
 				t.Fatal("invalid native scalar", c.Name, n, r)
 			}
+			t.Run(fmt.Sprintf("%s/%02x", c.Name, n), func(t *testing.T) {
+				data := append(bytes.Clone(c.Prefix), byte(n))
+				data = append(data, c.Suffix...)
+				before := bytes.Clone(data)
+				got, err := plist.Decode(data)
+				if !bytes.Equal(data, before) {
+					t.Fatal("mutated source")
+				}
+				if r == -1 {
+					var limit *plist.LimitError
+					if !errors.Is(err, plist.ErrFormat) || errors.As(err, &limit) {
+						t.Fatal("native conversion failure", got, err)
+					}
+					return
+				}
+				values, ok := got.(map[string]any)
+				if err != nil || !ok || len(values) != 1 || values["value"] != string(r) {
+					t.Fatalf("native U+%04X, Go %#v: %v", r, got, err)
+				}
+			})
 		}
 	}
 	if len(wanted) != 0 {

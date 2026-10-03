@@ -198,6 +198,9 @@ func (p *nativeXML) stringValue() (string, error) {
 				if err != nil {
 					return "", err
 				}
+				if !utf8.Valid(value) {
+					return "", malformed("invalid UTF-8 property-list string")
+				}
 				return string(value), nil
 			case '&':
 				end := bytes.IndexByte(p.data[pos:], ';')

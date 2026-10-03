@@ -130,7 +130,7 @@ func TestDecodeNativeValues(t *testing.T) {
 	if err := json.Unmarshal(read("../../testdata/bundle-removal/plist-xml-values.json"), &corpus); err != nil {
 		t.Fatal(err)
 	}
-	if corpus.Schema != 1 || len(corpus.Cases) != 106 || len(corpus.Sources) != 3 || len(corpus.Native) != 64 || corpus.Driver != hash(read("../../scripts/probe-removal-xml-values.go")) {
+	if corpus.Schema != 1 || len(corpus.Cases) != 238 || len(corpus.Sources) != 4 || len(corpus.Native) != 64 || corpus.Driver != hash(read("../../scripts/probe-removal-xml-values.go")) {
 		t.Fatal("incomplete native provenance")
 	}
 	for name, want := range corpus.Sources {

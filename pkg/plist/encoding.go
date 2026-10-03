@@ -56,22 +56,23 @@ func nativeText(data []byte) ([]byte, error) {
 			converted = utf8.AppendRune(converted, r)
 		}
 		data = converted
-		// The native parser skips the declaration after wide-character conversion.
-		// Remove it from the interpretation buffer so encoding/xml does not
-		// attempt to select the declared codec for already converted UTF-8.
-		if bytes.HasPrefix(data, []byte("<?xml")) {
-			if end := bytes.Index(data, []byte("?>")); end >= 0 {
-				data = data[end+2:]
-			}
-		}
+	} else if bytes.HasPrefix(data, []byte{0xef, 0xbb, 0xbf}) {
+		data = data[3:]
 	} else {
-		data = bytes.TrimPrefix(data, []byte{0xef, 0xbb, 0xbf})
+		var err error
+		data, err = declaredText(data)
+		if err != nil {
+			return nil, err
+		}
 	}
-
-	if !utf8.Valid(data) {
+	data = neutralDeclaration(data)
+	text := bytes.TrimSpace(data)
+	// Native UTF-8 XML parses the first value directly. Invalid bytes in an
+	// ignored suffix do not invalidate it; string and markup readers validate
+	// the bytes they consume. Other text profiles retain their existing limit.
+	if !bytes.HasPrefix(text, []byte("<")) && !utf8.Valid(data) {
 		return nil, unsupported("removal plist text encoding")
 	}
-	text := bytes.TrimSpace(data)
 	if bytes.IndexByte(data, 0) >= 0 && !bytes.HasPrefix(text, []byte("<")) {
 		// Known invalid initial objects and tiny inputs still go through resource
 		// preflight before dictionary interpretation. Other NUL contexts remain
