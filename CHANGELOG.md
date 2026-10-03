@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Interpret eight native-qualified EUC-JP plist encodings on every host, including
+  unusual trail/extension mappings and native-invalid triple rejection. Match
+  leading-BOM handling after XML string/key assembly. Add 2,101,248 native stream
+  observations, 1,488 operation cases, 2,976 mandatory foreign results and two
+  complete Apple bodies. Preserve every existing test and strict coverage gate.
+
 - Interpret eight declared Shift-JIS/Windows Japanese plist encodings on every
   host using distinct native mappings and whole-stream validation. Enable exact
   UTF-8 executable discovery for removal while retaining path safety and strict

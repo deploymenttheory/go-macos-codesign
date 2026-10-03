@@ -206,6 +206,8 @@ profiles and remaining encoding work. Its [declared single-byte profile](docs/re
 implements 55 native-qualified charset names with the same conversion on each host.
 The [Shift-JIS profile](docs/removal-shift-jis-plists.md) adds eight Japanese charset
 names with distinct native mappings and exact UTF-8 executable discovery for removal.
+The [EUC-JP profile](docs/removal-euc-jp-plists.md) adds eight further names with
+native trail/extension mappings and assembled-string/key leading-BOM behavior.
 
 ```go
 err := codesign.Sign(ctx, path, codesign.SignOptions{

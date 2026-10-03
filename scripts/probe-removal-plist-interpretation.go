@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked, legacy or shift-jis")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked, legacy, shift-jis or euc-jp")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -67,6 +67,8 @@ func main() {
 		selectedInputs = unmarkedInputs()
 	} else if *profile == "legacy" {
 		selectedInputs = legacyInputs()
+	} else if *profile == "euc-jp" {
+		selectedInputs = eucJPInputs()
 	} else if *profile == "shift-jis" {
 		selectedInputs = shiftJISInputs()
 	} else if *profile != "interpretation" {
@@ -182,6 +184,75 @@ func main() {
 // Native codesign must confirm each predicted target and every mutation invariant.
 // Multibyte stream states use independent native observations for the complete
 // mapping stream; invalid and declaration controls are explicit raw-byte inputs.
+
+// EUC-JP states retain nonstandard native trails and 0x8f rejection. The byte
+// corpus supplies valid streams; native codesign independently establishes effects.
+func eucJPInputs() []input {
+	var corpus struct {
+		Codecs []struct {
+			Name  string
+			Table int
+		}
+		Tables []struct{ Singles, Pairs []*string }
+	}
+	must(json.Unmarshal(read("testdata/bundle-removal/plist-euc-jp-values.json"), &corpus))
+	const body = `<dict><key>CFBundleExecutable</key><string>second</string><key>value</key><string><![CDATA[%s]]></string></dict>`
+	var result []input
+	for _, c := range corpus.Codecs {
+		decl := `<?xml version="1.0" encoding="` + c.Name + `"?>`
+		var valid []byte
+		for b, v := range corpus.Tables[c.Table].Singles {
+			if v != nil {
+				valid = append(valid, byte(b), '|')
+			}
+		}
+		for pair, v := range corpus.Tables[c.Table].Pairs {
+			if pair>>8 >= 128 && v != nil {
+				valid = append(valid, byte(pair>>8), byte(pair), '|')
+			}
+		}
+		result = append(result, input{"all-defined-" + c.Name, []byte(decl + fmt.Sprintf(body, string(valid)) + string(valid)), true})
+		for _, tc := range []struct {
+			name, value, tail string
+			valid             bool
+		}{
+			{"variant-mappings", "\\~\xa1\xc1\xa1\xdd\xa1\xef\xa1\xf1\xa1\xf2\xa2\xcc", "", true},
+			{"halfwidth-composition", "\x8e\xb6\x8e\xde\x8e\xca\x8e\xdf", "", true},
+			{"extension-mappings", "\xa0\x00\xa0\xff\xad\xa1\xf5\x32", "", true},
+			{"low-trail-body", "\xa4\x22\x8e\x00", "", true},
+			{"low-trail-tail", "ok", "\xa4\x22\x8e\x00", true},
+			{"invalid-single-body", "\x80", "", false},
+			{"invalid-single-tail", "ok", "\x80", false},
+			{"undefined-pair-body", "\xf5\xa1", "", false},
+			{"undefined-pair-tail", "ok", "\xf5\xa1", false},
+			{"invalid-trail-body", "\xa1\xff", "", false},
+			{"invalid-trail-tail", "ok", "\xa1\xff", false},
+			{"triple-body", "\x8f\xa2\xaf", "", false},
+			{"triple-tail", "ok", "\x8f\xa2\xaf", false},
+			{"incomplete-pair-tail", "ok", "\xa4", false},
+			{"incomplete-kana-tail", "ok", "\x8e", false},
+			{"incomplete-triple-tail", "ok", "\x8f\xa2", false},
+			{"lead-at-markup", "\xa4", "", false},
+			{"valid-pair-tail", "ok", "\xa4\xa2", true},
+			{"bom-scalar-only", "\x8e\x3f", "", true},
+			{"bom-scalar-leading", "\x8e\x3fx", "", true},
+			{"bom-scalar-interior", "x\x8e\x3fy", "", true},
+			{"bom-scalar-repeated", "\x8e\x3f\x8e\x3f", "", true},
+		} {
+			result = append(result, input{tc.name + "-" + c.Name, []byte(decl + fmt.Sprintf(body, tc.value) + tc.tail), tc.valid})
+		}
+		result = append(result, input{"unicode-executable-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "\xa4\xa2", 1)), true})
+		result = append(result, input{"bom-entity-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "&#xfeff;second", 1)), true})
+		result = append(result, input{"bom-cdata-joined-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "<![CDATA[\x8e\x3f]]>second", 1)), true})
+		result = append(result, input{"bom-key-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "CFBundleExecutable", "\x8e\x3fCFBundleExecutable", 1)), true})
+		result = append(result, input{"bom-executable-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "\x8e\x3fsecond", 1)), true})
+		result = append(result, input{"declared-openstep-" + c.Name, []byte(decl + `{CFBundleExecutable=second;}`), false})
+		result = append(result, input{"bom-priority-" + c.Name, []byte("\xef\xbb\xbf" + decl + fmt.Sprintf(body, "あ😀")), true})
+		result = append(result, input{"mixed-case-" + c.Name, []byte(strings.Replace(decl, c.Name, strings.ToUpper(c.Name), 1) + fmt.Sprintf(body, "\xa4\xa2")), true})
+	}
+	return result
+}
+
 func shiftJISInputs() []input {
 	var corpus struct {
 		Codecs []struct {

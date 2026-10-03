@@ -23,6 +23,9 @@ func FuzzDecode(f *testing.F) {
 	} {
 		f.Add(seed)
 	}
+	f.Add([]byte("<?xml encoding=\"euc-jp\"?><string>\xa4\x22\x8e\x3f</string>"))
+	f.Add([]byte("<?xml encoding=\"euc-jp\"?><string>ok</string>\x8f\xa2\xaf"))
+
 	f.Fuzz(func(t *testing.T, data []byte) {
 		if len(data) > plist.MaxSize {
 			return
