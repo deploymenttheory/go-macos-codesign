@@ -1,4 +1,4 @@
-package codesign
+package plist
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 
 // A BOM or the native unmarked heuristic selects the codec before declarations.
 // Convert only for interpretation: the acquired plist and its raw URL stay intact.
-func removalPlistText(data []byte) ([]byte, error) {
+func nativeText(data []byte) ([]byte, error) {
 	var order binary.ByteOrder
 	width := 2
 	switch {
@@ -50,7 +50,7 @@ func removalPlistText(data []byte) ([]byte, error) {
 				r = utf16.DecodeRune(r, low)
 				i += 2
 			}
-			if len(converted)+utf8.RuneLen(r) > maxBundlePlist {
+			if len(converted)+utf8.RuneLen(r) > MaxSize {
 				return nil, plistLimit("decoded text size")
 			}
 			converted = utf8.AppendRune(converted, r)
@@ -76,7 +76,7 @@ func removalPlistText(data []byte) ([]byte, error) {
 		// Known invalid initial objects and tiny inputs still go through resource
 		// preflight before dictionary interpretation. Other NUL contexts remain
 		// explicit representation limits until separately qualified.
-		if len(data) <= 2 || !removalTextStart(text) {
+		if len(data) <= 2 || !nativeTextStart(text) {
 			return data, nil
 		}
 		return nil, unsupported("removal plist text encoding")

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"howett.net/plist"
+	"github.com/deploymenttheory/go-macos-codesign/pkg/plist"
 )
 
 func derWrap(tag byte, data []byte) []byte {

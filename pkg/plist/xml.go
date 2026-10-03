@@ -1,4 +1,4 @@
-package codesign
+package plist
 
 import (
 	"bytes"
@@ -14,18 +14,18 @@ import (
 // CoreFoundation reads string/key bytes directly, without XML 1.0 character
 // filtering or newline normalization. Keep that interpretation local to removal.
 // RawToken handles markup; our bounded stack owns matching across string reads.
-type removalXML struct {
+type nativeXML struct {
 	data        []byte
 	decoder     *xml.Decoder
 	base, count int
 	stack       []xml.Name
 }
 
-func decodeRemovalXML(data []byte) (any, error) {
-	if err := boundRemovalXML(data); err != nil {
+func decodeXML(data []byte) (any, error) {
+	if err := boundXML(data); err != nil {
 		return nil, err
 	}
-	p := &removalXML{data: data, decoder: xml.NewDecoder(bytes.NewReader(data))}
+	p := &nativeXML{data: data, decoder: xml.NewDecoder(bytes.NewReader(data))}
 	for {
 		token, start, err := p.token()
 		if err != nil {
@@ -39,8 +39,8 @@ func decodeRemovalXML(data []byte) (any, error) {
 
 // Check the complete first value before grammar interpretation allocates a
 // graph. A dictionary with a missing key must not hide a later resource limit.
-func boundRemovalXML(data []byte) error {
-	p := &removalXML{data: data, decoder: xml.NewDecoder(bytes.NewReader(data))}
+func boundXML(data []byte) error {
+	p := &nativeXML{data: data, decoder: xml.NewDecoder(bytes.NewReader(data))}
 	valueDepth := 0
 	for {
 		token, _, err := p.token()
@@ -69,9 +69,9 @@ func boundRemovalXML(data []byte) error {
 	}
 }
 
-func (p *removalXML) offset() int { return p.base + int(p.decoder.InputOffset()) }
+func (p *nativeXML) offset() int { return p.base + int(p.decoder.InputOffset()) }
 
-func (p *removalXML) token() (xml.Token, int, error) {
+func (p *nativeXML) token() (xml.Token, int, error) {
 	start := p.offset()
 	token, err := p.decoder.RawToken()
 	if err != nil {
@@ -88,7 +88,7 @@ func (p *removalXML) token() (xml.Token, int, error) {
 	case xml.StartElement:
 		p.count++
 		p.stack = append(p.stack, t.Name)
-		if len(p.stack) > maxBundlePlistDepth || p.count > maxBundlePlistValues {
+		if len(p.stack) > MaxDepth || p.count > MaxValues {
 			return nil, start, plistLimit("complexity")
 		}
 	case xml.EndElement:
@@ -100,7 +100,7 @@ func (p *removalXML) token() (xml.Token, int, error) {
 	return token, start, nil
 }
 
-func (p *removalXML) value(element xml.StartElement, start int) (any, error) {
+func (p *nativeXML) value(element xml.StartElement, start int) (any, error) {
 	kind := element.Name.Local
 	if kind == "string" || kind == "key" {
 		return p.stringValue()
@@ -170,7 +170,7 @@ func (p *removalXML) value(element xml.StartElement, start int) (any, error) {
 	}
 }
 
-func (p *removalXML) stringValue() (string, error) {
+func (p *nativeXML) stringValue() (string, error) {
 	pos := p.offset()
 	var value []byte
 	// RawToken keeps the synthetic closing token for a self-closing element.
@@ -204,7 +204,7 @@ func (p *removalXML) stringValue() (string, error) {
 				if end < 0 {
 					return "", malformed("unterminated removal plist entity")
 				}
-				r, err := removalXMLEntity(string(p.data[pos+1 : pos+end]))
+				r, err := nativeXMLEntity(string(p.data[pos+1 : pos+end]))
 				if err != nil {
 					return "", err
 				}
@@ -225,7 +225,7 @@ func (p *removalXML) stringValue() (string, error) {
 	return "", err
 }
 
-func removalXMLEntity(entity string) (rune, error) {
+func nativeXMLEntity(entity string) (rune, error) {
 	switch entity {
 	case "lt":
 		return '<', nil

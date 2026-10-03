@@ -4,7 +4,13 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR87 with APFS v0.17.0.
+Current work continues after merged PR88 with APFS v0.17.0.
+The [`plist` package](../pkg/plist/README.md) now owns bounded parsing and text
+conversion. Codesign retains file selection, operation policy and signature
+serialization. Direct native-value/API checks and a thirteenth fuzz target retain
+all prior coverage and acceptance requirements. Research for the next declared
+legacy-encoding increment retains 14,080 byte observations across 55 charset names;
+fresh macOS checks qualify that evidence, not production support.
 The [unmarked encoding phase](removal-unmarked-plists.md) adds 408 native cases
 and 816 mandatory foreign results for native prefix removal and byte order,
 while preventing secondary XML/codec guesses. Full native value observations
