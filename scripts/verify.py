@@ -42,7 +42,7 @@ def run(args, env, log=None):
 def merge(paths, output):
     blocks = {}
     for path in paths:
-        lines = path.read_text().splitlines()
+        lines = path.read_text(encoding="utf-8").splitlines()
         if not lines or lines[0] != "mode: atomic":
             raise RuntimeError(f"Invalid coverage profile: {path}")
         for line in lines[1:]:
@@ -51,7 +51,7 @@ def merge(paths, output):
             if location in blocks and blocks[location][0] != count:
                 raise RuntimeError(f"Incompatible instrumentation at {location}")
             blocks[location] = (count, max(hits, blocks.get(location, (0, 0))[1]))
-    output.write_text("mode: atomic\n" + "".join(f"{key} {n} {hits}\n" for key, (n, hits) in sorted(blocks.items())))
+    output.write_text("mode: atomic\n" + "".join(f"{key} {n} {hits}\n" for key, (n, hits) in sorted(blocks.items())), encoding="utf-8")
     packages = {}
     for location, (count, hits) in blocks.items():
         filename = location.rsplit(":", 1)[0]
@@ -74,7 +74,7 @@ def main():
     if platform.system() == "Darwin":
         provenance["macos"] = subprocess.check_output(["sw_vers"], text=True).strip()
         provenance["codesign_sha256"] = hashlib.sha256(pathlib.Path("/usr/bin/codesign").read_bytes()).hexdigest()
-    (dest / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
+    (dest / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
     # Each invocation gets a fresh directory so old passing runs cannot improve coverage.
     with tempfile.TemporaryDirectory(prefix="coverage-", dir=dest) as tmp:
         tmp = pathlib.Path(tmp)
@@ -89,8 +89,10 @@ def main():
         # the hosted Mac. Signing-sideband adds 1,664 cases and native controls;
         # retain every test within a bounded budget below the 35-minute CI job.
         run(["go", "test", "-timeout=30m", "-count=1", "-json", "./acceptance"], env, dest / "acceptance.jsonl")
-        attestations = {p.stem: json.loads(p.read_text()) for p in sorted(evidence.glob("*.json"))}
-        (dest / "acceptance.json").write_text(json.dumps(attestations, indent=2) + "\n")
+        # Go JSON is UTF-8 on every host; the Windows process locale may be CP1252.
+        # Decode strictly so malformed evidence still fails the harness.
+        attestations = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in sorted(evidence.glob("*.json"))}
+        (dest / "acceptance.json").write_text(json.dumps(attestations, indent=2) + "\n", encoding="utf-8")
         run(["go", "tool", "covdata", "textfmt", "-i=" + str(cli_dir), "-o=" + str(tmp / "cli.out")], env)
         packages = merge([tmp / "unit.out", tmp / "cli.out"], dest / "coverage.out")
     expected = subprocess.check_output(["go", "list", "./pkg/...", "./internal/...", "./cmd/..."], cwd=ROOT, env=env, text=True).splitlines()
@@ -103,7 +105,7 @@ def main():
         print(f"{name}: {covered}/{total} ({percent:.2f}%)")
         if not total or covered * 100 <= total * 95:
             errors.append(name)
-    (dest / "coverage.json").write_text(json.dumps(report, indent=2) + "\n")
+    (dest / "coverage.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     run(["go", "tool", "cover", "-html=" + str(dest / "coverage.out"), "-o=" + str(dest / "coverage.html")], env)
     if errors:
         print("Coverage must exceed 95% in every production package:", ", ".join(errors), file=sys.stderr)
