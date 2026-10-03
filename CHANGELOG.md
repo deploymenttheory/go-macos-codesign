@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Interpret six native-qualified ISO-2022-JP plist declarations on every host,
+  including state transitions, native pair mappings and conversion-buffer EOF
+  behavior. Retain 23,623,680 stream observations, 3,240 boundary cases, 1,836
+  operation cases and 3,672 mandatory foreign results. Add two complete Apple
+  dispatcher bodies; preserve every existing test and strict coverage gate.
+
 - Interpret eight native-qualified EUC-JP plist encodings on every host, including
   unusual trail/extension mappings and native-invalid triple rejection. Match
   leading-BOM handling after XML string/key assembly. Add 2,101,248 native stream

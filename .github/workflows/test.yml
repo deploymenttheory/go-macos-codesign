@@ -35,60 +35,7 @@ jobs:
           go run scripts/generate-plist-legacy.go -check
           go run scripts/generate-plist-shift-jis.go -check
           go run scripts/generate-plist-euc-jp.go -check
-      - name: Stress native strict reference profiles with 100 fresh frameworks
-        if: runner.os == 'macOS'
-        run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
-        env:
-          MACOSCODESIGN_REQUIRE_APPLE: '1'
-      - name: Check native sideband reference policy and retain attribute evidence
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-sideband.go -check
-      - name: Check native platform plist research profile
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-platform-info.go -out artifacts/platform-info-research.json
-      - name: Check native platform plist selection across bundle layouts
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json
-      - name: Check native plist interpretation across bundle layouts
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -out artifacts/plist-interpretation.json
-
-      - name: Capture native removal plist encodings
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile encodings -out artifacts/plist-encodings.json
-      - name: Capture native UTF-32 removal plists
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32 -out artifacts/plist-utf32.json
-      - name: Capture native UTF-32 XML character grammar
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
-      - name: Capture native XML strings and character selection
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile xml-characters -out artifacts/plist-xml-characters.json
-      - name: Capture native unmarked plist encodings
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile unmarked -out artifacts/plist-unmarked.json
-      - name: Capture native declared legacy plist encodings
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile legacy -out artifacts/plist-legacy.json
-      - name: Capture native Shift-JIS removal interpretation
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile shift-jis -out artifacts/plist-shift-jis.json
-      - name: Check exhaustive native Shift-JIS streams
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json
-      - name: Capture native EUC-JP removal interpretation
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-plist-interpretation.go -profile euc-jp -out artifacts/plist-euc-jp.json
-      - name: Check exhaustive native EUC-JP streams
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json
-      - name: Capture native XML value fidelity
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
-      - name: Check native legacy encoding byte observations
-        if: runner.os == 'macOS'
-        run: go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json
+          go run scripts/generate-plist-iso2022-jp.go -check
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:
@@ -112,8 +59,74 @@ jobs:
           path: artifacts/export/
           include-hidden-files: true
           if-no-files-found: error
+  native-capture:
+    runs-on: xcode-27
+    timeout-minutes: 35
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Enforce pure Go and fixture provenance
+        run: python3 scripts/guards.py
+      - name: Stress native strict reference profiles with 100 fresh frameworks
+        run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
+        env:
+          MACOSCODESIGN_REQUIRE_APPLE: '1'
+      - name: Check native sideband reference policy and retain attribute evidence
+        run: go run scripts/probe-sideband.go -check
+      - name: Check native platform plist research profile
+        run: go run scripts/probe-removal-platform-info.go -out artifacts/platform-info-research.json
+      - name: Check native platform plist selection across bundle layouts
+        run: go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json
+      - name: Check native plist interpretation across bundle layouts
+        run: go run scripts/probe-removal-plist-interpretation.go -out artifacts/plist-interpretation.json
+
+      - name: Capture native removal plist encodings
+        run: go run scripts/probe-removal-plist-interpretation.go -profile encodings -out artifacts/plist-encodings.json
+      - name: Capture native UTF-32 removal plists
+        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32 -out artifacts/plist-utf32.json
+      - name: Capture native UTF-32 XML character grammar
+        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
+      - name: Capture native XML strings and character selection
+        run: go run scripts/probe-removal-plist-interpretation.go -profile xml-characters -out artifacts/plist-xml-characters.json
+      - name: Capture native unmarked plist encodings
+        run: go run scripts/probe-removal-plist-interpretation.go -profile unmarked -out artifacts/plist-unmarked.json
+      - name: Capture native declared legacy plist encodings
+        run: go run scripts/probe-removal-plist-interpretation.go -profile legacy -out artifacts/plist-legacy.json
+      - name: Capture native Shift-JIS removal interpretation
+        run: go run scripts/probe-removal-plist-interpretation.go -profile shift-jis -out artifacts/plist-shift-jis.json
+      - name: Check exhaustive native Shift-JIS streams
+        run: go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json
+      - name: Capture native EUC-JP removal interpretation
+        run: go run scripts/probe-removal-plist-interpretation.go -profile euc-jp -out artifacts/plist-euc-jp.json
+      - name: Check exhaustive native EUC-JP streams
+        run: go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json
+      - name: Capture native XML value fidelity
+        run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
+      - name: Check native legacy encoding byte observations
+        run: go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json
+      - name: Capture native ISO-2022-JP removal interpretation
+        run: go run scripts/probe-removal-plist-interpretation.go -profile iso2022-jp -out artifacts/plist-iso2022-jp.json
+      - name: Check exhaustive native ISO-2022-JP states and transitions
+        run: go run scripts/probe-plist-iso2022-jp.go -check -out artifacts/plist-iso2022-jp-values.json
+      - name: Check native ISO-2022-JP conversion boundaries
+        run: go run scripts/probe-plist-iso2022-jp-boundaries.go -check -out artifacts/plist-iso2022-jp-boundaries.json
+      - name: Collect native failure diagnostics
+        if: failure()
+        continue-on-error: true
+        run: go run scripts/collect-native-diagnostics.go
+      - name: Upload fresh native capture evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: native-capture
+          path: artifacts/
+          if-no-files-found: error
   verify-foreign-signatures:
-    needs: test
+    needs: [test, native-capture]
     runs-on: xcode-27
     timeout-minutes: 10
     steps:
