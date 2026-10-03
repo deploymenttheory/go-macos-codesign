@@ -92,6 +92,13 @@ matrix. Foreign verification depends on both. All existing capture commands,
 strict coverage above 95% for every production package/OS and six GoReleaser
 targets remain mandatory. Production adds no native binding or dependency.
 
+Race and all thirteen one-minute fuzz runs execute in separate required jobs;
+the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
+worker retains a 20-minute job limit. The exhaustive race suite has an explicit
+18-minute test deadline inside that bound; the former implicit ten-minute Go
+deadline cannot accommodate the larger instrumented native replay. No cases,
+race instrumentation, assertions or fuzz durations are removed.
+
 ## Remaining work
 
 ISO-2022-JP-1, ISO-2022-JP-2, GB18030 and further aliases require independent

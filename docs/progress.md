@@ -28,6 +28,13 @@ Native capture now has its own required macOS job alongside the full test
 matrix; foreign verification requires both. This branch requires its own final
 CI; PR92's run is only the baseline.
 
+Race and all thirteen one-minute fuzz runs execute in separate required jobs;
+the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
+worker retains a 20-minute job limit. The exhaustive race suite has an explicit
+18-minute test deadline inside that bound; the former implicit ten-minute Go
+deadline cannot accommodate the larger instrumented native replay. No cases,
+race instrumentation, assertions or fuzz durations are removed.
+
 ISO-2022-JP-1, ISO-2022-JP-2, GB18030, further aliases, Unicode normalization and
 filesystem alias matching, OpenStep NUL contexts and wider XML/binary grammar
 remain outstanding.

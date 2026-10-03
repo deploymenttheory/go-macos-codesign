@@ -25,6 +25,13 @@ six GoReleaser targets remain mandatory. Native capture runs as a separate
 required macOS job alongside full tests, retaining all previous commands;
 foreign verification depends on both. This branch requires its own final CI.
 
+Race and all thirteen one-minute fuzz runs execute in separate required jobs;
+the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
+worker retains a 20-minute job limit. The exhaustive race suite has an explicit
+18-minute test deadline inside that bound; the former implicit ten-minute Go
+deadline cannot accommodate the larger instrumented native replay. No cases,
+race instrumentation, assertions or fuzz durations are removed.
+
 **Merged EUC-JP baseline:** PR92's
 [final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37144314366):
 codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.17% on
