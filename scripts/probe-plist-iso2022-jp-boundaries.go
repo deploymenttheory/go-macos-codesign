@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"reflect"
 	"strings"
 )
 
@@ -93,15 +92,22 @@ func main() {
 	if len(c.Cases) != 3240 {
 		panic("incomplete boundary matrix")
 	}
-	if *check {
-		var old capture
-		must(json.Unmarshal(read(reference), &old))
-		if c.Source != old.Source || !reflect.DeepEqual(c.Cases, old.Cases) {
-			panic("native conversion boundary changed")
-		}
-	}
 	data, e := json.MarshalIndent(c, "", "  ")
 	must(e)
 	must(os.WriteFile(*out, append(data, '\n'), 0644))
+	if *check {
+		var old capture
+		must(json.Unmarshal(read(reference), &old))
+		// Marshal both complete inventories to normalize only JSON framing:
+		// retained RawMessages contain indentation, and absent values round-trip
+		// as JSON null. Names, input bytes, statuses and full values stay exact.
+		fresh, err := json.Marshal(c.Cases)
+		must(err)
+		retained, err := json.Marshal(old.Cases)
+		must(err)
+		if c.Source != old.Source || !bytes.Equal(fresh, retained) {
+			panic("native conversion boundary changed")
+		}
+	}
 	fmt.Println("Captured 3,240 native conversion boundary cases")
 }
