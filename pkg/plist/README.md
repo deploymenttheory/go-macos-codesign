@@ -105,13 +105,23 @@ XML string/key assembly removes exactly one leading U+FEFF after joining raw
 text, CDATA and entities; interior and repeated characters are preserved. This
 native string rule applies independently of the declared input encoding.
 
+## Declared ISO-2022-JP encodings
+
+`Decode` supports `iso-2022-jp`, `iso_2022_jp`, `iso2022jp`, `csiso2022jp`,
+`cp50221` and `windows-50221`. Five mapping states and ten state prefixes follow
+native escape, pair, EOF and conversion-buffer behavior. All 23,623,680 retained
+body/EOF observations and 3,240 conversion-boundary cases replay on every OS;
+macOS recaptures them, with 17,580 direct plutil cross-checks. Input immutability,
+whole-stream validation and both conversion budgets remain required. See
+[ISO-2022-JP behavior and evidence](../../docs/removal-iso2022-jp-plists.md).
+
 ## Evidence and tests
 
-The package is tested directly against 638 retained complete native values and
+The package is tested directly against 944 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.
-The twenty-five complete Apple C bodies and Clang evidence remain in
+The twenty-seven complete Apple C bodies and Clang evidence remain in
 [`spec/apple-removal-discovery.json`](../../spec/apple-removal-discovery.json).
 
 All 14,080 native byte observations are replayed through `Decode`. The

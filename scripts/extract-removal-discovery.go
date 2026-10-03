@@ -250,6 +250,44 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 		hashes[name] = hash(body)
 		names = append(names, name)
 	}
+
+	converterSource := read(".research/apple/CFStringEncodingConverter.c")
+	converterExt := read(".research/apple/CFStringEncodingConverterExt.h")
+	converterPriv := read(".research/apple/CFStringEncodingConverterPriv.h")
+	// Retain the real typedefs, converter layout and call macros verbatim.
+	declarations := regexp.MustCompile(`(?m)^typedef CFIndex \(\*CFStringEncodingTo(?:Bytes|Unicode)FallbackProc\).*;$`).FindAll(converterHeader, -1)
+	if len(declarations) != 2 {
+		panic("fallback interfaces")
+	}
+	for _, d := range declarations {
+		unit += string(d) + "\n"
+	}
+	ext := regexp.MustCompile(`(?s)enum \{\n    kCFStringEncodingConverterStandard = 0,.*?} CFStringEncodingConverter;`).Find(converterExt)
+	wrapper := regexp.MustCompile(`(?s)typedef CFIndex \(\*_CFToBytesProc\).*?} _CFEncodingConverter;`).Find(converterSource)
+	macros := regexp.MustCompile(`(?m)^#define TO_UNICODE(?:_FALLBACK)?\(.*$`).FindAll(converterSource, -1)
+	platform := regexp.MustCompile(`(?m)^extern  CFIndex __CFStringEncodingPlatformBytesToUnicode\(.*;$`).Find(converterPriv)
+	dispatchBody := regexp.MustCompile(`(?ms)^uint32_t CFStringEncodingBytesToUnicode\(.*?^}`).Find(converterSource)
+	if len(ext) == 0 || len(wrapper) == 0 || len(macros) != 2 || len(platform) == 0 || len(dispatchBody) == 0 {
+		panic("complete converter dispatch evidence")
+	}
+	unit += string(ext) + "\n" + string(wrapper) + "\nconst _CFEncodingConverter *__CFGetConverter(uint32_t);\n" + string(platform) + "\n"
+	for _, m := range macros {
+		unit += string(m) + "\n"
+	}
+	unit += string(dispatchBody) + "\n"
+	hashes["CFStringEncodingBytesToUnicode"] = hash(dispatchBody)
+	names = append(names, "CFStringEncodingBytesToUnicode")
+
+	foundationHeader := read(".research/apple/ForFoundationOnly.h")
+	bufferDefinition := regexp.MustCompile(`(?s)enum \{\n     __kCFVarWidthLocalBufferSize = 1008\n};.*?} CFVarWidthCharBuffer;`).Find(foundationHeader)
+	lengthBody := regexp.MustCompile(`(?ms)^CF_PRIVATE CFIndex CFStringEncodingCharLengthForBytes\(.*?^}`).Find(converterSource)
+	lengthPlatform := regexp.MustCompile(`(?m)^extern  CFIndex __CFStringEncodingPlatformCharLengthForBytes\(.*;$`).Find(converterPriv)
+	if len(bufferDefinition) == 0 || len(lengthBody) == 0 || len(lengthPlatform) == 0 {
+		panic("complete sizing evidence")
+	}
+	unit += string(bufferDefinition) + "\nCFIndex __CFStringEncodingICUCharLength(const char *,uint32_t,const uint8_t *,CFIndex);\n" + string(lengthPlatform) + "\n" + string(lengthBody) + "\n"
+	hashes["CFStringEncodingCharLengthForBytes"] = hash(lengthBody)
+	names = append(names, "CFStringEncodingCharLengthForBytes")
 	targets := map[string]any{}
 	sdk := strings.TrimSpace(string(run("", "xcrun", "--show-sdk-path")))
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
@@ -297,8 +335,16 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 	result["icu_source_sha256"] = hash(icuSource)
 	result["converter_header_sha256"] = hash(converterHeader)
 	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-one", "Twenty-five", 1) + " Three complete ICU alias/selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS and EUC-JP mappings/errors are established by live property-list and codesign observations. The complete unique UTF-8 string constructor retains final assembled-string creation and cache behavior; live BOM cases qualify current string behavior. Historical ICU control flow does not assert which converter implements EUC-JP on the current host."
+	result["converter_source_sha256"] = hash(converterSource)
+	result["converter_ext_sha256"] = hash(converterExt)
+	result["converter_priv_sha256"] = hash(converterPriv)
+	result["converter_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFStringEncodingConverter.c"
+	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-five", "Twenty-six", 1) + " The complete byte-to-Unicode dispatcher retains ICU, platform-specific, standard/canonical and lossy-fallback paths, using verbatim source typedefs/layout/macros and the pinned platform declaration. Converter lookup is an interface declaration. This explains why generic ICU behavior alone cannot establish the current ISO-2022-JP contract; live exhaustive state/escape observations establish that behavior."
+	result["foundation_header_sha256"] = hash(foundationHeader)
+	result["buffer_definition_sha256"] = hash(bufferDefinition)
+	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-six", "Twenty-seven", 1) + " The complete decoded-length function and verbatim 1008-byte buffer definition retain native sizing interfaces. The source-reviewed bulk caller supplies max(504, guessed UTF-16 length) output units; the complete dispatcher stops at capacity before trailing non-emitting escapes. The larger bulk caller remains source-reviewed, not counted as compiled. Live 503/504/505-unit property-list observations qualify the current boundary independently."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted twenty-five discovery bodies for two targets")
+	fmt.Println("extracted twenty-seven discovery bodies for two targets")
 }

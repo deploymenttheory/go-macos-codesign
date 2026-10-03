@@ -60,6 +60,9 @@ func declaredText(data []byte) ([]byte, error) {
 	if eucJPCharsets[name] {
 		return eucJPText(data)
 	}
+	if iso2022JPCharsets[name] {
+		return iso2022JPText(data)
+	}
 	table, ok := legacyCharsets[name]
 	if !ok {
 		return nil, unsupported("removal plist text encoding: " + name)

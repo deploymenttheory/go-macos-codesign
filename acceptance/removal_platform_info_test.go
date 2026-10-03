@@ -158,3 +158,7 @@ func TestRemovalPlistShiftJIS(t *testing.T) {
 func TestRemovalPlistEUCJP(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-euc-jp.json", 1488), "plist-euc-jp-")
 }
+
+func TestRemovalPlistISO2022JP(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-iso2022-jp.json", 1836), "plist-iso2022-jp-")
+}

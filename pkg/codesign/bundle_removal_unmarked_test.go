@@ -54,7 +54,7 @@ func TestRemovalPlistUnmarkedBoundaries(t *testing.T) {
 	}
 	// NUL inside quoted OpenStep text and legacy encodings are separate, still
 	// unqualified contexts. Detecting an encoding cannot silently authorize them.
-	for _, data := range [][]byte{removalUTF16(`x{CFBundleExecutable=second;Ignored="a` + "\x00" + `b";}`)[2:], []byte{0xff}, []byte(`<?xml version="1.0" encoding="ISO-2022-JP"?><dict/>`)} {
+	for _, data := range [][]byte{removalUTF16(`x{CFBundleExecutable=second;Ignored="a` + "\x00" + `b";}`)[2:], []byte{0xff}, []byte(`<?xml version="1.0" encoding="ISO-2022-JP-1"?><dict/>`)} {
 		if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unqualified representation became fallback", err)
 		}
