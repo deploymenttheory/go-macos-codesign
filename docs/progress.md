@@ -6,30 +6,31 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current declared legacy encoding phase
+## Current Shift-JIS encoding phase
 
-PR89 is merged at `2acb8793ac6f4b8069629bd6306fb17d56384e3c` after
-[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37101119812).
+PR90 is merged at `188ed3a4a1602710958c6e0d34872bc0be250b4f` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37110254399).
 Audited codesign coverage was 95.09% Linux, 95.45% macOS and 95.03% Windows;
-`pkg/plist` was 99.22% on each host. All 780 source hashes matched the actual
-OS checkouts, and all 2,424 plist foreign results matched fresh native operations.
+`pkg/plist` was 99.11% on each host. All 786 committed source hashes matched the
+actual OS checkouts and all 4,008 plist foreign results matched native operations.
 
 This branch starts from that main and implements
-[declared legacy plist encodings](removal-legacy-plists.md) in `pkg/plist`,
-retaining APFS v0.17.0. All 55 retained charset names now have portable conversion,
-with byte mappings generated from 14,080 native observations. Declaration
-selection, BOM precedence, whole-stream conversion failures and UTF-8 suffix
-handling are tested independently of codesign's target selection.
+[Shift-JIS decoding](removal-shift-jis-plists.md), retaining APFS v0.17.0.
+Eight names select two distinct native mapping families; 1,052,672 native
+body/trailing-stream observations and 2,272 plutil comparisons qualify them.
+The decoder preserves bytes and native failures with the existing conversion
+budgets. Removal also accepts exact UTF-8 executable names while retaining path
+safety checks and the stricter signing/resource profile.
 
-The new profile adds 792 native removal cases, 1,584 mandatory foreign results
-and 132 complete native values (238 total). Clang evidence now retains 21 complete
-Apple bodies on both Darwin targets. All 13 fuzz targets, strict per-package
-coverage, race, native acceptance and six GoReleaser targets remain required.
-This branch requires its own complete CI; PR89's run does not validate it.
+The increment adds 912 operation cases and 1,824 mandatory foreign results,
+including all 48 Unicode executable cases. Complete native values total 390;
+Clang evidence retains 23 complete Apple bodies on both targets. All earlier
+case arrays, thirteen fuzz targets and every coverage/acceptance gate remain.
+This branch requires its own final CI; PR90's run is only the baseline.
 
-Remaining work includes multibyte/stateful encodings, unqualified aliases,
-OpenStep NUL contexts, wider XML/binary grammar and discovery/normalization.
-These remain explicit gaps, not operating-system exclusions.
+Other multibyte/stateful codecs, further aliases, Unicode normalization and
+filesystem alias matching, OpenStep NUL contexts and wider XML/binary grammar
+remain outstanding on all three hosts.
 
 ### Merged unmarked encoding profile
 

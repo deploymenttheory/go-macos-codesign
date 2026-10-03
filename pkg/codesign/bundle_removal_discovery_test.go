@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 21 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 23 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 21 {
+		if len(methods) != 23 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -68,6 +68,9 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 			t.Fatal("missing native string assembly bodies", target)
 		}
 
+		if methods["__CFStringEncodingGetICUName"].References["ucnv_getAlias"] != 2 || methods["__CFStringEncodingICUToUnicode"].References["ucnv_toUnicode"] != 2 || methods["__CFStringEncodingICUToUnicode"].References["ucnv_getInvalidChars"] != 1 {
+			t.Fatal("missing native multibyte conversion contract", target)
+		}
 		if methods["__CFFromWinLatin1"].References["cp1252_to_uni"] != 1 || methods["__CFFromASCII"].Kinds["ReturnStmt"] != 2 || methods["__CFFromISOLatin1"].Kinds["ReturnStmt"] != 1 {
 			t.Fatal("missing byte conversion and invalid-byte branches", target)
 		}

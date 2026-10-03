@@ -150,3 +150,7 @@ func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []empty
 func TestRemovalPlistLegacy(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-legacy.json", 792), "plist-legacy-")
 }
+
+func TestRemovalPlistShiftJIS(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-shift-jis.json", 912), "plist-shift-jis-")
+}

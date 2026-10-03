@@ -54,6 +54,9 @@ func declaredText(data []byte) ([]byte, error) {
 	case "macintosh", "mac", "macroman", "x-mac-roman":
 		return nil, malformed("invalid declared property-list encoding")
 	}
+	if family, ok := shiftJISCharsets[name]; ok {
+		return shiftJISText(data, family)
+	}
 	table, ok := legacyCharsets[name]
 	if !ok {
 		return nil, unsupported("removal plist text encoding: " + name)

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Interpret eight declared Shift-JIS/Windows Japanese plist encodings on every
+  host using distinct native mappings and whole-stream validation. Enable exact
+  UTF-8 executable discovery for removal while retaining path safety and strict
+  signing validation. Add 1,052,672 native stream observations, 912 removal cases,
+  1,824 foreign results and two complete Apple conversion bodies; retain all gates.
+
 - Interpret 55 native-qualified declared single-byte plist encodings on Linux,
   macOS and Windows. Preserve declaration/BOM precedence, exact byte mappings,
   whole-stream failures and conversion budgets. Add 792 native removal cases,

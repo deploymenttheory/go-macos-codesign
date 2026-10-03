@@ -204,6 +204,8 @@ and OpenStep parsing on all three hosts. Codesign retains signature schemas,
 file selection and operation policy; the package documents its qualified native
 profiles and remaining encoding work. Its [declared single-byte profile](docs/removal-legacy-plists.md)
 implements 55 native-qualified charset names with the same conversion on each host.
+The [Shift-JIS profile](docs/removal-shift-jis-plists.md) adds eight Japanese charset
+names with distinct native mappings and exact UTF-8 executable discovery for removal.
 
 ```go
 err := codesign.Sign(ctx, path, codesign.SignOptions{

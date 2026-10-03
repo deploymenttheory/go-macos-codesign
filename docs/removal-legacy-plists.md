@@ -34,7 +34,7 @@ Selection happens before XML parsing:
 - The observed declaration names `macintosh`, `mac`, `macroman` and `x-mac-roman`
   fail in this property-list caller, even with ASCII contents. This does not
   claim that other CoreFoundation consumers cannot decode MacRoman.
-- Unqualified names, including Shift_JIS and stateful encodings, remain explicit
+- Unqualified names, including EUC-JP and ISO-2022-JP, remain explicit
   unsupported errors. They cannot silently authorize raw-plist fallback.
 
 Input and expanded UTF-8 are each bounded at 8 MiB; the declaration still counts
@@ -77,6 +77,9 @@ Every production package must exceed 95% coverage on Linux, macOS and Windows.
 All thirteen fuzz targets, race checks, pure-Go/provenance guards, golangci-lint,
 the existing native harness and all six GoReleaser targets remain mandatory.
 See [progress](progress.md) and the implementation PR for final CI results.
+
+The subsequent [Shift-JIS profile](removal-shift-jis-plists.md) implements eight
+Japanese declarations with separate native stream qualification.
 
 ## Remaining work
 

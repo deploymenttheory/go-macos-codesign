@@ -50,6 +50,12 @@ type appBundle struct {
 }
 
 func bundleRelativePath(name string) error {
+	return bundleRelativePathProfile(name, false)
+}
+
+// Removal discovers an exact UTF-8 executable spelling; it does not construct
+// resource-seal paths. Keep the signing/verification profile unchanged.
+func bundleRelativePathProfile(name string, unicodeName bool) error {
 	if !fs.ValidPath(name) || len(name) > 1024 || strings.Count(name, "/") > 32 {
 		return unsupported("bundle path length or structure")
 	}
@@ -58,12 +64,15 @@ func bundleRelativePath(name string) error {
 		if stem == "CON" || stem == "PRN" || stem == "AUX" || stem == "NUL" || len(stem) == 4 && (strings.HasPrefix(stem, "COM") || strings.HasPrefix(stem, "LPT")) && stem[3] >= '1' && stem[3] <= '9' {
 			return unsupported("reserved bundle filename")
 		}
+		if unicodeName && (stem == "COM¹" || stem == "COM²" || stem == "COM³" || stem == "LPT¹" || stem == "LPT²" || stem == "LPT³") {
+			return unsupported("reserved bundle filename")
+		}
 		if len(part) > 255 || strings.HasSuffix(part, ".") || strings.HasSuffix(part, " ") {
 			return unsupported("bundle filename")
 		}
 		for _, c := range part {
-			if c < 32 || c > 126 || strings.ContainsRune(`\:*?"<>|`, c) {
-				return unsupported("bundle filenames require portable ASCII characters")
+			if c < 32 || c == 127 || !unicodeName && c > 126 || strings.ContainsRune(`\:*?"<>|`, c) {
+				return unsupported("bundle filename contains unsupported characters")
 			}
 		}
 	}
