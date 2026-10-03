@@ -21,7 +21,8 @@ Selection happens before XML parsing:
   declaration. A UTF-8 BOM also overrides unknown, MacRoman and multibyte names.
 - The byte stream must start exactly with `<?xml` for declaration selection.
   The scan recognizes exact `encoding=` and either quote character. Charset names
-  are case-insensitive. Spaces around `=`, an uppercase keyword or leading text
+  use ASCII case-insensitive matching; unqualified non-ASCII names cannot enter
+  a supported codec through Unicode folding. Spaces around `=`, an uppercase keyword or leading text
   whitespace do not select that charset. A substring such as `xencoding=` does.
   The first selected encoding wins when the attribute is repeated.
 - Legacy conversion validates the entire input, including suffixes after a

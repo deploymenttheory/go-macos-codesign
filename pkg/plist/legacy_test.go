@@ -34,7 +34,7 @@ func TestLegacyExpansionBudget(t *testing.T) {
 }
 
 func TestLegacyUnqualifiedNames(t *testing.T) {
-	for _, name := range []string{"Shift_JIS", "ISO-2022-JP", "GB18030", "not-a-codec", ""} {
+	for _, name := range []string{"Shift_JIS", "ISO-2022-JP", "GB18030", "not-a-codec", "", "KOI8-R", "Koi8-u", "\xff"} {
 		data := []byte(`<?xml encoding="` + name + `"?><dict/>`)
 		before := bytes.Clone(data)
 		_, err := plist.Decode(data)

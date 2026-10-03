@@ -37,6 +37,13 @@ func declaredText(data []byte) ([]byte, error) {
 	if !selected {
 		return data, nil
 	}
+	// Qualified IANA names are ASCII. Unicode folding would turn, for example,
+	// a Kelvin sign into 'k' and silently admit an unqualified KOI8 spelling.
+	for i := range len(name) {
+		if name[i] >= utf8.RuneSelf {
+			return nil, unsupported("removal plist text encoding: " + name)
+		}
+	}
 	name = strings.ToLower(name)
 	if name == "utf-8" || name == "utf8" {
 		return data, nil
