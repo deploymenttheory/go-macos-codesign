@@ -102,8 +102,9 @@ requirement remains unchanged.
 
 ## Remaining work
 
-- Declared legacy codecs and invalid-byte conversion behavior need additional
-  native corpora and bounded conversion.
+- The [declared legacy profile](removal-legacy-plists.md) implements 55 single-byte
+  charset names. Additional aliases and multibyte/stateful stream behavior still
+  need native corpora and bounded conversion.
 - Other OpenStep NUL contexts remain explicit unsupported errors, including NUL
   inside quoted strings. This phase qualifies invalid initial objects and tiny
   inputs without treating all embedded NUL as a native syntax failure.

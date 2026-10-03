@@ -138,3 +138,7 @@ func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []empty
 	}
 	attest(t, map[string]any{"native_cases": len(expected), "per_case_producers": seen})
 }
+
+func TestRemovalPlistLegacy(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-legacy.json", 756), "plist-legacy-")
+}

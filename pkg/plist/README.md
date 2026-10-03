@@ -58,14 +58,35 @@ Go maps, slices, strings, booleans, numbers, byte data and dates. The currently
 qualified binary UID profile returns its bytes; this is not an unrestricted
 NSKeyedArchiver object model.
 
+## Declared single-byte encodings
+
+`Decode` supports 55 native-qualified charset names: ASCII aliases, ISO-8859-1
+aliases and ISO-8859-2/3/4/5/6/7/8/9/10/11/13/14/15/16, Windows-874 and 1250–1258
+with their `cp` aliases, IBM437/850/852/855/860/862/863/865/866, KOI8-R, KOI8-U
+and x-mac-cyrillic. These are Apple's observed mappings, including its permissive
+ASCII interpretation and undefined-byte failures, rather than generic charset tables.
+
+BOM selection precedes the initial declaration scan. Legacy input is converted
+in full, including trailing bytes, before XML interpretation; an undefined byte
+produces `ErrFormat`. UTF-8 parsing can ignore bytes after a completed root.
+The native-rejected MacRoman declaration names are format failures for this
+property-list caller. Other unqualified names remain `ErrUnsupported`.
+Conversion is capped at 8 MiB before declaration removal and parsing. No API
+rewrites the source. See the [qualified behavior and evidence](../../docs/removal-legacy-plists.md).
+
 ## Evidence and tests
 
-The package is tested directly against 106 retained complete native values and
+The package is tested directly against 232 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.
-The existing eighteen complete Apple C bodies and Clang evidence remain in
+The twenty-one complete Apple C bodies and Clang evidence remain in
 [`spec/apple-removal-discovery.json`](../../spec/apple-removal-discovery.json).
+
+All 14,080 native byte observations are replayed through `Decode`. The
+[single-byte tables](legacy_tables.go) are generated deterministically by
+[`generate-plist-legacy.go`](../../scripts/generate-plist-legacy.go); CI checks
+reproducibility on every host and recaptures native mappings on macOS.
 
 Every production package must exceed 95% coverage on each host. All twelve
 existing fuzz targets remain; `FuzzDecode` additionally exercises both bounded
@@ -74,12 +95,6 @@ dependency guards and six GoReleaser targets remain mandatory.
 
 ## Outstanding work
 
-- **Declared legacy encodings:** the next functional increment. Retained research
-  covers every byte for 55 ASCII-compatible charset names (14,080 observations),
-  independently captured by native `plutil`. CI checks fresh native observations.
-  These tables are research evidence; the converter does not yet implement them.
-  Qualification must also cover declaration selection, whole-stream conversion,
-  invalid bytes, resource expansion and actual removal targets on all three hosts.
 - **Other encodings and aliases:** multibyte/stateful codecs need their own native
   stream contracts; single-byte observations cannot establish their behavior.
 - **Remaining grammar:** additional OpenStep NUL contexts, XML/binary types,

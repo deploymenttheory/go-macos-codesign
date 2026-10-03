@@ -75,13 +75,14 @@ contract. Historical source alone is not used to assert current entity behavior.
 
 Strict-parser regressions, unsupported-context and limit no-mutation tests,
 malformed strings, scalar boundaries and parser fuzz seeds accompany the native
-replays. Per-package coverage above 95%, race checks, all twelve fuzz targets,
+replays. Per-package coverage above 95%, race checks, all thirteen fuzz targets,
 provenance, lint and six-target GoReleaser checks remain required.
 
 ## Remaining work
 
 - Unmarked UTF-16/32 interpretation is qualified in the [next profile](removal-unmarked-plists.md).
-  Declared legacy codecs still need qualified conversion.
+  The [legacy profile](removal-legacy-plists.md) qualifies 55 single-byte names;
+  other aliases and multibyte/stateful codecs remain open.
 - NUL in OpenStep and XML control characters outside strings/keys remain explicit
   unsupported errors where the existing parser cannot establish native behavior.
 - Wider XML markup/DTD/scalar behavior, binary representations, metadata key

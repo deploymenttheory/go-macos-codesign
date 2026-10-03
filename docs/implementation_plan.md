@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-03 after codesign PR88 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-03 after codesign PR89 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,21 +8,30 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** extract [`pkg/plist`](../pkg/plist/README.md) from codesign
-on the branch cut from PR88 main at `c77e62b723be6bdf16de3e9f05f39aa514dd2cd7`.
-Parsing and bounded conversion now have a reusable package; codesign retains
-operation policy, schemas and byte-exact serialization. Direct API/native-value
-checks and an additional fuzz target retain every existing gate, with >95%
-coverage required separately for the new package. No new CLI mode is introduced.
+**Current increment:** implement [declared legacy plist conversion](removal-legacy-plists.md)
+in the local `pkg/plist` package, on a fresh branch from merged PR89 main at
+`2acb8793ac6f4b8069629bd6306fb17d56384e3c`. All 55 retained charset names use
+native-qualified portable tables. Keep declaration selection separate from XML
+parsing, preserve BOM priority and convert the complete legacy stream before
+interpreting its first value. Undefined bytes are native format failures;
+unqualified codecs remain explicit unsupported errors. Expansion limits remain
+fatal before mutation, and original metadata bytes are never rewritten.
 
-**Next encoding increment:** 14,080 native byte observations for 55 charset names
-are retained and freshly checked on macOS. Implement declared legacy conversion
-only after qualifying declaration precedence and spelling, invalid-byte stream
-behavior, expansion limits, value fidelity and executable selection/mutation.
-Add API/CLI replay and mandatory Linux/Windows exports verified by native codesign.
-Extend complete-source/Clang evidence for relevant conversion paths. Single-byte
-research does not qualify multibyte/stateful codecs or unobserved aliases.
-Remaining NUL contexts and broader grammar stay outstanding.
+Qualification retains 14,080 per-byte observations, adds 756 native operation
+cases and 1,512 required Linux/Windows imports, and expands complete native values
+to 232. Three more complete Apple C converter bodies bring Clang evidence to 21
+on both targets. Deterministic generation, native recapture, all 13 fuzz targets,
+>95% coverage for every production package/host, race, guards, lint and six
+GoReleaser targets remain mandatory. PR89's passing CI is the baseline only;
+this branch's final results belong in its draft PR before user merge.
+
+**Next encoding work:** qualify multibyte/stateful stream behavior and additional
+aliases independently; single-byte tables cannot establish their contracts.
+Retain explicit unsupported errors until conversion, invalid-sequence behavior,
+expansion bounds, native values and file-selection effects are qualified together.
+Remaining OpenStep NUL contexts, XML grammar/types, malformed binary graphs,
+metadata normalization and aliases also remain outstanding. Codesign continues
+to own operation policy, schemas and byte-exact serialization; APFS owns metadata.
 
 **Merged unmarked increment:** [unmarked removal encodings](removal-unmarked-plists.md)
 implements native leading-zero detection, discarded units and little-endian UTF-16
@@ -2951,8 +2960,12 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   discarded unit, fixed little-endian policy, short/partial/surrogate boundaries
   and secondary parser/codec prevention. Retain 408 API/CLI cases, 816 foreign
   records, 106 total native value observations and all resource/strict-parser gates.
-- [ ] Qualify legacy declared encodings, invalid-byte conversion and remaining
-  NUL contexts before extending the portable decoder; retain explicit errors meanwhile.
+- [x] Implement the qualified 55 declared single-byte charset names, exact native
+  mappings, declaration/BOM selection and invalid-byte stream behavior. Retain
+  14,080 byte replays, 756 native operation cases, 1,512 mandatory foreign results
+  and 232 complete values; enforce conversion budgets before mutation.
+- [ ] Qualify remaining declared codecs/aliases and OpenStep NUL contexts before
+  extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
   broader platform/product key normalization, final plist aliases, legacy/shallow
   layouts, widgets, resource-root policies, `.dist` discovery, executable-path

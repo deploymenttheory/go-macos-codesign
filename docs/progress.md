@@ -6,27 +6,30 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current plist package phase
+## Current declared legacy encoding phase
 
-PR88 is merged at `c77e62b723be6bdf16de3e9f05f39aa514dd2cd7` after
-[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37076434876).
-Audited codesign coverage was 95.27% Linux, 95.68% macOS and 95.22% Windows.
-All 768 committed source hashes matched each OS checkout; all 816 unmarked
-foreign results matched fresh native operations, with every earlier profile retained.
+PR89 is merged at `2acb8793ac6f4b8069629bd6306fb17d56384e3c` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37101119812).
+Audited codesign coverage was 95.09% Linux, 95.45% macOS and 95.03% Windows;
+`pkg/plist` was 99.22% on each host. All 780 source hashes matched the actual
+OS checkouts, and all 2,424 plist foreign results matched fresh native operations.
 
-This branch extracts the bounded XML, binary and OpenStep parser into
-[`pkg/plist`](../pkg/plist/README.md), retaining APFS v0.17.0. Codesign keeps
-file selection, removal fallback, strict validation requirements and signature
-serialization. The package has direct API/error tests and replays all 106 native
-value observations. Its own fuzz target supplements all twelve existing targets;
-the unchanged coverage gate applies separately to the new production package.
+This branch starts from that main and implements
+[declared legacy plist encodings](removal-legacy-plists.md) in `pkg/plist`,
+retaining APFS v0.17.0. All 55 retained charset names now have portable conversion,
+with byte mappings generated from 14,080 native observations. Declaration
+selection, BOM precedence, whole-stream conversion failures and UTF-8 suffix
+handling are tested independently of codesign's target selection.
 
-Legacy-encoding research continues with 14,080 native byte observations across
-55 charset names and a mandatory fresh macOS drift check. This evidence does not
-yet enable production legacy conversion. The next functional increment must
-qualify declaration selection, stream failures, resource budgets and removal
-mutations on every host. Remaining NUL contexts and wider grammar also stay open.
-This branch requires its own complete CI; PR88's run does not validate these changes.
+The new profile adds 756 native removal cases, 1,512 mandatory foreign results
+and 126 complete native values (232 total). Clang evidence now retains 21 complete
+Apple bodies on both Darwin targets. All 13 fuzz targets, strict per-package
+coverage, race, native acceptance and six GoReleaser targets remain required.
+This branch requires its own complete CI; PR89's run does not validate it.
+
+Remaining work includes multibyte/stateful encodings, unqualified aliases,
+OpenStep NUL contexts, wider XML/binary grammar and discovery/normalization.
+These remain explicit gaps, not operating-system exclusions.
 
 ### Merged unmarked encoding profile
 

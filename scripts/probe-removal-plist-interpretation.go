@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters or unmarked")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked or legacy")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -65,6 +65,8 @@ func main() {
 		selectedInputs = xmlCharacterInputs()
 	} else if *profile == "unmarked" {
 		selectedInputs = unmarkedInputs()
+	} else if *profile == "legacy" {
+		selectedInputs = legacyInputs()
 	} else if *profile != "interpretation" {
 		panic("unknown profile")
 	}
@@ -167,6 +169,67 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	fmt.Println("Captured and checked", len(cases), "native plist-interpretation cases")
+}
+
+// Inputs use the independent native byte corpus, never the production decoder.
+// Native codesign must confirm each predicted target and every mutation invariant.
+func legacyInputs() []input {
+	var corpus struct {
+		Codecs []struct {
+			Name    string
+			Scalars []int32
+		}
+	}
+	must(json.Unmarshal(read("testdata/bundle-removal/plist-legacy-values.json"), &corpus))
+	const body = `<dict><key>CFBundleExecutable</key><string>second</string><key>value</key><string><![CDATA[%s]]></string></dict>`
+	decl := func(name string) string { return `<?xml version="1.0" encoding="` + name + `"?>` }
+	var cases []input
+	for _, c := range corpus.Codecs {
+		var valid []byte
+		invalid := -1
+		for b, r := range c.Scalars {
+			if r >= 0 {
+				valid = append(valid, byte(b))
+			} else if invalid == -1 {
+				invalid = b
+			}
+		}
+		cases = append(cases, input{"valid-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, string(valid)) + string(valid)), true})
+		if invalid >= 0 {
+			cases = append(cases,
+				input{"invalid-body-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, string([]byte{byte(invalid)}))), false},
+				input{"invalid-tail-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, "ASCII") + string([]byte{byte(invalid)})), false})
+		}
+	}
+	for _, tc := range []struct {
+		name, header, value, tail string
+		valid                     bool
+	}{
+		{"single-quote", `<?xml encoding='ISO-8859-1'?>`, "\xe9", "", true},
+		{"uppercase-name", decl("WiNdOwS-1252"), "\x80", "", true},
+		{"substring-attribute", `<?xml xencoding="ISO-8859-1"?>`, "\xe9", "", true},
+		{"space-before-equals", `<?xml encoding ="ISO-8859-1"?>`, "é水😀", "", true},
+		{"space-after-equals", `<?xml encoding= "ISO-8859-1"?>`, "é水😀", "", true},
+		{"uppercase-keyword", `<?xml ENCODING="ISO-8859-1"?>`, "é水😀", "", true},
+		{"leading-space", " \n" + decl("ISO-8859-1"), "é水😀", "", true},
+		{"first-declaration", `<?xml encoding="ISO-8859-1" encoding="windows-1252"?>`, "\x80", "", true},
+		{"utf8-alias", decl("utf8"), "é水😀", "", true},
+		{"utf8-invalid-body", decl("UTF-8"), "\xff", "", false},
+		{"utf8-invalid-tail", decl("UTF-8"), "é水😀", "\xff", true},
+		{"utf8-no-declaration-tail", "", "é水😀", "\xff", true},
+		{"ignored-invalid-body", `<?xml encoding ="ISO-8859-1"?>`, "\xe9", "", false},
+		{"bom-legacy", "\xef\xbb\xbf" + decl("ISO-8859-1"), "é水😀", "", true},
+		{"bom-unknown", "\xef\xbb\xbf" + decl("not-a-codec"), "é水😀", "", true},
+		{"bom-macroman", "\xef\xbb\xbf" + decl("macintosh"), "é水😀", "", true},
+		{"bom-multibyte", "\xef\xbb\xbf" + decl("Shift_JIS"), "é水😀", "", true},
+		{"macintosh", decl("macintosh"), "ASCII", "", false},
+		{"mac", decl("mac"), "ASCII", "", false},
+		{"macroman", decl("macroman"), "ASCII", "", false},
+		{"x-mac-roman", decl("x-mac-roman"), "ASCII", "", false},
+	} {
+		cases = append(cases, input{tc.name, []byte(tc.header + fmt.Sprintf(body, tc.value) + tc.tail), tc.valid})
+	}
+	return cases
 }
 
 func unmarkedInputs() []input {

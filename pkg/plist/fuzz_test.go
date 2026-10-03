@@ -13,6 +13,8 @@ func FuzzDecode(f *testing.F) {
 	for _, seed := range [][]byte{
 		[]byte(`<plist><dict><key>x</key><string>y</string></dict></plist>`),
 		[]byte(`<array><false/><string>&#0;</string></array>`),
+		[]byte("<?xml encoding=\"windows-1252\"?><string>\x80</string>\x81"),
+		[]byte("<?xml xencoding=\"ISO-8859-1\"?><string>\xff</string>"),
 		[]byte(`{x=(a,b);}`), []byte("bplist00"),
 		{0xff, 0xfe, '{', 0, '}', 0}, {0, 0, 0xfe, 0xff, 0, 0, 0, 0},
 	} {

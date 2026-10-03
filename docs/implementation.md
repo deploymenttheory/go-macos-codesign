@@ -4,13 +4,15 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR88 with APFS v0.17.0.
-The [`plist` package](../pkg/plist/README.md) now owns bounded parsing and text
-conversion. Codesign retains file selection, operation policy and signature
-serialization. Direct native-value/API checks and a thirteenth fuzz target retain
-all prior coverage and acceptance requirements. Research for the next declared
-legacy-encoding increment retains 14,080 byte observations across 55 charset names;
-fresh macOS checks qualify that evidence, not production support.
+Current work continues after merged PR89 with APFS v0.17.0.
+The [`plist` package](../pkg/plist/README.md) owns bounded parsing and text
+conversion; codesign retains file selection, operation policy and serialization.
+The [declared legacy encoding phase](removal-legacy-plists.md) implements 55
+charset names from 14,080 native byte observations, with whole-stream validation,
+declaration selection and conversion budgets. It adds 756 native operation cases,
+1,512 mandatory foreign results and 126 full native values (232 total).
+All 13 fuzz targets and every existing coverage and acceptance gate remain required.
+Other aliases, multibyte/stateful streams and wider grammar remain outstanding.
 The [unmarked encoding phase](removal-unmarked-plists.md) adds 408 native cases
 and 816 mandatory foreign results for native prefix removal and byte order,
 while preventing secondary XML/codec guesses. Full native value observations
@@ -24,7 +26,7 @@ character cases and adds 192 selection cases, 38 complete value observations and
 line endings and native CDATA/entity composition. Broader grammar remains open.
 The [BOM-marked UTF-16 profile](removal-plist-encodings.md) adds 120 native cases
 and 240 mandatory foreign records for both byte orders, native prefix conversion
-and declaration precedence. Declared legacy codecs and wider grammar remain outstanding.
+and declaration precedence. Additional declared codecs and wider grammar remain outstanding.
 Shared readers and rooted basic entry-type queries implement platform-specific
 plist selection for removal on all three hosts. The
 [discovery contract](removal-platform-metadata.md) records its 33-case corpus,

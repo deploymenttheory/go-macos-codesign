@@ -760,15 +760,982 @@
         "Ignored": "\u003cdict\u003e\u003ckey\u003eCFBundleExecutable\u003c\/key\u003e\u003cstring\u003efirst\u003c\/string\u003e\u003c\/dict\u003e",
         "CFBundleExecutable": "second"
       }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-us-ascii",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ascii",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iYXNjaWkiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ansi_x3.4-1968",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iYW5zaV94My40LTE5NjgiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-1",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso_8859-1",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvXzg4NTktMSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-latin1",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibGF0aW4xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-latin-1",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibGF0aW4tMSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso_8859-1:1987",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvXzg4NTktMToxOTg3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-l1",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibDEiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-2",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMiI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ą˘Ł¤ĽŚ§¨ŠŞŤŹ­ŽŻ°ą˛ł´ľśˇ¸šşťź˝žżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-3",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6Smp6ipqqusra+wsbKztLW2t7i5uru8vb/AwcLExcbHyMnKy8zNzs/R0tPU1dbX2Nna29zd3t/g4eLk5ebn6Onq6+zt7u/x8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpqeoqaqrrK2vsLGys7S1tre4ubq7vL2/wMHCxMXGx8jJysvMzc7P0dLT1NXW19jZ2tvc3d7f4OHi5OXm5+jp6uvs7e7v8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ħ˘£¤Ĥ§¨İŞĞĴ­Ż°ħ²³´µĥ·¸ışğĵ½żÀÁÂÄĊĈÇÈÉÊËÌÍÎÏÑÒÓÔĠÖ×ĜÙÚÛÜŬŜßàáâäċĉçèéêëìíîïñòóôġö÷ĝùúûüŭŝ˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-iso-8859-3",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVulXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-iso-8859-3",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVtBU0NJSV1dPjwvc3RyaW5nPjwvZGljdD6l",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-4",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNCI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĸŖ¤ĨĻ§¨ŠĒĢŦ­Ž¯°ą˛ŗ´ĩļˇ¸šēģŧŊžŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎĪĐŅŌĶÔÕÖ×ØŲÚÛÜŨŪßāáâãäåæįčéęëėíîīđņōķôõö÷øųúûüũū˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-5",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ЁЂЃЄЅІЇЈЉЊЋЌ­ЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя№ёђѓєѕіїјљњћќ§ўџ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-6",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNiI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKSsrbu/wcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drg4eLj5OXm5+jp6uvs7e7v8PHyXV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+gpKytu7/BwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2uDh4uPk5ebn6Onq6+zt7u/w8fI=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¤،­؛؟ءآأؤإئابةتثجحخدذرزسشصضطظعغـفقكلمنهوىيًٌٍَُِّْ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-iso-8859-6",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNiI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVuhXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-iso-8859-6",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNiI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVtBU0NJSV1dPjwvc3RyaW5nPjwvZGljdD6h",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-7",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6anqKmrrK2vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpqeoqausra+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f4=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ‘’£¦§¨©«¬­―°±²³΄΅Ά·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-iso-8859-7",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVukXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-iso-8859-7",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktNyI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVtBU0NJSV1dPjwvc3RyaW5nPjwvZGljdD6k",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-8",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktOCI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+l1dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+g==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¢£¤¥¦§¨©×«¬­®‾°±²³´µ¶·¸¹÷»¼½¾‗אבגדהוזחטיךכלםמןנסעףפץצקרשת",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-iso-8859-8",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktOCI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVuhXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-iso-8859-8",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktOCI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVtBU0NJSV1dPjwvc3RyaW5nPjwvZGljdD6h",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-9",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktOSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVsAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-10",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTAiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĒĢĪĨĶ§ĻĐŠŦŽ­ŪŊ°ąēģīĩķ·ļđšŧž―ūŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎÏÐŅŌÓÔÕÖŨØŲÚÛÜÝÞßāáâãäåæįčéęëėíîïðņōóôõöũøųúûüýþĸ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-11",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTEiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vtdXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vs=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-iso-8859-11",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTEiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFb211dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-iso-8859-11",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTEiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+2w==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-13",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTMiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ”¢£¤„¦§Ø©Ŗ«¬­®Æ°±²³“µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž´",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-14",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ḃḃ£ĊċḊ§Ẁ©ẂḋỲ­®ŸḞḟĠġṀṁ¶ṖẁṗẃṠỳẄẅṡÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏŴÑÒÓÔÕÖṪØÙÚÛÜÝŶßàáâãäåæçèéêëìíîïŵñòóôõöṫøùúûüýŷÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-15",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTUiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£€¥Š§š©ª«¬­®¯°±²³Žµ¶·ž¹º»ŒœŸ¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-iso-8859-16",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMTYiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄąŁ€„Š§š©Ș«Ź­źŻ°±ČłŽ”¶·žčș»ŒœŸżÀÁÂĂÄĆÆÇÈÉÊËÌÍÎÏĐŃÒÓÔŐÖŚŰÙÚÛÜĘȚßàáâăäćæçèéêëìíîïđńòóôőöśűùúûüęțÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy04NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AhZGSk5SVlpegoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIWRkpOUlZaXoKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drf4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€…‘’“”•–— กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy04NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbgV1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy04NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+gQ==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3A4NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AhZGSk5SVlpegoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIWRkpOUlZaXoKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drf4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€…‘’“”•–— กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3A4NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbgV1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp874",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3A4NzQiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+gQ==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKEhYaHiYqLjI2Oj5GSk5SVlpeZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKEhYaHiYqLjI2Oj5GSk5SVlpeZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚„…†‡‰Š‹ŚŤŽŹ‘’“”•–—™š›śťžź ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż°±˛ł´µ¶·¸ąş»Ľ˝ľżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKEhYaHiYqLjI2Oj5GSk5SVlpeZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKEhYaHiYqLjI2Oj5GSk5SVlpeZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚„…†‡‰Š‹ŚŤŽŹ‘’“”•–—™š›śťžź ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż°±˛ł´µ¶·¸ąş»Ľ˝ľżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1250",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5mam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW5hdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Ppg=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5mam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW5hdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1251",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUxIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Ppg=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMjpGSk5SVlpeYmZqbnJ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMjpGSk5SVlpeYmZqbnJ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMjpGSk5SVlpeYmZqbnJ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMjpGSk5SVlpeYmZqbnJ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1252",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4mLkZKTlJWWl5mboKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4mLkZKTlJWWl5mboKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡‰‹‘’“”•–—™› ΅Ά£¤¥¦§¨©«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4mLkZKTlJWWl5mboKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4mLkZKTlJWWl5mboKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡‰‹‘’“”•–—™› ΅Ά£¤¥¦§¨©«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1253",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjUzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMkZKTlJWWl5iZmpucn6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CCg4SFhoeIiYqLjJGSk5SVlpeYmZqbnJ+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•–—˜™š›œŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJiouMkZKTlJWWl5iZmpucn6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CCg4SFhoeIiYqLjJGSk5SVlpeYmZqbnJ+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•–—˜™š›œŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1254",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU0Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi5GSk5SVlpeYmZugoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnLzM3Oz9DR0tPU1dbX2ODh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+v3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi5GSk5SVlpeYmZugoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnLzM3Oz9DR0tPU1dbX2ODh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+v3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰‹‘’“”•–—˜™› ¡¢£₪¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾¿ְֱֲֳִֵֶַָֹֻּֽ־ֿ׀ׁׂ׃װױײ׳״אבגדהוזחטיךכלםמןנסעףפץצקרשת‎‏",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi5GSk5SVlpeYmZugoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnLzM3Oz9DR0tPU1dbX2ODh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+v3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi5GSk5SVlpeYmZugoaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnLzM3Oz9DR0tPU1dbX2ODh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+v3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰‹‘’“”•–—˜™› ¡¢£₪¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾¿ְֱֲֳִֵֶַָֹֻּֽ־ֿ׀ׁׂ׃װױײ׳״אבגדהוזחטיךכלםמןנסעףפץצקרשת‎‏",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1255",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYuMjY6QkZKTlJWWl5mbnJ2eoKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8HCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYuMjY6QkZKTlJWWl5mbnJ2eoKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8HCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€پ‚ƒ„…†‡ˆ‰‹Œچژگ‘’“”•–—™›œ‌‍ ،¢£¤¥¦§¨©«¬­®¯°±²³´µ¶·¸¹؛»¼½¾؟ءآأؤإئابةتثجحخدذرزسشصض×طظعغـفقكàلâمنهوçèéêëىيîïًٌٍَôُِ÷ّùْûü‎‏",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4pdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Poo=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYuMjY6QkZKTlJWWl5mbnJ2eoKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8HCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYuMjY6QkZKTlJWWl5mbnJ2eoKGio6Slpqeoqausra6vsLGys7S1tre4ubq7vL2+v8HCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€پ‚ƒ„…†‡ˆ‰‹Œچژگ‘’“”•–—™›œ‌‍ ،¢£¤¥¦§¨©«¬­®¯°±²³´µ¶·¸¹؛»¼½¾؟ءآأؤإئابةتثجحخدذرزسشصض×طظعغـفقكàلâمنهوçèéêëىيîïًٌٍَôُِ÷ّùْûü‎‏",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4pdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1256",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Poo=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goqOkpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goqOkpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚„…†‡‰‹¨ˇ¸‘’“”•–—™›¯˛ ¢£¤¦§Ø©Ŗ«¬­®Æ°±²³´µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW6FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PqE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goqOkpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/XV0+PC9zdHJpbmc+PC9kaWN0PgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goqOkpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚„…†‡‰‹¨ˇ¸‘’“”•–—™›¯˛ ¢£¤¦§Ø©Ŗ«¬­®Æ°±²³´µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž˙",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW6FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1257",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PqE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-windows-1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi4yRkpOUlZaXmJmbnJ+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgoOEhYaHiImLjJGSk5SVlpeYmZucn6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂĂÄÅÆÇÈÉÊË̀ÍÎÏĐÑ̉ÓÔƠÖ×ØÙÚÛÜỮßàáâăäåæçèéêë́íîïđṇ̃óôơö÷øùúûüư₫ÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-windows-1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-windows-1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0id2luZG93cy0xMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-cp1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIKDhIWGh4iJi4yRkpOUlZaXmJmbnJ+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgoOEhYaHiImLjJGSk5SVlpeYmZucn6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂĂÄÅÆÇÈÉÊË̀ÍÎÏĐÑ̉ÓÔƠÖ×ØÙÚÛÜỮßàáâăäåæçèéêë́íîïđṇ̃óôơö÷øùúûüư₫ÿ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-body-cp1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4FdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-invalid-tail-cp1258",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iY3AxMjU4Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0PoE=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm437",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtNDM3Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm850",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODUwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±‗¾¶§÷¸°¨·¹³²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm852",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäůćçłëŐőîŹÄĆÉĹĺôöĽľŚśÖÜŤťŁ×čáíóúĄąŽžĘę¬źČş«»░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐└┴┬├─┼Ăă╚╔╩╦╠═╬¤đĐĎËďŇÍÎě┘┌█▄ŢŮ▀ÓßÔŃńňŠšŔÚŕŰýÝţ´­˝˛ˇ˘§÷¸°¨˙űŘř■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm855",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODU1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ђЂѓЃёЁєЄѕЅіІїЇјЈљЉњЊћЋќЌўЎџЏюЮъЪаАбБцЦдДеЕфФгГ«»░▒▓│┤хХиИ╣║╗╝йЙ┐└┴┬├─┼кК╚╔╩╦╠═╬¤лЛмМнНоОп┘┌█▄Пя▀ЯрРсСтТуУжЖвВьЬ№­ыЫзЗшШэЭщЩчЧ§■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm860",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODYwIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâãàÁçêÊèÍÔìÃÂÉÀÈôõòÚùÌÕÜ¢£Ù₧ÓáíóúñÑªº¿Ò¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm862",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODYyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~אבגדהוזחטיךכלםמןנסעףפץצקרשת¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm863",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODYzIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâÂà¶çêëèïî‗À§ÉÈÊôËÏûù¤ÔÜ¢£ÙÛƒ¦´óú¨¸³¯Î⌐¬½¼¾«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm865",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODY1Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø₧ƒáíóúñÑªº¿⌐¬½¼¡«¤░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσμτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-ibm866",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaWJtODY2Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁёЄєЇїЎў°∙·√№¤■ ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-koi8-r",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ia29pOC1yIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■•√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-koi8-u",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ia29pOC11Ij8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBWwABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9dXT48L3N0cmluZz48L2RpY3Q+AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ёє╔ії╗╘╙╚╛ґ╝╞╟╠╡ЁЄ╣ІЇ╦╧╨╩╪Ґ╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-valid-x-mac-cyrillic",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ieC1tYWMtY3lyaWxsaWMiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/11dPjwvc3RyaW5nPjwvZGljdD4AAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/",
+      "Status": 0,
+      "Value": {
+        "value": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%\u0026'()*+,-.\/0123456789:;\u003c=\u003e?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ†°Ґ£§•¶І®©™Ђђ≠Ѓѓ∞±≤≥іµґЈЄєЇїЉљЊњјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю€",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-single-quote",
+      "Input": "PD94bWwgZW5jb2Rpbmc9J0lTTy04ODU5LTEnPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFb6V1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-uppercase-name",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iV2lOZE93Uy0xMjUyIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW4BdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 0,
+      "Value": {
+        "value": "€",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-substring-attribute",
+      "Input": "PD94bWwgeGVuY29kaW5nPSJJU08tODg1OS0xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW+ldXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 0,
+      "Value": {
+        "value": "é",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-space-before-equals",
+      "Input": "PD94bWwgZW5jb2RpbmcgPSJJU08tODg1OS0xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-space-after-equals",
+      "Input": "PD94bWwgZW5jb2Rpbmc9ICJJU08tODg1OS0xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-uppercase-keyword",
+      "Input": "PD94bWwgRU5DT0RJTkc9IklTTy04ODU5LTEiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbw6nmsLTwn5iAXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-leading-space",
+      "Input": "IAo8P3htbCB2ZXJzaW9uPSIxLjAiIGVuY29kaW5nPSJJU08tODg1OS0xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-first-declaration",
+      "Input": "PD94bWwgZW5jb2Rpbmc9IklTTy04ODU5LTEiIGVuY29kaW5nPSJ3aW5kb3dzLTEyNTIiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-utf8-alias",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmOCI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVvDqeawtPCfmIBdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-utf8-invalid-body",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFb/11dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-utf8-invalid-tail",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbw6nmsLTwn5iAXV0+PC9zdHJpbmc+PC9kaWN0Pv8=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-utf8-no-declaration-tail",
+      "Input": "PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD7/",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-ignored-invalid-body",
+      "Input": "PD94bWwgZW5jb2RpbmcgPSJJU08tODg1OS0xIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW+ldXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-bom-legacy",
+      "Input": "77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PjxkaWN0PjxrZXk+Q0ZCdW5kbGVFeGVjdXRhYmxlPC9rZXk+PHN0cmluZz5zZWNvbmQ8L3N0cmluZz48a2V5PnZhbHVlPC9rZXk+PHN0cmluZz48IVtDREFUQVvDqeawtPCfmIBdXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-bom-unknown",
+      "Input": "77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibm90LWEtY29kZWMiPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbw6nmsLTwn5iAXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-bom-macroman",
+      "Input": "77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibWFjaW50b3NoIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-bom-multibyte",
+      "Input": "77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iU2hpZnRfSklTIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW8Op5rC08J+YgF1dPjwvc3RyaW5nPjwvZGljdD4=",
+      "Status": 0,
+      "Value": {
+        "value": "é水😀",
+        "CFBundleExecutable": "second"
+      }
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-macintosh",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibWFjaW50b3NoIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-mac",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibWFjIj8+PGRpY3Q+PGtleT5DRkJ1bmRsZUV4ZWN1dGFibGU8L2tleT48c3RyaW5nPnNlY29uZDwvc3RyaW5nPjxrZXk+dmFsdWU8L2tleT48c3RyaW5nPjwhW0NEQVRBW0FTQ0lJXV0+PC9zdHJpbmc+PC9kaWN0Pg==",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-macroman",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ibWFjcm9tYW4iPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-x-mac-roman",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ieC1tYWMtcm9tYW4iPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+",
+      "Status": 1,
+      "Value": null
     }
   ],
   "corpus_sha256": {
-    "plist-unmarked.json": "aab602f12bde7ec103d85dd256916a7c481c46416bdf25e8b34e1858732884bb",
-    "plist-utf32-grammar.json": "dbe65791b2755830fec8b5397402baf0d58d5feec4f903b4a5c1d8e9ca015778",
-    "plist-xml-characters.json": "71f4c9f00a46e7ad5cd7b8402ce4c63b56a2e6a306ba9231a978ddff25dedf33"
+    "plist-legacy.json": "cad86e29b87740b66f0b926abc60e9a693b245ce0fdfc36a5222d5ded9b9d867",
+    "plist-unmarked.json": "06e9f722c2222a155d83b513ae0c2aa1f547659932d82b504452c8f346f6e89b",
+    "plist-utf32-grammar.json": "96bda01ed398b7645a0abf4728a8b89e45122bcebeb9a55074f4082ae95ce0f1",
+    "plist-xml-characters.json": "89395c6fe0ee6108a53502146ab47d20ae738e2d799a0da7decfa6452b274bb3"
   },
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
   "schema": 1,
-  "source_sha256": "3ee2b6148f24bb41899969ded8d8c63d2221b6da9c6227c54b099c46f41e921a"
+  "source_sha256": "e815ef99012412fbda73dae0ca5f6eaa2c7ef7405c9ab3cccacfafabb3564a13"
 }
