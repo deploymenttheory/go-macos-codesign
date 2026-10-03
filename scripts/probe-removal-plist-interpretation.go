@@ -194,11 +194,12 @@ func legacyInputs() []input {
 				invalid = b
 			}
 		}
-		cases = append(cases, input{"valid-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, string(valid)) + string(valid)), true})
+		label := strings.ReplaceAll(c.Name, ":", "%3a")
+		cases = append(cases, input{"valid-" + label, []byte(decl(c.Name) + fmt.Sprintf(body, string(valid)) + string(valid)), true})
 		if invalid >= 0 {
 			cases = append(cases,
-				input{"invalid-body-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, string([]byte{byte(invalid)}))), false},
-				input{"invalid-tail-" + c.Name, []byte(decl(c.Name) + fmt.Sprintf(body, "ASCII") + string([]byte{byte(invalid)})), false})
+				input{"invalid-body-" + label, []byte(decl(c.Name) + fmt.Sprintf(body, string([]byte{byte(invalid)}))), false},
+				input{"invalid-tail-" + label, []byte(decl(c.Name) + fmt.Sprintf(body, "ASCII") + string([]byte{byte(invalid)})), false})
 		}
 	}
 	for _, tc := range []struct {

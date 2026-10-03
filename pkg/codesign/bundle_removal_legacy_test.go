@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -27,7 +28,7 @@ func TestRemovalPlistLegacyNativeReplay(t *testing.T) {
 	}
 	states := []string{"single-quote", "uppercase-name", "substring-attribute", "space-before-equals", "space-after-equals", "uppercase-keyword", "leading-space", "first-declaration", "utf8-alias", "utf8-invalid-body", "utf8-invalid-tail", "utf8-no-declaration-tail", "ignored-invalid-body", "bom-legacy", "bom-unknown", "bom-macroman", "bom-multibyte", "macintosh", "mac", "macroman", "x-mac-roman"}
 	for _, name := range names {
-		states = append(states, "valid-"+name)
+		states = append(states, "valid-"+strings.ReplaceAll(name, ":", "%3a"))
 	}
 	for _, name := range invalid {
 		states = append(states, "invalid-body-"+name, "invalid-tail-"+name)

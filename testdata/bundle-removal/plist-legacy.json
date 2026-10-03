@@ -674,7 +674,7 @@
     },
     {
       "Shape": "app",
-      "State": "ordinary-valid-iso_8859-1:1987",
+      "State": "ordinary-valid-iso_8859-1%3a1987",
       "Base": "Contents/",
       "Info": "Contents/Info.plist",
       "Platform": "Contents/Info-macos.plist",
@@ -719,7 +719,7 @@
     },
     {
       "Shape": "app",
-      "State": "platform-valid-iso_8859-1:1987",
+      "State": "platform-valid-iso_8859-1%3a1987",
       "Base": "Contents/",
       "Info": "Contents/Info.plist",
       "Platform": "Contents/Info-macos.plist",
@@ -12770,7 +12770,7 @@
     },
     {
       "Shape": "flat-framework",
-      "State": "ordinary-valid-iso_8859-1:1987",
+      "State": "ordinary-valid-iso_8859-1%3a1987",
       "Base": "",
       "Info": "Resources/Info.plist",
       "Platform": "Resources/Info-macos.plist",
@@ -12815,7 +12815,7 @@
     },
     {
       "Shape": "flat-framework",
-      "State": "platform-valid-iso_8859-1:1987",
+      "State": "platform-valid-iso_8859-1%3a1987",
       "Base": "",
       "Info": "Resources/Info.plist",
       "Platform": "Resources/Info-macos.plist",
@@ -24922,7 +24922,7 @@
     },
     {
       "Shape": "framework",
-      "State": "ordinary-valid-iso_8859-1:1987",
+      "State": "ordinary-valid-iso_8859-1%3a1987",
       "Base": "Versions/A/",
       "Info": "Versions/A/Resources/Info.plist",
       "Platform": "Versions/A/Resources/Info-macos.plist",
@@ -24971,7 +24971,7 @@
     },
     {
       "Shape": "framework",
-      "State": "platform-valid-iso_8859-1:1987",
+      "State": "platform-valid-iso_8859-1%3a1987",
       "Base": "Versions/A/",
       "Info": "Versions/A/Resources/Info.plist",
       "Platform": "Versions/A/Resources/Info-macos.plist",
@@ -37300,5 +37300,5 @@
   "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "schema": 1,
-  "source_sha256": "013700f01e27e6d55bdc598ef5691f75506672e830d65eac0391b26e99bb2347"
+  "source_sha256": "96c3bb8f0ca65016f72a88d3dcdb25352df29b7df5073eb4bed9045174fa913a"
 }
