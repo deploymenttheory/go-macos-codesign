@@ -84,6 +84,7 @@ func TestRemovalPlistInterpretationBoundaries(t *testing.T) {
 }
 
 func FuzzRemovalPlist(f *testing.F) {
+	f.Add([]byte(`<?xml encoding="ISO-8859-1"?>{CFBundleExecutable=second;}`))
 	f.Add([]byte("<?xml encoding=\"windows-1252\"?><dict/>\x81"))
 	f.Add([]byte("\xef\xbb\xbf<?xml encoding=\"macintosh\"?><dict/>"))
 	f.Add(removalUTF16(`x<dict><key>CFBundleExecutable</key><string>second</string></dict>`)[2:])

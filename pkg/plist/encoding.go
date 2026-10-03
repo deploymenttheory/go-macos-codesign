@@ -65,7 +65,7 @@ func nativeText(data []byte) ([]byte, error) {
 			return nil, err
 		}
 	}
-	data = skipDeclaration(data)
+	data = neutralDeclaration(data)
 	text := bytes.TrimSpace(data)
 	// Native UTF-8 XML parses the first value directly. Invalid bytes in an
 	// ignored suffix do not invalidate it; string and markup readers validate

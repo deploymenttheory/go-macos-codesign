@@ -44,7 +44,7 @@ func TestRemovalXMLNativeValues(t *testing.T) {
 		t.Fatal(err)
 	}
 	hash := func(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
-	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || len(corpus.Cases) != 232 || len(corpus.Sources) != 4 || corpus.Driver != hash(readTestFile(t, "../../scripts/probe-removal-xml-values.go")) {
+	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || len(corpus.Cases) != 238 || len(corpus.Sources) != 4 || corpus.Driver != hash(readTestFile(t, "../../scripts/probe-removal-xml-values.go")) {
 		t.Fatal("incomplete native value evidence")
 	}
 	if _, err := hex.DecodeString(corpus.Native); err != nil {

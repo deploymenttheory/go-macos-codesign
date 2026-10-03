@@ -71,12 +71,13 @@ in full, including trailing bytes, before XML interpretation; an undefined byte
 produces `ErrFormat`. UTF-8 parsing can ignore bytes after a completed root.
 The native-rejected MacRoman declaration names are format failures for this
 property-list caller. Other unqualified names remain `ErrUnsupported`.
-Conversion is capped at 8 MiB before declaration removal and parsing. No API
+Conversion is capped at 8 MiB before declaration neutralization and parsing. XML dispatch is retained even
+when a declaration is followed by OpenStep text. No API
 rewrites the source. See the [qualified behavior and evidence](../../docs/removal-legacy-plists.md).
 
 ## Evidence and tests
 
-The package is tested directly against 232 retained complete native values and
+The package is tested directly against 238 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.

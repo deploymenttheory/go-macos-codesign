@@ -15,6 +15,7 @@ func FuzzDecode(f *testing.F) {
 		[]byte(`<array><false/><string>&#0;</string></array>`),
 		[]byte("<?xml encoding=\"windows-1252\"?><string>\x80</string>\x81"),
 		[]byte("<?xml xencoding=\"ISO-8859-1\"?><string>\xff</string>"),
+		[]byte(`<?xml encoding="ISO-8859-1"?>{CFBundleExecutable=second;}`),
 		[]byte(`{x=(a,b);}`), []byte("bplist00"),
 		{0xff, 0xfe, '{', 0, '}', 0}, {0, 0, 0xfe, 0xff, 0, 0, 0, 0},
 	} {

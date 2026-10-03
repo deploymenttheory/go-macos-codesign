@@ -17,9 +17,9 @@ interpreting its first value. Undefined bytes are native format failures;
 unqualified codecs remain explicit unsupported errors. Expansion limits remain
 fatal before mutation, and original metadata bytes are never rewritten.
 
-Qualification retains 14,080 per-byte observations, adds 756 native operation
-cases and 1,512 required Linux/Windows imports, and expands complete native values
-to 232. Three more complete Apple C converter bodies bring Clang evidence to 21
+Qualification retains 14,080 per-byte observations, adds 792 native operation
+cases and 1,584 required Linux/Windows imports, and expands complete native values
+to 238. Three more complete Apple C converter bodies bring Clang evidence to 21
 on both targets. Deterministic generation, native recapture, all 13 fuzz targets,
 >95% coverage for every production package/host, race, guards, lint and six
 GoReleaser targets remain mandatory. PR89's passing CI is the baseline only;
@@ -2962,8 +2962,8 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   records, 106 total native value observations and all resource/strict-parser gates.
 - [x] Implement the qualified 55 declared single-byte charset names, exact native
   mappings, declaration/BOM selection and invalid-byte stream behavior. Retain
-  14,080 byte replays, 756 native operation cases, 1,512 mandatory foreign results
-  and 232 complete values; enforce conversion budgets before mutation.
+  14,080 byte replays, 792 native operation cases, 1,584 mandatory foreign results
+  and 238 complete values; enforce conversion budgets before mutation.
 - [ ] Qualify remaining declared codecs/aliases and OpenStep NUL contexts before
   extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,

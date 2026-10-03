@@ -21,8 +21,8 @@ with byte mappings generated from 14,080 native observations. Declaration
 selection, BOM precedence, whole-stream conversion failures and UTF-8 suffix
 handling are tested independently of codesign's target selection.
 
-The new profile adds 756 native removal cases, 1,512 mandatory foreign results
-and 126 complete native values (232 total). Clang evidence now retains 21 complete
+The new profile adds 792 native removal cases, 1,584 mandatory foreign results
+and 132 complete native values (238 total). Clang evidence now retains 21 complete
 Apple bodies on both Darwin targets. All 13 fuzz targets, strict per-package
 coverage, race, native acceptance and six GoReleaser targets remain required.
 This branch requires its own complete CI; PR89's run does not validate it.

@@ -26,14 +26,14 @@ func TestRemovalPlistLegacyNativeReplay(t *testing.T) {
 	for _, n := range []int{437, 850, 852, 855, 860, 862, 863, 865, 866} {
 		names = append(names, fmt.Sprintf("ibm%d", n))
 	}
-	states := []string{"single-quote", "uppercase-name", "substring-attribute", "space-before-equals", "space-after-equals", "uppercase-keyword", "leading-space", "first-declaration", "utf8-alias", "utf8-invalid-body", "utf8-invalid-tail", "utf8-no-declaration-tail", "ignored-invalid-body", "bom-legacy", "bom-unknown", "bom-macroman", "bom-multibyte", "macintosh", "mac", "macroman", "x-mac-roman"}
+	states := []string{"declared-openstep-utf8", "declared-openstep-legacy", "declared-openstep-bom", "declared-openstep-quoted", "declared-openstep-utf16", "declared-openstep-utf32", "single-quote", "uppercase-name", "substring-attribute", "space-before-equals", "space-after-equals", "uppercase-keyword", "leading-space", "first-declaration", "utf8-alias", "utf8-invalid-body", "utf8-invalid-tail", "utf8-no-declaration-tail", "ignored-invalid-body", "bom-legacy", "bom-unknown", "bom-macroman", "bom-multibyte", "macintosh", "mac", "macroman", "x-mac-roman"}
 	for _, name := range names {
 		states = append(states, "valid-"+strings.ReplaceAll(name, ":", "%3a"))
 	}
 	for _, name := range invalid {
 		states = append(states, "invalid-body-"+name, "invalid-tail-"+name)
 	}
-	if len(names) != 55 || len(states) != 126 {
+	if len(names) != 55 || len(states) != 132 {
 		t.Fatal("incomplete native inventory")
 	}
 	wanted := map[string]bool{}

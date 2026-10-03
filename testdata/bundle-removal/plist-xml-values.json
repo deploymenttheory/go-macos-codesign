@@ -1726,13 +1726,49 @@
       "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0ieC1tYWMtcm9tYW4iPz48ZGljdD48a2V5PkNGQnVuZGxlRXhlY3V0YWJsZTwva2V5PjxzdHJpbmc+c2Vjb25kPC9zdHJpbmc+PGtleT52YWx1ZTwva2V5PjxzdHJpbmc+PCFbQ0RBVEFbQVNDSUldXT48L3N0cmluZz48L2RpY3Q+",
       "Status": 1,
       "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-utf8",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz57Q0ZCdW5kbGVFeGVjdXRhYmxlPXNlY29uZDt9",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-legacy",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PntDRkJ1bmRsZUV4ZWN1dGFibGU9c2Vjb25kO30=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-bom",
+      "Input": "77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMSI/PntDRkJ1bmRsZUV4ZWN1dGFibGU9c2Vjb25kO30=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-quoted",
+      "Input": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4ie0NGQnVuZGxlRXhlY3V0YWJsZT1zZWNvbmQ7fSI=",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-utf16",
+      "Input": "//48AD8AeABtAGwAIAB2AGUAcgBzAGkAbwBuAD0AIgAxAC4AMAAiACAAZQBuAGMAbwBkAGkAbgBnAD0AIgBJAFMATwAtADgAOAA1ADkALQAxACIAPwA+AHsAQwBGAEIAdQBuAGQAbABlAEUAeABlAGMAdQB0AGEAYgBsAGUAPQBzAGUAYwBvAG4AZAA7AH0A",
+      "Status": 1,
+      "Value": null
+    },
+    {
+      "Name": "plist-legacy.json/ordinary-declared-openstep-utf32",
+      "Input": "//4AADwAAAA/AAAAeAAAAG0AAABsAAAAIAAAAHYAAABlAAAAcgAAAHMAAABpAAAAbwAAAG4AAAA9AAAAIgAAADEAAAAuAAAAMAAAACIAAAAgAAAAZQAAAG4AAABjAAAAbwAAAGQAAABpAAAAbgAAAGcAAAA9AAAAIgAAAEkAAABTAAAATwAAAC0AAAA4AAAAOAAAADUAAAA5AAAALQAAADEAAAAiAAAAPwAAAD4AAAB7AAAAQwAAAEYAAABCAAAAdQAAAG4AAABkAAAAbAAAAGUAAABFAAAAeAAAAGUAAABjAAAAdQAAAHQAAABhAAAAYgAAAGwAAABlAAAAPQAAAHMAAABlAAAAYwAAAG8AAABuAAAAZAAAADsAAAB9AAAA",
+      "Status": 1,
+      "Value": null
     }
   ],
   "corpus_sha256": {
-    "plist-legacy.json": "b6aac6f5411c8ba48111bd05048fc6b1e315e671ccfba70fe1f843370df899d5",
-    "plist-unmarked.json": "0bd7f778a311f3e1cde01930f8410b0dd7cce97c3e536d753e07d49e3fb523fd",
-    "plist-utf32-grammar.json": "d5a3e5df680980b515a1cfdfd2942e6f00e66702d844209590295425de14ae96",
-    "plist-xml-characters.json": "25cad3134079fa5cbb7c1178b8e8ed31088b2d59deb50d2188f87d065eeec128"
+    "plist-legacy.json": "735161b7d6e7927db72cd47c6edb2638bf995bd042d91e38a647674ddd70ff98",
+    "plist-unmarked.json": "6400c19e780ec409f365fad0bc318e8ba77a4bbfc5078ed6482cdd6026bca28a",
+    "plist-utf32-grammar.json": "19c0b527cb444e10b10702d7915476713f5bd5d68d61377fdb0060b90a71f6a2",
+    "plist-xml-characters.json": "3eaf594b38535f03f233eacf5f90c8b895045f3f8ad55eaed07e3c9d0828a4a5"
   },
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",

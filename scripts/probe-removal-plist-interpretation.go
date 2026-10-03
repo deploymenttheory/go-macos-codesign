@@ -230,6 +230,31 @@ func legacyInputs() []input {
 	} {
 		cases = append(cases, input{tc.name, []byte(tc.header + fmt.Sprintf(body, tc.value) + tc.tail), tc.valid})
 	}
+	// A declaration keeps the native parser in XML even if the following bytes
+	// are a valid OpenStep dictionary or scalar. Conversion must retain dispatch.
+	const openstep = `{CFBundleExecutable=second;}`
+	for _, tc := range []struct{ name, text string }{
+		{"declared-openstep-utf8", decl("UTF-8") + openstep},
+		{"declared-openstep-legacy", decl("ISO-8859-1") + openstep},
+		{"declared-openstep-bom", "\xef\xbb\xbf" + decl("ISO-8859-1") + openstep},
+		{"declared-openstep-quoted", decl("UTF-8") + `"` + openstep + `"`},
+	} {
+		cases = append(cases, input{tc.name, []byte(tc.text), false})
+	}
+	for _, width := range []int{2, 4} {
+		data := []byte{0xff, 0xfe}
+		if width == 4 {
+			data = append(data, 0, 0)
+		}
+		for _, r := range decl("ISO-8859-1") + openstep {
+			if width == 2 {
+				data = binary.LittleEndian.AppendUint16(data, uint16(r))
+			} else {
+				data = binary.LittleEndian.AppendUint32(data, uint32(r))
+			}
+		}
+		cases = append(cases, input{fmt.Sprintf("declared-openstep-utf%d", width*8), data, false})
+	}
 	return cases
 }
 

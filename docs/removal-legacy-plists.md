@@ -25,6 +25,8 @@ Selection happens before XML parsing:
   a supported codec through Unicode folding. Spaces around `=`, an uppercase keyword or leading text
   whitespace do not select that charset. A substring such as `xencoding=` does.
   The first selected encoding wins when the attribute is repeated.
+- Declaration handling retains XML dispatch: a following OpenStep dictionary or
+  quoted scalar remains native-invalid, including when a BOM selects the codec.
 - Legacy conversion validates the entire input, including suffixes after a
   completed root. An undefined byte produces a native format failure and the
   existing raw-plist fallback. UTF-8 instead parses its first value directly;
@@ -50,15 +52,15 @@ for removal; it does not silently change signature serialization or add CLI mode
 | Evidence | Required checks |
 | --- | --- |
 | [Native byte corpus](../testdata/bundle-removal/plist-legacy-values.json) | 55 names × 256 bytes; every success/failure replayed through the public API; fresh macOS capture compares every scalar |
-| [Native removal corpus](../testdata/bundle-removal/plist-legacy.json) | 126 inputs × three layouts × ordinary/platform metadata = 756 cases; targets, bytes, inode identity, control attributes and envelope effects |
-| [Native complete values](../testdata/bundle-removal/plist-xml-values.json) | 126 new values plus all 106 earlier values; decoded strings and keys, including controls, are compared in full |
+| [Native removal corpus](../testdata/bundle-removal/plist-legacy.json) | 132 inputs × three layouts × ordinary/platform metadata = 792 cases; targets, bytes, inode identity, control attributes and envelope effects |
+| [Native complete values](../testdata/bundle-removal/plist-xml-values.json) | 132 new values plus all 106 earlier values; decoded strings and keys, including controls, are compared in full |
 | [Generated tables](../pkg/plist/legacy_tables.go) | Deterministic Go generator checks retained driver/corpus provenance and generated source on all hosts |
-| Linux/Windows exports | Each producer must supply all 756 results; the Mac import job compares 1,512 results against fresh native operations |
+| Linux/Windows exports | Each producer must supply all 792 results; the Mac import job compares 1,584 results against fresh native operations |
 | Boundaries and failures | Exact expansion limit and overflow, unsupported-name errors, malformed declarations, unchanged input ownership and unchanged bundles after fatal errors |
 
 The input corpus includes every defined byte of each charset, undefined bytes
 inside and after XML, declaration syntax and case, BOM priority, native MacRoman
-rejection, and UTF-8 failure/suffix controls. It is built from native observations,
+rejection, UTF-8 failure/suffix controls and XML-versus-OpenStep dispatch. It is built from native observations,
 not production lookup tables. All earlier operation and value corpora remain.
 The shared capture driver was rerun for every earlier profile when extended.
 

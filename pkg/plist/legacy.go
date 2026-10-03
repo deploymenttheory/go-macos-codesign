@@ -75,15 +75,15 @@ func declaredText(data []byte) ([]byte, error) {
 	return converted, nil
 }
 
-// CoreFoundation skips the initial processing instruction after codec selection.
-// Prevent encoding/xml from making a second, different encoding decision. This
-// buffer is only for interpretation; source bytes and their filesystem URL stay
-// with the caller. An incomplete instruction remains a parser error.
-func skipDeclaration(data []byte) []byte {
+// Neutralize the initial declaration after codec selection, preserving XML
+// dispatch. Removing it outright would incorrectly admit an OpenStep body.
+// Prevent encoding/xml from making a second encoding decision. This buffer is
+// only for interpretation; an incomplete instruction remains a parser error.
+func neutralDeclaration(data []byte) []byte {
 	text := bytes.TrimLeft(data, " \t\r\n\v\f")
 	if bytes.HasPrefix(text, []byte("<?xml")) {
 		if end := bytes.Index(text, []byte("?>")); end >= 0 {
-			return text[end+2:]
+			return append([]byte("<?xml?>"), text[end+2:]...)
 		}
 	}
 	return data

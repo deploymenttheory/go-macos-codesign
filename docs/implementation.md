@@ -9,8 +9,8 @@ The [`plist` package](../pkg/plist/README.md) owns bounded parsing and text
 conversion; codesign retains file selection, operation policy and serialization.
 The [declared legacy encoding phase](removal-legacy-plists.md) implements 55
 charset names from 14,080 native byte observations, with whole-stream validation,
-declaration selection and conversion budgets. It adds 756 native operation cases,
-1,512 mandatory foreign results and 126 full native values (232 total).
+declaration selection and conversion budgets. It adds 792 native operation cases,
+1,584 mandatory foreign results and 132 full native values (238 total).
 All 13 fuzz targets and every existing coverage and acceptance gate remain required.
 Other aliases, multibyte/stateful streams and wider grammar remain outstanding.
 The [unmarked encoding phase](removal-unmarked-plists.md) adds 408 native cases

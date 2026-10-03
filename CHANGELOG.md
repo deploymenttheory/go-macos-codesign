@@ -4,8 +4,8 @@
 
 - Interpret 55 native-qualified declared single-byte plist encodings on Linux,
   macOS and Windows. Preserve declaration/BOM precedence, exact byte mappings,
-  whole-stream failures and conversion budgets. Add 756 native removal cases,
-  1,512 mandatory foreign results, 126 complete native values and three complete
+  whole-stream failures and conversion budgets. Add 792 native removal cases,
+  1,584 mandatory foreign results, 132 complete native values and three complete
   Apple converter bodies; retain every existing test and coverage gate.
 
 - Extract bounded plist parsing and text conversion into the pure-Go `pkg/plist`

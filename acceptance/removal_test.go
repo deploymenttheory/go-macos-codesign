@@ -302,7 +302,7 @@ func TestVerifyImportedRemoval(t *testing.T) {
 		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-utf32-grammar.json", 36), "plist-xml-grammar-")
 	})
 	t.Run("plist-legacy", func(t *testing.T) {
-		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-legacy.json", 756), "plist-legacy-")
+		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-legacy.json", 792), "plist-legacy-")
 	})
 	t.Run("plist-unmarked", func(t *testing.T) {
 		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-unmarked.json", 408), "plist-unmarked-")
