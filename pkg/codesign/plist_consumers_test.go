@@ -94,3 +94,46 @@ func TestEntitlementPlistConsumerTypes(t *testing.T) {
 		t.Fatal("missing root accepted", err)
 	}
 }
+
+func TestPlistMetadataAbsoluteAliases(t *testing.T) {
+	app := testBundle(t)
+	target, err := filepath.EvalSymlinks(filepath.Join(app, "Contents", "Info.plist"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	before := readTestFile(t, target)
+	aliases := t.TempDir()
+	fileLink := filepath.Join(aliases, "file-link")
+	directoryLink := filepath.Join(aliases, "directory-link")
+	for link, destination := range map[string]string{fileLink: target, directoryLink: filepath.Dir(target)} {
+		if !filepath.IsAbs(destination) {
+			t.Fatal("test requires an absolute target", destination)
+		}
+		if err := os.Symlink(destination, link); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for name, alias := range map[string]string{"file": fileLink, "directory": filepath.Join(directoryLink, "Info.plist")} {
+		t.Run(name, func(t *testing.T) {
+			for _, opening := range []bool{false, true} {
+				resolved, err := resolveMetadataLink(alias, 32, opening)
+				if err != nil || resolved != target {
+					t.Fatalf("metadata alias: got %q, want %q: %v", resolved, target, err)
+				}
+				data := readTestFile(t, resolved)
+				values, err := decodeBundlePlist(data)
+				if err != nil || values["CFBundleExecutable"] != "hello" || !bytes.Equal(data, before) {
+					t.Fatal("wrong metadata or changed source", values, err)
+				}
+			}
+		})
+	}
+	// Following an absolute target must still consume the link budget. A zero
+	// budget cannot bypass traversal policy just because the target is absolute.
+	if _, err := resolveMetadataLink(fileLink, 0, true); err == nil {
+		t.Fatal("absolute alias bypassed link budget")
+	}
+	if !bytes.Equal(before, readTestFile(t, target)) {
+		t.Fatal("alias resolution mutated metadata")
+	}
+}
