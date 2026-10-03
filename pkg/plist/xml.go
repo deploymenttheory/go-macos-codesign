@@ -201,7 +201,9 @@ func (p *nativeXML) stringValue() (string, error) {
 				if !utf8.Valid(value) {
 					return "", malformed("invalid UTF-8 property-list string")
 				}
-				return string(value), nil
+				// CFStringCreateWithBytes strips one leading UTF-8 BOM after all
+				// raw text, CDATA and entities have been assembled (keys too).
+				return string(bytes.TrimPrefix(value, []byte("\xef\xbb\xbf"))), nil
 			case '&':
 				end := bytes.IndexByte(p.data[pos:], ';')
 				if end < 0 {

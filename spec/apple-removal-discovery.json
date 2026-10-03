@@ -13,10 +13,12 @@
     "__CFFromASCII": "19f79ec8d17a51f497b13aff34c596da9086cc3a394c91bd722fd093dfce10f8",
     "__CFFromISOLatin1": "f736c7005208dc90934aea405a93f471c4baff19067790aa35402fe93c5bec08",
     "__CFFromWinLatin1": "8e70355f09f66491b23f3bb70b52430a373b7c192fdf4d5165c4ed57c5fffac9",
+    "__CFStringEncodingGetFromICUName": "230d07b155c3283b594bc8045ddd88f84e6d7dd3bdb954eb482337becfb40c1d",
     "__CFStringEncodingGetICUName": "77dfa9320cffe7ba5ae377db4cc4871a46e2f116eee18a504b181e8fef8c355b",
     "__CFStringEncodingICUToUnicode": "3c8d9411c2926de033db0788f3993c5ce5221b3a202bb3e2e2928e5c40d450c8",
     "_binaryLoadable": "567d8d5323b614ca68f05d29a630a22ecd0d7bd3d6015e06498d66daa391c849",
     "_createUTF8DataFromString": "83dc8bfa765b3db066fddfeb706e5271eaa0d6ddcf4b76c412158e55956b1cb9",
+    "_createUniqueStringWithUTF8Bytes": "3dd54bbeec573bb473b3663e034a0c3a658967cb6b2aee00e8c6d93ca5556169",
     "_urlExists": "320feaff9cd8954a7c34a223a11f7222e44e9a6c5259ef025de045cb8ccc1674",
     "encodingForXMLData": "faa35d45c5d76bcb051fe2a1b4c131af35aed0efc0977d44b601942837e4e496",
     "parseCDSect_pl": "116d28c14dab61c9f49d18d440d1f2610ef6f17c0dab86a8f0cccdf94496da78",
@@ -30,7 +32,7 @@
   "converter_table_sha256": "be6c8f200ac5259046e5456325abd87fa84b2a43d830ce0edec9c17407ef3304",
   "dictionary_source_sha256": "493b1c406ff3d4709817027034490565a8b43bc7e1c57870ef85415100ab78e6",
   "dictionary_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFDictionary.c",
-  "driver_sha256": "c074af32bad2287158a723f093880b79e09ba46152b9f54dc899b5456e638286",
+  "driver_sha256": "592154c401c0710ef149efcb8e3b1fe247345903e51dd253adfbf0b30ce1bbed",
   "encoding_source_sha256": "04ed2ce71933efb7459e8ce96b3fe40484d2e71e6eaee94916b2beadf77f1d10",
   "encoding_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFStringEncodings.c",
   "icu_source_sha256": "f7f1015e957238023695a3fb08df5396ad1ae5706f2c3cff541e611727f28850",
@@ -42,7 +44,7 @@
   "plist_source_sha256": "ced92800b4651fc47e9a1f53626170c7c7324db50bf6740541fd56844b7bead3",
   "plist_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFPropertyList.c",
   "schema": 1,
-  "scope": "Twenty-three complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open. Three complete built-in byte converters and the verbatim Windows-1252 table retain failure versus mapping branches. The larger CFStringEncodings bulk decoder is source-reviewed and source-hashed, not claimed as a compiled body: its ASCII/Latin-1 fast path bypasses the strict built-in ASCII converter. Current mappings and whole-stream behavior are qualified separately with native byte and operation corpora. Two complete ICU selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS mappings/errors are established by live property-list and codesign observations.",
+  "scope": "Twenty-five complete verbatim functions; private bundle layout, directory iteration, locks, keys and helper declarations are interface shims. Dictionary Objective-C dispatch/KVO/type validation are shims; mutable-hash guards and AddValue/SetValue calls remain in the AST. The host SDK supplies CoreFoundation interfaces. This establishes name fallback, invalid/non-dictionary empty synthesis, platform/ordinary raw URL retention and distinct dictionary insertion/replacement calls. Current parser duplicate order, authorization, executable-key normalization and version arbitration are independently qualified by native corpora; BOM detection is retained in a complete encodingForXMLData body, and CFUniCharFromUTF32 plus both surrogate predicates retain strict and lossy scalar conversion branches; complete string, CDATA and entity bodies retain byte assembly and show no XML 1.0 character filtering. Parser state and string-interning interfaces are shims. The historical entity accumulator is 16-bit: current scalar behavior is qualified by retained live codesign and plutil corpora, not inferred from that historical width. The complete property-list conversion caller and UTF-8 prefix conversion body retain encoding selection, skip offsets and non-external conversion. The complete old-style object dispatch body and verbatim unquoted-character macro establish invalid initial object rejection; old-style parser state/helper interfaces are shims. Current unmarked decoding remains independently qualified by native corpora. Broader parser encodings/types remain open. Three complete built-in byte converters and the verbatim Windows-1252 table retain failure versus mapping branches. The larger CFStringEncodings bulk decoder is source-reviewed and source-hashed, not claimed as a compiled body: its ASCII/Latin-1 fast path bypasses the strict built-in ASCII converter. Current mappings and whole-stream behavior are qualified separately with native byte and operation corpora. Three complete ICU alias/selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS and EUC-JP mappings/errors are established by live property-list and codesign observations. The complete unique UTF-8 string constructor retains final assembled-string creation and cache behavior; live BOM cases qualify current string behavior. Historical ICU control flow does not assert which converter implements EUC-JP on the current host.",
   "source_sha256": "b1e69b7a788dee2fcb7077dcbe28f7ddf35a6d90a06d24876b38fdf277e47fc6",
   "source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFBundle.c",
   "targets": {
@@ -479,6 +481,43 @@
           "cp1252_to_uni": 1
         }
       },
+      "__CFStringEncodingGetFromICUName": {
+        "ast_kinds": {
+          "BinaryOperator": 32,
+          "CStyleCastExpr": 8,
+          "CallExpr": 23,
+          "CharacterLiteral": 2,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 68,
+          "DeclStmt": 5,
+          "FunctionDecl": 1,
+          "IfStmt": 7,
+          "ImplicitCastExpr": 89,
+          "IntegerLiteral": 19,
+          "ParenExpr": 28,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 6,
+          "StringLiteral": 9,
+          "UnaryOperator": 8,
+          "VarDecl": 5
+        },
+        "references": {
+          "U_ZERO_ERROR": 1,
+          "__CFStringEncodingGetFromCanonicalName": 3,
+          "__CFStringEncodingGetFromWindowsCodePage": 2,
+          "codepage": 4,
+          "encoding": 6,
+          "endPtr": 4,
+          "errorCode": 4,
+          "icuName": 9,
+          "name": 17,
+          "strlen": 7,
+          "strncasecmp_l": 5,
+          "strtol": 2,
+          "ucnv_countAliases": 1,
+          "ucnv_getStandardName": 3
+        }
+      },
       "__CFStringEncodingGetICUName": {
         "ast_kinds": {
           "BinaryOperator": 12,
@@ -618,6 +657,46 @@
           "kCFStringEncodingUTF8": 2,
           "str": 4,
           "utf8Data": 1
+        }
+      },
+      "_createUniqueStringWithUTF8Bytes": {
+        "ast_kinds": {
+          "BinaryOperator": 8,
+          "CStyleCastExpr": 11,
+          "CallExpr": 10,
+          "CompoundStmt": 4,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 37,
+          "DeclStmt": 4,
+          "FunctionDecl": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 57,
+          "IntegerLiteral": 9,
+          "MemberExpr": 6,
+          "ParenExpr": 6,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 3,
+          "StringLiteral": 2,
+          "UnaryOperator": 3,
+          "VarDecl": 4
+        },
+        "references": {
+          "CFArrayAppendValue": 1,
+          "CFArrayGetCount": 1,
+          "CFArrayGetValueAtIndex": 1,
+          "CFBurstTrieAddUTF8String": 1,
+          "CFBurstTrieContainsUTF8String": 1,
+          "CFRetain": 2,
+          "CFStringCreateWithBytes": 1,
+          "__builtin___CFStringMakeConstantString": 2,
+          "base": 3,
+          "didAddToBurstTrie": 1,
+          "kCFStringEncodingUTF8": 1,
+          "length": 4,
+          "pInfo": 6,
+          "payload": 5,
+          "result": 6,
+          "uniqued": 1
         }
       },
       "_urlExists": {
@@ -1309,6 +1388,43 @@
           "cp1252_to_uni": 1
         }
       },
+      "__CFStringEncodingGetFromICUName": {
+        "ast_kinds": {
+          "BinaryOperator": 32,
+          "CStyleCastExpr": 8,
+          "CallExpr": 23,
+          "CharacterLiteral": 2,
+          "CompoundStmt": 3,
+          "DeclRefExpr": 68,
+          "DeclStmt": 5,
+          "FunctionDecl": 1,
+          "IfStmt": 7,
+          "ImplicitCastExpr": 89,
+          "IntegerLiteral": 19,
+          "ParenExpr": 28,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 6,
+          "StringLiteral": 9,
+          "UnaryOperator": 8,
+          "VarDecl": 5
+        },
+        "references": {
+          "U_ZERO_ERROR": 1,
+          "__CFStringEncodingGetFromCanonicalName": 3,
+          "__CFStringEncodingGetFromWindowsCodePage": 2,
+          "codepage": 4,
+          "encoding": 6,
+          "endPtr": 4,
+          "errorCode": 4,
+          "icuName": 9,
+          "name": 17,
+          "strlen": 7,
+          "strncasecmp_l": 5,
+          "strtol": 2,
+          "ucnv_countAliases": 1,
+          "ucnv_getStandardName": 3
+        }
+      },
       "__CFStringEncodingGetICUName": {
         "ast_kinds": {
           "BinaryOperator": 12,
@@ -1448,6 +1564,46 @@
           "kCFStringEncodingUTF8": 2,
           "str": 4,
           "utf8Data": 1
+        }
+      },
+      "_createUniqueStringWithUTF8Bytes": {
+        "ast_kinds": {
+          "BinaryOperator": 8,
+          "CStyleCastExpr": 11,
+          "CallExpr": 10,
+          "CompoundStmt": 4,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 37,
+          "DeclStmt": 4,
+          "FunctionDecl": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 57,
+          "IntegerLiteral": 9,
+          "MemberExpr": 6,
+          "ParenExpr": 6,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 3,
+          "StringLiteral": 2,
+          "UnaryOperator": 3,
+          "VarDecl": 4
+        },
+        "references": {
+          "CFArrayAppendValue": 1,
+          "CFArrayGetCount": 1,
+          "CFArrayGetValueAtIndex": 1,
+          "CFBurstTrieAddUTF8String": 1,
+          "CFBurstTrieContainsUTF8String": 1,
+          "CFRetain": 2,
+          "CFStringCreateWithBytes": 1,
+          "__builtin___CFStringMakeConstantString": 2,
+          "base": 3,
+          "didAddToBurstTrie": 1,
+          "kCFStringEncodingUTF8": 1,
+          "length": 4,
+          "pInfo": 6,
+          "payload": 5,
+          "result": 6,
+          "uniqued": 1
         }
       },
       "_urlExists": {
@@ -1707,7 +1863,7 @@
       }
     }
   },
-  "translation_unit_sha256": "71358fd650267980524e65439c6195ef9641f651ffa35709f5f372284a4cc5ac",
+  "translation_unit_sha256": "6122be95dea5534968a3c8772cc58af93ecf372e4849818953e345e748b4d945",
   "unicode_source_sha256": "dd8d0a16c8f35da2b33c37b2088c1e379cd72ccc928e8a91bf823e0d2a8bee99",
   "unicode_source_url": "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFUniChar.h",
   "unquoted_predicate_sha256": "cbeadc05c4a4c7e202bc29d80bd84c3609df06ff73e8690ef5aee3a1a1060bf1"

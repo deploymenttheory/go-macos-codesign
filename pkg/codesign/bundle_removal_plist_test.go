@@ -56,7 +56,7 @@ func TestRemovalPlistLimitsRemainFatal(t *testing.T) {
 }
 
 func TestRemovalPlistInterpretationBoundaries(t *testing.T) {
-	for _, data := range [][]byte{[]byte(`<?xml version="1.0" encoding="EUC-JP"?><plist><dict/></plist>`), scalarBundlePlist([]byte{0xf0})} {
+	for _, data := range [][]byte{[]byte(`<?xml version="1.0" encoding="ISO-2022-JP"?><plist><dict/></plist>`), scalarBundlePlist([]byte{0xf0})} {
 		if _, err := decodeRemovalPlist(data); !errors.Is(err, ErrUnsupported) {
 			t.Fatal("unsupported input became fallback", err)
 		}

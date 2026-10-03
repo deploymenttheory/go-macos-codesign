@@ -18,7 +18,7 @@ func TestPlistErrorNamespace(t *testing.T) {
 		kind, errorKind error
 	}{
 		{"strict-format", []byte("<plist><dict>"), true, ErrFormat, plist.ErrFormat},
-		{"unsupported", []byte(`<?xml version="1.0" encoding="EUC-JP"?><dict/>`), false, ErrUnsupported, plist.ErrUnsupported},
+		{"unsupported", []byte(`<?xml version="1.0" encoding="ISO-2022-JP"?><dict/>`), false, ErrUnsupported, plist.ErrUnsupported},
 		{"limit", []byte(strings.Repeat(" ", maxBundlePlist+1)), false, ErrFormat, plist.ErrFormat},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

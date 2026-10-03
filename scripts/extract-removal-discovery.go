@@ -143,16 +143,17 @@ void CFBasicHashSetValue(CFBasicHashRef, uintptr_t, uintptr_t);
 
 	unit += `
 #define NO ((Boolean)0)
-typedef struct { const char *curr, *end; CFErrorRef error; CFAllocatorRef allocator; Boolean skip; CFOptionFlags mutabilityOption; } _CFXMLPlistParseInfo;
+typedef struct { const char *curr, *end; CFErrorRef error; CFAllocatorRef allocator; Boolean skip; CFOptionFlags mutabilityOption; void *stringTrie; CFMutableArrayRef stringCache; } _CFXMLPlistParseInfo;
 CFIndex lineNumber(_CFXMLPlistParseInfo *);
 void __CFPListRelease(CFTypeRef, CFAllocatorRef);
-CFStringRef _createUniqueStringWithUTF8Bytes(_CFXMLPlistParseInfo *, const char *, CFIndex);
+Boolean CFBurstTrieContainsUTF8String(void *,UInt8 *,CFIndex,uint32_t *);
+Boolean CFBurstTrieAddUTF8String(void *,UInt8 *,CFIndex,uint32_t);
 #define CDSECT_IX 12
 #define CDSECT_TAG_LENGTH 9
 extern const char *CFXMLPlistTags[];
 `
-	for _, name := range []string{"parseCDSect_pl", "parseEntityReference_pl", "parseStringTag"} {
-		body := regexp.MustCompile(`(?ms)^static (?:void|Boolean) ` + name + `\(.*?^}`).Find(plistSource)
+	for _, name := range []string{"_createUniqueStringWithUTF8Bytes", "parseCDSect_pl", "parseEntityReference_pl", "parseStringTag"} {
+		body := regexp.MustCompile(`(?ms)^static (?:void|Boolean|CFStringRef) ` + name + `\(.*?^}`).Find(plistSource)
 		if len(body) == 0 {
 			panic(name)
 		}
@@ -212,11 +213,16 @@ CFIndex lineNumberStrings(_CFStringsFileParseInfo *);
 
 	unit += `
 #include <stdio.h>
+#include <xlocale.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
 typedef struct UConverter UConverter;
 typedef UniChar UChar;
 typedef int32_t UErrorCode;
 extern const UErrorCode U_ZERO_ERROR, U_BUFFER_OVERFLOW_ERROR;
+uint16_t ucnv_countAliases(const char *,UErrorCode *);
+const char *ucnv_getStandardName(const char *,const char *,UErrorCode *);
+CFStringEncoding __CFStringEncodingGetFromWindowsCodePage(uint32_t);
+CFStringEncoding __CFStringEncodingGetFromCanonicalName(const char *);
 const char *ucnv_getAlias(const char *,uint16_t,UErrorCode *);
 void ucnv_toUnicode(UConverter *,UChar **,const UChar *,const char **,const char *,int32_t *,bool,UErrorCode *);
 void ucnv_getInvalidChars(const UConverter *,char *,int8_t *,UErrorCode *);
@@ -235,8 +241,8 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 	for _, e := range enums {
 		unit += string(e) + "\n"
 	}
-	for _, name := range []string{"__CFStringEncodingGetICUName", "__CFStringEncodingICUToUnicode"} {
-		body := regexp.MustCompile(`(?ms)^CF_PRIVATE (?:const char \*|CFIndex )` + name + `\(.*?^}`).Find(icuSource)
+	for _, name := range []string{"__CFStringEncodingGetICUName", "__CFStringEncodingGetFromICUName", "__CFStringEncodingICUToUnicode"} {
+		body := regexp.MustCompile(`(?ms)^CF_PRIVATE (?:const char \*|CFIndex |CFStringEncoding )` + name + `\(.*?^}`).Find(icuSource)
 		if len(body) == 0 {
 			panic(name)
 		}
@@ -290,9 +296,9 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 	result["icu_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFICUConverters.c"
 	result["icu_source_sha256"] = hash(icuSource)
 	result["converter_header_sha256"] = hash(converterHeader)
-	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-one", "Twenty-three", 1) + " Two complete ICU selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS mappings/errors are established by live property-list and codesign observations."
+	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-one", "Twenty-five", 1) + " Three complete ICU alias/selection/conversion bodies retain Windows-codepage preference, canonical-name fallback, flush-at-end, buffer iteration and invalid-stream error handling, including historical invalid-input pointer adjustments. ICU types, constants and helper functions are interface declarations, not emulated behavior. Conversion flags/status enums are verbatim from the pinned header. The converter-creation STOP callback policy is source-reviewed, not claimed compiled; current Shift-JIS and EUC-JP mappings/errors are established by live property-list and codesign observations. The complete unique UTF-8 string constructor retains final assembled-string creation and cache behavior; live BOM cases qualify current string behavior. Historical ICU control flow does not assert which converter implements EUC-JP on the current host."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted twenty-three discovery bodies for two targets")
+	fmt.Println("extracted twenty-five discovery bodies for two targets")
 }

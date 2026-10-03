@@ -154,3 +154,7 @@ func TestRemovalPlistLegacy(t *testing.T) {
 func TestRemovalPlistShiftJIS(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-shift-jis.json", 912), "plist-shift-jis-")
 }
+
+func TestRemovalPlistEUCJP(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-euc-jp.json", 1488), "plist-euc-jp-")
+}

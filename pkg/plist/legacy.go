@@ -57,6 +57,9 @@ func declaredText(data []byte) ([]byte, error) {
 	if family, ok := shiftJISCharsets[name]; ok {
 		return shiftJISText(data, family)
 	}
+	if eucJPCharsets[name] {
+		return eucJPText(data)
+	}
 	table, ok := legacyCharsets[name]
 	if !ok {
 		return nil, unsupported("removal plist text encoding: " + name)

@@ -34,6 +34,7 @@ jobs:
         run: |
           go run scripts/generate-plist-legacy.go -check
           go run scripts/generate-plist-shift-jis.go -check
+          go run scripts/generate-plist-euc-jp.go -check
       - name: Stress native strict reference profiles with 100 fresh frameworks
         if: runner.os == 'macOS'
         run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
@@ -76,6 +77,12 @@ jobs:
       - name: Check exhaustive native Shift-JIS streams
         if: runner.os == 'macOS'
         run: go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json
+      - name: Capture native EUC-JP removal interpretation
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-removal-plist-interpretation.go -profile euc-jp -out artifacts/plist-euc-jp.json
+      - name: Check exhaustive native EUC-JP streams
+        if: runner.os == 'macOS'
+        run: go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json
       - name: Capture native XML value fidelity
         if: runner.os == 'macOS'
         run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json

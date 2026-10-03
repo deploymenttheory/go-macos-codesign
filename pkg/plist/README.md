@@ -90,13 +90,28 @@ in body and EOF contexts for every name: 1,052,672 observations. Native CI
 recaptures them with a test-only C property-list oracle plus 2,272 direct plutil
 comparisons. See [Shift-JIS behavior and evidence](../../docs/removal-shift-jis-plists.md).
 
+## Declared EUC-JP encodings
+
+`Decode` supports `euc-jp`, `euc_jp`, `eucjp`, `cseucpkdfmtjapanese`,
+`extended_unix_code_packed_format_for_japanese`, `x-euc-jp`, `cp51932` and
+`windows-51932`. They share a native-qualified table with unusual trail and
+extension mappings. Every captured `8f`-prefixed triple fails, matching Apple.
+Complete-stream validation, conversion budgets and immutable input apply.
+The 2,101,248 native observations are replayed on every host and recaptured on
+macOS, with 2,464 independent plutil checks. See
+[EUC-JP behavior and evidence](../../docs/removal-euc-jp-plists.md).
+
+XML string/key assembly removes exactly one leading U+FEFF after joining raw
+text, CDATA and entities; interior and repeated characters are preserved. This
+native string rule applies independently of the declared input encoding.
+
 ## Evidence and tests
 
-The package is tested directly against 390 retained complete native values and
+The package is tested directly against 638 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.
-The twenty-three complete Apple C bodies and Clang evidence remain in
+The twenty-five complete Apple C bodies and Clang evidence remain in
 [`spec/apple-removal-discovery.json`](../../spec/apple-removal-discovery.json).
 
 All 14,080 native byte observations are replayed through `Decode`. The

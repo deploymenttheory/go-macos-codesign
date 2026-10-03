@@ -86,9 +86,11 @@ as a compiled body. Historical source explains control flow; live observations
 establish current mappings. No ICU, native bindings, new Go dependency or runtime
 subprocess is introduced into production.
 
+EUC-JP is now qualified separately in the [EUC-JP profile](removal-euc-jp-plists.md).
+
 ## Remaining work
 
-1. Qualify other multibyte and stateful encodings, including EUC-JP, ISO-2022-JP
+1. Qualify other multibyte and stateful encodings, including ISO-2022-JP
    and GB18030, along with further declaration aliases. They remain explicit
    unsupported errors before mutation on every host.
 2. Complete Unicode normalization, filesystem aliases and wider executable-key
