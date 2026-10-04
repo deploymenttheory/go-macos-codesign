@@ -31,7 +31,15 @@ func TestLargeSourceVerification(t *testing.T) {
 	}
 	for _, tc := range capture.Cases {
 		t.Run(fmt.Sprint(tc.ContentLength), func(t *testing.T) {
-			path := filepath.Join(t.TempDir(), "large.dmg")
+			dir, err := filepath.Abs(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			dir, err = filepath.EvalSymlinks(dir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(dir, "large.dmg")
 			f, err := os.Create(path)
 			if err != nil {
 				t.Fatal(err)

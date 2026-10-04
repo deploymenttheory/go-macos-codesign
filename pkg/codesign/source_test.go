@@ -207,7 +207,9 @@ func TestHeldSourceLifecycle(t *testing.T) {
 			} else if err == nil || r == nil || r.Valid {
 				t.Fatal(r, err)
 			}
-			if _, e := held.Stat(); !errors.Is(e, os.ErrClosed) {
+			// Stat on a closed Windows handle reports ERROR_INVALID_HANDLE.
+			// Close has the portable ErrClosed contract, as in the writer tests.
+			if e := held.Close(); !errors.Is(e, os.ErrClosed) {
 				t.Fatal("held source leaked", e)
 			}
 		})
@@ -232,9 +234,18 @@ func TestHeldSourceLifecycle(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		f.Close()
-		if _, e = openCodeSource(context.Background(), f); !errors.Is(e, os.ErrClosed) {
+		if e = f.Close(); e != nil {
 			t.Fatal(e)
+		}
+		_, statErr := f.Stat()
+		var want *os.PathError
+		if !errors.As(statErr, &want) {
+			t.Fatal("closed-file stat did not return a path error", statErr)
+		}
+		_, e = openCodeSource(context.Background(), f)
+		var got *os.PathError
+		if !errors.As(e, &got) || got.Op != want.Op || got.Path != want.Path || !errors.Is(got.Err, want.Err) {
+			t.Fatalf("closed-file stat error changed: got %v, want %v", e, statErr)
 		}
 	})
 	t.Run("cancel-before", func(t *testing.T) {

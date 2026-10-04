@@ -46,6 +46,21 @@ class ResearchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Uninvestigated blocked"):
             research.validate(self.plan, self.inventory)
 
+    def test_large_source_capture(self):
+        research.validate_large_source(research.read("testdata/research/large-source.json"), self.inventory)
+
+    def test_large_source_rejects_host_path_prefixes(self):
+        original = research.read("testdata/research/large-source.json")
+        for field, value in (("display", "Executable=/private<image>"),
+                             ("display", "Executable=C:\\Temp<image>"),
+                             ("verify", "/private<image>: valid on disk")):
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, "host path"):
+                capture = copy.deepcopy(original)
+                lines = capture["cases"][0][field].splitlines()
+                lines[0] = value
+                capture["cases"][0][field] = "\n".join(lines) + "\n"
+                research.validate_large_source(capture, self.inventory)
+
     def test_filesystem_discovery(self):
         capture = research.read("testdata/research/filesystem-prerequisite.json")
         research.validate_filesystem_discovery(capture, self.plan, self.inventory)

@@ -38,8 +38,11 @@ The [native corpus](../testdata/research/large-source.json) covers payload lengt
 one byte below, at and above 1 GiB, 2 GiB and 4 GiB. Each image contains a prefix
 from the pinned native raw UDIF fixture, a real zero-filled sparse extent, and
 Apple-produced signature/trailer bytes. Recipes retain source and native-binary
-hashes, host profile and normalized display/verification output. The recipe
-measures content length; total signed file length also includes its signature
+hashes, host profile and normalized display/verification output. Capture and
+replay resolve the absolute operand path before replacing that exact
+path with `<image>`, keeping macOS temporary-directory aliases out of portable
+expectations. The harness rejects captures containing a residual host-path prefix.
+The recipe measures content length; total signed file length also includes its signature
 and 512-byte trailer. It is not a capture of a newly created multi-gigabyte
 filesystem volume or a densely populated image.
 

@@ -75,6 +75,13 @@ func main() {
 	tmp, err := os.MkdirTemp("", "codesign-large-source-")
 	must(err)
 	defer os.RemoveAll(tmp)
+	// Display resolves aliases (notably /tmp -> /private/tmp on macOS).
+	// Use the physical absolute operand so replacing its exact path cannot
+	// leave an OS-specific prefix in the portable capture.
+	tmp, err = filepath.Abs(tmp)
+	must(err)
+	tmp, err = filepath.EvalSymlinks(tmp)
+	must(err)
 	path := filepath.Join(tmp, "large.dmg")
 	for _, boundary := range []int64{1 << 30, 2 << 30, 4 << 30} {
 		for _, delta := range []int64{-1, 0, 1} {
