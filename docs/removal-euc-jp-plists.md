@@ -90,8 +90,9 @@ dependency is introduced into production.
 
 ## Remaining work
 
-ISO-2022-JP, GB18030 and additional codecs/aliases still need independent stream
-qualification. Unicode normalization and filesystem aliases, remaining OpenStep
+The base [ISO-2022-JP family](removal-iso2022-jp-plists.md) is now qualified.
+ISO-2022-JP-1, ISO-2022-JP-2, GB18030 and additional codecs/aliases still need
+independent stream qualification. Unicode normalization and filesystem aliases, remaining OpenStep
 NUL contexts, wider XML/binary grammar and metadata normalization remain tracked
 in the [implementation plan](implementation_plan.md). This increment does not
 claim complete plist or codesign parity. Final validation is reported in its

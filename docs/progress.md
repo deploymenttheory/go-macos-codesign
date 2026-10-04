@@ -6,29 +6,38 @@ parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current EUC-JP encoding phase
+## Current ISO-2022-JP encoding phase
 
-PR91 is merged at `8b0830a43727cd44f24c2f93ca711a78224a6129` after
-[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37136819539).
+PR92 is merged at `69ef71fc485a4df761cf8177f788f085299912f3` after
+[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37144314366).
 Audited codesign coverage was 95.09% Linux, 95.46% macOS and 95.03% Windows;
-`pkg/plist` was 99.14% on each host. All 794 committed source hashes matched the
-actual OS checkouts and all 5,832 plist foreign results matched native operations.
+`pkg/plist` was 99.17% on each host. All 802 committed source hashes matched the
+actual OS checkouts and all 8,808 plist foreign results matched native operations.
 
 This branch starts from that main and implements
-[EUC-JP decoding](removal-euc-jp-plists.md), retaining APFS v0.17.0.
-Eight names share native mappings qualified by 2,101,248 body/EOF observations
-and 2,464 plutil comparisons. Conversion includes unusual accepted trails and
-extensions, and rejects the native-invalid three-byte sequences. XML construction
-removes one leading BOM from assembled keys/strings, preserving interior BOMs.
+[ISO-2022-JP decoding](removal-iso2022-jp-plists.md), retaining APFS v0.17.0.
+Six names share five native mapping states, qualified by 23,623,680 body/EOF
+observations and 17,580 plutil comparisons. Another 3,240 native cases establish
+conversion-buffer boundaries and the precise terminal-reset exception.
 
-The increment adds 1,488 operation cases and 2,976 mandatory foreign results,
-for 8,808 across nine plist profiles. Complete native values total 638;
-Clang evidence retains 25 complete Apple bodies on both targets. All earlier
+The increment adds 1,836 operation cases and 3,672 mandatory foreign results,
+for 12,480 across ten plist profiles. Complete native values total 944;
+Clang evidence retains 27 complete Apple bodies on both targets. All earlier
 case arrays, thirteen fuzz targets and every coverage/acceptance gate remain.
-This branch requires its own final CI; PR91's run is only the baseline.
+Native capture now has its own required macOS job alongside the full test
+matrix; foreign verification requires both. This branch requires its own final
+CI; PR92's run is only the baseline.
 
-ISO-2022-JP, GB18030, further aliases, Unicode normalization and filesystem alias
-matching, OpenStep NUL contexts and wider XML/binary grammar remain outstanding.
+Race and all thirteen one-minute fuzz runs execute in separate required jobs;
+the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
+worker retains a 20-minute job limit. The exhaustive race suite has an explicit
+18-minute test deadline inside that bound; the former implicit ten-minute Go
+deadline cannot accommodate the larger instrumented native replay. No cases,
+race instrumentation, assertions or fuzz durations are removed.
+
+ISO-2022-JP-1, ISO-2022-JP-2, GB18030, further aliases, Unicode normalization and
+filesystem alias matching, OpenStep NUL contexts and wider XML/binary grammar
+remain outstanding.
 
 ### Merged unmarked encoding profile
 
