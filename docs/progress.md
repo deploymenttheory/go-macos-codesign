@@ -28,6 +28,12 @@ coverage gates and six release builds remain. Native capture and foreign
 verification remain mandatory. This branch needs its own final CI; the linked
 PR93 run is the baseline only.
 
+The Windows matrix job has a 45-minute budget: the complete suite passed in the
+initial run, but the former 35-minute job limit expired during mandatory artifact
+upload. Linux/macOS retain 35 minutes. The acceptance test's 30-minute deadline,
+all cases/assertions and strict coverage thresholds remain unchanged; the added
+job time permits evidence and foreign-artifact publication after successful tests.
+
 GB18030, other stateful codecs and aliases, Unicode normalization, filesystem
 alias matching, remaining OpenStep NUL contexts and wider XML/binary grammar
 remain outstanding. Full equivalence remains unclaimed.
