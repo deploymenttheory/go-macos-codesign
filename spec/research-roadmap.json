@@ -200,7 +200,7 @@
         "--sign",
         "--dryrun"
       ],
-      "status": "released-consumer-qualification",
+      "status": "released-qualified",
       "evidence": [
         "testdata/research/filesystem-prerequisite.json",
         "scripts/capture-filesystem-prerequisite.go",
@@ -211,7 +211,7 @@
         "testdata/research/apfs-v0.17.1-recapture.json"
       ],
       "finding": "Six disposable-filesystem controls show native sign/dry-run/remove succeeding on APFS and HFS+. Released go-apfs-v2 v0.17.0 prepares replacements on APFS but fails with ENOTSUP on HFS+, preventing all three Go operations. Raw copyfile metadata policy and the SDK source-preservation contract are distinct.",
-      "resolution": "Consume published v0.17.1 after merged APFS PR194. All six recaptured discovery controls succeed and match native bytes. Qualify standalone and rooted bundle writers in strict mounted-filesystem acceptance; retain all other Phase 02 obligations.",
+      "resolution": "Published v0.17.1 consumed in merged codesign PR98 after complete three-OS CI run 37192438601, including 108 mounted APFS/HFS+ writer comparisons and retained foreign-producer verification. Preserve all remaining Phase 02 lifecycle and metadata-policy obligations.",
       "owner": 2
     }
   ],

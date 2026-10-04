@@ -655,7 +655,7 @@ func (b *appBundle) write(ctx context.Context, name string, data []byte, create 
 }
 
 // Resource envelopes retain their inode; executable replacement is separate.
-func (b *appBundle) writeResource(ctx context.Context, name string, data []byte) error {
+func (b *appBundle) writeResource(ctx context.Context, name string, data []byte) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -672,7 +672,7 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { result = errors.Join(result, f.Close()) }()
 	current, err := f.Stat()
 	if err != nil {
 		return err
@@ -680,16 +680,7 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	if st != nil && !os.SameFile(st, current) {
 		return fmt.Errorf("bundle write target changed")
 	}
-	if _, err := f.WriteAt(data, 0); err != nil {
-		return err
-	}
-	if err := f.Truncate(int64(len(data))); err != nil {
-		return err
-	}
-	if err := f.Sync(); err != nil {
-		return err
-	}
-	return f.Close()
+	return populateOutput(ctx, f, byteOutput(data), nil)
 }
 
 func removeBundle(ctx context.Context, path string, opts RemoveOptions) error {

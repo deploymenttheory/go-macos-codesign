@@ -28,6 +28,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
 | [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.1 integration, mounted HFS+ acceptance and remaining work |
+| [Operation I/O](operation-io.md) | Bounded transfers, cancellation checkpoints, partial writes, cleanup and current streaming limits |
 | [Research phase and harness](research-phase.md) | Whole-roadmap evidence map, prerequisite findings, native probe refactor and strict CI partitioning |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |
 | [Sideband policy](sideband-policy.md) | Shared three-OS attribute API, complete Apple AST bodies, native controls and release/integration sequence |

@@ -24,7 +24,7 @@ func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Re
 	if bundle {
 		return inspectBundle(ctx, path, opts)
 	}
-	data, err := readFile(path)
+	data, err := readFileContext(ctx, path, false)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 		return nil, err
 	}
 	defer f.Close()
-	data, err := readOpenFile(f, false)
+	data, err := readOpenFileContext(ctx, f, false)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,7 @@ import (
 
 // SingleDiskRep::Writer lazily opens O_RDWR even when no signature exists.
 // Bind that writable handle to the classified object before any mutation.
-func removeGenericSignature(ctx context.Context, original *os.File, open func() (*os.File, error), carrier appledouble.Value) error {
+func removeGenericSignature(ctx context.Context, original *os.File, open func() (*os.File, error), carrier appledouble.Value) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func removeGenericSignature(ctx context.Context, original *os.File, open func() 
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { result = errors.Join(result, f.Close()) }()
 	after, err := f.Stat()
 	if err != nil {
 		return err
