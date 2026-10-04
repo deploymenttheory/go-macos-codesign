@@ -231,6 +231,11 @@
     "TestVerifyImportedRemoval": 2
   },
   "baseline": {
+    "export_artifacts": [
+      "signed-ubuntu-24.04",
+      "signed-windows-2025"
+    ],
+    "export_manifest_note": "Dedicated signed artifacts include the 81 hidden .DS_Store fixture files omitted by the general evidence artifact upload; every host must export the identical complete name set.",
     "head": "708528a670126352378f7a7ffee82eed183454b1",
     "workflow": 37174795827
   },
@@ -1168,9 +1173,20 @@
         "acceptance.jsonl": "471156684f6b15e8c46facde4453181764f42fe5e98352568f48bf961fde1d92",
         "unit.jsonl": "fa4c8c77b3c230a90a1b9f4b0173a562f518910f9a68f29194d2d95675a06c8a"
       },
+      "coverage_packages": [
+        "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
+        "github.com/deploymenttheory/go-macos-codesign/third_party/rc2",
+        "github.com/spf13/afero",
+        "github.com/spf13/afero/internal/common",
+        "github.com/spf13/afero/mem"
+      ],
       "exports": {
-        "count": 9643,
-        "sha256": "46556ec918d6ef424b151de70517c1709bdc59fd81d2a761d6f7942b114ab940"
+        "count": 9724,
+        "sha256": "d0ed40f5d641c1fc722f58c958fbf39bbfbfed1cc54e79151d3e48f570bcbf7f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {
@@ -3310,9 +3326,20 @@
         "acceptance.jsonl": "0efd77a6c221a8e7aa9a60825aa057de4c1c5abbd5bb43246daeee6564711c52",
         "unit.jsonl": "3517e8610275a59d53537495d095cd6607dd4c11703deb8b5d8c582d4202ff52"
       },
+      "coverage_packages": [
+        "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
+        "github.com/deploymenttheory/go-macos-codesign/third_party/rc2",
+        "github.com/spf13/afero",
+        "github.com/spf13/afero/internal/common",
+        "github.com/spf13/afero/mem"
+      ],
       "exports": {
-        "count": 9643,
-        "sha256": "46556ec918d6ef424b151de70517c1709bdc59fd81d2a761d6f7942b114ab940"
+        "count": 9724,
+        "sha256": "d0ed40f5d641c1fc722f58c958fbf39bbfbfed1cc54e79151d3e48f570bcbf7f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {
@@ -5416,9 +5443,20 @@
         "acceptance.jsonl": "8f2b768541cc17146bd7177f405d33014535ee74f3a8adf7425113c89fad3dec",
         "unit.jsonl": "a0d03bcb5b3fb5f189c3dfb5df68b5913f4027c29192b6df1737a8f1f464c3a3"
       },
+      "coverage_packages": [
+        "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
+        "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
+        "github.com/deploymenttheory/go-macos-codesign/third_party/rc2",
+        "github.com/spf13/afero",
+        "github.com/spf13/afero/internal/common",
+        "github.com/spf13/afero/mem"
+      ],
       "exports": {
-        "count": 9643,
-        "sha256": "46556ec918d6ef424b151de70517c1709bdc59fd81d2a761d6f7942b114ab940"
+        "count": 9724,
+        "sha256": "d0ed40f5d641c1fc722f58c958fbf39bbfbfed1cc54e79151d3e48f570bcbf7f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {

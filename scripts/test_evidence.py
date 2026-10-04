@@ -44,6 +44,7 @@ class EvidenceTests(unittest.TestCase):
             e.write_json(directory / "receipt.json", {"schema": 1, "part": part, "provenance": self.prov,
                          "outcomes": groups, "files": e.files(directory), "elapsed_seconds": 1})
         host = self.plan["platforms"]["Linux"]
+        host["coverage_packages"] = ["p"]
         host["exports"] = host["attestations"] = {"count": 0, "sha256": e.names_digest([])}
 
     def inspect(self):
@@ -213,6 +214,29 @@ class EvidenceTests(unittest.TestCase):
         self.plan["platforms"]["Linux"]["exports"]["count"] = 1
         with self.assertRaisesRegex(ValueError, "Export case manifest"):
             self.aggregate()
+
+    def test_exact_instrumentation_membership(self):
+        for packages in ([], ["p", "unexpected"]):
+            with self.subTest(packages=packages):
+                self.plan["platforms"]["Linux"]["coverage_packages"] = packages
+                with self.assertRaisesRegex(ValueError, "instrumented package"):
+                    self.aggregate()
+                shutil.rmtree(self.root / "complete")
+
+    def test_dependency_instrumentation_does_not_replace_production_coverage(self):
+        self.plan["platforms"]["Linux"]["coverage_packages"] = ["p", "dependency"]
+        plan_path = self.root / "plan.json"
+        e.write_json(plan_path, self.plan)
+        with patch.object(e, "PLAN", plan_path), patch.object(e, "provenance", return_value=self.prov), \
+             patch.object(e.subprocess, "check_output", return_value="p\nnew-production\n"), \
+             patch.object(verify, "merge", return_value={"p": (96, 100), "dependency": (0, 100)}):
+            with self.assertRaisesRegex(ValueError, "instrumented package"):
+                e.aggregate(self.inputs, self.root / "missing-production")
+        with patch.object(e, "PLAN", plan_path), patch.object(e, "provenance", return_value=self.prov), \
+             patch.object(e.subprocess, "check_output", return_value="p\n"), patch.object(verify, "run"), \
+             patch.object(verify, "merge", return_value={"p": (96, 100), "dependency": (0, 100)}):
+            e.aggregate(self.inputs, self.root / "with-dependency")
+        self.assertEqual(set(e.load(self.root / "with-dependency/coverage.json")), {"p"})
 
     def test_coverage_union_and_incompatible_blocks(self):
         a, b, out = (self.root / n for n in ("a.out", "b.out", "merged.out"))

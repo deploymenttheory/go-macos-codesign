@@ -99,9 +99,15 @@ passes. Existing native-only/opt-in skips remain recorded limitations, not new s
 
 | Host | Unit outcomes | Acceptance outcomes | Acceptance attestations | Exported files |
 | --- | ---: | ---: | ---: | ---: |
-| Linux | 43,657 | 19,893 | 18,515 | 9,643 |
-| Windows | 43,663 | 19,249 | 17,871 | 9,643 |
-| macOS | 43,668 | 25,237 | 23,717 | 9,643 |
+| Linux | 43,657 | 19,893 | 18,515 | 9,724 |
+| Windows | 43,663 | 19,249 | 17,871 | 9,724 |
+| macOS | 43,668 | 25,237 | 23,717 | 9,724 |
+
+Export names come from that run's dedicated `signed-*` artifacts, whose upload
+included hidden files. Its general evidence artifacts omitted 81 `.DS_Store`
+fixture files. The new archive transport preserves the complete 9,724-file tree,
+including those existing test inputs; none are discarded to match an incomplete
+download. The complete export name sets match between Linux and Windows.
 
 These counts describe terminal test records, including parent tests and existing
 skips; they are not counts of newly implemented features or unique native probes.
@@ -134,6 +140,12 @@ averaged across OSes. Four package race workers preserve every current productio
 library/internal package, and four fuzz groups preserve all thirteen sixty-second
 targets and RC2 tests. The research checker rejects missing race packages or fuzz
 targets/durations. GoReleaser still builds all six production packages/archives.
+
+The full instrumentation manifest also pins the existing local RC2/Afero replacement
+packages present in baseline profiles. They remain in raw merged coverage. The
+production coverage gate uses every current `pkg`, `internal` and `cmd` package,
+as the monolithic harness does; dependency blocks cannot replace a missing
+production package or raise its percentage.
 
 Before Apple's unchanged import suite runs, a new gate requires exactly the Linux
 and Windows producer directories, current provenance and every exported file/hash.

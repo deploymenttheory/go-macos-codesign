@@ -243,7 +243,11 @@ def aggregate(inputs, output):
     merged = verify.merge([receipts[p][0] / "coverage.out" for p in PARTS], output / "coverage.out")
     expected = subprocess.check_output(["go", "list", "./pkg/...", "./internal/...", "./cmd/..."],
                                       cwd=ROOT, env=dict(os.environ, CGO_ENABLED="0"), text=True).splitlines()
-    require(set(merged) == set(expected), "Missing/unexpected instrumented production package")
+    # Go also instruments the existing local replacement modules. Pin their full
+    # baseline membership; the production threshold still applies to every current
+    # pkg/internal/cmd package, exactly as in the monolithic harness.
+    require(set(merged) == set(plan["platforms"][prov["os"]]["coverage_packages"]) and
+            set(expected) <= set(merged), "Missing/unexpected instrumented package")
     report = {}
     for package in expected:
         covered, total = merged[package]
