@@ -119,6 +119,15 @@ instrumentation, exact receipt file hashes, complete nested outcomes and the ful
 attestation/export manifests. Duplicate shards, cases and exported artifacts fail.
 Cancelled/failed jobs cannot pass by leaving partial artifacts behind.
 
+Shard and complete-OS artifacts contain `evidence.tar`. The archive preserves
+native case filenames byte-for-byte, including URL colons that GitHub's artifact
+uploader rejects as loose files. Extraction accepts only unique regular files at
+relative paths in a fresh directory; links, traversal, duplicate names and stale
+destinations fail. Receipts still hash every extracted file before aggregation.
+Each host extracts its own evidence; Windows rejects names that would create NTFS
+alternate streams. The Linux/Windows foreign producer artifacts remain directly
+readable by the native import job.
+
 Coverage remains a within-OS union of atomic unit/CLI profiles, strictly **above
 95% for every production package**, including newly added packages. Nothing is
 averaged across OSes. Four package race workers preserve every current production

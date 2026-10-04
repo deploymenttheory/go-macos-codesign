@@ -37,7 +37,9 @@ fuzz targets. GoReleaser still produces all six release targets.
 
 The following file table describes the monolithic local `make verify` path.
 CI retains raw transcripts in `evidence-shard-<runner>-<part>` and merged coverage,
-attestations, provenance and completion records in `evidence-<runner>`. Failed
+attestations, provenance and completion records in `evidence-<runner>`. Each contains
+`evidence.tar`, preserving native filenames that artifact storage cannot accept as
+loose files; extract it on the producing OS to inspect the original tree. Failed
 workers still upload their raw logs and source provenance; Mac failure diagnostics
 have a separate artifact. Both foreign exports carry a producer manifest checked
 before Apple's unchanged case-by-case import suite.

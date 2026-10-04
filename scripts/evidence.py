@@ -13,6 +13,7 @@ import platform
 import re
 import shutil
 import subprocess
+import tarfile
 import time
 
 import verify
@@ -194,6 +195,46 @@ def copy_unique(source, destination, seen):
             shutil.copyfile(path, target)
 
 
+def pack(inputs, output):
+    """Preserve native evidence names inside an archive accepted by artifact storage."""
+    require(not output.exists(), f"Refuse stale archive: {output}")
+    require(inputs.is_dir() and inputs not in output.parents, "Archive must be outside its input directory")
+    names = files(inputs)  # Reject symlinks before publishing anything.
+    require(names, "No evidence to archive")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(output, "w") as archive:
+        for name in names:
+            archive.add(inputs / name, arcname=name, recursive=False)
+
+
+def unpack(inputs, output):
+    """Extract only regular, unique, relative files into a fresh shard directory."""
+    require(not output.exists(), f"Refuse stale extraction: {output}")
+    directories = sorted(inputs.iterdir())
+    require(directories, "No evidence archives")
+    for directory in directories:
+        require(directory.is_dir() and not directory.is_symlink(), "Unexpected archive input")
+        require({p.name for p in directory.iterdir()} == {"evidence.tar"}, "Missing/extra evidence archive")
+        source = directory / "evidence.tar"
+        require(not source.is_symlink(), "Symlink archive")
+        with tarfile.open(source, "r:") as archive:
+            seen = set()
+            for member in archive:
+                name = member.name
+                require(member.isfile() and not member.sparse and name and
+                        not name.startswith("/") and "\\" not in name and
+                        all(p not in ("", ".", "..") for p in name.split("/")), "Unsafe archive member")
+                require(os.name != "nt" or not any(c in name for c in ':<>"|?*'), "Unrepresentable Windows archive name")
+                target = output / directory.name / name
+                require(target.resolve().is_relative_to((output / directory.name).resolve()), "Unsafe archive destination")
+                require(name not in seen, "Duplicate archive member")
+                seen.add(name)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with archive.extractfile(member) as stream, target.open("xb") as dest:
+                    shutil.copyfileobj(stream, dest)
+            require(seen, "Empty evidence archive")
+
+
 def aggregate(inputs, output):
     require(not output.exists(), f"Refuse stale aggregation directory: {output}")
     plan, prov = load(PLAN), provenance()
@@ -259,13 +300,19 @@ def main():
     p.add_argument("--output", type=Path, required=True)
     p = commands.add_parser("foreign")
     p.add_argument("--inputs", type=Path, required=True)
+    for command in ("pack", "unpack"):
+        p = commands.add_parser(command)
+        p.add_argument("--inputs", type=Path, required=True)
+        p.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "shard":
         shard(args.part, args.output.resolve())
     elif args.command == "aggregate":
         aggregate(args.inputs.resolve(), args.output.resolve())
-    else:
+    elif args.command == "foreign":
         foreign(args.inputs.resolve())
+    else:
+        {"pack": pack, "unpack": unpack}[args.command](args.inputs.resolve(), args.output.resolve())
 
 
 if __name__ == "__main__":

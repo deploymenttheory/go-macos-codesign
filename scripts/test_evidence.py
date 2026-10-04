@@ -1,9 +1,11 @@
 """Failure-injection tests for the required evidence gate (no native tools)."""
 import copy
+import io
 import json
 from pathlib import Path
 import shutil
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 
@@ -49,6 +51,57 @@ class EvidenceTests(unittest.TestCase):
 
     def test_complete_manifest(self):
         self.assertEqual(set(self.inspect()), set(e.PARTS))
+
+    def test_archive_round_trip_preserves_every_byte_and_receipt(self):
+        packages = self.root / "packages"
+        for part in e.PARTS:
+            e.pack(self.inputs / part, packages / part / "evidence.tar")
+        output = self.root / "unpacked"
+        e.unpack(packages, output)
+        self.assertEqual(e.files(output), e.files(self.inputs))
+        self.assertEqual(set(e.inspect_shards(output, self.plan, self.prov)), set(e.PARTS))
+        with self.assertRaisesRegex(ValueError, "stale extraction"):
+            e.unpack(packages, output)
+        with self.assertRaisesRegex(ValueError, "stale archive"):
+            e.pack(self.inputs / "0", packages / "0/evidence.tar")
+
+    def test_archive_rejects_unsafe_duplicate_and_missing_entries(self):
+        packages = self.root / "packages"
+        (packages / "0").mkdir(parents=True)
+        archive_path = packages / "0/evidence.tar"
+        cases = [("../outside", tarfile.REGTYPE), ("/outside", tarfile.REGTYPE),
+                 ("a/../outside", tarfile.REGTYPE), ("a\\outside", tarfile.REGTYPE),
+                 ("a", tarfile.SYMTYPE), ("a", tarfile.LNKTYPE), ("a", tarfile.FIFOTYPE),
+                 ("a", tarfile.DIRTYPE), ("duplicate", tarfile.REGTYPE)]
+        for i, (name, kind) in enumerate(cases):
+            with self.subTest(name=name, kind=kind):
+                with tarfile.open(archive_path, "w") as archive:
+                    member = tarfile.TarInfo(name); member.type = kind
+                    archive.addfile(member, io.BytesIO())
+                    if name == "duplicate":
+                        archive.addfile(member, io.BytesIO())
+                with self.assertRaises(ValueError):
+                    e.unpack(packages, self.root / ("rejected-" + str(i)))
+        archive_path.unlink()
+        with self.assertRaisesRegex(ValueError, "Missing/extra"):
+            e.unpack(packages, self.root / "missing")
+
+    def test_archive_preserves_native_colons_without_renaming(self):
+        packages = self.root / "packages"
+        (packages / "0").mkdir(parents=True)
+        name = "attestations/TestTimestamp_http:__127.0.0.1:1.json"
+        payload = b'{"native":true}\n'
+        with tarfile.open(packages / "0/evidence.tar", "w") as archive:
+            member = tarfile.TarInfo(name); member.size = len(payload)
+            archive.addfile(member, io.BytesIO(payload))
+        output = self.root / "native"
+        if e.os.name == "nt":
+            # This OS consumes Windows evidence; never create an NTFS alternate stream.
+            with self.assertRaisesRegex(ValueError, "Unrepresentable Windows"):
+                e.unpack(packages, output)
+        else:
+            e.unpack(packages, output)
+            self.assertEqual((output / "0" / name).read_bytes(), payload)
 
     def test_every_missing_shard_fails(self):
         for part in e.PARTS:
