@@ -1,0 +1,73 @@
+{
+  "profiles": [
+    {
+      "file": "plist-encodings.json",
+      "cases": 120,
+      "previous_sha256": "148476c40fc27c09bfd50b2fb16d502e623b2e723fcd3c1f1fa6dac6db960b2c",
+      "fresh_sha256": "bcd1c757755a2659330ee66e937dda809f8d2cd4871ba970d93461fffaf0d8ad"
+    },
+    {
+      "file": "plist-euc-jp.json",
+      "cases": 1488,
+      "previous_sha256": "24c2eb7febc6e80f116b1a1461db234443477ec1ab356c634f1fce1e88f8a0b9",
+      "fresh_sha256": "5aae079f3e56c0d7807a53d181d6c94f1f363a452a5da753b046f60a198f4bb8"
+    },
+    {
+      "file": "plist-interpretation.json",
+      "cases": 180,
+      "previous_sha256": "03d355700f35928277030590334197ac96b18caaed85ef58219bfa8e54626e36",
+      "fresh_sha256": "5deec0e73786dea511a6ab2e80e10dbfcd99224d62fe94c7d316ddc690884dcb"
+    },
+    {
+      "file": "plist-iso2022-extensions.json",
+      "cases": 2100,
+      "previous_sha256": "ca43ececa0800401d531f59e9ed49b8c65490ccee39fabfa7eeda40c1765f423",
+      "fresh_sha256": "0932bd937edd235f85b2cd329da0b70afaaa6eea323df3a7badfcb561d8dff20"
+    },
+    {
+      "file": "plist-iso2022-jp.json",
+      "cases": 1836,
+      "previous_sha256": "733ef768c6e30c6b045bdc817939f14c9dadf64e879be8466c3279b7e9207576",
+      "fresh_sha256": "7d6605dce01a62d40bf71a870deb7da13f239c5612ee82e44234d8538a455b17"
+    },
+    {
+      "file": "plist-legacy.json",
+      "cases": 792,
+      "previous_sha256": "ee6a5b0878d6d152f0d59090930a4828c8e2b9f68f3a91c8c417b3e801e77cc2",
+      "fresh_sha256": "e1ccb1c339756a147fea579c74b4cdf55bbb9d0c744cea2734158c9870303e8d"
+    },
+    {
+      "file": "plist-shift-jis.json",
+      "cases": 912,
+      "previous_sha256": "4dd5820acfee7d51af7bf1c9c0a473f1e848865def71d80549495f70ba3b2f71",
+      "fresh_sha256": "6a4dc4a64c8a29a28c8eb01cf9440e6b5abf38595d74324cee4891682768927a"
+    },
+    {
+      "file": "plist-unmarked.json",
+      "cases": 408,
+      "previous_sha256": "988b1903a82f1b48a7f6c1ad8d83ad92df3f847ee65cbcddc5d7aa4d498c395b",
+      "fresh_sha256": "489c175524d20c51e433b70b182877b925932c379cf210a6609673b3f36c960b"
+    },
+    {
+      "file": "plist-utf32-grammar.json",
+      "cases": 36,
+      "previous_sha256": "04ca706887198dd900760dc38282596d75ec708127e0444b915df8caef69e740",
+      "fresh_sha256": "4d99a13fbc44ad44ba56da3de9dce229654f8d89663fb92b848735e6829791b6"
+    },
+    {
+      "file": "plist-utf32.json",
+      "cases": 276,
+      "previous_sha256": "9ecbc4d4486c44fbdcf413c65381a6120cf9000dcfefe75df4998f43efa0985c",
+      "fresh_sha256": "dfa8a3e839675feb5759ba78931717947dd1e8309048dee2bc74473ee192ca34"
+    },
+    {
+      "file": "plist-xml-characters.json",
+      "cases": 192,
+      "previous_sha256": "9f51bf9080b584968d7291251d6b21ae84e25eef4acd5b79256e197261285bf7",
+      "fresh_sha256": "df1f6c81e7e9e4ec0d8f8d7da7c3f9127da1c047c14d61db8f5484723dd48e20"
+    }
+  ],
+  "comparison": "complete cases objects and native binary hash; no expected value changes",
+  "base_commit": "ba9d623f65e3c926c138f355246dfda0e441f604",
+  "native_cases": 8340
+}

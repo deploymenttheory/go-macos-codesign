@@ -29,11 +29,12 @@ func TestRemovalPlatformNativeReplay(t *testing.T) {
 func replayRemovalPlists(t *testing.T, corpusName, driverName string, wanted map[string]bool) {
 	t.Helper()
 	var corpus struct {
-		Schema int
-		MacOS  string
-		Driver string `json:"source_sha256"`
-		Native string `json:"codesign_sha256"`
-		Cases  []struct {
+		Schema  int
+		MacOS   string
+		Driver  string            `json:"source_sha256"`
+		Sources map[string]string `json:"source_files_sha256"`
+		Native  string            `json:"codesign_sha256"`
+		Cases   []struct {
 			Shape, State, Base, Info, Platform, Selected, Output string
 			Status                                               int
 			Envelope                                             bool
@@ -53,6 +54,23 @@ func replayRemovalPlists(t *testing.T, corpusName, driverName string, wanted map
 	hash := func(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
 	if corpus.Schema != 1 || corpus.MacOS == "" || len(corpus.Native) != 64 || corpus.Driver != hash(readTestFile(t, "../../scripts/"+driverName)) {
 		t.Fatal("stale or incomplete platform evidence")
+	}
+	if driverName == "probe-removal-plist-interpretation.go" {
+		helpers, err := filepath.Glob("../../scripts/probe-plist-inputs-*.go")
+		if err != nil || len(helpers) != 5 {
+			t.Fatal("incomplete native input modules", err)
+		}
+		for _, path := range append(helpers, "../../scripts/"+driverName, "../../go.mod", "../../go.sum") {
+			key, err := filepath.Rel("../..", path)
+			if err != nil || corpus.Sources[filepath.ToSlash(key)] != hash(readTestFile(t, path)) {
+				t.Fatal("stale native input module", path, err)
+			}
+		}
+		for path, expected := range corpus.Sources {
+			if expected != hash(readTestFile(t, "../../"+path)) {
+				t.Fatal("stale transitive native input", path)
+			}
+		}
 	}
 	if _, err := hex.DecodeString(corpus.Native); err != nil {
 		t.Fatal(err)

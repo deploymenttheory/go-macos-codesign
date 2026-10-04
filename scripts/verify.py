@@ -20,7 +20,7 @@ def run(args, env, log=None):
     else:
         with log.open("w", encoding="utf-8") as output:
             result = subprocess.run(args, cwd=ROOT, env=env, stdout=output, stderr=subprocess.STDOUT, text=True)
-        print(f"  transcript: {log.relative_to(ROOT)}", flush=True)
+        print(f"  transcript: {log}", flush=True)
         if result.returncode:
             # Keep every event in the artifact, but show the failed tests and
             # package/compiler output directly in the CI job log.

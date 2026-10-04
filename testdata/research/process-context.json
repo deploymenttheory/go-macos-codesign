@@ -1,0 +1,87 @@
+{
+  "api": {
+    "host": 0,
+    "pid": 41495,
+    "self": 0,
+    "static": 0,
+    "status": 570556929,
+    "status_result": 0,
+    "validity": 0
+  },
+  "architecture": "arm64",
+  "binary_sha256": "5740e8bb3b502eac2f6f31da0c20ca855dee9bec2b4d0026b9048403b6db1b9c",
+  "cases": [
+    {
+      "id": "live-verify",
+      "arguments": [
+        "--verify",
+        "41495"
+      ],
+      "stdout": "",
+      "stderr": "",
+      "exit": 0
+    },
+    {
+      "id": "live-verbose-verify",
+      "arguments": [
+        "--verify",
+        "--verbose=4",
+        "41495"
+      ],
+      "stdout": "",
+      "stderr": "41495: dynamically valid\n41495: valid on disk\n41495: satisfies its Designated Requirement\n",
+      "exit": 0
+    },
+    {
+      "id": "live-hosting",
+      "arguments": [
+        "--hosting",
+        "41495"
+      ],
+      "stdout": "/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-process-context-4288762992/oracle\n/mach_kernel\n",
+      "stderr": "",
+      "exit": 0
+    },
+    {
+      "id": "static-verify",
+      "arguments": [
+        "--verify",
+        "/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-process-context-4288762992/oracle"
+      ],
+      "stdout": "",
+      "stderr": "",
+      "exit": 0
+    },
+    {
+      "id": "static-hosting-rejected",
+      "arguments": [
+        "--hosting",
+        "/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-process-context-4288762992/oracle"
+      ],
+      "stdout": "",
+      "stderr": "/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-process-context-4288762992/oracle: not a dynamic code specification\n",
+      "exit": 1
+    },
+    {
+      "id": "numeric-relative-path",
+      "arguments": [
+        "--verify",
+        "./41495"
+      ],
+      "stdout": "",
+      "stderr": "./41495: No such file or directory\n",
+      "exit": 1
+    }
+  ],
+  "codesign_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "directory": "/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-process-context-4288762992",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "pid": "41495",
+  "schema": 1,
+  "scope": "Own disposable Clang-built process only; SDK introspection and native CLI observations do not establish portable kernel state access.",
+  "source_sha256": {
+    "scripts/oracles/process-context.c": "4cf8bd280d1c9e4e55147f193f538fac37a2519f0ffadd26be601ab6d17a0b53",
+    "scripts/probe-process-context.go": "ab1b7b352261122b55894666e958980541b6dca8f422ae463ba7ceb92ff7a0e5"
+  }
+}

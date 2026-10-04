@@ -24,10 +24,10 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
 | [Native inventory](native-inventory.md) | Expanded parser/operation evidence, source gaps and live-state access constraints |
 | [Compatibility](compatibility.md) | Implemented behavior, native comparisons and unresolved requirements |
-| [Roadmap](implementation.md) | Delivered components, next phase and outstanding work |
-| [Detailed implementation plan](implementation_plan.md) | Complete remaining-feature backlog, 24 work packages, acceptance matrices, blockers and delivery order |
+| [Detailed implementation plan](implementation_plan.md) | Outstanding-only roadmap: twelve larger phases, 88 feature owners, prerequisites and acceptance gates |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
+| [Research phase and harness](research-phase.md) | Whole-roadmap evidence map, prerequisite findings, native probe refactor and strict CI partitioning |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |
 | [Sideband policy](sideband-policy.md) | Shared three-OS attribute API, complete Apple AST bodies, native controls and release/integration sequence |
 | [Reference implementations](reference-implementations.md) | GitHub source comparisons and how they informed the work |

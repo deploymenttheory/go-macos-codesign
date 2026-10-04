@@ -170,73 +170,29 @@ disk exhaustion + metadata restoration.
 <a id="phase-01"></a>
 ## Phase 01 — Research the whole roadmap and scale the harness
 
-**Deliverable:** a complete source/probe/prerequisite map and a faster mandatory
-harness before the larger implementation phases. No feature-status upgrades arise
-from inventorying flags or adding AST records.
+The [research map and harness implementation](research-phase.md) contains the
+source/probe ownership, prerequisite findings, native recapture and partitioning
+contracts. Its observations do not change any feature status. The remaining phase
+01 delivery gate is qualification of the actual final branch, not more small
+feature increments:
 
-- [ ] Map all 88 obligations to concrete Apple source bodies, native operations,
-  existing coverage, new case families, required inputs and the implementing phase.
-  Build an operation applicability table covering accepted, ignored and rejected
-  options, argument precedence, defaults and failure order. Extend the inventory
-  when evidence reveals additional options/environment behavior; do not cap it at 88.
-- [ ] Reuse the pinned sources described in [research](research.md): Security
-  `db15acbe6a7f257a859ad9a3bb86097bfe0679d9`, CoreFoundation
-  `dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3` and the recorded SDK/local source
-  inputs. Audit exact file hashes before extraction. Fetch only needed missing
-  sources and record their pins/licensing; do not treat the local cache as a
-  complete or current implementation of the installed CLI.
-- [ ] Expand existing `extract-*.go` drivers to complete relevant C/C++/Objective-C
-  bodies, both target ASTs and checked wire-layout/constant records. Record every
-  shim, excluded branch, unavailable body and source/native disagreement. Keep
-  declaration-only evidence visibly distinct. Extend Clang-built API oracles for
-  behavior that cannot be measured through the CLI alone.
-- [ ] Write the case specifications for every later phase under the existing
-  `spec/` and fixture conventions, including exact generators, required native
-  calls, comparison rules and prerequisite status. Validate manifest schema and
-  ownership mechanically. A case specification is not a fabricated observation.
-- [ ] Investigate all eight blockers now: process/hosting, keychain, detached
-  database, hardware, remote signing, signing dylib and allocator override. Also
-  resolve fixture/provider availability for hybrid signatures, constraints, real
-  Apple-issued policy and notarization. Produce feasibility decisions with exact
-  missing state or conflicting constraints before depending on those features.
-- [ ] Audit APFS APIs against phases 02/03/08/09. Specify missing public primitives
-  with independent native cases, upstream coverage and release dependencies. Avoid
-  opening placeholder dependency bumps before the required release exists.
-- [ ] Cross-check design against the pinned [reference implementations](reference-implementations.md),
-  including apple-platform-rs, Relic, ipsw, zsign/ldid and other reviewed projects.
-  Record what each actually implements, native dependencies and license limits;
-  their acceptance is not an Apple behavior oracle.
-- [ ] Modularize growing native probe drivers by behavioral family while preserving
-  stable IDs and transitive source provenance. Refactoring a driver cannot be
-  approved through hash-only fixture refresh: replay its old observations and
-  compare complete output/evidence before changing expected hashes.
-- [ ] Introduce deterministic CI partitioning, initially four acceptance shards
-  per OS, package-based race shards and four fuzz groups. Keep all thirteen
-  existing fuzz targets at their full sixty seconds each, the RC2 tests and every
-  existing race case; add targets for new parsers. Balance by measured duration,
-  not by dropping expensive data points.
-- [ ] Build a required aggregation gate that checks the expected case/shard/artifact
-  manifest, rejects missing or duplicate IDs, failed/cancelled shards and stale
-  source revisions, and verifies exactly one Linux and one Windows result for
-  every required foreign case. A subset of passing shards cannot pass the PR.
-- [ ] Union compatible coverage profiles only within the same OS, source revision
-  and instrumentation. Require **strictly greater than 95% in every production
-  package on each OS**, including future packages; no rounded or cross-OS average.
-  Cache compilation/dependencies, never native observations or passing test results.
-- [ ] Preserve fresh macOS capture, strict setup controls, all prior fixture
-  corpora, foreign verification, guards, golangci-lint and six GoReleaser targets
-  with SBOMs/checksums. Measure wall time, worker time, upload size and peak memory.
-  Preserve the current test deadlines until evidence supports a deliberate change;
-  a job ending before mandatory uploads is a failure even if tests passed.
+- [ ] Complete the partitioned suite on Linux, macOS and Windows and reconcile every
+  retained nested case/status, attestation and exported file with the checked
+  manifest. Require all shards and all original native captures/imports.
+- [ ] Audit exact final-commit source hashes, within-OS coverage strictly above 95%
+  per production package, all package race workers, thirteen full-duration fuzz
+  targets, guards/lint and six GoReleaser builds. Deliberately failing harness tests
+  must continue to reject missing/duplicate/stale/cancelled evidence.
+- [ ] Measure actual wall/worker time and artifact costs before claiming a speedup.
+  Keep native hypotheses and source-only/unavailable contexts explicitly distinct
+  from executed implementation evidence.
+- [ ] Present the complete phase as a draft PR, retain any failing case and obtain
+  the user's merge before starting phase 02 from main. External-state and constraint
+  conflicts remain tracked prerequisites; none is silently declared implemented.
 
-**Research/acceptance:** replay the complete old corpus through the partitioned
-harness and reconcile case IDs, comparisons, coverage, fuzz/race execution and
-artifacts. Deliberately omit/duplicate/cancel a shard in harness tests and prove
-that aggregation fails. Native runtime capture remains independent of Go results.
-
-**Exit:** every obligation has a source/probe plan, owner and prerequisite outcome;
-all old cases remain required; the measured harness is faster without weaker gates.
-A genuinely unavailable prerequisite remains open with a concrete resolution path.
+**Exit:** every obligation retains its source/probe plan and prerequisite outcome;
+all old cases remain required and executed under the faster scheduling structure.
+Any unavailable original requirement remains explicitly open.
 
 <a id="phase-02"></a>
 ## Phase 02 — Portable I/O, filesystem behavior and lifecycle
