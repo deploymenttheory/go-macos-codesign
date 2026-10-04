@@ -106,6 +106,7 @@ def validate_large_source(large, inventory):
             require(sha(ROOT / path) == expected, "Stale large-source capture: " + path)
     require(large["source_sha256"]["/usr/bin/codesign"] == inventory["baseline"]["codesign_sha256"], "Unexpected large-source oracle")
     for case in large["cases"]:
+        require(case.get("dry_signature") and case.get("dry_trailer"), "Missing native large-source dry-run tail")
         require(case["display"].splitlines()[0] == "Executable=<image>",
                 "Large-source display retains a host path prefix")
         require(case["verify"].splitlines() == ["<image>: valid on disk", "<image>: satisfies its Designated Requirement"],
@@ -145,6 +146,12 @@ def main():
     require(len(ranges["excerpt_sha256"]) == 3, "Missing range reader bodies")
     for methods in ranges["targets"].values():
         require(len(methods) == 3 and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete range reader AST")
+    builder = read("spec/apple-dmg-builder.json")
+    require(builder["driver_sha256"] == sha(ROOT / "scripts/extract-dmg-builder.py"), "Stale builder AST driver")
+    require(builder["helper_sha256"] == sha(ROOT / "scripts/extract-hashing.py"), "Stale builder AST helper")
+    require(len(builder["targets"]) == 2 and len(builder["excerpt_sha256"]) == 3, "Missing builder AST targets or bodies")
+    for methods in builder["targets"].values():
+        require({m["name"] for m in methods} == {"fixedSize", "size", "build"} and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete builder AST")
     validate_large_source(read("testdata/research/large-source.json"), inventory)
     process = read("testdata/research/process-context.json")
     for path, expected in process["source_sha256"].items():

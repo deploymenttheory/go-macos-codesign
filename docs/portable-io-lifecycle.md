@@ -10,7 +10,8 @@ owners is promoted to full parity by the prerequisite work below.
 
 Phase 02 includes re-architecting the path-based file-processing pipeline to
 remove the arbitrary 1 GiB ceiling. Standalone read-only range integration is described [here](source-range-io.md);
-signing and bundle builders still hold whole-file byte slices. The signing policy, codecs, APFS
+[DMG signing](dmg-streaming.md) now shares range hashing; Mach-O and bundle
+builders still hold whole-file byte slices. The signing policy, codecs, APFS
 integration and existing acceptance harness remain the foundation.
 
 | Component | Required implementation |
@@ -131,8 +132,9 @@ operation-specific metadata policy; changing the SDK transport does not settle i
 
 Merged PR99 integrates [bounded operation I/O and cancellation](operation-io.md)
 across existing writers. Merged PR100 extends incremental hashing and its evidence. Standalone
-inspection/verification now use [source ranges](source-range-io.md); signing and
-bundle processing still require whole-file builders and retain their size limits.
+inspection/verification now use [source ranges](source-range-io.md), as does
+[DMG signing](dmg-streaming.md). Mach-O signing/removal and bundle processing
+still require whole-file builders and retain their size limits.
 
 Complete the agreed pipeline above and the rest of Phase 02:
 metadata/compression profiles, cancellation, partial failures, source identity,

@@ -12,7 +12,7 @@ import (
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
 )
 
-// maxFileSize bounds in-memory operations. Larger files fail explicitly.
+// maxFileSize bounds legacy byte paths and metadata, not held-source payloads.
 const maxFileSize = 1 << 30
 
 // Apple CodeSigner.cpp's default CMS blob budget, including its wrapper.
@@ -87,6 +87,17 @@ func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
 	}
 	fileCloser := operationCloser{file.Close}
 	defer func() { err = errors.Join(err, fileCloser.Close()) }()
+	source, err := openCodeSource(ctx, file)
+	if err != nil {
+		return err
+	}
+	dmg, err := source.isDMG()
+	if err != nil {
+		return err
+	}
+	if dmg {
+		return signDMGFile(ctx, file, path, source, opts)
+	}
 	data, err := readOpenFileContext(ctx, file, true)
 	if err != nil {
 		return err
@@ -158,37 +169,44 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, erro
 	return signBytes(ctx, data, opts, false)
 }
 
-func signBytes(ctx context.Context, data []byte, opts SignOptions, dmgDryRun bool) ([]byte, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
+func prepareSigningOptions(opts *SignOptions) error {
 	if opts.Identifier == "" || bytes.IndexByte([]byte(opts.Identifier), 0) >= 0 {
-		return nil, fmt.Errorf("identifier must be nonempty and contain no NUL")
+		return fmt.Errorf("identifier must be nonempty and contain no NUL")
 	}
 	if opts.Timestamp != nil && (opts.Identity == nil || opts.Timestamp.Provider == nil || len(opts.Timestamp.TrustedRoots) == 0) {
-		return nil, invalid("timestamp requires a signing identity, provider and TSA roots")
+		return invalid("timestamp requires a signing identity, provider and TSA roots")
 	}
 	if opts.Identity != nil {
 		if opts.Flags&FlagAdhoc != 0 {
-			return nil, invalid("ad-hoc flag conflicts with signing identity")
+			return invalid("ad-hoc flag conflicts with signing identity")
 		}
 		if _, err := opts.Identity.validate(); err != nil {
-			return nil, err
+			return err
 		}
 		if opts.SigningTime.IsZero() {
 			opts.SigningTime = time.Now()
 		}
-		if err := prepareIdentity(&opts); err != nil {
-			return nil, err
+		if err := prepareIdentity(opts); err != nil {
+			return err
 		}
 	}
 	if opts.Flags & ^uint32(0x33f02) != 0 {
-		return nil, unsupported("code signing flags")
+		return unsupported("code signing flags")
 	}
 	if opts.Identity == nil {
-		if err := prepareRequirements(&opts, nil); err != nil {
-			return nil, err
+		if err := prepareRequirements(opts, nil); err != nil {
+			return err
 		}
+	}
+	return nil
+}
+
+func signBytes(ctx context.Context, data []byte, opts SignOptions, dmgDryRun bool) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if err := prepareSigningOptions(&opts); err != nil {
+		return nil, err
 	}
 	if isDMG(data) {
 		return signDMG(ctx, data, opts, dmgDryRun)

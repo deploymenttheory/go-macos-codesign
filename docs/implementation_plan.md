@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`ca06d02a3d66ace8c40f2a8a479c6467a7f15b9d`, consuming published go-apfs-v2 v0.17.1.
+`8c7b47abf5e695c9521957fa4830f2cceb5342f4`, consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -208,8 +208,8 @@ the following pipeline.
      missing shared primitive, implement and qualify it upstream, then consume
      its published release before dependent codesign integration.
 2. **Held sources and range-based parsing.**
-   - [ ] Extend standalone held-source inspection/verification into bundle and
-     mutation operations with known size, `ReaderAt`, checked
+   - [ ] Extend standalone held-source inspection/verification and DMG signing
+     into bundle and Mach-O mutation operations with known size, `ReaderAt`, checked
      64-bit ranges and explicit close ownership. Read headers, load commands,
      trailers and required signature structures without materializing payloads.
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
@@ -236,6 +236,8 @@ the following pipeline.
    - [ ] Represent output as checked source ranges and generated sections, with
      explicit offsets, lengths, alignment and reservation. Stream unchanged
      bytes and produce modified sections without assembling a whole-file output.
+     The [DMG tail writer](dmg-streaming.md) is integrated; general Mach-O/bundle
+     plans, large metadata and overlap-sensitive assembly remain.
    - [ ] Spill intermediate sections and metadata when needed. Define temporary
      file location, permissions, storage accounting, sync/close ownership and
      cleanup for success, read/write failures, disk exhaustion and cancellation.

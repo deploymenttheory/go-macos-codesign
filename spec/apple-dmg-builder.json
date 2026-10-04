@@ -1,0 +1,183 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "c0a268485bdd5d2fa599121cfde1b640fb8a828407367019ebfc389c365fc1b8",
+  "excerpt_sha256": [
+    "3e1a52b95fa101622837312f8e9bd6e68692eb01446b8087ab765d1816f2b39b",
+    "864dd32d17c094efe1dd1fe7650bddba34724b71396f3f81a57b498fa85eae47",
+    "2d3b294c19550e01dd84d2ecb9b759c894aa1b54c2003bf6657440b6b161bccd"
+  ],
+  "helper_sha256": "180a4e48926823e99a5da4e2b9c6c118cec04de56d63901c97373918f5b28e33",
+  "schema": 1,
+  "scope": "Complete verbatim fixedSize, size and build bodies with declaration-only type/API shims; shim object layout is not wire-layout evidence and bodies are not executed. Native large-source signatures establish serialized headers and limits.",
+  "source_sha256": "3719005632fc3180739878987843628d8a5b2f3bb02518908777c5e1fff17f86",
+  "source_url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/cdbuilder.cpp",
+  "targets": {
+    "arm64-apple-macos27": [
+      {
+        "name": "fixedSize",
+        "nodes": {
+          "BinaryOperator": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CompoundAssignOperator": 4,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 17,
+          "MemberExpr": 16,
+          "ParenExpr": 8,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "UnaryExprOrTypeTraitExpr": 9,
+          "VarDecl": 1
+        }
+      },
+      {
+        "name": "size",
+        "nodes": {
+          "BinaryOperator": 18,
+          "CStyleCastExpr": 1,
+          "CXXMemberCallExpr": 7,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 24,
+          "CallExpr": 3,
+          "CompoundAssignOperator": 5,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 2,
+          "IfStmt": 6,
+          "ImplicitCastExpr": 42,
+          "IntegerLiteral": 13,
+          "MemberExpr": 30,
+          "ParenExpr": 4,
+          "ParmVarDecl": 1,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 3,
+          "UnaryOperator": 2,
+          "VarDecl": 2
+        }
+      },
+      {
+        "name": "build",
+        "nodes": {
+          "BinaryOperator": 52,
+          "CStyleCastExpr": 17,
+          "CXXBoolLiteralExpr": 6,
+          "CXXConstructExpr": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 28,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXThisExpr": 102,
+          "CallExpr": 24,
+          "CompoundAssignOperator": 6,
+          "CompoundStmt": 15,
+          "ConditionalOperator": 5,
+          "DeclRefExpr": 83,
+          "DeclStmt": 12,
+          "ExprWithCleanups": 1,
+          "FloatingLiteral": 1,
+          "ForStmt": 2,
+          "IfStmt": 14,
+          "ImplicitCastExpr": 245,
+          "IntegerLiteral": 32,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 150,
+          "ParenExpr": 13,
+          "PredefinedExpr": 5,
+          "ReturnStmt": 1,
+          "StringLiteral": 15,
+          "UnaryOperator": 14,
+          "VarDecl": 12
+        }
+      }
+    ],
+    "x86_64-apple-macos27": [
+      {
+        "name": "fixedSize",
+        "nodes": {
+          "BinaryOperator": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CompoundAssignOperator": 4,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 1,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 17,
+          "MemberExpr": 16,
+          "ParenExpr": 8,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "UnaryExprOrTypeTraitExpr": 9,
+          "VarDecl": 1
+        }
+      },
+      {
+        "name": "size",
+        "nodes": {
+          "BinaryOperator": 18,
+          "CStyleCastExpr": 1,
+          "CXXMemberCallExpr": 7,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 24,
+          "CallExpr": 3,
+          "CompoundAssignOperator": 5,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 2,
+          "IfStmt": 6,
+          "ImplicitCastExpr": 42,
+          "IntegerLiteral": 13,
+          "MemberExpr": 30,
+          "ParenExpr": 4,
+          "ParmVarDecl": 1,
+          "PredefinedExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 3,
+          "UnaryOperator": 2,
+          "VarDecl": 2
+        }
+      },
+      {
+        "name": "build",
+        "nodes": {
+          "BinaryOperator": 52,
+          "CStyleCastExpr": 17,
+          "CXXBoolLiteralExpr": 6,
+          "CXXConstructExpr": 1,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 28,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXThisExpr": 102,
+          "CallExpr": 24,
+          "CompoundAssignOperator": 6,
+          "CompoundStmt": 15,
+          "ConditionalOperator": 5,
+          "DeclRefExpr": 83,
+          "DeclStmt": 12,
+          "ExprWithCleanups": 1,
+          "FloatingLiteral": 1,
+          "ForStmt": 2,
+          "IfStmt": 14,
+          "ImplicitCastExpr": 245,
+          "IntegerLiteral": 32,
+          "MaterializeTemporaryExpr": 1,
+          "MemberExpr": 150,
+          "ParenExpr": 13,
+          "PredefinedExpr": 5,
+          "ReturnStmt": 1,
+          "StringLiteral": 15,
+          "UnaryOperator": 14,
+          "VarDecl": 12
+        }
+      }
+    ]
+  },
+  "translation_unit_sha256": "e510077dde3b12e0cb6b803c112fe002c935d0e56f60f998e5893975156b25c4"
+}
