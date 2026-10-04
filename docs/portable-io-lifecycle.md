@@ -70,8 +70,11 @@ These 108 comparisons passed locally on macOS 27.0.1. CI retains every previous
 case and artifact expectation and adds 111 terminal outcomes (108 cases, two
 filesystem groups and their parent) and 108 attestations on macOS. Existing
 Linux/Windows writer execution, foreign-producer native verification, per-package
-coverage above 95%, race, fuzz and GoReleaser gates remain required. Three-OS CI
-for this branch is still required before merge.
+coverage above 95%, race, fuzz and GoReleaser gates remain required.
+[PR98](https://github.com/deploymenttheory/go-macos-codesign/pull/98) merged at
+`41da4e52b4bd588781c689e06e5146a35637d2d0` after its
+[complete CI run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37192438601)
+passed, including all three OS aggregates and foreign-signature verification.
 
 The dependency bump also required fresh execution of the eleven plist operation
 corpora that pin `go.mod` and `go.sum`. The [recapture audit](../testdata/research/apfs-v0.17.1-recapture.json)
@@ -87,10 +90,12 @@ operation-specific metadata policy; changing the SDK transport does not settle i
 
 ## Remaining integration work
 
-1. Qualify the dependency integration with the full three-OS CI harness.
-2. Complete the rest of Phase 02 as one cohesive implementation: streaming/budgets,
-   metadata/compression profiles, cancellation, partial failures, source identity,
-   asynchronous siblings and `--single-threaded-signing`.
+The next branch integrates [bounded operation I/O and cancellation](operation-io.md)
+across existing writers. Its new portable failure cases remain subject to full CI.
+
+Complete the rest of Phase 02: streaming/budgets,
+metadata/compression profiles, cancellation, partial failures, source identity,
+asynchronous siblings and `--single-threaded-signing`.
 
 Codesign depends on released APFS v0.17.1 without a local module replacement.
 These filesystem controls do not complete any whole Phase 02 family or settle

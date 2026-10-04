@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`12b40468f39d040d66776d3eed6c18b8cd090d48`, now consuming published go-apfs-v2 v0.17.1.
+`41da4e52b4bd588781c689e06e5146a35637d2d0`, consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -173,9 +173,9 @@ disk exhaustion + metadata restoration.
 **Deliverable:** remaining creation/open/transfer/restore/close behavior integrated
 with streaming, cancellation and precise partial-failure semantics on all hosts.
 
-- [ ] Specify context-aware `ReaderAt` plus size, output reservation, incremental
-  hashing, staging and commit interfaces. Retain byte APIs as bounded convenience
-  paths. Share global budgets for memory, temporary storage, open handles, parsed
+- [ ] Extend the internal bounded `ReaderAt` transfer to streaming format readers,
+  output reservation and incremental hashing. Retain byte APIs as bounded
+  convenience paths. Share global budgets for memory, temporary storage, open handles, parsed
   values, network work and nested children; do not multiply per-child limits.
 - [ ] Audit current size/path/parser/chain/KDF limits against native-accepted
   workloads. Distinguish intentional resource budgets from unsupported formats.
@@ -202,11 +202,10 @@ with streaming, cancellation and precise partial-failure semantics on all hosts.
   option applicability. Keep representation-specific dry runs and signing/removal
   side effects distinct; do not infer that every dry run avoids writes.
 
-**Dependency integration gate:** qualify published APFS v0.17.1 with the complete
-three-OS harness. The [filesystem controls](portable-io-lifecycle.md) now pass
-locally, including 108 mounted comparisons of standalone and rooted bundle writers.
-Keep source-preserving SDK transport distinct from the still-unqualified native
-operation metadata profiles. No complete Phase 02 family is closed by this fix.
+**Qualification still required:** extend the [shared transfer checkpoints](operation-io.md)
+to all remaining planning, metadata, cleanup and commit paths, preserving the
+qualified APFS v0.17.1 integration. Keep source-preserving SDK transport distinct
+from native operation metadata profiles. No complete Phase 02 family is closed.
 
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
 `codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/

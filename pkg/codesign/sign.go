@@ -23,15 +23,22 @@ func readFile(path string) ([]byte, error) {
 }
 
 func readFileWithAccess(path string, recordAccess bool) ([]byte, error) {
+	return readFileContext(context.Background(), path, recordAccess)
+}
+
+func readFileContext(ctx context.Context, path string, recordAccess bool) (_ []byte, result error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	return readOpenFile(f, recordAccess)
+	defer func() { result = errors.Join(result, f.Close()) }()
+	return readOpenFileContext(ctx, f, recordAccess)
 }
 
-func readOpenFile(f *os.File, recordAccess bool) ([]byte, error) {
+func readOpenFileContext(ctx context.Context, f *os.File, recordAccess bool) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	st, err := f.Stat()
 	if err != nil {
 		return nil, err
@@ -43,7 +50,7 @@ func readOpenFile(f *os.File, recordAccess bool) ([]byte, error) {
 		return nil, unsupported("file exceeds 1 GiB memory limit")
 	}
 	// Read through a bounded reader; a concurrent growing file cannot defeat Stat.
-	data, err := readBounded(f, maxFileSize)
+	data, err := readBoundedContext(ctx, f, maxFileSize)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +85,9 @@ func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	data, err := readOpenFile(file, true)
+	fileCloser := operationCloser{file.Close}
+	defer func() { err = errors.Join(err, fileCloser.Close()) }()
+	data, err := readOpenFileContext(ctx, file, true)
 	if err != nil {
 		return err
 	}
@@ -112,7 +120,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
 	// Byte and metadata preflight share this handle. Release it before the
 	// existing replacement writer takes ownership: an ordinary Windows read
 	// handle does not share deletion and would block the final rename.
-	if err := file.Close(); err != nil {
+	if err := fileCloser.Close(); err != nil {
 		return err
 	}
 	return writeFile(ctx, path, out, opts.DryRun)
@@ -430,7 +438,8 @@ func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	fileCloser := operationCloser{f.Close}
+	defer func() { err = errors.Join(err, fileCloser.Close()) }()
 	generic, err := genericRemovalCandidate(ctx, f)
 	if err != nil {
 		return err
@@ -438,7 +447,7 @@ func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	if generic {
 		return removeGenericSignature(ctx, f, func() (*os.File, error) { return os.OpenFile(path, os.O_RDWR, 0) }, opts.AppleDouble)
 	}
-	data, err := readOpenFile(f, true)
+	data, err := readOpenFileContext(ctx, f, true)
 	if err != nil {
 		return err
 	}
@@ -446,7 +455,7 @@ func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	if err != nil {
 		return err
 	}
-	if err := f.Close(); err != nil {
+	if err := fileCloser.Close(); err != nil {
 		return err
 	}
 	return replaceFile(ctx, path, out)

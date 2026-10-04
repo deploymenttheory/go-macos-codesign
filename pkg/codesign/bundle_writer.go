@@ -318,18 +318,14 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if dryRun {
 		return nil, errors.Join(ctx.Err(), r.Close())
 	}
-	if _, err := r.File.WriteAt(write.data, 0); err != nil {
-		return nil, err
-	}
-	if err := r.File.Truncate(int64(len(write.data))); err != nil {
-		return nil, err
-	}
 	// Darwin's new executable inherits an earlier source modification time as
 	// its creation time. Other hosts retain their replacement metadata policy.
-	if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
-		return nil, err
-	}
-	if err := r.File.Sync(); err != nil {
+	if err := populateOutput(ctx, r.File, byteOutput(write.data), func() error {
+		if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
+			return err
+		}
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 	staged, err := r.File.Stat()
@@ -410,16 +406,16 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 	return errors.Join(p.replacement.File.Close(), p.replacement.closeSource())
 }
 
-func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) error {
+func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) (result error) {
 	file, err := openBundleExecutable(root, name, expected)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { result = errors.Join(result, file.Close()) }()
 	if err := accesstime.RecordReadAccess(file); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
 		return err
 	}
-	return file.Close()
+	return nil
 }
 
 func openBundleExecutable(root *os.Root, name string, expected os.FileInfo) (*os.File, error) {

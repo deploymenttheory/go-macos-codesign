@@ -14,13 +14,20 @@ confirmed a shared prerequisite: HFS+ sign, dry-run and remove succeed with Appl
 but fail during replacement preparation with released APFS v0.17.0.
 [Merged APFS PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
 the non-cloning fallback with its own portable and native qualification. This
-branch now consumes published v0.17.1 and refreshes the released API hash audit.
+project now consumes published v0.17.1 and retains the released API hash audit.
 All 63 applicable upstream CI checks passed, with 100% coverage of the new
 fallback files on each applicable host and audited native/source evidence.
 All six recaptured controls succeed and match native bytes. Another 108 local
 mounted APFS/HFS+ comparisons cover both writers, three architectures and ordinary,
 readonly and deny-write ACL profiles. They are added to strict CI without removing
-any previous case or artifact. Full three-OS qualification remains required.
+any previous case or artifact. PR98 merged after its full three-OS CI, native
+capture and foreign-signature verification passed.
+
+The current branch, cut from merged PR98, integrates [bounded operation I/O](operation-io.md)
+with cancellation and failure checkpoints across replacement and in-place writers.
+It adds 60 required portable outcomes for short/failing I/O, 64-bit offsets,
+close ownership and real filesystem cancellation. The new transfer implementation
+has 100% local statement coverage; the full branch CI remains required.
 Streaming, complete operation metadata profiles, cancellation, partial failures,
 identity checks and scheduling remain Phase 02 work.
 

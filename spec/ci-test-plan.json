@@ -1482,6 +1482,10 @@
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
+          "cases": 7,
+          "sha256": "ac498042581c7d78e67fccca578fa95b3a5a80391a033a110cb97a6f7185608d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleAccessCopyFailurePreservesExecutable": {
           "cases": 1,
           "sha256": "d1b5a3eb03d77bdcd0fb21f3312c2fbea44ea838a523ccb0ed7f524625cf7569"
@@ -1958,6 +1962,26 @@
           "cases": 1,
           "sha256": "9d3a455600781e5f527117bc1664bebfdcbad9c01bbdfa75fc4f68acbf7d6b6a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOperationCloseOwnership": {
+          "cases": 1,
+          "sha256": "8b89f9bfd7dda773aceb92d84588daad19e0293a494a29bcd4e500ca9a744254"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
+          "cases": 9,
+          "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
+          "cases": 14,
+          "sha256": "28cbea83042dbdb694e363b2497d215ca9e0f851afceceb5e5af7497c5399954"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferFaults": {
+          "cases": 22,
+          "sha256": "1932ba7b63949d0c630de9506931f0bfac43efbccd5ef2aa2f38a2bcc0f7b85a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
+          "cases": 1,
+          "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,
           "sha256": "55ea1f2336f6b116ca02def95851565f8845dc63d81e5b0761406abbf7cf1f0d"
@@ -2001,6 +2025,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPrivateKeyRejections": {
           "cases": 1,
           "sha256": "d10379e464427a100f376011c3b82930fe6b0ce7509fbf76b032277fc7b96b77"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReadOpenFileCancellation": {
+          "cases": 1,
+          "sha256": "1e79c1c2fdab935e72871d1f2960d4b41e8b33ea8e7624e2dd40856a358d3403"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestRealDeveloperChain": {
           "cases": 1,
@@ -2393,6 +2421,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTimestampPurpose": {
           "cases": 7,
           "sha256": "1a84b84938a0374e7b7a66bb922becd7783e6f8b8fbb529c7eec5fc8cd2bcd47"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTransferCancellationFilesystem": {
+          "cases": 5,
+          "sha256": "20da29573813cb1648c2f7f7cc4637326e7a07d0f7ec5493372ad059ed2350d8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestUnsignedNestedDryRunAllocation": {
           "cases": 13,
@@ -3635,6 +3667,10 @@
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
+          "cases": 7,
+          "sha256": "ac498042581c7d78e67fccca578fa95b3a5a80391a033a110cb97a6f7185608d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleAllocationFailureRetainsSourceReadError": {
           "cases": 1,
           "sha256": "5f8c1961837394f86e2405cd70b15eb52d3dcd2489c44f7ec3edbfdf9da49c3d"
@@ -4079,6 +4115,26 @@
           "cases": 1,
           "sha256": "9d3a455600781e5f527117bc1664bebfdcbad9c01bbdfa75fc4f68acbf7d6b6a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOperationCloseOwnership": {
+          "cases": 1,
+          "sha256": "8b89f9bfd7dda773aceb92d84588daad19e0293a494a29bcd4e500ca9a744254"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
+          "cases": 9,
+          "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
+          "cases": 14,
+          "sha256": "28cbea83042dbdb694e363b2497d215ca9e0f851afceceb5e5af7497c5399954"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferFaults": {
+          "cases": 22,
+          "sha256": "1932ba7b63949d0c630de9506931f0bfac43efbccd5ef2aa2f38a2bcc0f7b85a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
+          "cases": 1,
+          "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,
           "sha256": "55ea1f2336f6b116ca02def95851565f8845dc63d81e5b0761406abbf7cf1f0d"
@@ -4122,6 +4178,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPrivateKeyRejections": {
           "cases": 1,
           "sha256": "d10379e464427a100f376011c3b82930fe6b0ce7509fbf76b032277fc7b96b77"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReadOpenFileCancellation": {
+          "cases": 1,
+          "sha256": "1e79c1c2fdab935e72871d1f2960d4b41e8b33ea8e7624e2dd40856a358d3403"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestRealDeveloperChain": {
           "cases": 1,
@@ -4510,6 +4570,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTimestampPurpose": {
           "cases": 7,
           "sha256": "1a84b84938a0374e7b7a66bb922becd7783e6f8b8fbb529c7eec5fc8cd2bcd47"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTransferCancellationFilesystem": {
+          "cases": 5,
+          "sha256": "20da29573813cb1648c2f7f7cc4637326e7a07d0f7ec5493372ad059ed2350d8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestUnsignedNestedDryRunAllocation": {
           "cases": 13,
@@ -5752,6 +5816,10 @@
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
+          "cases": 7,
+          "sha256": "ac498042581c7d78e67fccca578fa95b3a5a80391a033a110cb97a6f7185608d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleAccessTimeWindowsHeldWriter": {
           "cases": 4,
           "sha256": "601532b8ba74421c6aadf15d725c7091acebd45ab11c46072339dd8acfc0286d"
@@ -6200,6 +6268,26 @@
           "cases": 1,
           "sha256": "9d3a455600781e5f527117bc1664bebfdcbad9c01bbdfa75fc4f68acbf7d6b6a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOperationCloseOwnership": {
+          "cases": 1,
+          "sha256": "8b89f9bfd7dda773aceb92d84588daad19e0293a494a29bcd4e500ca9a744254"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
+          "cases": 9,
+          "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
+          "cases": 14,
+          "sha256": "28cbea83042dbdb694e363b2497d215ca9e0f851afceceb5e5af7497c5399954"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferFaults": {
+          "cases": 22,
+          "sha256": "1932ba7b63949d0c630de9506931f0bfac43efbccd5ef2aa2f38a2bcc0f7b85a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
+          "cases": 1,
+          "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,
           "sha256": "55ea1f2336f6b116ca02def95851565f8845dc63d81e5b0761406abbf7cf1f0d"
@@ -6243,6 +6331,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPrivateKeyRejections": {
           "cases": 1,
           "sha256": "d10379e464427a100f376011c3b82930fe6b0ce7509fbf76b032277fc7b96b77"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReadOpenFileCancellation": {
+          "cases": 1,
+          "sha256": "1e79c1c2fdab935e72871d1f2960d4b41e8b33ea8e7624e2dd40856a358d3403"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestRealDeveloperChain": {
           "cases": 1,
@@ -6635,6 +6727,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTimestampPurpose": {
           "cases": 7,
           "sha256": "1a84b84938a0374e7b7a66bb922becd7783e6f8b8fbb529c7eec5fc8cd2bcd47"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestTransferCancellationFilesystem": {
+          "cases": 5,
+          "sha256": "20da29573813cb1648c2f7f7cc4637326e7a07d0f7ec5493372ad059ed2350d8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestUnsignedNestedDryRunAllocation": {
           "cases": 13,

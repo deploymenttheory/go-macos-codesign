@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Transfer standalone, bundle, envelope and DMG output in bounded chunks with
+  cancellation checkpoints and strict short-I/O handling. Preserve primary and
+  close failures, and check cancellation during standalone input reads. Add 60
+  portable lifecycle outcomes while retaining native writer and CI expectations.
+
 - Consume APFS v0.17.1 to enable Mach-O signing, dry runs and removal on HFS+
   through the shared replacement APIs. Add 108 mounted APFS/HFS+ comparisons
   for standalone and rooted bundle writers, including readonly and deny-write

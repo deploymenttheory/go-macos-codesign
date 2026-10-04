@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -13,7 +14,14 @@ import (
 )
 
 func readBounded(r io.Reader, limit int64) ([]byte, error) {
-	b, err := io.ReadAll(io.LimitReader(r, limit+1))
+	return readBoundedContext(context.Background(), r, limit)
+}
+
+func readBoundedContext(ctx context.Context, r io.Reader, limit int64) ([]byte, error) {
+	if limit < 0 || limit == math.MaxInt64 {
+		return nil, malformed("input memory limit")
+	}
+	b, err := io.ReadAll(io.LimitReader(operationReader{ctx, r}, limit+1))
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +35,7 @@ func replaceFile(ctx context.Context, path string, data []byte) error {
 	return writeFile(ctx, path, data, false)
 }
 
-func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error {
+func writeFile(ctx context.Context, path string, data []byte, dryRun bool) (result error) {
 	// Apple's UDIF writer updates the image in place; MachOEditor replaces its
 	// selected directory entry with a prepared copy, detaching every hard link.
 	if isDMG(data) {
@@ -49,7 +57,8 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	if err != nil {
 		return err
 	}
-	defer source.Close()
+	sourceCloser := operationCloser{source.Close}
+	defer func() { result = errors.Join(result, sourceCloser.Close()) }()
 	current, err := source.Stat()
 	if err != nil {
 		return err
@@ -61,32 +70,32 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	if err != nil {
 		return err
 	}
-	defer replacement.Close()
+	replacementCloser := operationCloser{replacement.Close}
+	defer func() { result = errors.Join(result, replacementCloser.Close()) }()
 	// Mach-O dry runs require a temporary allocation but do not restore metadata
 	// or commit it. This checks directory permissions without touching source bytes.
 	if dryRun {
-		return errors.Join(ctx.Err(), replacement.Close())
+		return ctx.Err()
 	}
 	f := replacement.File
-	if _, err := f.WriteAt(data, 0); err != nil {
-		return err
-	}
-	if err := f.Truncate(int64(len(data))); err != nil {
-		return err
-	}
-	if err := replacement.RestoreMetadata(); err != nil {
-		return err
-	}
-	if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
-		return err
-	}
-	if err := f.Sync(); err != nil {
+	if err := populateOutput(ctx, f, byteOutput(data), func() error {
+		if err := replacement.RestoreMetadata(); err != nil {
+			return err
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
+			return err
+		}
+		return nil
+	}); err != nil {
 		return err
 	}
 	if err := f.Close(); err != nil {
 		return err
 	}
-	if err := source.Close(); err != nil {
+	if err := sourceCloser.Close(); err != nil {
 		return err
 	}
 	if err := ctx.Err(); err != nil {
@@ -102,7 +111,7 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) error
 	return os.Rename(f.Name(), path)
 }
 
-func overwriteFile(ctx context.Context, path string, data []byte) error {
+func overwriteFile(ctx context.Context, path string, data []byte) (result error) {
 	st, err := os.Lstat(path)
 	if err != nil {
 		return err
@@ -119,25 +128,13 @@ func overwriteFile(ctx context.Context, path string, data []byte) error {
 	if err != nil {
 		return err
 	}
+	defer func() { result = errors.Join(result, f.Close()) }()
 	current, err := f.Stat()
 	if err != nil {
-		f.Close()
 		return err
 	}
 	if !os.SameFile(st, current) {
-		f.Close()
 		return fmt.Errorf("target changed during signing")
 	}
-	_, err = f.WriteAt(data, 0)
-	if err == nil {
-		err = f.Truncate(int64(len(data)))
-	}
-	if err == nil {
-		err = f.Sync()
-	}
-	closeErr := f.Close()
-	if err != nil {
-		return err
-	}
-	return closeErr
+	return populateOutput(ctx, f, byteOutput(data), nil)
 }
