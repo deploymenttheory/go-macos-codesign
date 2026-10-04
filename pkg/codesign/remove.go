@@ -1,26 +1,26 @@
 package codesign
 
-import "bytes"
+import "context"
 
-// removeImageSignature follows the deallocation rules recorded in
+// removeImageSource follows the deallocation rules recorded in
 // spec/apple-removal.json. In particular, the symbol string table determines
 // alignment padding; scanning trailing zero bytes would destroy real data.
-func removeImageSignature(im *image) ([]byte, error) {
+func removeImageSource(ctx context.Context, im *image, source outputSource) (outputSource, error) {
 	switch im.filetype {
 	case 2, 6, 7, 8, 11: // executable, dylib, dylinker, bundle, kext
 	default:
-		return nil, unsupported("Mach-O file type for signature removal")
+		return outputSource{}, unsupported("Mach-O file type for signature removal")
 	}
 	if im.linkedit < 0 {
-		return nil, malformed("missing LINKEDIT")
+		return outputSource{}, malformed("missing LINKEDIT")
 	}
 	if im.sigCommand < 0 {
-		return bytes.Clone(im.data), nil
+		return source, nil
 	}
 	// The parser has already bounded the signature range. Apple permits up to
 	// seven trailing bytes beyond it, regardless of their contents.
-	if uint64(len(im.data))-uint64(im.sigOffset)-uint64(im.sigSize) > 7 {
-		return nil, unsupported("signature is not at end of slice")
+	if uint64(source.size)-uint64(im.sigOffset)-uint64(im.sigSize) > 7 {
+		return outputSource{}, unsupported("signature is not at end of slice")
 	}
 	o, p := im.order, im.linkedit
 	linkStart := uint64(o.Uint32(im.data[p+32:]))
@@ -30,7 +30,7 @@ func removeImageSignature(im *image) ([]byte, error) {
 	}
 	end := uint64(im.sigOffset)
 	if linkStart > end {
-		return nil, malformed("signature precedes LINKEDIT")
+		return outputSource{}, malformed("signature precedes LINKEDIT")
 	}
 	seenSymbols := false
 	for _, cmd := range im.commands {
@@ -38,7 +38,7 @@ func removeImageSignature(im *image) ([]byte, error) {
 			continue
 		}
 		if cmd.size != 24 || seenSymbols {
-			return nil, malformed("symbol table command")
+			return outputSource{}, malformed("symbol table command")
 		}
 		seenSymbols = true
 		b := im.data[cmd.offset:]
@@ -54,21 +54,24 @@ func removeImageSignature(im *image) ([]byte, error) {
 			(stringsSize != 0 && stringsStart < max(linkStart, uint64(im.header)+uint64(o.Uint32(im.data[20:])))) ||
 			!rangeOK(symbolsStart, symbolCount*entrySize, end) ||
 			(symbolCount != 0 && symbolsStart < linkStart) {
-			return nil, malformed("symbol table range during removal")
+			return outputSource{}, malformed("symbol table range during removal")
 		}
 		stringsEnd := stringsStart + stringsSize
 		if end > stringsEnd && end-stringsEnd <= 12 {
 			if stringsEnd < linkStart || symbolsStart+symbolCount*entrySize > stringsEnd {
-				return nil, malformed("symbol table overlaps alignment padding")
+				return outputSource{}, malformed("symbol table overlaps alignment padding")
 			}
 			end = stringsEnd
 		}
 	}
 	commandsEnd := im.header + int(o.Uint32(im.data[20:]))
 	if end < uint64(commandsEnd) {
-		return nil, malformed("removal overlaps load commands")
+		return outputSource{}, malformed("removal overlaps load commands")
 	}
-	out := bytes.Clone(im.data[:end])
+	out, err := (codeSource{ctx, source}).read(0, uint64(commandsEnd))
+	if err != nil {
+		return outputSource{}, err
+	}
 	copy(out[im.sigCommand:], out[im.sigCommand+16:commandsEnd])
 	clear(out[commandsEnd-16 : commandsEnd])
 	o.PutUint32(out[16:], o.Uint32(out[16:])-1)
@@ -83,5 +86,5 @@ func removeImageSignature(im *image) ([]byte, error) {
 	} else {
 		o.PutUint32(out[p+36:], uint32(end-linkStart))
 	}
-	return out, nil
+	return patchedOutput(source, int64(end), outputSpan{0, byteOutput(out)})
 }

@@ -111,6 +111,7 @@
     "TestIgnoreResourcesNestedBundles": 2,
     "TestIgnoreResourcesStructure": 3,
     "TestLargeDMGSigning": 1,
+    "TestLargeMachOMutation": 3,
     "TestLargeSourceVerification": 1,
     "TestLayoutMutationParity": 0,
     "TestLayoutRemoval": 0,
@@ -233,6 +234,7 @@
     "TestVerifyImportedArtifacts": 2,
     "TestVerifyImportedDMGDryRuns": 2,
     "TestVerifyImportedLargeDMGs": 3,
+    "TestVerifyImportedLargeMachO": 3,
     "TestVerifyImportedRemoval": 2
   },
   "baseline": {
@@ -696,6 +698,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeDMGSigning": {
           "cases": 10,
           "sha256": "d07f52d907b04f7adcfba4c15026a3d069477fc03b7ed2cc9365d02f3e48c3c0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeMachOMutation": {
+          "cases": 13,
+          "sha256": "f0d7ed77e15d37acde8fbad812d1a97cace64b99a64e0ca2d08a8957a2844afa"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
           "cases": 10,
@@ -1185,6 +1191,10 @@
           "cases": 1,
           "sha256": "db94d73ac641740a7f0fd16db15c1755ea804290aeda1700542136705ba7750a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedLargeMachO": {
+          "cases": 1,
+          "sha256": "5b733d2792ccba66ecf75a030fc4c34402478c89b155f15bfeeaa353f52ade2f"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
@@ -1210,8 +1220,8 @@
         "github.com/spf13/afero/mem"
       ],
       "exports": {
-        "count": 9733,
-        "sha256": "93d93ec0adc9e3f279ffcf1e1eed2ab6d30cfe317bc67bbe96596362b6e1051b"
+        "count": 9742,
+        "sha256": "7aa80ab9627e9e61b590c4c12c2afe109d452b009d4f73a0ccad1941be0bc11f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {
@@ -1974,6 +1984,18 @@
           "cases": 1,
           "sha256": "016c691b2563251203cf0d016671a22885fbb1aa37af38adcf59e9d427cf6ce4"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStagingFailures": {
+          "cases": 11,
+          "sha256": "f6d60920529c12ff647c0019c905b8e59751e9a251128488409c1a6519ef7c2c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingAllocation": {
+          "cases": 9,
+          "sha256": "af519994076af749dd51542e85c3b36d0f430a924fc412f22d5ca169c55f92ce"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingFAT": {
+          "cases": 3,
+          "sha256": "0185dd9fe59c81bbb8a51a44aab2b0ca61039479f1d137cd62de2791eb2eeeb9"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMalformedCertificates": {
           "cases": 12,
           "sha256": "bc3e692686628b7f36d0dbbca7d340ac4ef1e1c00ca29a98230054d20605c3ad"
@@ -2025,6 +2047,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
           "cases": 9,
           "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanFailures": {
+          "cases": 26,
+          "sha256": "8c5c3f66b437206871179848bf06959d955cbff0063f81483062bb8014a1b27b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanPatches": {
+          "cases": 9,
+          "sha256": "27c804105c138e57d03704e3c61d84db2b424e63b14535bbaa90f46c416a6681"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
           "cases": 14,
@@ -2425,6 +2455,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandaloneReadAccessBounds": {
           "cases": 3,
           "sha256": "e311df74fb7a5aa5ef548608f8020772a968a69ee1a167872929216727b186c5"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStreamingCodePages": {
+          "cases": 30,
+          "sha256": "e57b97e5017f159537fdbf9e87c8c4109a1dea0a1d743892865db2c17f64cbf4"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStrictLayout": {
           "cases": 1,
@@ -3010,6 +3044,10 @@
           "cases": 10,
           "sha256": "d07f52d907b04f7adcfba4c15026a3d069477fc03b7ed2cc9365d02f3e48c3c0"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeMachOMutation": {
+          "cases": 13,
+          "sha256": "f0d7ed77e15d37acde8fbad812d1a97cace64b99a64e0ca2d08a8957a2844afa"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
           "cases": 10,
           "sha256": "5e4296c13c0955677e50d9e1c7adca6e626960b184c9b9b18d5c189dd7c68aeb"
@@ -3450,6 +3488,10 @@
           "cases": 1,
           "sha256": "db94d73ac641740a7f0fd16db15c1755ea804290aeda1700542136705ba7750a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedLargeMachO": {
+          "cases": 1,
+          "sha256": "5b733d2792ccba66ecf75a030fc4c34402478c89b155f15bfeeaa353f52ade2f"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
@@ -3475,8 +3517,8 @@
         "github.com/spf13/afero/mem"
       ],
       "exports": {
-        "count": 9733,
-        "sha256": "93d93ec0adc9e3f279ffcf1e1eed2ab6d30cfe317bc67bbe96596362b6e1051b"
+        "count": 9742,
+        "sha256": "7aa80ab9627e9e61b590c4c12c2afe109d452b009d4f73a0ccad1941be0bc11f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {
@@ -4207,6 +4249,18 @@
           "cases": 1,
           "sha256": "016c691b2563251203cf0d016671a22885fbb1aa37af38adcf59e9d427cf6ce4"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStagingFailures": {
+          "cases": 11,
+          "sha256": "f6d60920529c12ff647c0019c905b8e59751e9a251128488409c1a6519ef7c2c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingAllocation": {
+          "cases": 9,
+          "sha256": "af519994076af749dd51542e85c3b36d0f430a924fc412f22d5ca169c55f92ce"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingFAT": {
+          "cases": 3,
+          "sha256": "0185dd9fe59c81bbb8a51a44aab2b0ca61039479f1d137cd62de2791eb2eeeb9"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMalformedCertificates": {
           "cases": 12,
           "sha256": "bc3e692686628b7f36d0dbbca7d340ac4ef1e1c00ca29a98230054d20605c3ad"
@@ -4258,6 +4312,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
           "cases": 9,
           "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanFailures": {
+          "cases": 26,
+          "sha256": "8c5c3f66b437206871179848bf06959d955cbff0063f81483062bb8014a1b27b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanPatches": {
+          "cases": 9,
+          "sha256": "27c804105c138e57d03704e3c61d84db2b424e63b14535bbaa90f46c416a6681"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
           "cases": 14,
@@ -4654,6 +4716,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandalonePathAST": {
           "cases": 1,
           "sha256": "f6618fe7369ff005030fff8e88b1c21258261dcade10e748d6dce97b430cff7a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStreamingCodePages": {
+          "cases": 30,
+          "sha256": "e57b97e5017f159537fdbf9e87c8c4109a1dea0a1d743892865db2c17f64cbf4"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStrictLayout": {
           "cases": 1,
@@ -5239,6 +5305,10 @@
           "cases": 10,
           "sha256": "d07f52d907b04f7adcfba4c15026a3d069477fc03b7ed2cc9365d02f3e48c3c0"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeMachOMutation": {
+          "cases": 13,
+          "sha256": "f0d7ed77e15d37acde8fbad812d1a97cace64b99a64e0ca2d08a8957a2844afa"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
           "cases": 10,
           "sha256": "5e4296c13c0955677e50d9e1c7adca6e626960b184c9b9b18d5c189dd7c68aeb"
@@ -5679,6 +5749,10 @@
           "cases": 1,
           "sha256": "db94d73ac641740a7f0fd16db15c1755ea804290aeda1700542136705ba7750a"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedLargeMachO": {
+          "cases": 1,
+          "sha256": "5b733d2792ccba66ecf75a030fc4c34402478c89b155f15bfeeaa353f52ade2f"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
@@ -5704,8 +5778,8 @@
         "github.com/spf13/afero/mem"
       ],
       "exports": {
-        "count": 9733,
-        "sha256": "93d93ec0adc9e3f279ffcf1e1eed2ab6d30cfe317bc67bbe96596362b6e1051b"
+        "count": 9742,
+        "sha256": "7aa80ab9627e9e61b590c4c12c2afe109d452b009d4f73a0ccad1941be0bc11f"
       },
       "unit": {
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestAppleDoubleArguments": {
@@ -6440,6 +6514,18 @@
           "cases": 1,
           "sha256": "016c691b2563251203cf0d016671a22885fbb1aa37af38adcf59e9d427cf6ce4"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStagingFailures": {
+          "cases": 11,
+          "sha256": "f6d60920529c12ff647c0019c905b8e59751e9a251128488409c1a6519ef7c2c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingAllocation": {
+          "cases": 9,
+          "sha256": "af519994076af749dd51542e85c3b36d0f430a924fc412f22d5ca169c55f92ce"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOStreamingFAT": {
+          "cases": 3,
+          "sha256": "0185dd9fe59c81bbb8a51a44aab2b0ca61039479f1d137cd62de2791eb2eeeb9"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMalformedCertificates": {
           "cases": 12,
           "sha256": "bc3e692686628b7f36d0dbbca7d340ac4ef1e1c00ca29a98230054d20605c3ad"
@@ -6491,6 +6577,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputLifecycleFailures": {
           "cases": 9,
           "sha256": "845dd6abb8160717ef63876c6e9b45f4eea94e11c65f99cd7e2c96644d236313"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanFailures": {
+          "cases": 26,
+          "sha256": "8c5c3f66b437206871179848bf06959d955cbff0063f81483062bb8014a1b27b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputPlanPatches": {
+          "cases": 9,
+          "sha256": "27c804105c138e57d03704e3c61d84db2b424e63b14535bbaa90f46c416a6681"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferBounds": {
           "cases": 14,
@@ -6891,6 +6985,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandalonePathAST": {
           "cases": 1,
           "sha256": "f6618fe7369ff005030fff8e88b1c21258261dcade10e748d6dce97b430cff7a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStreamingCodePages": {
+          "cases": 30,
+          "sha256": "e57b97e5017f159537fdbf9e87c8c4109a1dea0a1d743892865db2c17f64cbf4"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStrictLayout": {
           "cases": 1,

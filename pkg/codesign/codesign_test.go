@@ -151,7 +151,28 @@ func FuzzInspect(f *testing.F) {
 				t.Fatal("requirement checks changed verified input or result")
 			}
 		}
-		_, _ = SignBytes(context.Background(), b, SignOptions{Identifier: "fuzz", Force: true})
-		_, _ = RemoveSignatureBytes(context.Background(), b)
+		signOptions := SignOptions{Identifier: "fuzz", Force: true}
+		signed, signErr := SignBytes(context.Background(), b, signOptions)
+		removed, removeErr := RemoveSignatureBytes(context.Background(), b)
+		if !isDMG(b) {
+			for _, operation := range []struct {
+				opts *SignOptions
+				want []byte
+				err  error
+			}{{&signOptions, signed, signErr}, {nil, removed, removeErr}} {
+				c, err := source.container()
+				if err != nil {
+					continue
+				}
+				output, err := c.mutateSource(context.Background(), source.source, operation.opts)
+				var got []byte
+				if err == nil {
+					got, err = materializeOutput(context.Background(), output)
+				}
+				if fmt.Sprint(err) != fmt.Sprint(operation.err) || !bytes.Equal(got, operation.want) {
+					t.Fatal("byte/range mutation drift", err, operation.err)
+				}
+			}
+		}
 	})
 }

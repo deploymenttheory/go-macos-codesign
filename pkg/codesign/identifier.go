@@ -34,6 +34,10 @@ func machoIdentifier(path string, data []byte, adhoc bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return c.identifier(path, adhoc)
+}
+
+func (c *container) identifier(path string, adhoc bool) (string, error) {
 	name := canonicalIdentifier(path)
 	if !adhoc || strings.Contains(name, ".") {
 		return name, nil

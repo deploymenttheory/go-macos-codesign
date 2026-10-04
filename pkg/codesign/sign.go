@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"math/bits"
 	"os"
 	"time"
@@ -56,11 +57,18 @@ func readOpenFileContext(ctx context.Context, f *os.File, recordAccess bool) ([]
 	}
 	// Native Mach-O signing maps its input; UDIF and read-only operations do not.
 	if recordAccess && !isDMG(data) {
-		if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
+		if err := recordMachORead(f); err != nil {
 			return nil, err
 		}
 	}
 	return data, nil
+}
+
+func recordMachORead(f *os.File) error {
+	if err := accesstime.RecordReadAccess(f); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
+		return err
+	}
+	return nil
 }
 
 // Sign constructs output before writing a Mach-O, supported app bundle, or UDIF
@@ -98,43 +106,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
 	if dmg {
 		return signDMGFile(ctx, file, path, source, opts)
 	}
-	data, err := readOpenFileContext(ctx, file, true)
-	if err != nil {
-		return err
-	}
-	notifyReplacement(data, opts)
-	if !opts.Force && signingHasSignature(data) {
-		return ErrSigned
-	}
-	if !isDMG(data) {
-		if _, err := parseContainer(data); err != nil {
-			return err
-		}
-		if err := signingSideband(ctx, file, path, opts.AppleDouble, opts, false); err != nil {
-			return err
-		}
-	}
-	if opts.Identifier == "" {
-		if isDMG(data) {
-			opts.Identifier, err = dmgIdentifier(path, data, opts.Identity == nil)
-		} else {
-			opts.Identifier, err = machoIdentifier(path, data, opts.Identity == nil)
-		}
-		if err != nil {
-			return err
-		}
-	}
-	out, err := signBytes(ctx, data, opts, opts.DryRun)
-	if err != nil {
-		return err
-	}
-	// Byte and metadata preflight share this handle. Release it before the
-	// existing replacement writer takes ownership: an ordinary Windows read
-	// handle does not share deletion and would block the final rename.
-	if err := fileCloser.Close(); err != nil {
-		return err
-	}
-	return writeFile(ctx, path, out, opts.DryRun)
+	return mutateMachOFile(ctx, file, &fileCloser, path, source, &opts)
 }
 
 // A replacement notice describes a readable signature, not its validity. Reuse
@@ -215,31 +187,22 @@ func signBytes(ctx context.Context, data []byte, opts SignOptions, dmgDryRun boo
 	if err != nil {
 		return nil, err
 	}
-	parts := make([][]byte, len(c.slices))
-	for i, s := range c.slices {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-		parts[i], err = signImage(ctx, s.image, opts)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", archName(s.cpu, s.subtype), err)
-		}
-		if c.fat && c.slices[i].alignment < 14 {
-			c.slices[i].alignment = 14
-		}
+	out, err := c.mutateSource(ctx, byteOutput(data), &opts)
+	if err != nil {
+		return nil, err
 	}
-	return c.assemble(parts)
+	return materializeOutput(ctx, out)
 }
 
-func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error) {
+func signImageSource(ctx context.Context, im *image, source outputSource, opts SignOptions) (outputSource, error) {
 	if im.sigCommand >= 0 && !opts.Force {
-		return nil, ErrSigned
+		return outputSource{}, ErrSigned
 	}
 	if im.filetype != 2 && im.filetype != 6 && im.filetype != 8 {
-		return nil, unsupported(fmt.Sprintf("Mach-O file type %d", im.filetype))
+		return outputSource{}, unsupported(fmt.Sprintf("Mach-O file type %d", im.filetype))
 	}
 	if im.linkedit < 0 {
-		return nil, malformed("missing LINKEDIT")
+		return outputSource{}, malformed("missing LINKEDIT")
 	}
 	page := opts.PageSize
 	if page == 0 {
@@ -249,21 +212,24 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		}
 	}
 	if page < 1 || page&(page-1) != 0 || page > 1<<30 {
-		return nil, fmt.Errorf("page size must be a power of two at most 1 GiB")
+		return outputSource{}, fmt.Errorf("page size must be a power of two at most 1 GiB")
 	}
 	reqs := opts.Requirements
 	if len(reqs) == 0 {
 		reqs = superblob(MagicRequirements, nil)
 	}
-	codeEnd := len(im.data)
+	codeEnd := source.size
 	if im.sigCommand >= 0 {
-		if uint64(im.sigOffset)+uint64(im.sigSize) != uint64(len(im.data)) {
-			return nil, unsupported("signature is not at end of slice")
+		if uint64(im.sigOffset)+uint64(im.sigSize) != uint64(source.size) {
+			return outputSource{}, unsupported("signature is not at end of slice")
 		}
-		codeEnd = int(im.sigOffset)
+		codeEnd = int64(im.sigOffset)
+	}
+	if source.size < 0 || source.size > math.MaxUint32 {
+		return outputSource{}, allocationError("Mach-O input exceeds 32-bit allocation size")
 	}
 	codeEnd = (codeEnd + 15) &^ 15
-	nPages := (codeEnd + int(page) - 1) / int(page)
+	nPages := (codeEnd + int64(page) - 1) / int64(page)
 	special := uint32(2)
 	if len(opts.Resources) > 0 {
 		special = 3
@@ -276,7 +242,7 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	if len(opts.Entitlements) > 0 && (im.filetype == 2 || opts.ForceLibraryEntitlements) {
 		xml, der, err := EncodeEntitlements(opts.Entitlements)
 		if err != nil {
-			return nil, err
+			return outputSource{}, err
 		}
 		blobs = append(blobs, Blob{Slot: SlotEntitlements, Data: blob(MagicEntitlements, xml)}, Blob{Slot: SlotDEREntitlements, Data: blob(MagicDEREntitlements, der)})
 		execFlags |= entitlementExecFlags(xml)
@@ -300,10 +266,10 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	if opts.teamID != "" {
 		teamSize = len(opts.teamID) + 1
 	}
-	cdSize := header + len(opts.Identifier) + 1 + teamSize + (int(special)+nPages)*32
-	sigLen := 12 + (len(blobs)+1)*8 + cdSize
+	cdSize := int64(header) + int64(len(opts.Identifier)) + 1 + int64(teamSize) + (int64(special)+nPages)*32
+	sigLen := int64(12+(len(blobs)+1)*8) + cdSize
 	for _, b := range blobs {
-		sigLen += len(b.Data)
+		sigLen += int64(len(b.Data))
 	}
 	// Apple's first pass reserves a current-version CodeDirectory, even when
 	// the emitted directory needs the shorter 0x20400 header. The 8-byte delta
@@ -313,19 +279,30 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		// Replace the empty wrapper already counted above, then align once.
 		sigLen += defaultCMSSize - 8
 	}
-	sigSize := (sigLen + max(96-header, 0) + 15) &^ 15
-	if codeEnd+sigSize > maxFileSize {
-		return nil, unsupported("output exceeds memory limit")
+	sigSize := (sigLen + int64(max(96-header, 0)) + 15) &^ 15
+	if cdSize > maxFileSize || sigSize > maxFileSize {
+		return outputSource{}, unsupported("signature metadata exceeds memory limit")
 	}
-	out := make([]byte, codeEnd+sigSize)
-	// Apple's allocator copies the existing slice before writing the new blob.
-	// Old signature bytes beyond a shorter blob remain within the new allocation.
-	copy(out, im.data)
+	end := codeEnd + sigSize
+	if end > math.MaxUint32 {
+		return outputSource{}, allocationError("Mach-O output exceeds 32-bit allocation size")
+	}
+	headSize := im.header + int(im.order.Uint32(im.data[20:]))
+	if im.sigCommand < 0 {
+		headSize += 16
+	}
+	if int64(headSize) > source.size {
+		return outputSource{}, unsupported("no room for LC_CODE_SIGNATURE")
+	}
+	out, err := (codeSource{ctx, source}).read(0, uint64(headSize))
+	if err != nil {
+		return outputSource{}, err
+	}
 	pos := im.sigCommand
 	if pos < 0 {
 		pos = im.header + int(im.order.Uint32(out[20:]))
 		if uint64(pos+16) > im.firstSection || !bytes.Equal(out[pos:pos+16], make([]byte, 16)) {
-			return nil, unsupported("no room for LC_CODE_SIGNATURE")
+			return outputSource{}, unsupported("no room for LC_CODE_SIGNATURE")
 		}
 		im.order.PutUint32(out[16:], im.order.Uint32(out[16:])+1)
 		im.order.PutUint32(out[20:], im.order.Uint32(out[20:])+16)
@@ -335,7 +312,11 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	o.PutUint32(out[pos+4:], 16)
 	o.PutUint32(out[pos+8:], uint32(codeEnd))
 	o.PutUint32(out[pos+12:], uint32(sigSize))
-	updateLinkedit(out, im, len(out))
+	updateLinkedit(out, im, end)
+	patched, err := patchedOutput(source, end, outputSpan{0, byteOutput(out)})
+	if err != nil {
+		return outputSource{}, err
+	}
 	cd := make([]byte, cdSize)
 	be.PutUint32(cd, MagicDirectory)
 	be.PutUint32(cd[4:], uint32(cdSize))
@@ -370,7 +351,7 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		if b.Slot < 0x1000 {
 			h, err := digestContext(ctx, 2, b.Data)
 			if err != nil {
-				return nil, err
+				return outputSource{}, err
 			}
 			copy(cd[hashOff-int(b.Slot)*32:], h)
 		}
@@ -379,28 +360,23 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		if len(data) > 0 {
 			h, err := digestContext(ctx, 2, data)
 			if err != nil {
-				return nil, err
+				return outputSource{}, err
 			}
 			copy(cd[hashOff-int(slot)*32:], h)
 		}
 	}
-	for i := 0; i < nPages; i++ {
-		start := i * int(page)
-		h, err := digestContext(ctx, 2, out[start:min(start+int(page), codeEnd)])
-		if err != nil {
-			return nil, err
-		}
-		copy(cd[hashOff+i*32:], h)
+	if err := hashCodePages(ctx, outputSource{patched.reader, 0, codeEnd}, page, cd[hashOff:]); err != nil {
+		return outputSource{}, err
 	}
 	if opts.Identity != nil {
 		cms, err := SignCMS(ctx, opts.Identity, [][]byte{cd}, opts.SigningTime)
 		if err != nil {
-			return nil, err
+			return outputSource{}, err
 		}
 		if opts.Timestamp != nil {
 			cms, err = TimestampCMS(ctx, cms, [][]byte{cd}, *opts.Timestamp)
 			if err != nil {
-				return nil, err
+				return outputSource{}, err
 			}
 		}
 		for i := range blobs {
@@ -410,14 +386,13 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 		}
 	}
 	sig := superblob(MagicSignature, append(blobs, Blob{Slot: SlotDirectory, Data: cd}))
-	if len(sig) > sigSize {
-		return nil, invalid("CMS exceeds reserved signature space")
+	if int64(len(sig)) > sigSize {
+		return outputSource{}, invalid("CMS exceeds reserved signature space")
 	}
-	copy(out[codeEnd:], sig)
-	return out, nil
+	return patchedOutput(source, end, outputSpan{0, byteOutput(out)}, outputSpan{codeEnd, byteOutput(sig)})
 }
 
-func updateLinkedit(out []byte, im *image, end int) {
+func updateLinkedit(out []byte, im *image, end int64) {
 	p := im.linkedit
 	o := im.order
 	if o.Uint32(out[p:]) == 0x19 {
@@ -474,18 +449,18 @@ func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	if generic {
 		return removeGenericSignature(ctx, f, func() (*os.File, error) { return os.OpenFile(path, os.O_RDWR, 0) }, opts.AppleDouble)
 	}
-	data, err := readOpenFileContext(ctx, f, true)
+	source, err := openCodeSource(ctx, f)
 	if err != nil {
 		return err
 	}
-	out, err := RemoveSignatureBytes(ctx, data)
+	dmg, err := source.isDMG()
 	if err != nil {
 		return err
 	}
-	if err := fileCloser.Close(); err != nil {
-		return err
+	if dmg {
+		return unsupported("signature removal for disk images")
 	}
-	return replaceFile(ctx, path, out)
+	return mutateMachOFile(ctx, f, &fileCloser, path, source, nil)
 }
 
 func RemoveSignatureBytes(ctx context.Context, data []byte) ([]byte, error) {
@@ -496,18 +471,9 @@ func RemoveSignatureBytes(ctx context.Context, data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	parts := make([][]byte, len(c.slices))
-	for i, s := range c.slices {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-		parts[i], err = removeImageSignature(s.image)
-		if err != nil {
-			return nil, err
-		}
-		if c.fat {
-			c.slices[i].alignment = 14
-		}
+	out, err := c.mutateSource(ctx, byteOutput(data), nil)
+	if err != nil {
+		return nil, err
 	}
-	return c.assemble(parts)
+	return materializeOutput(ctx, out)
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"math"
 )
 
 type loadCommand struct {
@@ -270,44 +269,4 @@ func archName(cpu, sub uint32) string {
 	default:
 		return fmt.Sprintf("cpu-%x-%x", cpu, sub)
 	}
-}
-
-func (c *container) assemble(parts [][]byte) ([]byte, error) {
-	if !c.fat {
-		return parts[0], nil
-	}
-	entry := 20
-	if c.fat64 {
-		entry = 32
-	}
-	end := uint64(8 + len(parts)*entry)
-	offsets := make([]uint64, len(parts))
-	for i, b := range parts {
-		alignment := uint64(1) << c.slices[i].alignment
-		end = (end + alignment - 1) &^ (alignment - 1)
-		offsets[i] = end
-		end += uint64(len(b))
-		if end > math.MaxUint32 && !c.fat64 {
-			return nil, unsupported("universal file exceeds 32-bit offsets")
-		}
-	}
-	if end > maxFileSize {
-		return nil, unsupported("output exceeds memory limit")
-	}
-	out := make([]byte, int(end))
-	copy(out, c.data[:8+len(parts)*entry])
-	for i, b := range parts {
-		p := 8 + i*entry
-		if c.fat64 {
-			c.order.PutUint64(out[p+8:], offsets[i])
-			c.order.PutUint64(out[p+16:], uint64(len(b)))
-			c.order.PutUint32(out[p+24:], c.slices[i].alignment)
-		} else {
-			c.order.PutUint32(out[p+8:], uint32(offsets[i]))
-			c.order.PutUint32(out[p+12:], uint32(len(b)))
-			c.order.PutUint32(out[p+16:], c.slices[i].alignment)
-		}
-		copy(out[offsets[i]:], b)
-	}
-	return out, nil
 }

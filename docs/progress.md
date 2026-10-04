@@ -45,11 +45,19 @@ capture also corrects the CodeDirectory 64-bit limit precedence. The local
 4 GiB + 1-byte API control allocates 76,536 Go bytes during verification; this is
 not a total-process memory claim. PR101 completed its required CI before merging.
 
-The current branch starts from PR101 main and integrates [streaming DMG signing](dmg-streaming.md):
+Merged PR102 integrates [streaming DMG signing](dmg-streaming.md):
 first sign, force re-sign and ad-hoc dry run hash held payload ranges and update
 only signature/trailer bytes. Native byte controls cover all nine large boundaries;
 new portable failure tests and eighteen reconstructed foreign images extend the
 existing harness. The 4 GiB + 1-byte local signing control allocated 81,128 Go bytes.
+
+The current branch starts from merged PR102 and adds [streaming Mach-O mutation](macho-streaming.md):
+standalone sign/re-sign/remove/dry-run operations share checked output plans with
+the byte APIs and retain the held source through SDK metadata restoration. Twelve
+native controls cover thin and universal inputs, native 32-bit allocation limits
+and a populated-region case. Portable acceptance compares complete native hashes;
+nine signed outputs per foreign producer are exported for native verification.
+The virtual 1 GiB-plus-one allocation regression measured 4,306,328 Go bytes locally.
 Full branch CI and per-OS coverage qualification remain required.
 
 Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
