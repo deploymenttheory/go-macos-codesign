@@ -9,8 +9,8 @@ owners is promoted to full parity by the prerequisite work below.
 ## Agreed file-processing architecture
 
 Phase 02 includes re-architecting the path-based file-processing pipeline to
-remove the arbitrary 1 GiB ceiling. This is planned work; the current parsers and
-builders still hold whole-file byte slices. The signing policy, codecs, APFS
+remove the arbitrary 1 GiB ceiling. Standalone read-only range integration is described [here](source-range-io.md);
+signing and bundle builders still hold whole-file byte slices. The signing policy, codecs, APFS
 integration and existing acceptance harness remain the foundation.
 
 | Component | Required implementation |
@@ -130,8 +130,9 @@ operation-specific metadata policy; changing the SDK transport does not settle i
 ## Remaining integration work
 
 Merged PR99 integrates [bounded operation I/O and cancellation](operation-io.md)
-across existing writers. Draft PR100 extends incremental hashing and its evidence;
-neither change removes the whole-file parsers/builders or the 1 GiB ceiling.
+across existing writers. Merged PR100 extends incremental hashing and its evidence. Standalone
+inspection/verification now use [source ranges](source-range-io.md); signing and
+bundle processing still require whole-file builders and retain their size limits.
 
 Complete the agreed pipeline above and the rest of Phase 02:
 metadata/compression profiles, cancellation, partial failures, source identity,

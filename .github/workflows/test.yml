@@ -129,6 +129,10 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Check held-file Apple readers with both Clang targets
+        run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
+      - name: Recapture native large-file signatures and strict verification
+        run: go run scripts/probe-large-source.go -check -out artifacts/large-source.json
       - name: Check native incremental digest boundary corpus
         run: go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json
       - name: Check pinned Apple hashing methods with both Clang targets

@@ -110,6 +110,7 @@
     "TestIgnoreResourcesJSON": 2,
     "TestIgnoreResourcesNestedBundles": 2,
     "TestIgnoreResourcesStructure": 3,
+    "TestLargeSourceVerification": 1,
     "TestLayoutMutationParity": 0,
     "TestLayoutRemoval": 0,
     "TestMixedLayoutTimestamps": 0,
@@ -689,6 +690,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResourcesStructure": {
           "cases": 40,
           "sha256": "b0dd4afe20b8ca7ba945dc51f1a5337a1a709931ce04d0b1d9e86c2613519eef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
+          "cases": 10,
+          "sha256": "5e4296c13c0955677e50d9e1c7adca6e626960b184c9b9b18d5c189dd7c68aeb"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLayoutMutationParity": {
           "cases": 40,
@@ -1911,6 +1916,10 @@
           "cases": 12,
           "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHeldSourceLifecycle": {
+          "cases": 10,
+          "sha256": "e1ddecf8f2ac0fd4717e857040540052190aad10b1dd30633c591cd212a8d44d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -2350,6 +2359,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
+          "cases": 6,
+          "sha256": "b68abe1f3876c8fa4d3f02649203bbbd755d6745f3ee0c3d18634a039a394aee"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceCodeLimitPrecedence": {
+          "cases": 14,
+          "sha256": "a64744efbfbd5e14eb64efe66638322564717d67c3470dd4270e6a897c5b3928"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceFixtureParity": {
+          "cases": 21,
+          "sha256": "d3651c6e9e4c201180bf76ba7ceb2083675460ed28b32831c4196da74619f563"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceLargeMemoryBound": {
+          "cases": 1,
+          "sha256": "d8740509805e35ba074555b9f23a3c4e4775d1831767b2bb530ffaee14fa99be"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceMalformedAndOffsetParity": {
+          "cases": 1,
+          "sha256": "91f8098c523e57e4c075c2a2dee4124b0b0e2f3024100007016273efc8f37a12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceReadFaults": {
+          "cases": 10,
+          "sha256": "48ef3f1a723b1c271770b2c2bbda864d287bab23dabc7bd33a37579a9a0d574d"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandaloneAliasErrors": {
           "cases": 4,
@@ -2946,6 +2979,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResourcesStructure": {
           "cases": 40,
           "sha256": "b0dd4afe20b8ca7ba945dc51f1a5337a1a709931ce04d0b1d9e86c2613519eef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
+          "cases": 10,
+          "sha256": "5e4296c13c0955677e50d9e1c7adca6e626960b184c9b9b18d5c189dd7c68aeb"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLayoutMutationParity": {
           "cases": 1,
@@ -4088,6 +4125,10 @@
           "cases": 12,
           "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHeldSourceLifecycle": {
+          "cases": 10,
+          "sha256": "e1ddecf8f2ac0fd4717e857040540052190aad10b1dd30633c591cd212a8d44d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -4527,6 +4568,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
+          "cases": 6,
+          "sha256": "b68abe1f3876c8fa4d3f02649203bbbd755d6745f3ee0c3d18634a039a394aee"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceCodeLimitPrecedence": {
+          "cases": 14,
+          "sha256": "a64744efbfbd5e14eb64efe66638322564717d67c3470dd4270e6a897c5b3928"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceFixtureParity": {
+          "cases": 21,
+          "sha256": "d3651c6e9e4c201180bf76ba7ceb2083675460ed28b32831c4196da74619f563"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceLargeMemoryBound": {
+          "cases": 1,
+          "sha256": "d8740509805e35ba074555b9f23a3c4e4775d1831767b2bb530ffaee14fa99be"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceMalformedAndOffsetParity": {
+          "cases": 1,
+          "sha256": "91f8098c523e57e4c075c2a2dee4124b0b0e2f3024100007016273efc8f37a12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceReadFaults": {
+          "cases": 10,
+          "sha256": "48ef3f1a723b1c271770b2c2bbda864d287bab23dabc7bd33a37579a9a0d574d"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandaloneAliasErrors": {
           "cases": 4,
@@ -5119,6 +5184,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResourcesStructure": {
           "cases": 40,
           "sha256": "b0dd4afe20b8ca7ba945dc51f1a5337a1a709931ce04d0b1d9e86c2613519eef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLargeSourceVerification": {
+          "cases": 10,
+          "sha256": "5e4296c13c0955677e50d9e1c7adca6e626960b184c9b9b18d5c189dd7c68aeb"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestLayoutMutationParity": {
           "cases": 1,
@@ -6265,6 +6334,10 @@
           "cases": 12,
           "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHeldSourceLifecycle": {
+          "cases": 10,
+          "sha256": "e1ddecf8f2ac0fd4717e857040540052190aad10b1dd30633c591cd212a8d44d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -6708,6 +6781,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
+          "cases": 6,
+          "sha256": "b68abe1f3876c8fa4d3f02649203bbbd755d6745f3ee0c3d18634a039a394aee"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceCodeLimitPrecedence": {
+          "cases": 14,
+          "sha256": "a64744efbfbd5e14eb64efe66638322564717d67c3470dd4270e6a897c5b3928"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceFixtureParity": {
+          "cases": 21,
+          "sha256": "d3651c6e9e4c201180bf76ba7ceb2083675460ed28b32831c4196da74619f563"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceLargeMemoryBound": {
+          "cases": 1,
+          "sha256": "d8740509805e35ba074555b9f23a3c4e4775d1831767b2bb530ffaee14fa99be"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceMalformedAndOffsetParity": {
+          "cases": 1,
+          "sha256": "91f8098c523e57e4c075c2a2dee4124b0b0e2f3024100007016273efc8f37a12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceReadFaults": {
+          "cases": 10,
+          "sha256": "48ef3f1a723b1c271770b2c2bbda864d287bab23dabc7bd33a37579a9a0d574d"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestStandaloneAliasErrors": {
           "cases": 4,

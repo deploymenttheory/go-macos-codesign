@@ -108,10 +108,11 @@ oracle establishes native large-file signing acceptance.
 
 ## Remaining Phase 02 work
 
-The Mach-O/DMG parsers and signature builders still materialize whole byte slices
-and retain the 1 GiB path limit. This transfer layer does not complete large-file
-signing or operation-wide budgets. CodeDirectory parsing/CDHash calculation and
-other metadata/CMS hashing still include one-shot paths; format builders do not
+Standalone inspection and verification now use [held-file range reads](source-range-io.md),
+including real UDIF verification above 4 GiB. Signing/removal construction and
+bundle paths still materialize whole byte slices and retain their 1 GiB limits. This transfer layer does not complete large-file
+signing or operation-wide budgets. Metadata/CodeDirectory materialization and CDHash calculation, plus
+other metadata/CMS hashing, still include one-shot paths; format builders do not
 yet hash directly from held file ranges. Bundle planning reads,
 metadata/close checkpoints outside the shared transfer, source-content races,
 compression policy, asynchronous sibling scheduling and full native failure
