@@ -15,6 +15,8 @@ but fail during replacement preparation with released APFS v0.17.0.
 [APFS draft PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
 the non-cloning fallback with its own portable and native qualification. Codesign
 keeps the released dependency until the upstream fix is merged and released.
+All 63 applicable upstream CI checks passed, with 100% coverage of the new
+fallback files on each applicable host and audited native/source evidence.
 Streaming, complete operation metadata profiles, cancellation, partial failures,
 identity checks and scheduling remain Phase 02 work.
 

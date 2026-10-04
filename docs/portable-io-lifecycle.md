@@ -41,6 +41,13 @@ and streams resource forks. Its own CI adds strict per-file coverage, portable
 failure/boundary tests, native-corpus replay on every host, and mounted APFS/HFS+
 comparisons with a Clang-built C oracle. Existing APFS qualification remains required.
 
+The [final APFS CI run](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/37189517986)
+passed all 63 applicable checks. New fallback files reached 100% statement coverage
+on each applicable OS; retained source hashes matched the pushed branch. Eight
+native cases passed on the macOS 26.6.2 runner alongside the local macOS 27.0.1
+capture, including independently observed quarantine process contexts. The PR
+remains draft awaiting user review, merge and release.
+
 The generic SDK replacement contract preserves source creation time, ACL and raw
 quarantine bytes. Raw native `copyfile` can instead retain destination creation
 time, merge inherited ACLs and normalize quarantine agent/timestamp fields. APFS
