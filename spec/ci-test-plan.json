@@ -101,6 +101,7 @@
     "TestGenericRemovalNativePermissions": 1,
     "TestGenericRemovalNativeSignedScript": 2,
     "TestGenericRemovalWriteDenial": 3,
+    "TestHashStreamBundleParity": 0,
     "TestIgnoreResources": 0,
     "TestIgnoreResourcesAppleSigned": 2,
     "TestIgnoreResourcesArchitectures": 1,
@@ -652,6 +653,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestGenericRemovalWriteDenial": {
           "cases": 7,
           "sha256": "2806a7791aae8d0385640fae407f9e30673cc73f258467a66bb028e9b9e029dc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestHashStreamBundleParity": {
+          "cases": 13,
+          "sha256": "6ae4a108bfaef33dfa1ea63f35ce82aeb784bcc6af6142d9b6d9044874755e78"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResources": {
           "cases": 313,
@@ -1606,6 +1611,10 @@
           "cases": 3,
           "sha256": "bce98441a92e992fda40866144f93a7ff8842c3b747bcdf5693f0dd95ca09bc0"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourceHashCancellation": {
+          "cases": 1,
+          "sha256": "1ea98237efa7946d91e6d7ad5c2d6189e951fc0c0c4ab447b20a46986c5e3473"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourcePolicy": {
           "cases": 1,
           "sha256": "0671f153a96547a743c8047b3184edc53454988f5c9c2cd4995b0754c6302e1d"
@@ -1898,6 +1907,10 @@
           "cases": 1,
           "sha256": "63ee1ea6f3bed2bd368d46f73f464e1907f7d711084973e021fbe747e85e215e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHashCancellationIntegration": {
+          "cases": 12,
+          "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -1913,6 +1926,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesWithoutResourceSlot": {
           "cases": 1,
           "sha256": "6e291bf6a1db5a88d281732d6a898ed1af55e02481d5ba94dbba0d2170b78afe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashFaults": {
+          "cases": 8,
+          "sha256": "867d40f0ab8af40f2784f647abfce8b770280ed2fd77567009de97f577a91476"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
+          "cases": 157,
+          "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -2273,6 +2294,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceFailureCollection": {
           "cases": 1,
           "sha256": "42ddb713dcd5b0da8ae6e9e9557287827c715b8e3c6b7cb232dd0810e33847b3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceHashStreams": {
+          "cases": 14,
+          "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,
@@ -2885,6 +2910,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestGenericRemovalWriteDenial": {
           "cases": 7,
           "sha256": "2806a7791aae8d0385640fae407f9e30673cc73f258467a66bb028e9b9e029dc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestHashStreamBundleParity": {
+          "cases": 13,
+          "sha256": "6ae4a108bfaef33dfa1ea63f35ce82aeb784bcc6af6142d9b6d9044874755e78"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResources": {
           "cases": 313,
@@ -3763,6 +3792,10 @@
           "cases": 3,
           "sha256": "bce98441a92e992fda40866144f93a7ff8842c3b747bcdf5693f0dd95ca09bc0"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourceHashCancellation": {
+          "cases": 1,
+          "sha256": "1ea98237efa7946d91e6d7ad5c2d6189e951fc0c0c4ab447b20a46986c5e3473"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourcePolicy": {
           "cases": 1,
           "sha256": "0671f153a96547a743c8047b3184edc53454988f5c9c2cd4995b0754c6302e1d"
@@ -4051,6 +4084,10 @@
           "cases": 1,
           "sha256": "63ee1ea6f3bed2bd368d46f73f464e1907f7d711084973e021fbe747e85e215e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHashCancellationIntegration": {
+          "cases": 12,
+          "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -4066,6 +4103,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesWithoutResourceSlot": {
           "cases": 1,
           "sha256": "6e291bf6a1db5a88d281732d6a898ed1af55e02481d5ba94dbba0d2170b78afe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashFaults": {
+          "cases": 8,
+          "sha256": "867d40f0ab8af40f2784f647abfce8b770280ed2fd77567009de97f577a91476"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
+          "cases": 157,
+          "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -4426,6 +4471,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceFailureCollection": {
           "cases": 1,
           "sha256": "42ddb713dcd5b0da8ae6e9e9557287827c715b8e3c6b7cb232dd0810e33847b3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceHashStreams": {
+          "cases": 14,
+          "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,
@@ -5034,6 +5083,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestGenericRemovalWriteDenial": {
           "cases": 7,
           "sha256": "2806a7791aae8d0385640fae407f9e30673cc73f258467a66bb028e9b9e029dc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestHashStreamBundleParity": {
+          "cases": 13,
+          "sha256": "6ae4a108bfaef33dfa1ea63f35ce82aeb784bcc6af6142d9b6d9044874755e78"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestIgnoreResources": {
           "cases": 313,
@@ -5916,6 +5969,10 @@
           "cases": 3,
           "sha256": "bce98441a92e992fda40866144f93a7ff8842c3b747bcdf5693f0dd95ca09bc0"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourceHashCancellation": {
+          "cases": 1,
+          "sha256": "1ea98237efa7946d91e6d7ad5c2d6189e951fc0c0c4ab447b20a46986c5e3473"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBundleResourcePolicy": {
           "cases": 1,
           "sha256": "0671f153a96547a743c8047b3184edc53454988f5c9c2cd4995b0754c6302e1d"
@@ -6204,6 +6261,10 @@
           "cases": 1,
           "sha256": "63ee1ea6f3bed2bd368d46f73f464e1907f7d711084973e021fbe747e85e215e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestHashCancellationIntegration": {
+          "cases": 12,
+          "sha256": "a713d8b89afc5d7b92f0343f7fcd4914c4d629fc53c3b615c45a83f9651bddf3"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesBytePolicy": {
           "cases": 1,
           "sha256": "96ff8b52d99b90ec329980951666efe273ee81a4a596273cb3227507bc9029ca"
@@ -6219,6 +6280,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIgnoreResourcesWithoutResourceSlot": {
           "cases": 1,
           "sha256": "6e291bf6a1db5a88d281732d6a898ed1af55e02481d5ba94dbba0d2170b78afe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashFaults": {
+          "cases": 8,
+          "sha256": "867d40f0ab8af40f2784f647abfce8b770280ed2fd77567009de97f577a91476"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
+          "cases": 157,
+          "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -6583,6 +6652,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceFailureCollection": {
           "cases": 1,
           "sha256": "42ddb713dcd5b0da8ae6e9e9557287827c715b8e3c6b7cb232dd0810e33847b3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceHashStreams": {
+          "cases": 14,
+          "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,

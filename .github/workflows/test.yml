@@ -129,6 +129,10 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Check native incremental digest boundary corpus
+        run: go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json
+      - name: Check pinned Apple hashing methods with both Clang targets
+        run: python3 scripts/extract-hashing.py --check --output artifacts/apple-hashing.json
       - name: Check controlled native live-process prerequisites
         run: go run scripts/probe-process-context.go -check -out artifacts/process-context.json
       - name: Stress native strict reference profiles with 100 fresh frameworks

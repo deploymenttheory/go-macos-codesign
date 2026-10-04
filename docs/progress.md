@@ -23,13 +23,30 @@ readonly and deny-write ACL profiles. They are added to strict CI without removi
 any previous case or artifact. PR98 merged after its full three-OS CI, native
 capture and foreign-signature verification passed.
 
-The current branch, cut from merged PR98, integrates [bounded operation I/O](operation-io.md)
+Merged [PR99](https://github.com/deploymenttheory/go-macos-codesign/pull/99) integrates [bounded operation I/O](operation-io.md)
 with cancellation and failure checkpoints across replacement and in-place writers.
 It adds 60 required portable outcomes for short/failing I/O, 64-bit offsets,
 close ownership and real filesystem cancellation. The new transfer implementation
-has 100% local statement coverage; the full branch CI remains required.
-Streaming, complete operation metadata profiles, cancellation, partial failures,
-identity checks and scheduling remain Phase 02 work.
+has 100% local statement coverage; PR99’s three-OS CI, native capture and foreign
+verification completed successfully.
+The current branch starts from merged PR99 and adds cancellable incremental
+hashing for code pages, special slots and bundle resources. It includes 156
+independent CommonCrypto digest observations, four complete Apple hashing methods
+compiled into two-target Clang AST evidence, and 192 new portable unit outcomes.
+Twelve new bundle boundary cases pass native byte comparison locally and run
+signing/verification on every CI host. Existing acceptance membership and all
+coverage/race/fuzz gates remain required. See [operation I/O](operation-io.md)
+for the contract, evidence and limits; full branch CI is still required.
+
+Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
+held-source range parsing, incremental hashing, streamed write plans and temporary
+spill storage, with an initial shared 128 MiB working-buffer budget to benchmark.
+This is planned work to remove the arbitrary 1 GiB path limit, not an implemented
+memory cap or a completed large-file capability. Real multi-gigabyte tests and
+memory measurements on all three hosts are required before closure.
+
+Complete operation metadata profiles, cancellation, partial failures, identity
+checks and scheduling also remain Phase 02 work.
 
 ## Merged whole-roadmap research and harness
 

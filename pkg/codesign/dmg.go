@@ -205,11 +205,17 @@ func signDMG(ctx context.Context, data []byte, opts SignOptions, dryRun bool) ([
 		copy(cd[offset:], opts.teamID)
 	}
 	for _, b := range append(blobs, Blob{Slot: SlotRepSpecific, Data: m.trailer()}) {
-		h, _ := digest(2, b.Data)
+		h, err := digestContext(ctx, 2, b.Data)
+		if err != nil {
+			return nil, err
+		}
 		copy(cd[hashOff-int(b.Slot)*32:], h)
 	}
 	for i := 0; i < nPages; i++ {
-		h, _ := digest(2, m.content[i*page:min((i+1)*page, len(m.content))])
+		h, err := digestContext(ctx, 2, m.content[i*page:min((i+1)*page, len(m.content))])
+		if err != nil {
+			return nil, err
+		}
 		copy(cd[hashOff+i*32:], h)
 	}
 	var cms []byte

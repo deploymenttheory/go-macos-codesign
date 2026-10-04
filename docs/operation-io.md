@@ -29,6 +29,22 @@ grows after its initial stat. Operation owners retain close failures alongside
 the primary error. Explicitly closed standalone source handles are consumed once,
 so deferred cleanup does not retry a failed close.
 
+## Incremental hashes
+
+Mach-O and DMG signing and verification check cancellation while hashing code
+pages and special slots. Pages up to 64 KiB use the one-shot digest with checks
+before and after it; larger inputs use a bounded incremental hash. The internal
+known-length `ReaderAt` path supports SHA-1, SHA-256, truncated SHA-256 and SHA-384,
+with checked 64-bit source ranges. A failed or cancelled read returns no digest.
+
+Bundle resource scanning computes SHA-1 and SHA-256 in one cancellable pass. It
+reads through EOF, including bytes added after the initial stat, enforcing the
+remaining bundle budget with a one-byte overrun probe. It retains read errors and
+resource-handle close errors. Cancellation does not publish a resource seal.
+
+These are Go API cancellation guarantees. They do not imply an Apple CLI
+cancellation option or interruption of a blocking OS call.
+
 ## Evidence and tests
 
 The existing [Apple writer evidence](../spec/apple-writer.json) retains complete
@@ -60,11 +76,53 @@ The local native run passed 1,899 terminal outcomes in 16 existing groups with
 their pinned outcome hashes unchanged. The new lifecycle cases also passed with
 the race detector; all six GoReleaser targets built successfully.
 
+The [hashing tests](../pkg/codesign/hashing_test.go) add 192 mandatory unit
+outcomes per host. They replay 156 independently generated CommonCrypto digests
+across four algorithms, thirteen lengths and three source offsets, including
+offsets above 4 GiB. They check short/failing reads, cancellation, budget exhaustion,
+and every context checkpoint reached by successful byte signing/verification and
+bundle resource scans. The hashing helpers have 100% local statement coverage.
+
+The [bundle boundary acceptance](../acceptance/hash_streams_test.go) adds thirteen
+mandatory outcomes on each OS: twelve bundles covering three architectures and
+resource lengths 65,535, 65,536, 65,537 and 131,089 bytes, plus the enclosing test.
+Every host signs and verifies them. On macOS their complete executable and
+CodeResources bytes must match native ad-hoc signing, and native strict verification
+must accept the Go result. All twelve comparisons passed locally, alongside 226
+unchanged existing byte/display/bundle-writer/DMG-dry-run outcomes.
+
+[Apple hashing AST evidence](../spec/apple-hashing.json) contains four complete
+verbatim methods from pinned Security source, compiled for both Clang targets.
+Surrounding types and `hashFileData` are declarations, not a substitute runtime.
+The [CommonCrypto capture](../testdata/research/hash-streams.json) independently
+checks digest values using 4,093-byte chunks; it is not an implementation of
+native signing. CI recompiles both the AST and oracle, compares their complete
+facts/corpus and retains fresh provenance. Portable tests also reject stale
+oracle source hashes and missing/duplicate cases.
+
+Apple's file-hashing helper describes limit zero as EOF and permits short files.
+Our internal range is an exact length: zero means empty and a short read fails.
+These different internal contracts must not be confused when integrating future
+streaming format readers. Neither the high-offset corpus nor the CommonCrypto
+oracle establishes native large-file signing acceptance.
+
 ## Remaining Phase 02 work
 
 The Mach-O/DMG parsers and signature builders still materialize whole byte slices
 and retain the 1 GiB path limit. This transfer layer does not complete large-file
-signing, incremental hashing or operation-wide budgets. Bundle planning reads,
+signing or operation-wide budgets. CodeDirectory parsing/CDHash calculation and
+other metadata/CMS hashing still include one-shot paths; format builders do not
+yet hash directly from held file ranges. Bundle planning reads,
 metadata/close checkpoints outside the shared transfer, source-content races,
 compression policy, asynchronous sibling scheduling and full native failure
 qualification remain in the [roadmap](implementation_plan.md#phase-02).
+
+The agreed Phase 02 architecture replaces these whole-file path operations with
+held-source range parsing, direct range hashing, streamed write plans and spill
+storage. Its initial shared managed-buffer budget is 128 MiB across nested and
+concurrent work. This is a proposed budget to benchmark, not implemented behavior
+or a total-process memory cap. The intended result removes the arbitrary 1 GiB
+file-size ceiling while preserving byte API contracts and native commit effects.
+See the [implementation sequence](implementation_plan.md#pipeline-implementation-sequence)
+for the prerequisite audit, real-file size boundaries, memory measurements and
+mandatory three-OS qualification.

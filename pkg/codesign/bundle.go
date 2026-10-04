@@ -2,11 +2,8 @@ package codesign
 
 import (
 	"context"
-	"crypto/sha1"
-	"crypto/sha256"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -246,7 +243,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 	if b.signing != nil {
 		tree = signingBundleFS{b}
 	}
-	err := fs.WalkDir(tree, start, func(name string, d fs.DirEntry, walkErr error) error {
+	err := fs.WalkDir(tree, start, func(name string, d fs.DirEntry, walkErr error) (failure error) {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -408,7 +405,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer func() { failure = errors.Join(failure, f.Close()) }()
 		current, err := f.Stat()
 		if err != nil {
 			return err
@@ -427,20 +424,16 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if current.Size() > maxFileSize-scope.bytes {
 			return unsupported("bundle resource data exceeds 1 GiB")
 		}
-		h1, h2 := sha1.New(), sha256.New()
-		n, err := io.Copy(io.MultiWriter(h1, h2), io.LimitReader(f, maxFileSize-scope.bytes+1))
+		h1, h2, n, err := resourceDigests(ctx, f, maxFileSize-scope.bytes)
 		if err != nil {
 			return err
 		}
 		scope.bytes += n
-		if scope.bytes > maxFileSize {
-			return unsupported("bundle resource data exceeds 1 GiB")
-		}
 		if include1 {
-			files[rel] = resourceSeal(h1.Sum(nil), optional1, true)
+			files[rel] = resourceSeal(h1, optional1, true)
 		}
 		if include2 {
-			files2[rel] = resourceSeal(h2.Sum(nil), optional2, false)
+			files2[rel] = resourceSeal(h2, optional2, false)
 		}
 		return nil
 	})

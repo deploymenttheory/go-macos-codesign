@@ -350,19 +350,28 @@ func signImage(ctx context.Context, im *image, opts SignOptions) ([]byte, error)
 	}
 	for _, b := range blobs {
 		if b.Slot < 0x1000 {
-			h, _ := digest(2, b.Data)
+			h, err := digestContext(ctx, 2, b.Data)
+			if err != nil {
+				return nil, err
+			}
 			copy(cd[hashOff-int(b.Slot)*32:], h)
 		}
 	}
 	for slot, data := range map[uint32][]byte{SlotInfo: opts.InfoPlist, SlotResources: opts.Resources} {
 		if len(data) > 0 {
-			h, _ := digest(2, data)
+			h, err := digestContext(ctx, 2, data)
+			if err != nil {
+				return nil, err
+			}
 			copy(cd[hashOff-int(slot)*32:], h)
 		}
 	}
 	for i := 0; i < nPages; i++ {
 		start := i * int(page)
-		h, _ := digest(2, out[start:min(start+int(page), codeEnd)])
+		h, err := digestContext(ctx, 2, out[start:min(start+int(page), codeEnd)])
+		if err != nil {
+			return nil, err
+		}
 		copy(cd[hashOff+i*32:], h)
 	}
 	if opts.Identity != nil {
