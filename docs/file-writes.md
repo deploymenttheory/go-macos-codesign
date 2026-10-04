@@ -120,7 +120,7 @@ fixes the API's concurrent first-use initialization through
 [PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107). Hash values and
 public signatures are unchanged. PR #35 passed its own final codesign CI and
 artifact audit with v0.6.1; its actual merge matches the audited source tree.
-The [implementation plan](implementation_plan.md#merged-pr35) records the final
+The [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr35) records the final
 workflow and artifact evidence. No copied hashing implementation or local
 dependency replacement is committed.
 

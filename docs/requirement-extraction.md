@@ -105,5 +105,5 @@ output aliases to inputs, special streams, permissions/ACLs, Unicode path
 normalization, locales and exhaustive operation/diagnostic interactions. Verbose
 certificate extraction can fail partway through native metadata display; that
 checkpoint is not covered by this phase's nonverbose certificate-failure case.
-The [implementation plan](implementation_plan.md#wp-09) retains these obligations;
+The [implementation plan](implementation_plan.md#phase-05) retains these obligations;
 `--requirements` remains partial.

@@ -1,3978 +1,891 @@
-# Detailed implementation plan: remaining codesign equivalence
-
-Status: updated 2026-10-04 after codesign PR93 merged. This branch uses published APFS v0.17.0. The upstream
-AppleDouble/resource-fork implementation, hostdata separation and removal of
-purego are released. APFS PR184 passed all 64 applicable checks, including the
-strict native/portable harness and 98.8% typed-wrapper coverage. The current
-codesign branch pins the published SDK and uses `hostdata` and
-`hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
-discovery on Windows as well as Unix. No local APFS replacement is used.
-
-**Current increment:** implement [ISO-2022 extensions](removal-iso2022-extensions.md)
-on a fresh branch from merged PR93 main at
-`759a00cd6a80809cb92722da2edcd17f6fcee21b`, retaining published APFS v0.17.0.
-Qualify seven JP-1/JP-2 names, fifteen state prefixes, strict escapes, G2 shifts,
-newline resets and conversion-buffer boundaries. Retain 15,651,328 native byte
-observations, 28,511 independent plutil comparisons and 13,650 complete streams.
-Add 2,100 native operations and 4,200 mandatory foreign results; eleven plist
-profiles total 16,680 results. Full native values total 1,294. Clang retains 31
-complete Apple bodies on both targets. Every earlier case and every strict
-coverage, native acceptance, fuzz, race, guard, lint and release gate remains.
-This branch requires its own final CI before the draft PR is ready for review.
-
-The Windows matrix job has a 45-minute budget: the complete suite passed in the
-initial run, but the former 35-minute job limit expired during mandatory artifact
-upload. Linux/macOS retain 35 minutes. The acceptance test's 30-minute deadline,
-all cases/assertions and strict coverage thresholds remain unchanged; the added
-job time permits evidence and foreign-artifact publication after successful tests.
-
-**Merged base ISO-2022 baseline:** PR93's
-[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37151404299):
-codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.23%
-on every host. All 812 committed source hashes and 12,480 foreign plist results
-were audited. Its six names and different native state/reset contract remain
-unchanged; all 23,623,680 byte observations and 3,240 boundary cases remain.
-
-Race and all thirteen one-minute fuzz runs execute in separate required jobs;
-the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
-worker retains a 20-minute job limit. The exhaustive race suite has an explicit
-18-minute test deadline inside that bound; the former implicit ten-minute Go
-deadline cannot accommodate the larger instrumented native replay. No cases,
-race instrumentation, assertions or fuzz durations are removed.
-
-**Merged EUC-JP baseline:** PR92's
-[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37144314366):
-codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.17% on
-all hosts. All 802 committed source hashes matched each OS checkout, all 8,808
-required plist foreign results matched native operations and all previous gates
-passed. Eight declarations and assembled-string/key leading-BOM behavior remain
-qualified by 2,101,248 native observations and 1,488 operation cases.
-
-**Merged Shift-JIS baseline:** PR91 implemented eight names in two native families
-and exact UTF-8 removal executable discovery. Its
-[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37136819539):
-codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.14% on
-all hosts. All 794 committed source hashes matched each OS checkout, all 5,832
-required plist foreign results matched native operations, and all 48 Unicode
-executable cases passed. Strict UTF-8 evidence collection works on Windows.
-
-**Next work:** qualify remaining multibyte/stateful codecs and aliases separately,
-including GB18030 and other ISO-2022 families. Native stream/error contracts must be captured
-before removing explicit unsupported errors. Unicode normalization and aliases,
-remaining OpenStep NUL contexts, XML grammar/types, malformed binary graphs and
-metadata normalization remain outstanding. Codesign owns operation policy,
-schemas and serialization; APFS owns filesystem metadata.
-
-**Merged unmarked increment:** [unmarked removal encodings](removal-unmarked-plists.md)
-implements native leading-zero detection, discarded units and little-endian UTF-16
-on every host, preventing secondary XML/codec guesses. PR88's
-[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37076434876):
-codesign coverage 95.27% Linux, 95.68% macOS and 95.22% Windows. All 768 committed
-source hashes matched each actual OS checkout; all 816 new foreign results were
-present alongside earlier profiles. Full native value observations total 106 and
-Clang retains eighteen complete bodies. All limits and strict parsers remain required.
-
-**Merged XML character increment:** PR87 implemented the retained controls,
-NUL/noncharacters, line endings and CDATA/entity profile. Its 192 new cases plus
-36 promoted grammar cases required 456 foreign results; 38 native value
-observations and fifteen complete Apple bodies qualified that increment.
-[Final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37068263784):
-codesign coverage 95.26% Linux, 95.67% macOS, 95.21% Windows. All 765 source
-hashes matched each actual OS checkout, and all required foreign records were
-present. The mandatory native value drift gate and earlier profiles remain intact.
-
-**Merged UTF-32 increment:** PR86 qualified BOM-marked UTF-32LE/BE using 276
-native cases and 552 foreign results. Its [final CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37061814256)
-passed: codesign coverage 95.20% Linux, 95.62% macOS, 95.15% Windows; all 760
-source hashes matched each actual OS checkout. Strict scalar validation and
-incomplete-unit truncation preserve original bytes and raw metadata selection.
-Its 36 native character cases initially required explicit unsupported errors;
-the current phase implements their native-compatible string interpretation.
-
-**Merged UTF-16 increment:** [BOM-marked UTF-16 removal](removal-plist-encodings.md)
-on `feat/removal-plist-encodings`, cut from PR84 main at
-`905b6874d5f0c5eb883c953868c4397ceec891dd`. Pure-Go conversion supports both
-byte orders before bounded XML/OpenStep interpretation, preserves original
-metadata and enforces a separate decoded-size ceiling. Native prefix behavior,
-declaration precedence and malformed cases have 120 retained observations and
-240 mandatory foreign imports. Nine complete Apple bodies have Clang evidence.
-All existing strict coverage and acceptance gates remain required. Unmarked
-UTF-16/32 detection is now qualified above. Legacy encodings, remaining NUL
-contexts and broader parser work remain prerequisites for complete encoding parity.
-
-**Merged interpretation increment:** [removal plist interpretation](removal-plist-interpretation.md)
-on `feat/removal-plist-interpretation`, cut from PR83 main at
-`e5aaee2c3dfb8530ba08c7fd129735e83ee216a5`. Bounded UTF-8 XML/OpenStep and supported
-binary dictionaries now have removal-specific interpretation: invalid/non-dict
-metadata retains its raw URL, XML/OpenStep duplicates keep the last value and
-binary duplicates keep the first. Unsupported formats and resource limits remain
-fatal; signing/display/verification retain their strict parser. The native corpus
-contains 180 cases across both plist locations and three layouts, adding 360
-mandatory foreign imports. Eight complete Apple bodies have two-target Clang
-evidence, and a twelfth fuzz target exercises the decoder. Complete final-head CI
-passed before PR84 merged; wider encodings, grammar and object types remain open.
-
-**Merged preceding increment:** [platform-plist selection](removal-platform-metadata.md)
-on `feat/platform-plist-selection`, based on main including merged roadmap PR82
-at `d4a825538a834115f2d0c43f7e618764e7f1cfae`. The prerequisite
-[APFS PR192](https://github.com/deploymenttheory/go-apfs-v2/pull/192) passed all 63
-applicable checks, merged and shipped as v0.17.0 before this adoption.
-The loader separates basic entry-type discovery, content acquisition and plist
-interpretation. It selects `Info-macos.plist` and `CFBundleExecutable-macos`
-under the same policy on Linux, macOS and Windows, retaining empty raw-plist
-selection and ordinary-plist fallback only for the qualified acquisition cases.
-Explicit AppleDouble bindings retain identity checks under unrelated ACL denial.
-The 33-case native corpus covers three layouts; API/CLI replay, 66 mandatory
-foreign imports and 18 native permission comparisons qualify the increment.
-Its [full CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37037417359) before PR83 merged. Broader parsers, final plist aliases,
-other override keys and signing/display/verification remain open.
-The original fourteen native research cases are retained.
-The merged [missing/empty removal profile](removal-empty-metadata.md)
-continues to require its full acceptance matrix. Twenty-seven native cases cover
-three layouts, missing/empty/empty-dictionary metadata and executable-name
-selection. All replay through the portable API and CLI; 54 additional foreign
-observations are mandatory in Apple's import job. Native version arbitration
-does not select the framework-stem executable without a usable name key.
-When neither executable nor plist exists, removal returns the native diagnostic
-without mutation. Nonempty malformed metadata now has the bounded interpretation
-profile above; broader formats and encodings remain open.
-
-**Remaining PR estimate after PR81:** approximately 2–4 implementation PRs for
-platform-plist discovery, including the shared SDK prerequisite; approximately
-6–10 for the wider current filesystem/discovery work. These ranges overlap and
-must not be added together. Full native CLI/operational parity is much larger:
-roughly 50–100+ implementation PRs at the current review size, with substantial
-uncertainty until provider, trust, live-state and newer signature prerequisites
-are resolved. This is a planning estimate, not a completion guarantee or a target
-number of PRs; related work should be combined when it remains reviewable.
-The plan contains 24 work packages and 249 top-level unchecked actions, with
-additional nested actions. The authoritative inventory has 32 partial, 48
-not-implemented and eight blocked obligations, not 88 equally sized tasks.
-Documentation-only and automated release PRs are outside these estimates.
-
-PR79 passed [all unchanged gates](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36985960267),
-including all 102 generic-removal imports. Codesign coverage was 95.25% Linux,
-95.50% macOS and 95.09% Windows; both discovery functions reached 100% everywhere.
-The merged [bundle-removal discovery](bundle-removal-discovery.md) selects
-Info.plist when executable candidates are absent or metadata discovery is denied,
-including modern/legacy/stem
-name selection and removal without signing-specific identifier/package metadata.
-The existing generic writer retains its mutation, partial-failure and explicit
-AppleDouble contracts. Twenty native probes and three complete two-target Clang
-bodies establish the bounded profile and distinguish remaining discovery gaps.
-Eight additional matrix shapes add 24 required foreign records per producer;
-all 102 generic records must match independent Apple results. Generic signing,
-verification/display and broader discovery remain outstanding. Twelve native ACL
-comparisons distinguish readattr/readsecurity discovery denial from later
-read/readextattr failures; effective discovery denials run on all three hosts.
-
-PR78 passed all CI gates in
-[36940321259](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36940321259).
-Codesign coverage was 95.19% Linux, 95.44% macOS and 95.04% Windows. Its existing
-strict tests and 54 foreign generic records remain mandatory.
-
-PR77's shallow removal phase passed Linux, macOS 27 and Windows 2025, native
-comparisons and all twenty added foreign removal archives. Codesign coverage was
-95.32%, 95.56% and 95.16%, respectively. Its 27 portable cases and 79 native
-comparisons remain mandatory. The passing run is
-[36934385188](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36934385188).
-
-PR75 qualified signing permissions with APFS v0.15.1. PR76 corrected final
-security-restoration order and passed all three producers, native comparisons,
-foreign-artifact verification and coverage gates: codesign coverage was 95.32%
-on Linux, 95.18% on Windows and 95.54% on macOS. Its 72 ACL comparisons and all
-existing strict tests remain. Existing writer Clang evidence regenerates
-unchanged. Explicit AppleDouble inputs remain additive, with no implicit sidecar
-discovery or Linux attribute-name remapping.
-
-**Next obligations:** merge explicit source ACL entries with destination-parent
-inheritance using the SDK's existing ACL policy; discard old inherited source
-entries and preserve native ACE ordering. The SDK replacement API needs an
-allocation-time destination ACL snapshot and a configurable single final
-security restoration; its current restoration unconditionally reinstalls the
-source ACL. A second write after a deny-write-security ACL is restored is not
-safe. Preserve default behavior for other SDK consumers and qualify both native
-host ACLs and transported Apple policy on Linux, macOS and Windows before adoption.
-Info.plist selection now preserves the
-executable under readattr/readsecurity denial, while selected data-read failures
-remain fatal. Released APFS v0.16.0 supplies this distinction through
-`hostdata.StatMetadata`; Go's Windows rooted stat requests file-data access and
-cannot supply the required authorization boundary. Broader CoreFoundation property/authorization discovery
-still needs qualification. Denied metadata reads inside the signature
-directory also need a shared APFS enumeration primitive that preserves rooted
-containment and directory-entry types without eager per-entry stat calls.
-Deny-delete temporary-file names, contents and cleanup still differ (`.cstemp`
-versus SDK private staging). Permission-error CLI formatting is now corrected.
-Implement and qualify these discovery/removal and allocation/cleanup boundaries;
-retain full operand bytes, ACLs, temporary artifacts and nested partial results.
-Reproduce with `go run scripts/probe-signing-security.go -candidate /path/to/codesign`.
-Additional obligations include sandbox/authorization contexts;
-alternate filesystems and concurrent mutation. Existing strict coverage above
-95% per production package, all three CI producers and native/foreign-artifact
-acceptance remain gates. This increment is not fully qualified until its CI
-passes, and it does not declare full strict or filesystem parity.
-
-The merged [resource-suppression increment](ignore-resources.md) implements
-`--ignore-resources` within the supported verification profile. Full sideband/all
-behavior remains outstanding. The [dependency and research work](sideband-policy.md)
-adds shared strict xattr operations in APFS PR #131 for Linux, macOS and Windows,
-eight complete Apple bodies with two-target Clang evidence, and 203 native
-verification controls. The publication prerequisite is satisfied; policy integration
-continues through the profiles above. Released APFS v0.17.0 is the shared metadata/DMG dependency, with no local
-replacement or generic FFI dependency. Native host operations use the approved
-typed Darwin wrappers. [PR #49](#merged-pr49) delivers DMG
-dry-run writes; [PR #50](#merged-pr50) delivers replacement notices;
-[PR #51](#merged-pr51) adds certificate extraction, and [PR #52](#merged-pr52)
-closes bundle-parent path selection/display and establishes the combined passing
-three-OS, native-import and artifact gates. Localized certificate dates remain
-an explicit difference; parent-alias extraction display now matches exactly.
-
-[PR #53](#merged-pr53) delivers bounded signature file lists and passing audited
-three-OS, native-import and packaging gates. [PR #54](#merged-pr54)
-corrects entitlement display: DER-first compact XML,
-typed text, diagnostics, append files, consumed colon prefixes, slot integrity,
-architecture selection and certificate/file-list ordering. It adds 90 cases and
-six complete Apple functions with two-target Clang evidence. The
-[extraction contract](entitlement-extraction.md) separates the implemented profile
-from remaining DER/CMS/slot/locale/filesystem work. Its final gates and artifact
-audit passed. Merged [PR #57](#merged-pr57)
-adds canonical requirement text, implicit designated requirements, slot binding,
-truncate-before-validation destinations and architecture/combined-output behavior.
-The [requirement contract](requirement-extraction.md) defines the 87-case profile
-and its remaining limits. Merged [PR #58](#merged-pr58) adds named and decimal-kind
-source compilation, sorted last-duplicate encoding, comments/semicolons and
-implicit extension-existence boundaries. Its [compiler contract](requirement-sets.md)
-records 75 bounded cases and six complete Apple bodies. Merged [PR #59](#merged-pr59)
-adds [certificate default merging](requirement-defaults.md),
-explicit overrides, canonical binary repacking, independent nested defaults and
-fresh replacement requirements. It adds 277 portable cases and 48 Mac certificate
-cases. Merged [PR #60](#merged-pr60) resolves
-the thirty quiet-verification/self-DR differences discovered there. It separates
-integrity, verbose self checks and explicit caller predicates, retaining parent
-constraints and explicit certificate trust. The [contract](requirement-verification.md)
-adds 822 cases and six complete Apple bodies with two-target Clang evidence;
-malformed-structure policy remains open. Merged [PR #61](#merged-pr61)
-adds [native failure context](verification-diagnostics.md), eight
-complete Apple bodies, 182 new cases and 340 deterministic hashes per producer.
-It strengthens 178 earlier comparisons to exact diagnostics, preserving six
-malformed-set differences. Merged [PR #63](#merged-pr63)
-adds [ordinary resource collection](resource-verification.md), eight
-complete Apple bodies, 382 cases and 686 producer hashes. Exact output is required
-for 306 native profiles; native ordering/primary-error and dangling-link discovery
-differences were retained explicitly. Merged [PR #64](#merged-pr64)
-first upgrades APFS from v0.9.0 to v0.11.1, then adds
-[verification-specific link text checks](resource-symlinks.md). It resolves the twelve
-dangling-link records, including four native-acceptance differences, and adds 352
-portable cases, 68 native-signing cases and 102 explicit strict-policy observations.
-The resource driver now extracts nine complete bodies. Signing guards remain;
-strict selectors were unsupported in that merged slice. PR64 merged before final validation completed;
-its archived LZFSE test regenerated input with the changed encoder and failed.
-`fix/native-dmg-fixture-inputs` preserves that test's native byte oracle by re-signing
-the original archived payload. Fresh encoder outputs retain independent native
-comparisons. The follow-up also upgrades to APFS v0.11.2, published during PR64
-validation, for bounded decmpfs LZFSE decoding. PR65 completed those gates; see the merged record below.
-
-The merged bundle corpus includes 504 cleanup-access cases and 54 failure-boundary
-cases with source/replacement access assertions. Native dispatch can leave independent
-siblings unstarted; the directory matrix checks their complete untouched subtree.
-
-Inaccessible-directory discovery/removal, broader failure ordering, executable ACL
-inheritance and explicit signature-directory ACL copying remain open. Supported
-wrappers lack an ACL reader; cloning a parent also clones its children. Certificate
-DMG dry-run semantics and wider CLI verbosity/error/architecture-selection behavior
-remain unresolved; the [notice profile](signing-diagnostics.md) is bounded.
-Symlinked signing envelopes retain the containment difference. D04/WP-02 is not
-complete; merge and release remain maintainer gates.
-
-The current inventory retains 88 obligations: 32 partial, 48 not implemented,
-eight blocked and zero fully verified. Certificate extraction moved to partial
-in PR #51, file lists in PR #53, strict/no-strict in PR #66 and ignore-resources
-in PR #68. The dependency/research phase changes no inventory status.
-No feature status was upgraded merely
-because the parser recognized an option or one writer profile passed. WP-01 and
-WP-02 remain open. [PR #27 evidence](#merged-pr27), [PR #29/#30 evidence](#merged-pr30),
-[PR #31 evidence](#merged-pr31), [PR #32/#33 evidence](#merged-pr33),
-[PR #34 evidence](#merged-pr34), [PR #35 evidence](#merged-pr35),
-[PR #36/#37 evidence](#merged-pr37), [PR #39 evidence](#merged-pr39),
-[PR #41 evidence](#merged-pr41), [PR #42 evidence](#merged-pr42),
-[PR #43/#44 evidence](#merged-pr44), [PR #45 evidence](#merged-pr45),
-[PR #46 evidence](#merged-pr46), [PR #47 evidence](#merged-pr47),
-[PR #48 delivery](#merged-pr48), [PR #49 evidence](#merged-pr49),
-[PR #50 evidence](#merged-pr50), [PR #51 delivery](#merged-pr51),
-[PR #52 evidence](#merged-pr52), [PR #53 evidence](#merged-pr53),
-[PR #54 evidence](#merged-pr54), [PR #57 evidence](#merged-pr57), [PR #58 evidence](#merged-pr58), [PR #59 evidence](#merged-pr59) and the
-[delivery status](#delivery-status) distinguish
-delivered profiles from remaining work; [file writes](file-writes.md) records the exact metadata and filesystem limits.
-
-This is the detailed execution companion to [implementation stages](implementation.md).
-It includes missing features, unfinished behavior within existing features,
-unproven compatibility, deliberate limits, and dependencies on unavailable state.
-Work packages remain outstanding except for explicitly checked, bounded tasks
-and already delivered baseline behavior. Unchecked proposed APIs, tests and
-artifacts are future work, not existing capabilities. Continuous verification and
-inventory-maintenance tasks remain open for every subsequent implementation slice.
-
-<a id="merged-pr68"></a>
-### Merged implementation: PR #68 (2026-09-27)
-
-[PR #68](https://github.com/deploymenttheory/go-macos-codesign/pull/68) merged at
-13:29:07 UTC as `78825e4ac1efb579ca8752e73e68a58505094fcf`. Final head
-`958eef82d12bd6a358f7517048a29436457e4f51`, tested CI merge
-`1c320afdab4134a0682560cf3b50bcbc4921dd91` and actual merge share tree
-`82b02f2e29c6d952bd76066773eb25d169f23a64`.
-The [final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36321587740)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36321587827)
-passed. Library coverage was 4828/5053 (95.55%) Mac, 4821/5053 (95.41%) Linux and
-4817/5053 (95.33%) Windows. CLI was 633/639 (99.06%) Mac and 629/639 (98.44%) on
-both foreign producers; entry point was 100%. The local full gate also passed.
-
-The resource-suppression increment added 385 portable cases, 11 Mac controls,
-386 exact native profiles and 767 comparable hashes per producer. The audit
-checked 674 source hashes per hosted producer with 17 expected Windows text
-conversions, plus retained verification matrices. Native foreign-signature imports
-(606), removal (88) and DMG dry runs (140) passed. All six downloaded GoReleaser
-packages had the clean tested revision, CGO disabled and released APFS v0.11.2;
-twelve checksums and six SPDX records passed. The downloaded Darwin arm64 package
-passed 507 native comparisons: 497 exact and ten retained bounded comparisons.
-The new option contributed 92 of those exact package checks. Full local evidence
-is retained under `artifacts/pr68/final/`; hosted originals remain attached to the
-linked run. The new dependency/research branch starts from this actual merge.
-
-<a id="merged-pr66"></a>
-### Merged implementation: PR #66 (2026-09-27)
-
-[PR #66](https://github.com/deploymenttheory/go-macos-codesign/pull/66) merged at
-12:47:23 UTC as `eed319dce8c402f5740ea73887032f7220361116`. Final head
-`0f5aec3a0275bf83242949b9d436b347fda9c0e1`, tested CI merge
-`026725b4cc921c61e22572af87b27966277d6bbe` and actual merge share tree
-`91ded230805f4da6e5aa5b0ac97452aa34650eba`.
-The [final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36319043689)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36319043723)
-passed. Library coverage was 4776/4996 (95.60%) Mac, 4769/4996 (95.46%) Linux and
-4765/4996 (95.38%) Windows. CLI was 626/632 (99.05%) Mac and 622/632 (98.42%)
-on both foreign producers; entry point was 100%. The local full gate also passed.
-
-The audit checked 668 source hashes per host, including 17 expected Windows text
-conversions. New strict cases contributed 561 portable records, 545 native profiles,
-503 exact comparisons, 42 bounded ordering/primary-summary comparisons, 16 JSON
-reports and 1,026 comparable hashes. Combined verification evidence contained
-2,299 cases and 4,002 comparable hashes; requirement defaults retained 277 cases
-and 1,338 hashes. Foreign native imports (606), removal (88) and DMG dry runs (140)
-passed. All six downloaded GoReleaser packages had the clean tested revision,
-CGO disabled and released APFS v0.11.2, with twelve checksums and six SPDX records.
-The downloaded Darwin arm64 package passed 415 native comparisons: 405 exact and
-ten retained bounded comparisons, including 56 new exact strict profiles.
-
-The [Xcode27 native crash investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
-retains 29 signalled fixture trees and 25 crash reports (17 SIGSEGV and eight
-PAC_EXCEPTION/SIGKILL). Unsupported plain/all observations now explicitly append
-the SDK single-threaded flag; original asynchronous reproduction is opt-in.
-Implemented default/symlinks comparisons retain their original flags, native
-terminations remain hard failures and a 100-fresh-framework preflight passed.
-This is a measured native reference workaround, not a claim that Apple's
-asynchronous defect is fixed. Full evidence is retained under
-`artifacts/pr66/final/`; historical failures remain under the sibling diagnostic
-directories. This new feature branch starts from the actual merged tree above.
-
-<a id="merged-pr65"></a>
-### Merged implementation: PR #65 (2026-09-27)
-
-[PR #65](https://github.com/deploymenttheory/go-macos-codesign/pull/65) merged at
-00:47:54 UTC as `d12364610b80317637566f463558cdc5eb26f052`. Final head
-`8ad93b1d72909ad4be651d143eb68a0be6603e1f`, tested CI merge
-`782d80a4ab802168bbff467d7d35c0ca9acff7ad` and the actual merge share tree
-`54913dffed8f7def4bbcf04822e0bf39ff6cab7d`.
-The [final compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36279963368)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36279963297)
-passed. Library coverage was 4643/4857 (95.59%) Linux, 4639/4857 (95.51%) Windows
-and 4647/4857 (95.68%) Mac. CLI coverage was 588/598 (98.33%) on foreign producers
-and 592/598 (99.00%) Mac; entry point coverage was 100%.
-
-The audit checked 662 source hashes per producer, 17 explicit Windows line-ending
-conversions, 2,976 comparable verification hashes, 606 native imports, 88 removal
-and 140 dry-run results. Six downloaded GoReleaser packages had the clean tested
-revision, CGO disabled and APFS v0.11.2; twelve checksums and six SPDX records passed.
-The downloaded Darwin package passed 359 native comparisons (349 exact, ten bounded).
-A superseded native cyclic-framework process termination passed in that final run
-without native-test retries. The subsequent
-[PR66 investigation](strict-verification.md#native-asynchronous-verification-crash-on-xcode-27)
-captured native resource-worker crashes and documents the serial reference profile
-for unsupported plain/all strict observations. Historical failures remain recorded;
-the native asynchronous defect is not claimed fixed. This branch starts from
-release v0.4.0 main.
-
-<a id="merged-pr64"></a>
-### Merged implementation: PR #64 (2026-09-26; validation follow-up required)
-
-[PR #64](https://github.com/deploymenttheory/go-macos-codesign/pull/64) merged at
-23:00:02 UTC as `6662e869931dc6e36a36050d03a4a21d239d2239`, before final CI
-completed. Final head `9fcaef48f36a6b358f96040966cc11e3094dfd10`, tested CI merge
-`26af7d95d18e0c2576350f5c6d77a784676fce20` and the actual merge share tree
-`bed260417f68038dff1c4fa5e1a6ffefb07e35fd`. The implementation is on main;
-the initial [compatibility run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36278012903)
-failed the archived `TestNativeDMGFixtures/adhoc/lzfse` input comparison on Linux
-and Windows. Local
-acceptance found the same sole failure after 546.487 seconds. No complete coverage
-or downstream-import pass is claimed for that initial run.
-
-The APFS pin is published v0.11.1 (release commit
-`baf0015eb054a91063d310f5cfefc73ece73f3b2`), module checksum
-`h1:3GiaIlRQC9WglGkldIPOW7KLPgky5xmi5arMvYsZUDE=`, without an APFS replacement.
-Unit tests, dependency guards, module verification, focused native DMG/symlink
-tests, nine complete Apple bodies/two-target Clang extraction and lint passed.
-All six downloaded packages had the exact clean CI revision, CGO disabled and
-APFS v0.11.1; twelve checksums and six SPDX files passed. The downloaded Darwin
-package passed 359 native comparisons, 349 exact and ten bounded ordering/summary
-comparisons, preserving inputs and explicit trust rejection.
-
-The corrective branch changes the archived-fixture test input, retaining original
-fixture hashes and exact native ad-hoc/RSA signatures plus P-256 CodeDirectories
-and signature validation. It adds input-preservation assertions and repeats all
-gates. The retained LZMA unsigned reproducer now passes native `hdiutil` with
-v0.11.1; codesign's adapter remains bounded and does not gain streaming implicitly.
-
-<a id="merged-pr63"></a>
-### Merged milestone: PR #63 (2026-09-26)
-
-[PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) merged at
-22:40:54 UTC as `0e9ea75435c1419a02ca7b8b6b70912aeffdd243`. The actual merge,
-final head `8b6ba5ec8e224bdf5afbc16e5cbcb25b72cbef98` and tested CI merge
-`dbfb1c1acda055b7a3b526827cd6eca6868ec3c4` share tree
-`7f642818689620e56ee57140978fc93cdf60d259`. Final
-[compatibility](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36275931015)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36275931057)
-passed all gates.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,640/4,853, 95.61% | 588/598, 98.33% | 1/1, 100% |
-| Windows | 4,636/4,853, 95.53% | 588/598, 98.33% | 1/1, 100% |
-| macOS | 4,644/4,853, 95.69% | 592/598, 99.00% | 1/1, 100% |
-
-The 382 new cases contained 358 native profiles: 306 exact output profiles,
-24 within-group ordering, 16 mixed-summary and twelve dangling-link profiles.
-Four dangling cases recorded native acceptance versus Go rejection. There were
-24 additional JSON cases. All 686 new deterministic hashes and the retained
-182/340 diagnostic and 822/1,382 requirement cases/hashes matched both hosted and
-local Mac evidence: 1,386 cases and 2,408 hashes per foreign producer. The audit
-checked 660 source hashes per OS with 17 expected Windows text conversions, plus
-all retained defaults/compiler/extraction/entitlement/file-list/parent-alias/
-DMG/notice matrices. Native downstream checks passed 606 signed imports,
-88 byte-identical removals and 140 DMG dry-run comparisons. Race/eleven fuzz
-targets and vendored RC2 passed. Six packages carried the clean CI revision,
-CGO disabled and APFS v0.9.0 without replacement; twelve checksums and six SPDX
-documents passed. The downloaded Darwin arm64 package passed 327 native
-comparisons: 317 exact output and ten bounded ordering/summary comparisons,
-preserved inputs and explicit trust rejection. Local acceptance took 554.784
-seconds. All 386 documentation links passed. The broad inventory stayed unchanged.
-
-<a id="merged-pr61"></a>
-### Merged milestone: PR #61 (2026-09-26)
-
-[PR #61](https://github.com/deploymenttheory/go-macos-codesign/pull/61) merged at
-21:58:18 UTC as `1d749c6a4b798c693437fd360a61f12773f40793`. The actual merge and
-tested CI merge `de8a133b8238ae6c4f8dbea07e678a0444846814` share tree
-`175966e4275318afd0fd938df2c68042bcecde6c`. Final head
-`be152ffacb6f06a39308f16b5082c2fe0c30dff3` has tree
-`603922c5defb66d8ab041421552929f05452bc51`; only `CHANGELOG.md` differs because the
-tested merge also includes the v0.3.0 release changelog from main. Production
-source provenance matches. Final [compatibility](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36273644727)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36273644665)
-workflows passed.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,604/4,818, 95.56% | 587/597, 98.32% | 1/1, 100% |
-| Windows | 4,600/4,818, 95.48% | 587/597, 98.32% | 1/1, 100% |
-| macOS | 4,608/4,818, 95.64% | 591/597, 98.99% | 1/1, 100% |
-
-The 182 new cases contain 170 exact native profiles and twelve JSON checks.
-The prior 822 cases now require exact diagnostics for 808/814 native profiles,
-strengthening 178 comparisons while retaining six malformed-set records and three
-quiet native acceptance/Go rejection cases. All 340 new plus 1,382 retained
-verification hashes per foreign producer match hosted and local Mac evidence.
-The audit checked 655 source hashes per OS, 17 expected Windows text conversions,
-and all retained default/compiler/extraction/entitlement/file-list/DER/path/notice/
-DMG matrices. Native imports passed for 606 signatures, 88 removals and 140 DMG dry
-runs. Race/eleven fuzz targets and vendored RC2 passed. Six packaged binaries carry
-the exact clean CI merge revision, CGO disabled and APFS v0.9.0 without replacement;
-twelve checksums and six SPDX 2.3 documents passed audit. The downloaded Darwin
-arm64 CLI passed 251 exact native comparisons, input preservation and explicit
-trust rejection. Local acceptance passed in 464 seconds; 377 documentation links
-were checked. The inventory remains 27 partial, 53 not implemented, eight blocked
-and zero fully verified.
-
-<a id="merged-pr60"></a>
-### Merged milestone: PR #60 (2026-09-26)
-
-[PR #60](https://github.com/deploymenttheory/go-macos-codesign/pull/60) merged at
-15:20:17 UTC as `6db74af19857219bde2d823daae8b4e2b739776f`. Its actual merge,
-final head `1da9adffbb8403e5e9f496be4403f6977250abd9` and tested CI merge
-`96ed6104f2f1c22a085144ddbf9ab5af17407734` share tree
-`2058ba6def87b3f8352480da87972570ef6aeeb3`. Final
-[compatibility](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36250798840)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36250798823)
-workflows passed.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,561/4,773, 95.56% | 571/581, 98.28% | 1/1, 100% |
-| Windows | 4,557/4,773, 95.47% | 571/581, 98.28% | 1/1, 100% |
-| macOS | 4,565/4,773, 95.64% | 575/581, 98.97% | 1/1, 100% |
-
-The 822 new cases included 814 native comparisons, 630 exact diagnostic profiles
-and 184 side-by-side profiles. Thirty earlier false-self quiet-verification
-differences were resolved. Six malformed-set records retain a bounded policy
-difference, including three quiet native acceptance/Go rejection cases.
-All 1,382 deterministic hashes per foreign producer match hosted and local Mac
-evidence. Eight JSON comparison hashes normalize only the asserted temporary
-Report.Path; raw responses are retained. The audit checked 649 source hashes per
-OS and 17 expected Windows text conversions. Retained matrices passed: defaults
-325 cases/1,338 hashes, compiler 75/117, extraction 87/188, entitlements 90/178,
-file lists 327 values, 96 DER sets/14 hashes, 108 parent aliases, 80 notice hashes
-and 70 DMG dry-run hashes.
-
-Race/eleven fuzz targets and vendored RC2 passed. Native imports covered 606
-signatures, 88 removals and 140 DMG dry runs. Six packaged binaries carry the
-exact clean CI revision, CGO disabled and APFS v0.9.0 without replacement;
-twelve checksums and six SPDX 2.3 documents passed audit. The packaged Darwin
-arm64 CLI passed 116 native comparisons, 108 exact diagnostic profiles, input
-preservation and explicit-trust rejection. A local 30-second FuzzInspect run
-completed 906 executions. The doc audit checked 428 links; inventory unchanged.
-
-The earlier hosted attempt 36249976102 hit Go's ten-minute acceptance timeout
-without an assertion failure. The final runner explicitly permits 15 minutes
-inside the existing 20-minute CI job; hosted acceptance completed in 8m38s and
-local verification in 463 seconds. Both failed and final transcripts are retained.
-
-<a id="merged-pr59"></a>
-### Merged milestone: PR #59 (2026-09-26)
-
-[PR #59](https://github.com/deploymenttheory/go-macos-codesign/pull/59) merged as
-`59e87e4e236a2afa9fbfbc74aebc4a98a297cb06` at 14:09:16 UTC. Its actual merge,
-final head `c3493a37b2e3d748173ad8d3cee38fd20fcb178a` and tested CI merge
-`c0b1f2b4432841077a4651c831b55cd4514354ac` share tree
-`4c80d838f22149f8d2abf2c533839c88eb3bd7cf`. The final
-[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36246392509)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36246392496)
-passed.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,532/4,743, 95.55% | 547/553, 98.92% | 1/1, 100% |
-| Windows | 4,528/4,743, 95.47% | 547/553, 98.92% | 1/1, 100% |
-| macOS | 4,536/4,743, 95.64% | 551/553, 99.64% | 1/1, 100% |
-
-The 325 new cases comprise 277 portable/native comparisons and 48 additional
-Mac certificate cases. All 1,338 deterministic hashes per foreign producer match
-Mac evidence. The audit checked 643 source hashes per OS, 17 expected Windows text
-conversions and all retained matrices: compiler 75 cases/117 hashes, extraction
-87/188, entitlement extraction 90/178, file lists 327 values, 96 DER sets/14 hashes,
-108 parent aliases, 80 notice hashes and 70 DMG dry-run hashes. A local 30-second
-requirement-set fuzz run completed 1,104,637 executions. Race/eleven fuzz targets,
-vendored RC2, 606 native signature imports, 88 removals and 140 unsigned DMG dry-run
-imports passed. All six packaged binaries have the exact clean CI revision,
-CGO disabled and APFS v0.9.0 without replacement; twelve archive/SBOM checksums and
-six SPDX 2.3 documents passed audit. The packaged Darwin arm64 CLI passed nine
-ad-hoc and eighteen RSA native comparisons, rejected-source/dry-run preservation
-and fresh defaults on forced replacement.
-
-Earlier local chain-setup `errSecInternalComponent` logs were retained. The final
-suite shares one public-test keychain per acceptance process, restores the original
-search list and deletes it during checked cleanup; final local and CI runs pass.
-Thirty false-self quiet-verification differences were recorded separately from
-matching signing bytes; the current verification slice resolves those cases.
-Localized dates, native file-list crash profiles and wider policy remain explicit.
-The inventory remains 27 partial, 53 not implemented, eight blocked, zero verified.
-
-<a id="merged-pr58"></a>
-### Merged milestone: PR #58 (2026-09-26)
-
-[PR #58](https://github.com/deploymenttheory/go-macos-codesign/pull/58) merged as
-`01afd92e4feec5e158e1351fd3305789da667dca`. Its actual merge, final head
-`e53bd6d47d4db2ef2b8c1cf1bd4a23b8d5eef9d5` and tested CI merge
-`a292718a83aed9e7d20bff471889991cb5c2538d` share tree
-`ce2569eecaeadafed34d45c53056cd462dd683cf`. The final
-[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36242922897)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36242922901)
-passed.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,509/4,721, 95.51% | 547/553, 98.92% | 1/1, 100% |
-| Windows | 4,505/4,721, 95.42% | 547/553, 98.92% | 1/1, 100% |
-| macOS | 4,513/4,721, 95.59% | 551/553, 99.64% | 1/1, 100% |
-
-The 75 new cases comprise 33 native compiler observations (17 accepted and 16
-rejected), 18 complete ad-hoc signed-tree comparisons, 12 rejection/preservation
-cases and 12 native certificate layout cases. All 117 deterministic hashes per
-foreign producer match Mac evidence. The audit checked 638 source hashes per OS,
-17 expected Windows text conversions and every retained matrix, including 87
-requirement-extraction cases/188 hashes. Six complete Apple functions have
-two-target ASTs; a local 30-second source fuzz run completed 696,328 executions.
-Race/eleven fuzz targets, vendored RC2, 606 native signature imports, 88 removals
-and 140 unsigned DMG dry-run imports passed. All six packaged binaries have the
-exact clean CI revision, CGO disabled and APFS v0.9.0 without replacement; twelve
-archive/SBOM checksums and six SPDX 2.3 documents passed audit. The packaged Darwin
-arm64 CLI passed nine native signing/display/strict-verification comparisons and
-one rejected-source preservation check. Eighteen localized certificate-date and
-six native file-list crash differences remain explicit. The 88-item inventory
-remains 27 partial, 53 not implemented, eight blocked and zero fully verified.
-
-<a id="merged-pr57"></a>
-### Merged milestone: PR #57 (2026-09-26)
-
-[PR #57](https://github.com/deploymenttheory/go-macos-codesign/pull/57) merged as
-`2bb50e1db8eb97c196c93bdddfef900e3c25251c`. Its actual merge, final head
-`3a944840c9f462b088f8b5d7b6e0ba7cf547affc` and tested CI merge
-`915a9b20302fcce8d53060c7bf1c55c3ad2bebf9` share tree
-`97acb062b92ad6b0c636a57519300fe79bb1d546`. The final
-[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36240644881)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36240644847)
-passed.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,466/4,677, 95.49% | 547/553, 98.92% | 1/1, 100% |
-| Windows | 4,462/4,677, 95.40% | 547/553, 98.92% | 1/1, 100% |
-| macOS | 4,470/4,677, 95.57% | 551/553, 99.64% | 1/1, 100% |
-
-The 87-case requirement extraction matrix contains 86 native comparisons and one
-portable JSON case. All 188 deterministic requirement input/output hashes per
-foreign producer match the independently Apple-compared Mac results. Randomized
-certificate-chain input archives and absolute-path file-list stdout retain their
-documented local-only comparison scope. The audit checks 634 source/fixture hashes
-per OS, including 17 expected Windows text conversions; all earlier matrices;
-606 signature imports, 88 removal comparisons and 140 unsigned DMG dry-run imports.
-Race/eleven fuzz targets and vendored RC2 tests pass. Six packaged binaries carry
-the exact CI revision, `CGO_ENABLED=0` and released APFS v0.9.0 without replacement.
-Twelve archive/SBOM checksums and six SPDX 2.3 documents pass audit. The final packaged
-Darwin arm64 CLI passes explicit/implicit requirement extraction and truncation
-smokes. Eighteen localized certificate-date differences and six native file-list
-crash differences remain explicit. No broad inventory status changed.
-
-<a id="merged-pr54"></a>
-### Merged milestone: PR #54 (2026-09-25)
-
-[PR #54](https://github.com/deploymenttheory/go-macos-codesign/pull/54) merged as
-`a4c2078d66bcd3e1a686a0fe1fc0f10db222fc7c`. Its actual merge, final head
-`903a01dfb8a5d1d8b10c111fa1580a6427b2c660` and tested CI merge
-`6ed6170da31894d85d984ef564b19ffb7acb8228` share tree
-`bc0d2312894e0a81b410697b24fc6db549302ee2`. The final
-[compatibility workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36097070444)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36097070439)
-passed. Earlier superseded runs are not the final evidence.
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Linux | 4,396/4,605, 95.46% | 521/527, 98.86% | 1/1, 100% |
-| Windows | 4,392/4,605, 95.37% | 521/527, 98.86% | 1/1, 100% |
-| macOS | 4,400/4,605, 95.55% | 525/527, 99.62% | 1/1, 100% |
-
-The 90-case entitlement matrix contains 89 native comparisons and one portable
-JSON case. All 178 portable entitlement input/output hashes per foreign producer
-match the independently Apple-compared Mac results. Two output payloads containing
-absolute file-list paths are compared locally against native output, not across
-different checkout paths. The audit verifies 627 source/fixture hashes per OS,
-including 17 expected Windows text conversions; retained file-list, certificate,
-parent-alias, notice and DMG matrices; 606 native signature imports, 88 removal
-comparisons and 140 unsigned DMG dry-run imports. Race/ten fuzz targets and the
-vendored RC2 tests pass. Six packaged binaries carry the exact CI revision,
-`CGO_ENABLED=0` and released APFS v0.9.0 without replacement; twelve archive/SBOM
-checksums and six SPDX 2.3 documents pass audit. The final packaged Darwin arm64
-CLI passes XML extraction and mixed-array exit-65 smoke checks.
-
-Windows initially exposed stale hard-link directory-entry sizes in the acceptance
-archive helper. The final helper reads each regular file once and derives the tar
-header length from those same bytes, while retaining separate real inode/mode
-assertions. The final three-OS run passes this regression. No broad inventory
-status changed; full equivalence remains incomplete.
-
-## 1. Objective, baseline and meaning of completion
-
-The objective remains a pure Go library and Cobra/Viper CLI reproducing Apple's
-`codesign` behavior, with no Apple code-signing runtime, framework, helper binary,
-SDK, Clang or CGO requirement in production. Supported workflows must execute on
-Linux, macOS and Windows. Clang/AST research and independent Apple acceptance
-belong to development and testing. GoReleaser owns production builds and packaging.
-
-### Historical PR #25 baseline
-
-The original planning baseline is deliberately specific:
-
-| Item | Recorded baseline |
+# Remaining implementation roadmap
+
+This roadmap contains only outstanding work toward a pure-Go equivalent of the
+macOS `codesign` CLI: the same options and operational behavior on Linux, macOS
+and Windows. It replaces the former incremental work-package plan. Completed
+implementation and validation evidence belong in the [focused guides](README.md),
+[progress record](progress.md), source/fixture manifests and Git history.
+
+Planning baseline: 2026-10-04, main at
+`8fb245506427ddef51c572a6f5cda2e32b6b57c3`, published go-apfs-v2 v0.17.0.
+The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
+entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
+These are obligations of different sizes, not a percentage-complete calculation.
+The reference is macOS 27.0 build 26A428, arm64; its binary/manual hashes are in
+that inventory. Other native versions and architectures need explicit profiles.
+
+The delivery unit is now a cohesive subsystem phase, including research,
+implementation, API/CLI integration, failure behavior, portable tests, native
+acceptance and documentation. The default is **12 phase PRs**, with separately
+released APFS prerequisites and justified splits when required. This is not a
+promise that twelve PRs can resolve unavailable hardware, private protocols or
+conflicting constraints. No partial or blocked entry disappears to meet a PR count.
+
+The work below is planned, not new execution evidence. Research the entire
+roadmap first; capture and audit each phase's complete native case corpus before
+implementing its behavior. Avoid both one-encoding-per-PR delivery and speculative
+implementation based only on source declarations.
+
+## Delivery map and dependencies
+
+| Phase | Cohesive result still required | Inventory owners | Dependencies |
+| --- | --- | ---: | --- |
+| [01](#phase-01) | Whole-roadmap research, case manifests and scalable evidence harness | Cross-cutting | None; investigate every blocker here |
+| [02](#phase-02) | Portable streaming, filesystem behavior and operation lifecycle | 7 | 01; released APFS prerequisites |
+| [03](#phase-03) | Remaining plist interpretation, bundle discovery and resource policy | 10 | 01–02 |
+| [04](#phase-04) | Mach-O allocation, architectures and complete CodeDirectory profiles | 17 | 01–02; 03 for bundle interactions |
+| [05](#phase-05) | Metadata preservation, entitlements, requirements and constraints | 17 | 03–04; authenticated evaluation also needs 07/10/11 |
+| [06](#phase-06) | Identities, CMS, multiple signature slots and hybrid signatures | 7 | 04–05; legitimate native hybrid/provider evidence |
+| [07](#phase-07) | Certificate policy, timestamps, revocation and portable transport | 7 | 05–06 |
+| [08](#phase-08) | Generic files, native detached signatures and certificate interchange | 6 | 02–07; released APFS prerequisites |
+| [09](#phase-09) | Wider and large DMG signing profiles | 1 | 02/04–08; released APFS image prerequisites |
+| [10](#phase-10) | Authenticated notarization checks | 1 | 04–09; legitimate tickets/protocol evidence |
+| [11](#phase-11) | Remaining CLI contracts and actual live-state/provider operations | 15 | 01 feasibility findings; 02–10 integration |
+| [12](#phase-12) | Full interaction qualification, documentation and release audit | Cross-cutting | All owners and prerequisites closed |
+
+Feature ownership is enumerated [below](#inventory-ownership). An owner coordinates
+closure; dependency work may be delivered in another phase. For example, phase 05
+implements requirement grammar, but a notarization predicate cannot be called
+verified before phase 10 supplies authenticated context. Every phase wires its own
+CLI options immediately; phase 11 is not a backlog for unfinished earlier wiring.
+
+Research and independently testable prerequisite preparation can overlap. Each
+implementation phase starts on a fresh branch from the latest merged main.
+Avoid building a stack of large unmerged implementation branches. Complete and
+release shared APFS prerequisites before updating this project's dependency.
+
+## Implementation boundaries
+
+- Production remains pure Go without CGO, purego, custom native bindings, raw
+  syscalls or subprocess fallbacks. Preserve the existing transitive dependency
+  guards, including their Darwin trust-bridge exclusions. Native C/C++/Objective-C,
+  Clang, Apple frameworks and Apple tools are research/acceptance tools only.
+- Keep Cobra/Viper for the CLI and GoReleaser for production builds and archives.
+  Preserve the established Release Please/release workflows and golangci-lint.
+- APFS owns reusable filesystem/metadata primitives, AppleDouble/resource forks,
+  image models/codecs, decryption and segment reconstruction. Audit its released
+  public APIs first. Codesign owns representation selection, signature policy and
+  operation ordering; do not copy an upstream implementation into this repository.
+- `pkg/plist` owns shared plist decoding/encoding and native string interpretation.
+  `pkg/codesign` owns signing schemas, requirements and authenticated interpretation;
+  `internal/cli` owns arguments, output and exit policy. Share format primitives
+  without merging distinct trust or operation contracts.
+- Preserve existing byte APIs, caller ownership and explicit-trust guarantees.
+  Add context-aware, known-size seekable/streaming interfaces without silently
+  changing existing allocation, mutation or trust behavior. Represent omitted,
+  explicitly empty and explicitly zero metadata options separately.
+- Use one native-compatible policy across all three hosts. Explicit AppleDouble
+  carriers and, where needed, logical filename representations supply metadata
+  that a host cannot store directly; they are not alternate permissive policies.
+  Do not auto-discover unrelated sidecars or silently rename unrepresentable names.
+- Model architecture slices, CodeDirectories, SuperBlob slots and native signature
+  slots separately. Extend reports without assuming one chain/signature per slice.
+  Keep integrity, requirements, chain trust, timestamps, tickets and live runtime
+  state separate, with authenticated inputs to evaluators.
+- Native crashes or unsafe behavior do not justify reproducing a crash. A necessary
+  safe divergence remains an explicit full-parity gap. Correct unsupported errors,
+  snapshots and successful parsing do not count as implementing an operation.
+
+## Evidence and test-data contract
+
+Extend the existing [research scripts](../scripts/), [specifications](../spec/),
+[test fixtures](../testdata/), [acceptance suite](../acceptance/) and
+[testing harness](testing.md). Keep existing native capture and foreign-producer
+verification; do not replace them with Go-generated expected values.
+
+For every new behavioral family, create a versioned case manifest before its
+implementation. Use stable case IDs shared by native probes, portable replay,
+mutation tests, CI exports and the final audit. A manifest row must include:
+
+| Field group | Required information |
 | --- | --- |
-| Native reference | `/usr/bin/codesign`, macOS 27.0 build 26A428, arm64 |
-| Binary and manual identity | SHA-256 values in [spec/compatibility.json](../spec/compatibility.json) |
-| Production feature baseline | [PR #25](https://github.com/deploymenttheory/go-macos-codesign/pull/25), tested commit `e3de6c447101e469211ded2d85fca11066391e20` |
-| Merge into main | `4145fd27e7079e6e22ecea9279ecb1b4a6f1aaac` |
-| Shared filesystem/DMG dependency | `github.com/deploymenttheory/go-apfs-v2 v0.4.0` |
-| Compatibility checklist | 55 entries: 25 partial, 25 not implemented, five blocked, zero fully verified |
-| Documented-option subtotal | 47 entries: 22 partial, 22 not implemented, three blocked |
-| Additional capability subtotal | Eight entries: three partial, three not implemented, two blocked |
+| Scope | Phase, inventory IDs, operation, representation, option combination, purpose and unqualified neighboring cases |
+| Oracle | macOS/build/architecture, binary/manual hashes, SDK and Clang versions/targets, filesystem, locale, timezone and evaluation time |
+| Source | Pinned repository revision, source/header hashes, complete body names/ranges, translation-unit hash, preprocessing options, declared shims and unavailable/private dependencies |
+| Inputs | Exact bytes or reproducible public fixture references/hashes; argument vector, working-directory relationships, nonsecret environment, setup and selected trust/provider inputs |
+| Observation | Raw stdout/stderr, exit status or signal, all output bytes/hashes, extracted files, selected metadata and complete before/after tree manifest |
+| Filesystem | Relevant modes, ownership, ACLs, xattrs/forks, timestamps, file identity/link count, symlink text, temporary objects, cleanup and committed partial state |
+| Failure | Injected checkpoint, competing failures, observed precedence, cancellation point and preservation/commit invariants |
+| Provenance | Probe/generator revision and transitive driver/helper hashes, fixture hashes, producer OS/Go version and tested project commit |
+| Comparison | Exact fields, explicitly permitted nondeterministic fields, independently checked invariants and the complete observed native outcome profiles |
+| Qualification | Native executed, portable replay executed, synthetic negative, source-only hypothesis or blocked; exact missing input and effect on the claim |
 
-The [completed PR #25 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35525819487)
-establishes the following starting evidence. These numbers describe that commit,
-not future changes or all native behavior:
+Separate three kinds of evidence:
 
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 3,923/4,098, 95.73% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 3,920/4,098, 95.66% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 3,930/4,098, 95.90% | 423/425, 99.53% | 1/1, 100% |
+1. **Static source evidence:** Clang ASTs of complete verbatim Apple bodies plus
+   SDK declarations/layouts explain code paths. Declaration shims permit analysis;
+   they do not execute Apple's private policy. Analyze both arm64 and x86_64
+   Darwin targets, but do not claim Intel runtime evidence from cross-compilation.
+2. **Native execution:** Clang-built research oracles and installed `codesign`,
+   `csreq`, `plutil` and `hdiutil` establish observed behavior. Record framework/API
+   calls made by an oracle; source-derived predictions remain hypotheses until
+   execution. Public source can lag the installed binary; preserve discrepancies.
+3. **Portable implementation proof:** all three OSes consume native-produced data;
+   Linux and Windows produce artifacts that Apple independently checks. Supplement
+   this with mutations, fault injection, fuzzing and independent cryptographic
+   implementations where useful. These do not replace the native oracle.
 
-The same run passed race detection, nine fuzz targets, six-target packaging,
-354 imported signature verifications and 88 imported removal byte comparisons.
-The artifact audit checked 567 source/fixture hashes per OS, twelve archive/SBOM
-checksums, and all 169 Linux plus 169 Windows alias/allocation hashes against
-the independently Apple-compared macOS outputs. The [lint run](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35525819499)
-also passed.
+Exhaust finite byte/codepoint/state domains where practical; use documented
+boundaries and generated malformed cases for larger spaces. Never claim that a
+finite corpus proves all possible inputs. Preserve complete deterministic bytes,
+not just CDHashes. For randomized signatures, verify authenticated bytes, algorithm
+parameters and cryptographic validity independently. For native scheduling, keep
+whole observed outcomes and invariants; do not combine individually acceptable
+fragments into an outcome Apple never produced. Unexplained differences remain gaps.
 
-<a id="merged-pr27"></a>
-### Merged milestone: PR #27 (2026-09-20)
+Include positive, negative, malformed, cancellation and interacting-option cases
+for each new API and CLI path. Native permission tests need setup controls that
+prove the intended denial; a privileged runner bypassing the denial is not a pass.
+Retain Windows path/volume/DACL/share diagnostics without secrets. Native-only
+oracle tests may run on macOS, but portable feature tests must run on every OS.
+Unavailable required tools, credentials or devices are missing evidence, not
+successful skips. Public fixture replay cannot prove current provider access.
 
-| Item | Delivered evidence |
+## Shared acceptance dimensions
+
+Apply these dimensions in every phase where relevant. Pairwise combinations may
+cover low-risk interactions; enumerate high-risk combinations explicitly and
+record why any dimension is inapplicable.
+
+| Dimension | Required cases |
 | --- | --- |
-| Merge into main | `c2461355e23b9cc7b65a01c0d380aa88dcdf0b14`, merged 2026-09-20 at 19:51 UTC |
-| Tested PR head | `4f138a7e0a7a2a8fb20f08a6dc1c9c0ca5ca6129` |
-| Tested CI merge | `533f1f20e7b1a792eb9a271963cf64fba05ca0e5`, with the same tree as the tested head |
-| Shared metadata API | [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102), released and pinned as [v0.5.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.5.0); no APFS replace or workspace requirement |
-| D01 inventory | 47 documented plus 32 undocumented parser-recognized switches, each with seven operation cells; ten rejected binary-string candidates; `CODESIGN_ALLOCATE` recorded separately |
-| Current compatibility checklist | 88 entries: the original 55 plus 32 switches and the environment hook; 25 partial, 55 not implemented, eight blocked, zero fully verified |
-| D02 writer evidence | Nine complete Apple writer methods on two Clang targets; 126 native tree/inode cases and 15 macOS metadata profiles |
-| First D04 implementation | Root-relative staged replacement of bundle main/nested Mach-O executables; external hard-link neighbours retain original bytes; existing CodeResources updates in place and unlinks on removal |
+| Operations | First sign, force re-sign, verify, display/extract, remove, dry run, standalone validate/merge, repeated and multiple operands |
+| Representations | Thin/FAT Mach-O, apps/bundles/framework versions, nested code, generic/xattr, detached and DMG |
+| Existing state | Unsigned, valid, linker-signed, malformed, multiple directories/signature slots, old allocation larger/smaller than replacement |
+| Identity/policy | Ad-hoc, supported RSA/EC, legitimate Apple-issued fixtures, new algorithms/providers; explicit roots/pins and missing/invalid trust |
+| Metadata | Missing, empty, defaults, preserved, explicit override, contradictory per-slice values, malformed input and unknown fields |
+| Paths/storage | Relative/absolute, aliases plus `..`, Unicode/case, broken/cyclic/external links, internal/external hard links, APFS/HFS+, Linux/Windows filesystems |
+| Failures | Parse, discovery, identity, read/hash, allocate, sign/provider, network, metadata restore, commit and cleanup; failures in parents/children/siblings |
+| Scale | Zero/minimal, normal, every boundary minus/at/plus one, large sparse and adversarial inputs; checked arithmetic and operation-wide budgets |
+| Results | Whole bytes/tree/metadata, raw channels/status, extraction ordering, retained partial commits, no unexplained temporary objects |
 
-The [completed final workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35532899802)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35532899792)
-passed for the tested head above. Coverage from the downloaded artifacts is:
+Required cross-phase combinations include force + preserve + explicit override +
+per-slice disagreement; deep signing + alternate versions + constraints + a late
+child failure; alias + hard link + growth/shrink + dry run; multiple directories +
+hash agility + selected slot + damaged alternate; expired leaf + timestamp +
+explicit requirement; detached/embedded disagreement + resource change; continue +
+extraction collision + failed write; and streaming + cancellation/source mutation/
+disk exhaustion + metadata restoration.
 
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 3,972/4,161, 95.46% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 3,969/4,161, 95.39% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 3,979/4,161, 95.63% | 423/425, 99.53% | 1/1, 100% |
+<a id="phase-01"></a>
+## Phase 01 — Research the whole roadmap and scale the harness
 
-All three producer jobs, six-target packaging, race detection and nine fuzz
-targets passed. Apple verified all 522 imported signed artifacts, including 168
-new writer archives; all 88 imported removal outputs matched native bytes. The
-final audit checked 573 source/fixture hashes per OS, with only seventeen expected
-Windows text conversions; twelve archive/SBOM checksums; and all six binaries'
-APFS v0.5.0 dependency and disabled CGO. Each foreign producer's 126 writer-tree
-hashes and 184 standalone/alias/allocation hashes matched hosted Apple-compared
-outputs. These results apply to that tested commit, not future changes.
+**Deliverable:** a complete source/probe/prerequisite map and a faster mandatory
+harness before the larger implementation phases. No feature-status upgrades arise
+from inventorying flags or adding AST records.
 
-The first writer slice stages every executable before any bundle commit and
-checks target identity before rename. Cancellation/preparation failures preserve
-the original tree; later failures can leave earlier descendant/envelope commits
-in place. At this milestone, native executable ACL inheritance and creation-time
-behavior, new signature-directory security, stale signature-file cleanup, broader
-permissions and non-cloning/compressed/protected files remained outstanding.
-PR #30 subsequently delivered the regular-file cleanup profile below. The native
-inventory records unavailable live-state contexts explicitly; it does not establish
-complete operation applicability or resolve the private-parser source gap.
+- [ ] Map all 88 obligations to concrete Apple source bodies, native operations,
+  existing coverage, new case families, required inputs and the implementing phase.
+  Build an operation applicability table covering accepted, ignored and rejected
+  options, argument precedence, defaults and failure order. Extend the inventory
+  when evidence reveals additional options/environment behavior; do not cap it at 88.
+- [ ] Reuse the pinned sources described in [research](research.md): Security
+  `db15acbe6a7f257a859ad9a3bb86097bfe0679d9`, CoreFoundation
+  `dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3` and the recorded SDK/local source
+  inputs. Audit exact file hashes before extraction. Fetch only needed missing
+  sources and record their pins/licensing; do not treat the local cache as a
+  complete or current implementation of the installed CLI.
+- [ ] Expand existing `extract-*.go` drivers to complete relevant C/C++/Objective-C
+  bodies, both target ASTs and checked wire-layout/constant records. Record every
+  shim, excluded branch, unavailable body and source/native disagreement. Keep
+  declaration-only evidence visibly distinct. Extend Clang-built API oracles for
+  behavior that cannot be measured through the CLI alone.
+- [ ] Write the case specifications for every later phase under the existing
+  `spec/` and fixture conventions, including exact generators, required native
+  calls, comparison rules and prerequisite status. Validate manifest schema and
+  ownership mechanically. A case specification is not a fabricated observation.
+- [ ] Investigate all eight blockers now: process/hosting, keychain, detached
+  database, hardware, remote signing, signing dylib and allocator override. Also
+  resolve fixture/provider availability for hybrid signatures, constraints, real
+  Apple-issued policy and notarization. Produce feasibility decisions with exact
+  missing state or conflicting constraints before depending on those features.
+- [ ] Audit APFS APIs against phases 02/03/08/09. Specify missing public primitives
+  with independent native cases, upstream coverage and release dependencies. Avoid
+  opening placeholder dependency bumps before the required release exists.
+- [ ] Cross-check design against the pinned [reference implementations](reference-implementations.md),
+  including apple-platform-rs, Relic, ipsw, zsign/ldid and other reviewed projects.
+  Record what each actually implements, native dependencies and license limits;
+  their acceptance is not an Apple behavior oracle.
+- [ ] Modularize growing native probe drivers by behavioral family while preserving
+  stable IDs and transitive source provenance. Refactoring a driver cannot be
+  approved through hash-only fixture refresh: replay its old observations and
+  compare complete output/evidence before changing expected hashes.
+- [ ] Introduce deterministic CI partitioning, initially four acceptance shards
+  per OS, package-based race shards and four fuzz groups. Keep all thirteen
+  existing fuzz targets at their full sixty seconds each, the RC2 tests and every
+  existing race case; add targets for new parsers. Balance by measured duration,
+  not by dropping expensive data points.
+- [ ] Build a required aggregation gate that checks the expected case/shard/artifact
+  manifest, rejects missing or duplicate IDs, failed/cancelled shards and stale
+  source revisions, and verifies exactly one Linux and one Windows result for
+  every required foreign case. A subset of passing shards cannot pass the PR.
+- [ ] Union compatible coverage profiles only within the same OS, source revision
+  and instrumentation. Require **strictly greater than 95% in every production
+  package on each OS**, including future packages; no rounded or cross-OS average.
+  Cache compilation/dependencies, never native observations or passing test results.
+- [ ] Preserve fresh macOS capture, strict setup controls, all prior fixture
+  corpora, foreign verification, guards, golangci-lint and six GoReleaser targets
+  with SBOMs/checksums. Measure wall time, worker time, upload size and peak memory.
+  Preserve the current test deadlines until evidence supports a deliberate change;
+  a job ending before mandatory uploads is a failure even if tests passed.
 
-<a id="merged-pr30"></a>
-### Merged milestones: PR #29 and PR #30 (2026-09-20)
+**Research/acceptance:** replay the complete old corpus through the partitioned
+harness and reconcile case IDs, comparisons, coverage, fuzz/race execution and
+artifacts. Deliberately omit/duplicate/cancel a shard in harness tests and prove
+that aggregation fails. Native runtime capture remains independent of Go results.
 
-[PR #29](https://github.com/deploymenttheory/go-macos-codesign/pull/29) merged the
-plan update documenting PR #27 and APFS v0.5.0. It changed documentation only;
-[PR #30](https://github.com/deploymenttheory/go-macos-codesign/pull/30) delivered
-the next bounded D04/WP-02 implementation: regular stale signature-file cleanup.
+**Exit:** every obligation has a source/probe plan, owner and prerequisite outcome;
+all old cases remain required; the measured harness is faster without weaker gates.
+A genuinely unavailable prerequisite remains open with a concrete resolution path.
 
-| Item | Delivered evidence |
+<a id="phase-02"></a>
+## Phase 02 — Portable I/O, filesystem behavior and lifecycle
+
+**Deliverable:** remaining creation/open/transfer/restore/close behavior integrated
+with streaming, cancellation and precise partial-failure semantics on all hosts.
+
+- [ ] Specify context-aware `ReaderAt` plus size, output reservation, incremental
+  hashing, staging and commit interfaces. Retain byte APIs as bounded convenience
+  paths. Share global budgets for memory, temporary storage, open handles, parsed
+  values, network work and nested children; do not multiply per-child limits.
+- [ ] Audit current size/path/parser/chain/KDF limits against native-accepted
+  workloads. Distinguish intentional resource budgets from unsupported formats.
+  Use checked 64-bit offsets and host-int conversions before allocation or seeks;
+  raising the existing in-memory ceiling alone is not streaming support.
+- [ ] Complete first sign/re-sign/remove/dry-run metadata profiles: inherited ACLs,
+  independent file/directory permissions, owner/mode, access/creation times,
+  compression/resource-fork preservation and non-cloning filesystem fallback.
+  Use released APFS APIs for the underlying operations, including Windows DACLs,
+  share/rename semantics and Linux representable metadata.
+- [ ] Define operation checkpoints from discovery and source access through
+  allocation, signature cleanup, staging, restoration, close and commit. Complete
+  inaccessible-directory, temporary-permission and new/existing-envelope cases.
+  Preserve native differences between replacement and in-place writers.
+- [ ] Resolve broader asynchronous siblings, planning failures, parent suppression
+  and `--single-threaded-signing`. Capture native dispatch/commit order and whole
+  observed failure states; serial implementation alone does not establish the
+  option's contract. Keep unrelated sibling commits where native permits them.
+- [ ] Cover source identity/content changes between discovery, hashing and commit,
+  including rooted containment, aliases and internal/external hard links. Define
+  the last cancellable boundary and unavoidable partial commits. Do not promise
+  whole-bundle atomicity where neither native nor the filesystem provides it.
+- [ ] Complete `--preserve-afsc` and other compression interactions from observed
+  option applicability. Keep representation-specific dry runs and signing/removal
+  side effects distinct; do not infer that every dry run avoids writes.
+
+**Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
+`codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/
+removal AST drivers. Retain independent native permission controls and metadata
+snapshots; shared filesystem fixes require the APFS native harness as well.
+
+**Data points:** every checkpoint with cancellation/short write/disk full/close or
+restore failure; file versus directory denial; ACL inheritance; new/stale envelopes;
+APFS and HFS+ write strategies; Windows open handles and readonly attributes;
+changed source identity; deep children and siblings; sparse inputs across old and
+32-bit size boundaries. Record bytes, inode/link identity, timestamps and cleanup.
+
+**Exit:** owned operations have matching qualified commit/failure behavior, measured
+bounded memory and portable execution. Any required APFS extension is released and
+consumed before this phase's PR is ready to merge.
+
+<a id="phase-03"></a>
+## Phase 03 — Plists, discovery and resource policy
+
+**Deliverable:** remaining metadata/discovery/resource families implemented together,
+using `pkg/plist` and the common lifecycle, rather than separate encoding PRs.
+
+- [ ] Enumerate and close remaining native multibyte/stateful codecs and aliases,
+  including GB18030 and other ISO-2022 families where accepted. Retain all delivered
+  UTF, legacy, Shift-JIS, EUC-JP and JP/JP-1/JP-2 evidence. Generate mapping/state
+  data from independent native observations, with attribution and reproducibility.
+- [ ] Complete remaining OpenStep NUL/escape/type contexts, XML declarations/grammar/
+  entities/types and binary object graphs, duplicate keys, references, widths,
+  malformed lengths and normalization. Keep strict signing parsers distinct from
+  removal's native interpretation/fallback policy; do not globally loosen decoding.
+- [ ] Complete CoreFoundation selection/property authorization, platform overrides,
+  raw plist URL retention, executable name arbitration and operation-specific
+  fallback. Exercise signing, removal, display and verification independently.
+- [ ] Complete flat/additional bundle layouts, nested-code locations, physical/
+  Current framework paths and selectors. Preserve containment while matching root,
+  intermediate and final symlinks, aliases, `..`, external links and error order.
+- [ ] Resolve Unicode normalization, case matching and filesystem-dependent names.
+  Provide an explicit logical representation where Windows cannot store a valid
+  native name; prove export/restoration against Apple. Unsupported direct-host
+  names remain a documented limitation until that route works, not silently renamed.
+- [ ] Complete v1/v2 resource rules: weighting/precedence, omission, optionality,
+  localization, nested requirements/digests and custom/deprecated specifications.
+  Determine `--seal-root`, `--verify-resource` and `--deep-verify` from source and
+  native probes; do not guess semantics from option names.
+- [ ] Close remaining strict/no-strict selectors, outer scopes, sideband and
+  ignore-resources interactions. Extend the existing `--strip-disallowed-xattrs`
+  implementation for unqualified profiles, failure timing and deep traversal;
+  do not reimplement its already delivered native/explicit-carrier behavior.
+- [ ] Resolve or retain explicit native ordering and mixed-primary-error differences.
+  Preserve duplicates and full grouped details. Keep malformed-set and quiet
+  acceptance differences visible until independently qualified structural policy
+  resolves them; sorting text cannot establish native scheduling parity.
+
+**Source/oracles:** `CFBundle.c`, `CFBundle_InfoPlist.c`, `CFPropertyList.c`,
+`CFOldStylePList.c`, `CFBinaryPList.c`, `CFStringEncoding*`, `CFICUConverters.c`,
+`CFBuiltinConverters.c`, `CFDictionary.c`, Unicode helpers, `bundlediskrep.cpp`,
+`StaticCode.cpp` and resource bodies. Extend existing extraction/probe families;
+use Clang-built CF oracles plus `plutil` and whole native `codesign` operations.
+
+**Data points:** exhaustive feasible codec units/states, alias equivalence and
+intentional differences, reset/flush/partial-unit and buffer boundaries; complete
+values as well as byte observations; duplicate/malformed plist graphs; selected
+metadata location × layout × operation; Unicode/case aliases, cycles and permission
+contexts; rule conflicts and every strict selector; multiple directory/slot nested
+seals. Every portable artifact needs both foreign-producer results.
+
+**Exit:** the remaining family checklist is exhausted or each unresolved case is
+explicitly retained. No unsupported codec is changed to success without native
+stream and operation evidence. Resource verification remains distinct from discovery.
+
+<a id="phase-04"></a>
+## Phase 04 — Mach-O allocation and CodeDirectories
+
+**Deliverable:** native-supported architecture/layout/digest profiles across parsing,
+allocation, writing, verification, removal and display, including large offsets.
+
+- [ ] Complete thin/FAT32/FAT64, 32/64-bit, endian and legitimate CPU/subtype cases.
+  Implement native architecture aliases/numeric selectors, duplicates, absent
+  slices, defaults and `--all-architectures`/`--edit-arch` interactions. Preserve the
+  explicit arm64 reference default across hosts; qualify Intel defaults separately.
+- [ ] Support insufficient load-command padding by relocating every affected
+  structure, not just moving `LC_CODE_SIGNATURE`. Preserve segment/section mapping,
+  relocations, symbol/string tables, dynamic-link data, alignment and zero fill.
+  Cover nonterminal signatures, trailing/opaque data and native removal behavior.
+- [ ] Complete versioned CodeDirectory fields and semantics: scatter, 64-bit limits,
+  executable segments, runtime, platform, linkage, pre-encrypt and newer evidenced
+  fields. Use wire offsets independent of C struct padding; reject invalid counts,
+  overlaps and overflow before reading or allocating.
+- [ ] Complete digest families/truncation, legacy selection, repeated digest
+  families, preferred CDHash and both CMS hash-agility bindings. Associate a
+  directory with its slice and signature slot rather than only a digest name.
+- [ ] Complete page sizes, option masks/names and runtime-version parsing, including
+  zero/special values, final partial pages and representation applicability.
+  Model special slots with presence/empty/zero/external binding separately.
+- [ ] Implement remaining private/legacy options only from evidence: full-metal-
+  jacket, pre-encrypt generation/validation, legacy/no-legacy, no-macho, omitted
+  ad-hoc flag, platform identifier and signature reservation. Retain accepted but
+  ignored behavior only where the operation matrix proves it.
+- [ ] Extend two-pass reservation for growing signatures, variable-length algorithms,
+  multiple directories and future signature slots. Propagate directory selection
+  into resources, requirements, display, detached signatures and ticket lookup.
+
+**Source/oracles:** `codesign_allocate.c`, `codesign_alloc.cpp`, `macho++.cpp/.h`,
+`machorep.cpp`, `codedirectory.cpp/.h`, `sigblob.cpp/.h`, `superblob.h` and SDK
+`cs_blobs.h`. Compare Clang layouts with actual serialized bytes and native outputs.
+
+**Data points:** legitimate legacy files; padding/alignment limits; slice ordering;
+32-bit and 4 GiB offset boundaries via streaming fixtures; growth/shrink/removal;
+every field/hash/special-slot mutation; missing/duplicate alternates; malformed
+load commands; metadata preservation during relocation. A valid alternate must
+not hide damage in a directory that native requires.
+
+**Exit:** each claimed format supports all applicable operations and exact
+allocation/binding behavior; merely displaying a field does not qualify its policy.
+
+<a id="phase-05"></a>
+## Phase 05 — Metadata, entitlements, requirements and constraints
+
+**Deliverable:** complete metadata precedence and authenticated policy formats,
+with native compilation/rendering and operation-specific validation.
+
+- [ ] Add presence-aware preservation selectors and resolve explicit override >
+  selected preserved value > native default where independently observed. Test
+  identifier/prefix, flags/runtime, entitlements, requirement sets, constraints
+  and other evidenced fields separately, including per-slice disagreements and
+  parent/child inheritance. Preserve caller ownership and existing byte APIs.
+- [ ] Complete identifier/prefix sources and Team ID assignment/display/preservation.
+  Coordinate authenticated Team ID/Apple marker decisions with phase 07; familiar
+  names, subject OU values or unverified extensions cannot establish Apple identity.
+- [ ] Complete native entitlement types, integer widths, ordering, duplicates,
+  Unicode, XML preservation and DER versions. Establish XML/DER preference for
+  each operation, mismatched/missing slots and special transformations. Retain
+  baseline CLI rejection of binary entitlement input unless new native evidence
+  changes it; a library conversion extension is a different contract.
+- [ ] Complete library-entitlement applicability and DER-generation defaults/no-op
+  behavior by representation, preservation and deep signing. Extend raw/decoded
+  extraction and unknown DER type/version handling without conflating parsing
+  success with authenticated entitlement values.
+- [ ] Complete the remaining requirement lexer/parser, opcodes, binary forms,
+  canonical rendering and evaluator: precedence, escapes/comments, date/numeric
+  literals, certificate positions/fields/extensions/policies, existence/absence,
+  ordering/string predicates, Info.plist and entitlement contexts. Complete stdin,
+  source/file/binary inputs, `$self.identifier` and exact syntax diagnostics. Retain
+  the existing five named requirement kinds and numeric-set support.
+- [ ] Complete designated/default requirement synthesis by identity/representation,
+  including interpreter and `LC_DYLIB_CODE_SIGN_DRS` cases, preservation and explicit
+  overrides. Preserve whole sets rather than flattening to a designated expression.
+- [ ] Supply typed authenticated evaluation contexts for Apple anchors, platform,
+  notarization and dynamic predicates. Distinguish false, malformed and unavailable
+  evaluation. Do not return true for unavailable state; phase 07/10/11 supplies the
+  missing context before affected inventory entries can close.
+- [ ] Implement self/parent/responsible/library constraints, category and designated
+  LWCR behavior from versioned native schemas. Establish typed plist-to-DER rules,
+  correct special slots, unknown keys/operators and canonical ordering rather than
+  assuming entitlement DER is interchangeable.
+- [ ] Implement standalone constraint validation, enforcement warning/error policy,
+  validation timing, preservation and deep inheritance. Distinguish schema validity,
+  authenticated binding and actual runtime enforcement. Match the `codesign`
+  operation; do not claim Linux/Windows enforce Apple's kernel launch policy.
+
+**Source/oracles:** requirement grammar/generated parser, `reqparser.cpp`,
+`reqdumper.cpp`, `requirement.h`, `drmaker.cpp`, `CodeSigner.cpp`, `StaticCode.cpp`,
+SDK constraints/entitlement declarations and available implementation bodies.
+Use `csreq`/`codesign` mutual compile/decompile/evaluation plus Clang-built oracles
+where private framework behavior has no CLI observation. Record unavailable bodies.
+
+**Data points:** every remaining grammar/opcode/type; native binary bytes and text;
+true/false/malformed/missing-context predicates; empty/explicit/preserved metadata;
+XML-only/DER-only/contradictory slots; nested collections and budget exhaustion;
+constraint schemas and all slots; selected architecture and deep inheritance;
+warning/failure precedence before mutation. Do not equate semantically similar
+requirement text with native canonical output.
+
+**Exit:** format, selection and applicable CLI operations have independent evidence;
+affected trust/live-context obligations stay open until their dependencies close.
+
+<a id="phase-06"></a>
+## Phase 06 — Identities, CMS and hybrid signature slots
+
+**Deliverable:** remaining identity interoperability and native signature-container
+profiles, with real algorithm/provider evidence and separately addressable slots.
+
+- [ ] Complete encrypted PEM/PKCS#8 and required PKCS#12 content/bag/cipher/MAC
+  profiles using reviewed portable cryptography. Specify password encoding,
+  empty/absent/password-file behavior, authentication and KDF budgets. Keep file
+  identity inputs explicitly distinct from native keychain search semantics.
+- [ ] Support explicit selection in multi-identity archives, friendly names/local
+  key IDs, duplicates and extra/cross-signed chains. Prove the selected key matches
+  its leaf. Preserve the current unambiguous single-identity contract; do not
+  silently choose a different first key or treat archive order as trusted chain order.
+- [ ] Complete native CMS BER/DER forms, SignerInfo/SignedData versions and identifier
+  forms, algorithms/parameters, attributes, certificate choices, countersignatures
+  and CRLs where native accepts them. Retain original authenticated bytes: parser
+  normalization must not repair invalid signed content into a passing signature.
+- [ ] Complete hash-agility attributes for multiple/repeated digest directories and
+  slot associations. Validate absent versus NULL algorithm parameters, RSA-PSS
+  where accepted, duplicate attributes, ambiguous certificates and complete bindings.
+- [ ] Implement `--edit-cms`, `--dump-cms`, `--signing-data` and signing-time semantics
+  from the operation matrix, including raw output, edit integrity, input ownership,
+  allocation and failure behavior. Do not infer private formats from names.
+- [ ] Implement native signature-slot numbering, selection/default preference and
+  report models, distinct from slices/SuperBlob slots. Probe absent, duplicate and
+  out-of-range slots and mixed old/new signatures.
+- [ ] Complete hybrid/PQC algorithms, certificate structures, binding, downgrade
+  policy and provider selection only with legitimate native-created fixtures and
+  independent algorithm vectors. Select reviewed pure-Go components; do not guess
+  an OID/algorithm or translate unreviewed cryptographic arithmetic.
+- [ ] Integrate larger keys/signatures/chains with streaming/reservation and timestamp
+  imprint budgets. Define signer callback capabilities, signature encodings and
+  cancellation limits. Actual remote/hardware access remains phase 11 work.
+
+**Source/oracles:** CMS/ASN.1 and signing bodies, `cmsasn1.c`, SDK CMS interfaces and
+native slot evidence. Extend existing certificate/CMS extraction. Obtain independent
+OpenSSL/LibreSSL/platform archive vectors and native import/signature comparisons;
+legitimate restricted-provider evidence is a phase 01 prerequisite, not a final surprise.
+
+**Data points:** independent archive exports; correct/wrong/empty passwords; multiple
+keys, mismatches, duplicate bags and KDF exhaustion; BER nesting/indefinite lengths;
+algorithm parameters and signed-byte mutations; native deterministic RSA bytes;
+independently verified randomized signatures; classical/PQC component damage,
+downgrade attempts, slot selection and allocation boundaries. Keep public test
+identities only in fixtures; do not log private material or promise Go heap erasure.
+
+**Exit:** actual supported identities can sign and verify under native slot policy.
+Parsing a hybrid fixture without producing/validating its required components does
+not close hybrid signing; unavailable credentials remain an explicit prerequisite.
+
+<a id="phase-07"></a>
+## Phase 07 — Trust, timestamps and network policy
+
+**Deliverable:** remaining native operation-specific trust decisions and transport,
+while retaining the library's explicit-trust guarantees.
+
+- [ ] Finish the operation policy table separating integrity, implicit/self/caller
+  requirements, certificate-chain validity/trust, timestamp validity, expiration,
+  revocation and notarization. Keep quiet versus verbose policy and per-architecture
+  failure order explicit. Do not silently weaken callers requiring supplied roots/pins.
+- [ ] Complete evidenced chain construction and validation: alternate/cross-signed
+  paths, name comparison, self-issued versus self-signed, critical extensions,
+  constraints/path length, policies, key usage/EKU and weak/legacy algorithms.
+  Bound graph search across the entire operation.
+- [ ] Complete authenticated Apple marker and Team ID policy: missing/duplicate OU,
+  leaf/directory/nested agreement, real Developer ID and other legitimate Apple
+  fixtures. Synthetic look-alikes remain negative controls, never positive proof.
+- [ ] Implement check-expiration/revocation, software-signing-certificate validation,
+  skip-root-exception, skip-validation and no-TSA-cert behavior as observed. Do not
+  assume software-update validation is an identity-selection flag.
+- [ ] Complete timestamp defaults by identity and representation: omitted/bare/URL/
+  none, preserved metadata, dry runs, repeated architectures and nested code.
+  Preserve provider calls and allocation ordering until native evidence justifies
+  changing them. Imported-token verification and nonce-bound acquisition differ.
+- [ ] Extend TSTInfo/ESS/BER policy: supported IDs/names/OIDs/extensions, fractional
+  time, accuracy/ordering, nonces, certificate validity, skew and trusted evaluation
+  time. Reuse phase 06 CMS handling; do not create a second inconsistent verifier.
+- [ ] Complete native-required proxy/redirect/authentication/framing/compression,
+  DNS/IPv6, retry, timeout and cancellation behavior. Audit secure transport needed
+  for issuer/revocation/notary services under the existing production dependency
+  guard; adding `net/http`/`crypto/tls` is not implicitly permitted.
+- [ ] Preserve the recorded native-baseline rejection of HTTPS TSA URLs. That is
+  not automatically a missing TSA feature; authenticated service transport is a
+  separate requirement. Add issuer retrieval, OCSP/CRL, caches/freshness and offline
+  hard/soft failure only where the native operation requires them.
+
+**Source/oracles:** certificate/policy/signature verification source,
+`tsaSupport.c`, `tsaTemplates.c/.h`, `timestampclient.m` and existing timestamp/HTTP
+extractors. Use controlled local protocol servers, recorded tokens and legitimate
+Apple public chains; isolate evaluation time/trust inputs from changing host state.
+
+**Data points:** alternate issuers and ambiguous subjects; every relevant critical
+extension/policy; expired/future/revoked leaves and TSA chains; missing intermediates;
+trusted/untrusted timestamps crossing validity boundaries; malformed/partial
+responses, redirects/proxies/retries and cancellation; dry-run call counts; cache
+freshness/offline failures and exact policy diagnostics.
+
+**Exit:** defaults, transport, cryptographic binding and trust each have completed
+matrices. Offline replay proves replay behavior, not current service availability;
+a native signature check does not establish Gatekeeper acceptance.
+
+<a id="phase-08"></a>
+## Phase 08 — Generic files and detached interchange
+
+**Deliverable:** native generic signing/display/verification and detached containers,
+including detached-certificate input/output/merge policy on every host.
+
+- [ ] Extend the existing generic removal/discovery implementation to signing,
+  inspection and verification, with native attached xattr/fork representations,
+  resource binding, identifier/default requirement behavior and operation dispatch.
+- [ ] Implement native detached signature containers, object indexes, architecture
+  binding, replacement and selection precedence against embedded/xattr signatures.
+  Do not substitute another project's custom detached format for Apple's format.
+- [ ] Complete detached-certificate formats and linkage to chains/slots. Establish
+  ordering, duplicates, missing components and malformed data; concatenated PEM
+  is not assumed to be the native interchange format.
+- [ ] Implement root-retention and certificate merge using native classification,
+  deduplication and output rules. Distinguish self-issued, self-signed and trusted
+  root properties; preserve cross-signed variants where native does.
+- [ ] Integrate preservation, timestamps, requirements, digests, extraction/file-list
+  side effects, output collisions, cancellation and partial writes. Maintain rooted
+  identity checks and unrelated metadata/data-fork preservation through APFS APIs.
+- [ ] Prove explicit AppleDouble carrier export/restoration against real native
+  attached metadata. Add any genuinely missing reusable primitive upstream and
+  consume its release; native database registration is separately owned by phase 11.
+
+**Source/oracles:** `diskrep.cpp`, `filediskrep.cpp`, `singlediskrep.cpp`, generic and
+external signature representations, `sigblob.cpp`/`superblob.h` and native fixtures.
+Extend generic-removal and sideband research without regressing their qualified cases.
+
+**Data points:** empty files, scripts, ordinary data and objects; xattr/sidecar
+conflicts; foreign restored metadata; embedded/detached disagreement; wrong object
+or architecture index; missing chains; repeated/duplicate/cross-signed certificate
+inputs; readonly/output collisions; partial merge failures and preserved old output.
+
+**Exit:** native/Go interchange works in both directions for applicable operations;
+carrier support supplies metadata faithfully and does not claim live database access.
+
+<a id="phase-09"></a>
+## Phase 09 — Wider and large disk images
+
+**Deliverable:** native-supported DMG signing beyond the bounded in-memory adapter,
+using APFS's public image APIs and the shared streaming/policy layers.
+
+- [ ] Audit current APFS APIs and complete ReaderAt/size inspection, incremental
+  hashing and native in-place/staged writes. Preserve opaque compressed payload;
+  appending a signature must not cause unnecessary decompression/recompression.
+- [ ] Qualify encrypted, segmented, sparse and other native-accepted image forms.
+  Determine when an operation requires passwords, all segments or filesystem
+  decoding before designing adapters. Keep codecs, decryption and reconstruction
+  in APFS, with released and tested upstream prerequisites.
+- [ ] Complete signed-byte ranges, footer/trailer canonicalization, resource plist,
+  special slots, trailing data and old allocation rules with checked 64-bit math.
+  Extend supported profiles without removing overlap/length/flag validation.
+- [ ] Complete image applicability for identity/digest/page size, identifier,
+  preservation, entitlements/constraints, timestamps, detached signatures and
+  architecture options. Investigate broader certificate dry-run behavior and
+  diagnostics; retain recorded signal/crash profiles as safe divergences until resolved.
+- [ ] Retain native DMG removal rejection on the reference baseline. A custom image
+  remover is not parity. Keep signature validity separate from mountability,
+  decryption, notarization and Gatekeeper policy.
+
+**Source/oracles:** `diskimagerep.cpp`, `signer.cpp`, existing DMG extraction,
+APFS image sources and `hdiutil` native fixture generation/inspection. Reuse and
+extend the established APFS/HFS+ commercial image corpus; pin versions, hashes and
+redistribution constraints. An upstream fixture-generator defect is not evidence
+that an independently created image cannot be signed.
+
+**Data points:** large/sparse and >4 GiB offsets; multiple compression/encryption/
+segment forms; unsigned/replaced signatures; footer/resource/trailer mutations;
+cancellation, disk-full and permissions; complete chunk-manifest byte comparison;
+measured peak memory; Apple verification of Linux/Windows outputs.
+
+**Exit:** the accepted image matrix has bounded-memory operation and exact native
+binding/write behavior; all required APFS work is released before adoption.
+
+<a id="phase-10"></a>
+## Phase 10 — Notarization checks
+
+**Deliverable:** authenticated native `--check-notarization` behavior, not a claim
+that chain trust or an ordinary signature check establishes notarization.
+
+- [ ] Complete source/protocol/ticket research begun in phase 01: discovery,
+  object identifiers, request/response formats, trusted roots, lookup/cache and
+  forced-online behavior for Mach-O, bundles and DMGs.
+- [ ] Implement ticket parsing and cryptographic/content binding separately from
+  retrieval. Match selected architecture, CodeDirectory and signature slot;
+  reject a valid ticket for different code and unauthenticated positive responses.
+- [ ] Implement required lookup, cache/freshness, offline and revoked/unknown/
+  rejected/error behavior using phase 07's audited portable transport. Replay
+  must not stand in for a native-required fresh lookup.
+- [ ] Supply authenticated notarization context to requirements and complete CLI
+  output/exit behavior alongside trust, timestamps and explicit predicates.
+- [ ] Limit this phase to evidenced `codesign` operations. Submission, accounts and
+  stapling are not automatically in scope because another Apple tool supports them.
+
+**Source/oracles:** available Security ticket/policy code, SDK interfaces and
+legitimate public notarized artifacts with recorded native results. Private formats
+and credential/protocol availability must already have phase 01 prerequisite records.
+
+**Data points:** bound/unbound/tampered/unknown-version tickets; architecture/slot
+selection; expired/stale/revoked/unknown status; offline/cache/forced-online and
+service errors; exact diagnostics with recorded evaluation times and cache state.
+
+**Exit:** authenticated results reproduce the requested native check. Missing
+protocol access, valid fixtures or transport keeps the feature incomplete.
+
+<a id="phase-11"></a>
+## Phase 11 — CLI closure and live-state operations
+
+**Deliverable:** remaining cross-feature CLI behavior and real implementations of
+feasible state/provider features. Research of their feasibility must not wait here.
+
+- [ ] Complete native argument grammar: operation conflicts/defaults, short clusters,
+  repeated verbosity/options, optional/equals arguments, abbreviations if accepted,
+  `--`, dash-prefixed paths and parse/error precedence. Preserve Cobra/Viper while
+  preventing their generic defaults from changing native behavior.
+- [ ] Complete display at every verbosity, numeric errors, architecture/slot
+  selection, certificates, Team IDs, timestamps, requirements, constraints and
+  allocations. Match path spelling/quoting, stdout/stderr, newlines and exit codes.
+- [ ] Resolve locale/calendar/timezone differences, including retained hosted date
+  profiles, without broad output normalization. Separate each qualified native
+  environment; do not claim one machine establishes every locale/version.
+- [ ] Complete multi-operand continue/abort and aggregate statuses, file lists,
+  certificate/entitlement/requirement/CMS extraction, destination prefixes,
+  truncation/append modes, collisions and partial-output ordering.
+- [ ] Complete numeric process-versus-file routing, including explicit relative
+  filenames. Match live hosting/verification only with actual process state and
+  identity, PID reuse/races, loaded code and dynamic invalidation; file verification
+  or a caller-supplied snapshot is insufficient.
+- [ ] Implement feasible keychain, hardware and remote providers through permitted
+  pure-Go interfaces with real authorized access. Preserve key non-exportability,
+  search/selection order and authorization errors. Never prompt against unrelated
+  user keychains merely to make a test case pass.
+- [ ] Complete native detached database schema, matching/precedence, transactions,
+  permissions and persistence using isolated state. An offline codec alone cannot
+  establish registration in the actual system database.
+- [ ] Resolve exact signing-dylib and allocator-override contracts against the
+  production boundary. A built-in allocator matching default output cannot also
+  claim arbitrary helper execution. Preserve unresolved conflicts as blockers.
+
+The eight existing blocked entries require the following evidence:
+
+| Entry | Missing prerequisite to close it |
 | --- | --- |
-| PR #29 merge into main | `f0dcdca1b366ed7fe8a4db71c66338734bb407be`, merged at 20:23:55 UTC |
-| PR #30 merge into main | `3ad9e15d300621ca3b935e62a7c68532d983c570`, merged at 20:59:17 UTC |
-| Tested PR #30 head | `92f7b050003457d7f15793f2e84412a51af80422` |
-| Tested CI merge | `0ae6276b5aa7a31c5094bb87694673508078bfba` |
-| Audited source tree | `3c0305e7e7f0501c10d906f57d41ff8cb21ecc68`, shared by the tested head, CI merge and actual PR #30 merge |
-| Shared dependency | APFS v0.5.0 retained; this slice required no additional upstream API or release |
-| Native cleanup corpus | 105 complete tree comparisons across seven layouts, three architectures and five operations; eight directory/symlink profiles record explicit behavior differences |
-| Expanded native-import gate | 606 signed artifacts, including 84 new cleaned bundle archives from Linux/Windows; all 88 existing removal comparisons retained |
-
-The [completed PR #30 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35536380623)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35536380625)
-passed for the tested head above. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,024/4,221, 95.33% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,021/4,221, 95.26% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,031/4,221, 95.50% | 423/425, 99.53% | 1/1, 100% |
-
-All three producer jobs, race detection, nine fuzz targets, six-target packaging
-and independent Apple import verification passed. The final audit checked 575
-source/fixture hashes per OS, with only seventeen expected Windows text conversions;
-twelve archive/SBOM checksums; and all six clean, CGO-disabled binaries' APFS v0.5.0
-dependency. Each foreign producer's 105 cleanup-tree hashes, 126 existing writer-tree
-hashes and 184 standalone/alias/allocation hashes matched hosted Apple-compared
-outputs. Apple verified all 606 signed imports and all 88 removal byte comparisons.
-The final Windows tests capture file identity before unlinking, accounting for Go's
-lazy Windows file-ID lookup. These results apply to the tested tree above.
-
-Signing now excludes stale regular signature files from resource seals and purges
-them after each rewritten main executable commits, keeping the new CodeResources.
-Removal empties only the selected signature directory and retains the directory
-itself; external hard-link neighbours, descendant signatures during outer removal
-and dry-run contents are preserved. Unexpected signature files still fail verification.
-At that milestone, non-regular entries retained early rejection: native sign/removal
-could instead fail after replacement, and native dry runs could succeed. ACL
-inheritance, creation time, new-directory security, broader permissions and failure-diagnostic parity remained
-open at that milestone. PR #31 subsequently delivered the directory-stat profile
-below, and PR #33 delivered bounded directory/symlink failure timing. The 88-entry
-inventory and umbrella work-package statuses are unchanged.
-
-<a id="merged-pr31"></a>
-### Merged milestone: PR #31 (2026-09-21)
-
-| Item | Delivered evidence |
-| --- | --- |
-| Merge into main | `f2af473a9fd2566bb24df5a5b04c9a1d06cbe9bd`, merged at 06:38:57 UTC |
-| Tested PR head | `3555e32bd4e3e4a37517e0db20fe29438dce16d4` |
-| Tested CI merge | `c2119fceea8373950ee21f1f5e16bb59ff8bb8fd` |
-| Audited source tree | `bf44a92f3c47e8b7ed0c876312bd409dccb4c5de`, shared by the tested head, CI merge and actual PR #31 merge |
-| Shared API and dependency | [APFS PR #104](https://github.com/deploymenttheory/go-apfs-v2/pull/104), released and pinned as [v0.6.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.0); no APFS replace or workspace requirement |
-| D04 directory profile | Copy canonical bundle-root stat metadata only when creating `_CodeSignature`; selected physical framework roots, existing-directory preservation and explicit failure boundaries |
-| Added evidence | 40 directory cases across eight layouts/selections and five operations; eight macOS security profiles; complete `copyfile_stat` AST evidence on both Clang targets |
-
-The [completed PR #31 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35568396303)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35568396248)
-passed for the final head above. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,049/4,252, 95.23% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,046/4,252, 95.16% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,057/4,252, 95.41% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection and nine fuzz targets
-passed. The artifact audit checked 579 source/fixture hashes per OS, with only
-seventeen expected Windows text conversions; twelve archive/SBOM checksums; and
-all six clean, CGO-disabled binaries' APFS v0.6.0 dependency. Each foreign producer's
-40 directory-tree hashes, 126 writer-tree hashes, 105 cleanup-tree hashes and 184
-standalone/alias/allocation hashes matched independently Apple-compared macOS
-outputs. Apple verified all 606 signed imports and all 88 removal byte comparisons.
-The new metadata profiles add observations, not extra foreign signature archives.
-
-New directories copy Unix ownership/modes/times, supported Darwin BSD flags or
-ordinary Windows attributes/times through the shared API. Existing directories
-retain their metadata; dry runs and removal do not create them. Source xattrs,
-contents and explicit ACL entries are not copied. Native explicit-source-ACL
-copying and subsequent envelope inheritance remain different, as do executable
-ACL/birth-time behavior and broader permissions/failure ordering. Errors can leave
-an empty or partially updated directory before its envelope/executable commit;
-unit tests retain staging cleanup and cancellation guarantees. The inventory still
-has zero fully verified entries; D04/WP-02 remains open beyond this bounded profile.
-
-<a id="merged-pr33"></a>
-### Merged milestones: PR #32 and PR #33 (2026-09-21)
-
-[PR #32](https://github.com/deploymenttheory/go-macos-codesign/pull/32) merged the
-documentation update for PR #31 and APFS v0.6.0 as
-`90909a41ebfc2b5033ce20fb9457e4c961b382a9`.
-[PR #33](https://github.com/deploymenttheory/go-macos-codesign/pull/33) then delivered
-the next bounded D04/WP-02 implementation: stale-directory/symlink cleanup failures.
-
-| Item | Delivered evidence |
-| --- | --- |
-| PR #33 merge into main | `d322e85441e5299e55d687212d79155195010fa1`, merged at 07:57:44 UTC |
-| Tested PR head | `3a9049caf19fa43757db6668b3e141020c07c250` |
-| Tested CI merge | `74fbd49b4bdbf7576ee687260586b7e18d249d87` |
-| Audited source tree | `5ef9b10d47de8127d26c53b3eba74f87b176d33d`, shared by the tested head, CI merge and actual PR #33 merge |
-| Shared dependency | Released APFS v0.6.0 retained; no new upstream API, release, replace or workspace requirement |
-| Native failure corpus | 210 complete tree comparisons across seven layouts, five entry types and six operations on arm64, plus four nested child-failure/dry-run cases |
-| Source evidence | Re-extracted writer AST retains every pinned source, SDK, excerpt, translation-unit and target result; its scope now records the added failure corpus |
-
-The [completed PR #33 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35573938808)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35573938782)
-passed for the tested head above. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,060/4,267, 95.15% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,057/4,267, 95.08% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,068/4,267, 95.34% | 423/425, 99.53% | 1/1, 100% |
-
-All three producer jobs, six-target packaging, race detection, nine 60-second fuzz
-targets and independent Apple import verification passed. The final audit checked
-579 source/fixture hashes per OS, with only seventeen expected Windows text
-conversions; twelve archive/SBOM checksums; and all six clean, CGO-disabled binaries'
-exact CI revision and APFS v0.6.0 dependency. Each foreign producer matched all
-210 failure trees and four nested failure trees, including statuses and recorded
-inode/neighbour effects. The 126 writer, 105 regular-cleanup, 40 directory and 184
-standalone/alias/allocation hash comparisons per producer also passed. Apple
-verified all 606 signed imports, including 168 writer and 84 cleanup archives,
-and all 88 removal byte comparisons. Failed-operation cases add observations,
-not signed imports. These results apply to the tested tree above.
-
-Ordinary stale directories and symlinks are now rejected during cleanup after
-executable replacement; dry-run signing preserves them and succeeds. Removal
-deletes regular CodeResources before scanning stale entries. Child cleanup failure
-retains its earlier commits and stops the parent commit. Verification, root
-containment, internal write-alias rejection and staging cleanup remain enforced.
-Non-regular envelopes, special files, unreadable subtrees and unsafe paths/aliases
-can still fail early. Native named-component removal ordering beyond CodeResources,
-multiple-entry enumeration order, broader permissions, exact diagnostics and the
-remaining ACL/birth-time profiles stay open. D04/WP-02 remains open, and no status
-in the 88-entry inventory is upgraded.
-
-<a id="merged-pr34"></a>
-### Merged milestone: PR #34 (2026-09-21)
-
-| Item | Delivered evidence |
-| --- | --- |
-| Merge into main | `f4d7e284f5ce21deeae80890238d1344f155ce72`, merged at 09:22:55 UTC |
-| Tested PR head | `eba869d93b7e802878007caf5e0301b29c348d38` |
-| Tested CI merge | `efb8502d5ca33a2d089b6900b8bdcd26ab5b1dd2` |
-| Audited source tree | `6eca03f7a8d77bebdb0b23cedf1389583782ef73`, shared by the tested head, CI merge and actual PR #34 merge |
-| Dependency in the merged code | APFS v0.6.0 was pinned; the concurrency fix in merged APFS PR #106 was not yet consumed |
-| Native ordering corpus | 278 complete tree comparisons across seven layouts, including named components, two hash-collision pairs, opposite creation orders and entries before CodeResources |
-| Source evidence | Ten complete Apple writer methods plus `copyfile_stat` on both Clang targets, adding the complete `SecCodeSigner::Signer::remove` method |
-
-The [completed PR #34 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35581091931)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35581091975)
-passed for the tested head above. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,070/4,273, 95.25% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,067/4,273, 95.18% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,077/4,273, 95.41% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection, nine fuzz targets and
-independent Apple import verification passed. The artifact audit checked 580
-source/fixture hashes per OS, with seventeen expected Windows text conversions;
-twelve archive/SBOM checksums; and six clean, CGO-disabled binaries with the
-exact CI revision and provisional APFS v0.6.0 dependency. Each foreign producer's
-278 new trees, survivor sets, exit statuses and recorded inode/neighbour effects
-matched independent native outputs. The previous 126 writer, 105 regular-cleanup,
-40 directory, 214 failure and 184 standalone/alias/allocation comparisons per
-producer remain intact. Apple verified all 606 signed imports and 88 removal byte
-comparisons. Failed-operation cases do not add signed import artifacts.
-
-Cleanup now follows case-insensitive APFS ASCII name-hash order, using folded
-name comparisons on collisions, and stops at the first non-regular entry.
-CodeResources participates in that order during removal; an earlier failure can
-retain it. A non-regular removal envelope is rejected after executable replacement
-when reached. Signing retains early envelope validation. These results supersede
-PR #33's CodeResources-first assumption, preserving containment, bounds, internal
-write-alias checks, dry runs, strict verification and partial-purge cancellation.
-
-APFS PR #106 merged as `1989afea6a0de3cbfe99930f20ec24b420666db9` at 09:02:26 UTC.
-Its tested head `0820e44cd0e095bf51932359bc42431e495a357a` passed the
-[upstream workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35580019373),
-including a fresh-process regression that reproduced the old first-use race.
-Release Please [PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107)
-passed its [CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35581097944)
-and merged as `3210dbb112d180d5a53232daaaee0752c06d62a3` at 09:27:21 UTC.
-[v0.6.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.6.1) was
-published at 09:27:31 UTC and contains the tested fix. PR #35 subsequently pinned
-that release and passed its own final CI and artifact audit, recorded below;
-PR #34's evidence above still describes v0.6.0.
-Other filesystem orders, non-regular signing envelopes, broader permissions and
-diagnostics, executable ACL/birth-time behavior and explicit directory ACL copying
-remain open. D04/WP-02 and the 88-entry inventory retain their partial status.
-
-<a id="merged-pr35"></a>
-### Merged milestone: PR #35 (2026-09-21)
-
-| Item | Delivered evidence |
-| --- | --- |
-| Merge into main | `0457f52db4bbce4b55de8dc1564b5040923e4f54`, merged at 09:54:59 UTC |
-| Tested PR head | `14d14a6d254f5ef9fa08b9f135087bc39fa8c469` |
-| Tested CI merge | `30edbbaa3da7c525bbbb2ff5bfea22144b8aa1e3` |
-| Audited source tree | `395520d539c54d79bd70f783345190f0ebdd82fe`, shared by the tested head, CI merge and actual PR #35 merge |
-| Released dependency | APFS v0.6.1, containing PR #106's concurrent name-hash initialization fix, published through release PR #107 |
-| Integration | Released module and checksums; no APFS replace or development workspace |
-
-The [completed final PR #35 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35584561129)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35584561149)
-passed for the tested head above, including its README update. Downloaded coverage
-artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,070/4,273, 95.25% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,067/4,273, 95.18% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,077/4,273, 95.41% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection, nine fuzz targets and
-independent Apple import verification passed. The final artifact audit checked
-580 source/fixture hashes per OS, with seventeen expected Windows text
-conversions; twelve archive/SBOM checksums; and all six clean, CGO-disabled
-binaries' exact CI revision and APFS v0.6.1 dependency. Each archive contained
-the audited binary and final README. A local fresh-process race regression also
-passed directly against the released APFS module.
-
-Each foreign producer's 278 ordering cases matched the independent native trees,
-survivor sets, exit statuses and recorded inode/neighbour effects. The previous
-126 writer, 105 regular-cleanup, 40 directory, 214 failure and 184
-standalone/alias/allocation comparisons per producer remained intact. Apple
-verified all 606 signed imports and 88 removal byte comparisons.
-
-This closes the released-dependency integration gate for the merged ordering
-profile. It does not close D04/WP-02 or change any of the 88 inventory statuses.
-Executable ACL/birth-time behavior, explicit directory ACL copying, non-regular
-signing envelopes and wider filesystem/permission failures remain outstanding.
-
-<a id="merged-pr37"></a>
-### Merged milestones: PR #36 and PR #37 (2026-09-21)
-
-[PR #36](https://github.com/deploymenttheory/go-macos-codesign/pull/36) updates the
-plan for PR #35. [PR #37](https://github.com/deploymenttheory/go-macos-codesign/pull/37)
-delivers the bounded D04/WP-02 signing-envelope directory/permission profile.
-
-| Item | Delivered evidence |
-| --- | --- |
-| PR #36 merge into main | `17ab8d54c387ac4a644ce9a88d7c65c7bfe684d2` |
-| PR #37 merge into main | `83e8f895f13180aed3cf4f315f86dc53a92f379d` |
-| Tested PR #37 head | `4b76b3a4ebaac8897c862f7ef140c3afbf9b317c` |
-| Tested CI merge | `6cfb19a5bfc21409fabe20c19f6fdc0c54bf2665` |
-| Audited source tree | `4e3967849fe2633ec11a09eac4b91a1d9c7ee45d`, shared by the tested head, CI merge and actual PR #37 merge |
-| Released dependency | APFS v0.6.1 retained; no upstream change or release required |
-| Added native corpus | 84 envelope-directory cases across seven layouts, 20 nested commit-order cases and 20 POSIX permission cases |
-| Native references | Local macOS 27.0 build 26A428 and hosted macOS 27.0 build 26A5406e; separate binary identities recorded in the audit |
-
-The [final PR #37 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35592781111)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35592781286)
-passed. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,074/4,276, 95.28% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,070/4,276, 95.18% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,081/4,276, 95.44% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection and nine fuzz targets
-passed. The audit checked 582 source/fixture hashes per OS, seventeen expected
-Windows text conversions, twelve archive/SBOM checksums and six clean, CGO-disabled
-binaries with the exact CI revision and APFS v0.6.1. Archives match the audited
-binaries and README. Linux matched all 124 new native cases; Windows matched 104
-and explicitly skipped the 20 POSIX mode-bit cases. The existing writer, cleanup,
-directory, failure, ordering and standalone comparisons passed, as did Apple's
-606 signed-import verifications and 88 removal byte comparisons.
-
-Envelope-directory rejection occurs before the affected executable commits;
-earlier child commits survive. Signing and removal avoid unused old child-envelope
-reads; verification retains required reads and limits. Bounded traversal, internal
-alias checks, early signing-symlink rejection and staging cleanup remain enforced.
-These filesystem observations add no signed-import archives and do not close
-D04/WP-02 or change the 88 inventory statuses.
-
-<a id="merged-pr39"></a>
-### Merged milestone: PR #39 (2026-09-21)
-
-Darwin bundle executables receive a new creation time capped by their source
-modification time. Dry runs, external hard-link neighbours, existing envelopes and
-untouched descendants retain their creation times. Failure or cancellation during
-preparation preserves originals and removes staging. The 210 native comparisons cover seven
-layouts, three architectures, past/future modification times and five operations.
-
-| Item | Verified evidence |
-| --- | --- |
-| Merge into main | `448c4090eda0afc63b8f8def3e671dd85f712e8f`, merged at 13:06:34 UTC |
-| Tested PR head | `14ae93a0b109adb14aa690ae9c79020fbb101b1b` |
-| Tested CI merge | `692e32a09d7dfce22ea10d0941c2d523beda18b4` |
-| Audited source tree | `3c7cc8547af213f08a3957ebf89cb7983cb9ddd4`, shared by the tested head, CI merge and actual merge |
-| Released dependency | [APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108), consumed as [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0); no local replace/workspace |
-
-The [final workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35601272902)
-and [lint workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35601273069)
-passed. Downloaded coverage artifacts report:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,078/4,281, 95.26% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,074/4,281, 95.16% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,087/4,281, 95.47% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection and nine fuzz targets
-passed. The audit matched 584 source/fixture hashes per OS, allowing seventeen
-expected Windows text conversions, and checked twelve archive/SBOM checksums.
-All six CGO-disabled binaries contain APFS v0.7.0 and the exact CI revision;
-archives match those binaries and the README. The existing writer matrices,
-606 Apple-verified signed imports and 88 removal comparisons passed.
-
-Local release-backed verification and lint passed, with the native suite using a
-twenty-minute test timeout after exceeding the default ten minutes. Local macOS
-27.0 build 26A428 and hosted build 26A5406e retain separate native binary identities
-in their provenance. Both Clang targets record the creation-time attribute and
-timestamp layout. Linux/Windows retain their existing replacement metadata policy;
-this Darwin-only corpus adds no import archives. ACL/access-time and wider filesystem
-profiles remain open, with no D04/WP-02 or inventory status upgrade.
-
-<a id="merged-pr41"></a>
-### Merged milestone: PR #41 (2026-09-21)
-
-Bundle signing and re-signing refresh source executable access time and give each
-replacement a later access time. Outer removal leaves descendant access unchanged;
-dry runs record source reads without replacing files. External hard links retain
-their bytes, write timestamps and identity. The 294-case Darwin corpus covers seven
-layouts, three architectures, past/future access times and seven operations.
-
-| Item | Verified evidence |
-| --- | --- |
-| Merge into main | `32620f8c198ae519fb1e19417d298f3b9ae47411`, merged at 14:41:32 UTC |
-| Tested PR head | `05932b1f4f5360ec682a0c0248e5ca88c6d97069` |
-| Tested CI merge | `9c9a1e4ca0b9ce3a55b4050081661f5a67578cc8` |
-| Shared audited tree | `fa9e7cb249be554d8953942dbd9eb95aa10f6200`, identical for head, CI merge and actual merge |
-| Released dependency | APFS PR #110, released through PR #111 as v0.8.0; no APFS replace/workspace |
-
-[Final compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35611728825)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35611728699)
-pass with the published dependency. Artifact coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,086/4,291, 95.22% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,082/4,291, 95.13% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,095/4,291, 95.43% | 423/425, 99.53% | 1/1, 100% |
-
-All three producers, six-target packaging, race detection and nine fuzz targets
-pass. The audit matches 586 source/fixture hashes per OS, seventeen expected Windows
-text conversions and twelve archive/SBOM checksums. All six packaged binaries use
-APFS v0.8.0, disabled CGO and the exact CI revision. Apple verifies 606 signed
-imports and matches 88 removal outputs. The 210 creation-time cases and existing
-writer, cleanup, envelope and alias matrices remain passing. Both Clang targets
-record twelve complete functions/methods and fifteen constants. Local native
-checks use macOS 27.0 build 26A428; hosted checks use build 26A5406e.
-
-This Darwin metadata profile adds no foreign import archives and leaves ACL,
-uncovered access-time and wider filesystem profiles open. D04/WP-02 remains
-partial; no inventory status is upgraded.
-
-<a id="merged-pr42"></a>
-### Merged milestone: PR #42 (2026-09-21)
-
-Standalone Mach-O signing, re-signing, signed/unsigned removal and signed/unsigned
-dry runs refresh source access time. Replacements receive a later access time;
-source hard links retain bytes, identity and write timestamps. Display and
-verification preserve executable metadata. The 464 new native comparisons cover
-216 Mach-O cases, 168 bundle read-only controls and 80 DMG access-time controls.
-Twenty DMG dry-run cases explicitly retain the native byte/modification-time gap.
-
-| Item | Verified evidence |
-| --- | --- |
-| Merge into main | `8c7c68fc16a20e6f9621364d631f00f083b276d9`, merged at 15:34:43 UTC |
-| Tested PR head | `0ac36887a4204bfebf3815a5d2906bbdb7d9f31b` |
-| Tested CI merge | `e4b5d2a3c2a099fde35963f975bb5dd48a1ae1e1` |
-| Shared audited tree | `7d52e2aedef7c153cdc16f2f0f221b8306de022f`, identical for head, CI merge and actual merge |
-| Dependency | Released APFS v0.8.0 retained; no new API, release or APFS replace/workspace |
-
-[Final compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35617307180)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35617307200)
-pass. Audited coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,092/4,300, 95.16% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,088/4,300, 95.07% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,101/4,300, 95.37% | 423/425, 99.53% | 1/1, 100% |
-
-All six packaged targets, race detection and nine fuzz targets pass. The audit
-matches 588 source/fixture hashes per OS, seventeen expected Windows text
-conversions and twelve archive/SBOM checksums. Packaged binaries contain APFS
-v0.8.0, disabled CGO and the exact CI revision. Apple verifies 606 signed imports
-and matches 88 removal outputs. The 294 bundle access-time cases, 210 creation-time
-cases and existing writer/cleanup/envelope/alias matrices remain passing.
-Full local native verification, lint and six target builds also pass. Both Clang
-targets retain twelve complete functions/methods and fifteen constants. This
-bounded profile adds no foreign import archives or inventory status upgrades.
-
-<a id="merged-pr44"></a>
-### Merged milestones: PR #43 and PR #44 (2026-09-21)
-
-PR #43 records PR #42's delivery. PR #44 checks Mach-O dry-run allocation and
-retains independent sibling commits after executable allocation permission
-failures, while preserving the failed executable and preventing ancestor writes.
-
-| Item | Delivered evidence |
-| --- | --- |
-| PR #43 documentation merge | `e8f795d3c6ed97c27de6637cda6f05cc447a8c0b`, 18:45:17 UTC |
-| PR #44 actual merge | `989b5c557369dc981041e7649da7223c96511791`, 18:45:42 UTC |
-| Tested PR head | `24a1d0106a8386ed20d301c61e204251f08acb53` |
-| Tested CI merge | `ab21b73fc1fe631a38c0ef123ded4f20d86f54e3` |
-| Audited tree | `1f20e8e7df3e290b31f89f25e8ddaeed20cabbaf`, shared by the tested head, CI merge and actual merge |
-| Shared dependency | Released APFS v0.8.0 retained; no new API, release or override |
-| Native directory profile | 624 POSIX comparisons, seven operand/tree shapes, three architectures, directory modes 0755/0555 and file modes 0755/0551 |
-| Failure controls | Twelve real creation-denial unit cases on each OS, including Windows DACLs; dry-run cancellation and Darwin metadata-denial checks |
-
-[Final compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35624914979)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35624915130)
-pass. Audited coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,129/4,334, 95.27% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,124/4,334, 95.15% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,137/4,334, 95.45% | 423/425, 99.53% | 1/1, 100% |
-
-All six packaged targets, race detection and nine fuzz targets pass. The audit
-matches 592 source/fixture hashes per OS, seventeen expected Windows text
-conversions and twelve archive/SBOM checksums. Packaged binaries contain the
-released dependency, disabled CGO and the exact CI revision. Apple verifies all
-606 imports and matches 88 removal outputs. The 464 PR #42 controls, 294 bundle
-access-time cases, 210 creation-time cases and earlier writer matrices remain passing.
-Full local verification, lint and six target builds pass. The writer AST contains
-fourteen complete functions/methods on two targets. At this milestone, 216 directory
-cases retained explicit planning-read differences; PR #45 addresses them.
-No inventory or work-package status was upgraded.
-
-<a id="merged-pr45"></a>
-### Merged milestone: PR #45 (2026-09-21)
-
-Bundle planning uses ordinary bounded reads; source access is recorded when an
-executable reaches allocation. Shallow/preserved descendants, rejected signed
-bundles and allocation-blocked ancestors retain their access times.
-
-| Item | Delivered evidence |
-| --- | --- |
-| Actual merge | `5f5c1069ed1825d08c5f32598b16193ba4e09455`, 20:03:03 UTC |
-| Tested PR head | `b2ef79cc79ceb5b758d83d62cb6e1a3cb7c222f7` |
-| Tested CI merge | `f1c6d8202a61ce00af67e27cb11884f79e518dd5` |
-| Audited tree | `160891d30469b36cb042f93da76e3998133f616c`, shared by head, CI merge and actual merge |
-| Dependency | Released APFS v0.8.0; no new API, release or override |
-| Native access evidence | 252 selective-signing/rejection cases; 624 directory cases require matching effects for dispatched work |
-| Explicit failure limits | 36 cases record envelope/cleanup and unsigned-child source-read differences, plus copied replacement access after cleanup failure |
-| Scheduling evidence | Native dispatch can leave an independent sibling unstarted; full member manifests, identity/timestamp checks and mutation controls verify that outcome |
-
-[Compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35643759861)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35643759841)
-pass on the tested commit. Audited coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,123/4,328, 95.26% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,118/4,328, 95.15% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,131/4,328, 95.45% | 423/425, 99.53% | 1/1, 100% |
-
-The audit matches 594 source/fixture hashes per OS, seventeen expected Windows
-text conversions, six packaged binaries and twelve archive/SBOM checksums.
-Packaged binaries contain disabled CGO, released APFS v0.8.0 and the exact CI
-revision. Race detection, all nine fuzz targets, 606 signed imports and 88 removal
-comparisons pass. Full local verification, lint and six builds also pass. The
-464 standalone/read-only/DMG controls, 294 bundle-access cases, 210 creation-time
-cases and earlier writer matrices remain passing. Both Clang targets contain
-fifteen complete functions/methods and fifteen SDK constants. No inventory or
-work-package status was upgraded.
-
-<a id="merged-pr46"></a>
-### Merged milestone: PR #46 (2026-09-21)
-
-Signing and removal refresh replacement access only after that executable's
-signature cleanup succeeds. Cleanup failure retains its copied source access time;
-completed descendants retain their later access. Committed-inode identity checks
-protect the final read, and preparation/cancellation guarantees remain covered.
-
-| Item | Delivered evidence |
-| --- | --- |
-| Actual merge | `35bb54232cc2cff21aec912a5aab257cc08715d6`, 20:45:54 UTC |
-| Tested PR head | `8b05785332576d703562f52fe9f5384844a6c4ae` |
-| Tested CI merge | `ca0b70dbc6ad8b968d20b0994af12f35e26ccaeb` |
-| Audited tree | `41f58f9f17e8338f28c5b6fba93e3732242594c4`, shared by head, CI merge and actual merge |
-| Dependency | Released APFS v0.8.0 |
-| Native cleanup-access evidence | 504 cases: seven layouts, three architectures, past/future access, two stale-entry types and six operations; 420 failures and 84 dry-run controls |
-| Failure boundaries | All 36 cases match replacement access; 24 cases retain 30 source-read differences |
-| Regression controls | Ten base-writer failures after native expectations pass, two passing dry-run controls, four changed-target cases and cleanup cancellation |
-
-[Compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35651094590)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35651094447)
-pass on the tested commit. Audited coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,136/4,345, 95.19% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,132/4,345, 95.10% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,144/4,345, 95.37% | 423/425, 99.53% | 1/1, 100% |
-
-The audit matches 595 source/fixture hashes per OS, seventeen expected Windows
-text conversions, six CGO-disabled packaged binaries and twelve archive/SBOM
-checksums. Race detection, all nine fuzz targets, 606 signed imports and 88 removal
-comparisons pass. Full local verification, guards, lint, six builds and all retained
-writer matrices pass. Both Clang targets contain sixteen complete functions/methods
-and fifteen SDK constants, including the signing controller's successful-operation
-reset boundary. Inventory and umbrella work-package statuses remain unchanged.
-
-<a id="merged-pr47"></a>
-### Merged milestone: PR #47 (2026-09-22)
-
-Envelope failures leave their executable unread; child-cleanup failures leave
-ancestors unread. Successful commits copy the current source access time into the
-staged replacement, retaining private staging and preparation-error preservation.
-
-| Item | Delivered evidence |
-| --- | --- |
-| Actual merge | `253667b102275878321be8b7d6b79ce35768a434`, 03:55:26 UTC |
-| Tested PR head | `ed2234bb55b44fe44e2c081adc9be456a08ece1b` |
-| Tested CI merge | `2a8a2ed18a8d690a8d4e9dda0759074130018696` |
-| Audited tree | `db223c55b6f6eb0daceb88487d02673c213f7ff5`, shared by head, CI merge and actual merge |
-| Dependency | Released APFS v0.9.0, including `hostmeta.CopyAccessTime`; no APFS override |
-| Native failure boundaries | 54 cases, including 18 allocation-denial combinations; 48 match source/replacement access and six unsigned-child dry runs retain a source-access difference |
-| Regression controls | 18 native-first failures against the previous writer and 18 passing controls; source/staging identity, copy denial, cancellation and combined allocation/source errors |
-
-[Compatibility CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35683464692)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35683464686)
-pass on the tested commit. Audited coverage is:
-
-| Runner | Library statements | CLI statements | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,164/4,378, 95.11% | 417/425, 98.12% | 1/1, 100% |
-| Windows 2025 | 4,160/4,378, 95.02% | 417/425, 98.12% | 1/1, 100% |
-| macOS 27 | 4,173/4,378, 95.32% | 423/425, 99.53% | 1/1, 100% |
-
-The audit matches 595 source/fixture hashes per OS, seventeen expected Windows
-text conversions, six CGO-disabled binaries with APFS v0.9.0 and twelve archive/SBOM
-checksums. All 57 released hostmeta files match the tested APFS implementation.
-Race detection, nine fuzz targets, 606 signed imports and 88 removal comparisons
-pass. Full local verification, guards, lint, six builds and retained writer matrices
-pass. Both Clang targets retain sixteen complete functions/methods and fifteen SDK
-constants. Inventory and umbrella work-package statuses remain unchanged.
-
-The first hosted macOS attempt failed three unchanged native certificate-chain
-setup cases with Apple's `errSecInternalComponent`, before Go comparison; all 54
-failure-boundary cases passed. The chain test passed ten consecutive local runs.
-Rerunning only failed jobs on the same commit passed in attempt two, including
-native imports; no test or code was weakened. The cause of the native failure is
-unproven. Local evidence uses macOS build 26A428; hosted evidence uses 26A5406e.
-
-<a id="merged-pr48"></a>
-### Merged milestone: PR #48 (2026-09-23)
-
-PR #48 merged as `4871006110da1693583317611b3ebd4e579775f0`; its tested head is
-`b540add7b4298467b8c3b75796e60692d019e74e`. The
-[completed required workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294132)
-passed all three producer jobs, packaging, native imports and race/fuzz;
-[golangci-lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294098)
-also passed. These are verified workflow statuses; this entry does not claim a
-new independent download/audit of that historical run's artifacts.
-
-The implementation allocates reached unsigned helpers, child bundles and
-grandchildren before their unchanged on-disk seal rejects a deep dry run.
-Allocation errors take precedence, cancellation cleans staging, and bytes,
-envelopes, inodes and ancestor access remain unchanged. Seventy-two native cases
-and twelve portable cases cover the single-descendant-chain profile. All 54
-retained failure-boundary cases now require matching source/replacement access.
-Broader planning and asynchronous sibling behavior remain open.
-
-<a id="merged-pr49"></a>
-### Merged milestone: PR #49 (2026-09-24)
-
-Actual merge `bd67bddbf59c9af23a5e03065ff175fcb310c72d`, tested head
-`e11a86beb41e3b6e656a16349b15515cead1a73f` and CI merge
-`12c79e28930a62a73c75eec0853ac43c566337c1` share tree
-`df024ed1d94cae706794d4349a8e6c2a34d697a9`. The
-[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35999356525)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35999356699)
-passed. Downloaded coverage reports establish:
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,186/4,393 (95.29%) | 417/425 (98.12%) | 1/1 (100%) |
-| Windows 2025 | 4,182/4,393 (95.20%) | 417/425 (98.12%) | 1/1 (100%) |
-| macOS / Xcode 27 | 4,190/4,393 (95.38%) | 423/425 (99.53%) | 1/1 (100%) |
-
-The audit checked all 601 source hashes per OS, allowing seventeen expected
-Windows text conversions; twelve archive/SBOM checksums; and six packaged binaries
-with CGO disabled, released APFS v0.9.0 and the tested CI merge revision. All 70
-Linux and 70 Windows dry-run hashes match independently native-compared Mac output.
-Downstream native checks pass for 140 unsigned DMGs, 606 valid signed artifacts
-and 88 removal comparisons; race/fuzz and six-target packaging also pass.
-
-The delivered profile covers 70 DMG lifecycle cases, all 80 DMG access/metadata
-comparisons, four permission cases and six complete native methods extracted
-through Clang on both targets. Certificate DMG path dry runs remain unsupported
-because the four recorded native probes terminate by signal. `SignBytes` retains
-its complete-signature construction contract. The notice omission recorded at
-this historical commit is addressed by PR #50.
-
-<a id="merged-pr50"></a>
-### Merged milestone: PR #50 (2026-09-24)
-
-Actual merge `1514835fea8bcc8a868d6e12a85ebfaa3138f2ca`, tested head
-`9407e52b87e71e50e557e865723b90f125c8ea67` and CI merge
-`3b232afbb703f89a2d7b7659710a0e6e2dfaa1c8` share tree
-`9e5a2fca4901af9669e47cd9288d19d0faa11ced`. The
-[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36003971588)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36003971466)
-passed. Downloaded coverage reports establish:
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,201/4,408 (95.30%) | 422/430 (98.14%) | 1/1 (100%) |
-| Windows 2025 | 4,197/4,408 (95.21%) | 422/430 (98.14%) | 1/1 (100%) |
-| macOS / Xcode 27 | 4,205/4,408 (95.39%) | 428/430 (99.53%) | 1/1 (100%) |
-
-The audit checked 604 source hashes per OS, seventeen expected Windows text
-conversions, twelve archive/SBOM checksums and six packaged CGO-disabled binaries
-with released APFS v0.9.0 and the CI merge revision. All 80 Linux and 80 Windows
-notice-lifecycle output hashes match independently native-compared Mac results.
-All 92 portable notice records, eight Mac failure records and 70 exact-diagnostic
-DMG dry-run records are present. Native checks pass for 140 unsigned DMGs,
-606 signed imports and 88 removals; race/fuzz and packaging also pass.
-
-The local full suite encountered three existing native chain-signing setup
-failures (`errSecInternalComponent`) before Go comparison, also reproduced with
-merged-baseline production sources. Hosted Mac CI passed those unchanged cases;
-no tests were skipped or weakened. The cause of the local failure is unproven.
-The notice profile leaves malformed signature repair/rejection, mixed-signature
-universals, complete verbosity and OS-error wording outstanding. No inventory
-status was upgraded in PR #50.
-
-<a id="merged-pr51"></a>
-### Merged milestone: PR #51 (2026-09-24)
-
-Actual merge `fe9539f1798f3851a253891dc09ab97551db4ae3` and final head
-`38fe1196383fbf9271f0afd865de851f57ef781f` share tree
-`222399e447e4812272df763c4612e9f67836de78`. The delivered certificate-extraction
-profile adds owned DER metadata, optional prefixes, ordered output and partial
-write behavior, with 115 portable cases and two Mac cases. Only extraction moved
-to partial; the inventory remains 26 partial, 54 unimplemented, eight blocked.
-
-The [final PR workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36061121126)
-passed Linux, Windows, packaging and race/fuzz, but failed Mac verbose certificate
-display because native used a different date format. Native imports were skipped
-by dependency; no complete three-OS/artifact audit is claimed for this merge.
-An earlier Windows fixture failure was fixed before merge by using `File.Stat`
-to capture identity before renaming a path; no preservation assertion was removed.
-Full local verification passed at 4,205/4,408 library statements, 459/461 CLI
-statements and 1/1 entry-point statement, with focused checks after test-only edits.
-
-The following slice carries forward explicit local/hosted date profiles with raw
-outputs and honest non-parity attestations. It also closes the discovered
-bundle-parent alias display difference. Final validation must cover the combined
-result rather than treating the merged PR as an already green baseline.
-
-<a id="merged-pr52"></a>
-### Merged milestone: PR #52 (2026-09-25)
-
-Actual merge `c8054f2ecafb7d513418e25956223466c5f7a811`, tested head
-`cee524bcc7735f4ea5f80f42a6f336b326666911` and CI merge
-`8a29a8cffdb8fa61db519be7da79625bd90addfd` share tree
-`5daacab12393bd5c54f73e531f803521eff7af3a`. The
-[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36067958790)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36067958809)
-passed. All three producer coverage reports establish:
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,206/4,413 (95.31%) | 455/461 (98.70%) | 1/1 (100%) |
-| Windows 2025 | 4,202/4,413 (95.22%) | 455/461 (98.70%) | 1/1 (100%) |
-| macOS / Xcode 27 | 4,210/4,413 (95.40%) | 459/461 (99.57%) | 1/1 (100%) |
-
-The audit checked 611 source hashes per OS, seventeen expected Windows text
-conversions, twelve archive/SBOM checksums, six SPDX 2.3 SBOMs and all six packaged
-CGO-disabled binaries at the CI merge revision with released APFS v0.9.0. All 108
-parent-alias signing/removal hashes, 96 extracted DER sets and fourteen extraction
-lifecycle/operation hashes per foreign producer match native-compared Mac records.
-The 115 portable extraction records and two Mac records are present. Eighteen
-hosted verbose certificate displays retain the complete known date-format
-difference with both raw outputs; all other characters match. Native provenance
-is macOS 27.0 build 26A428, codesign SHA-256
-`d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e`.
-
-Retained notice and DMG dry-run records also pass. Downstream native validation
-passes 606 signed imports, 88 removals and 140 unsigned DMG dry runs. Race/fuzz,
-six-target packaging and local full verification pass. The earlier nested-app
-fixture-prefix mismatch was fixed symmetrically using physical fixture roots;
-no broad output normalization was introduced. These gates close PR #51's combined
-validation gap without claiming localized-date equivalence. No inventory status
-changed in PR #52; broader WP-03/WP-20 work remains open.
-
-<a id="merged-pr53"></a>
-### Merged milestone: PR #53 (2026-09-25)
-
-Actual merge `358f4ebe8102fea4e2eb90158fc8b0ba7ac1b4c5`, tested head
-`d56e9a18af99990fa20701f8890fdadbfdf559ad` and CI merge
-`0a73ba0c4d56c18fd4fa0721bf06ccf929307c92` share tree
-`6292a2e78ab25b599fc2e0fecb1d3f08d99a7079`. The
-[completed workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36089111889)
-and [lint](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/36089111922)
-passed. Audited coverage is:
-
-| Runner | Library | CLI | Entry point |
-| --- | --- | --- | --- |
-| Ubuntu 24.04 | 4,246/4,455 (95.31%) | 481/487 (98.77%) | 1/1 (100%) |
-| Windows 2025 | 4,242/4,455 (95.22%) | 481/487 (98.77%) | 1/1 (100%) |
-| macOS / Xcode 27 | 4,250/4,455 (95.40%) | 485/487 (99.59%) | 1/1 (100%) |
-
-All 96 portable file-list records and seven Mac records are present. The audit
-compared 79 path records and 248 complete tree hashes per foreign producer with
-native-compared Mac records: 76 representations, 17 lifecycle cases and three
-report-API external-component profiles. One Mac permission case matches; six
-native process-signal profiles remain explicit Go/native differences. External
-component report-API comparisons do not relax CLI layout restrictions.
-
-The audit checked 620 source/fixture hashes per OS, seventeen expected Windows
-text conversions, twelve archive/SBOM checksums, six SPDX 2.3 SBOMs and six packaged
-CGO-disabled binaries at the exact CI merge with released APFS v0.9.0 and no local
-replacement. The packaged Darwin arm64 binary passed a file-list smoke test.
-Retained evidence includes 108 parent-alias signing/removal hashes, 96 certificate
-DER sets, fourteen certificate lifecycle hashes, eighty notice hashes and seventy
-DMG dry-run hashes per foreign producer. Eighteen hosted certificate displays keep
-the explicit native date difference. Native imports pass 606 signatures, 88 removals
-and 140 unsigned DMG dry runs. Race, nine fuzz targets, lint and packaging passed.
-
-Native provenance remains macOS 27.0 build 26A428, codesign SHA-256
-`d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e`.
-Only `--file-list` moved to partial: 27 partial, 53 not implemented, eight blocked,
-zero fully verified. Broader WP-20 and filesystem work remain open.
-
-### Completion criteria
-
-Completion has several separate meanings:
-
-1. **Implemented:** production code handles a precisely documented input and
-   operation profile. Merely recognizing an option is insufficient.
-2. **Independently verified:** native tools or independent reference encoders
-   establish the expected behavior; tests do not generate both sides with our code.
-3. **Portable:** execution succeeds on the three producer operating systems;
-   cross-compilation alone does not establish execution or filesystem behavior.
-4. **Feature equivalent:** the feature's supported native inputs, defaults,
-   failures, interactions and observable side effects have a completed matrix.
-5. **Full equivalent:** every inventory entry and subsequently discovered native
-   behavior is resolved, including host-state blockers. A supported-subset release
-   does not satisfy this final condition.
-
-Statement coverage above 95% is required in every production package. It is not a
-percentage of Apple's functionality implemented. Neither the historical 55-entry
-count nor the current 88-entry count is a useful completion-percentage denominator;
-the obligations have unequal scope.
-
-## 2. Non-negotiable implementation boundaries
-
-- Keep Cobra and Viper. Native option semantics must remain independent of ambient
-  Viper configuration; portable extensions need explicit documentation.
-- Keep production pure Go. Audit the complete dependency graph on Darwin,
-  Linux and Windows. `CGO_ENABLED=0` alone does not prove absence of Apple bridges.
-- Retain the current production guard against `crypto/x509`, `crypto/tls`,
-  `net/http`, subprocess helpers, native binding directives and direct raw syscalls.
-  A future networking or cryptography dependency must pass that audit; no quiet
-  exception is part of this plan. Test-only independent oracles remain separate.
-- Reuse APFS `pkg/disk` for disk-image structure and APFS `pkg/hostmeta` for host
-  metadata operations. Put missing general filesystem/image functionality into
-  the APFS project, expose a documented public API, release it, then consume it.
-  Do not copy its implementation into codesign or import another repository's
-  `internal` package.
-- Ordinary host filesystem I/O through supported Go/x/sys wrappers is compatible
-  with this boundary. Security.framework, CoreFoundation execution and invoking
-  Apple's signing services are not production fallbacks.
-- Keep GoReleaser for builds, archives and SBOM generation. Existing Python
-  verification/research orchestration is not a replacement production build system;
-  new research drivers should follow the existing Go-driver pattern.
-- Use golangci-lint for Go linting. Do not reintroduce Super-Linter.
-- Preserve bounded parsing and explicit errors. Do not copy observed native
-  memory corruption, unsafe pointer behavior or unbounded resource consumption.
-  Record safe divergences honestly; they prevent an unconditional parity claim.
-- Preserve byte APIs' ownership contracts: inputs remain unchanged and callers
-  own returned data. Newly introduced streaming APIs must state lifetime and
-  concurrency contracts.
-- Do not change existing explicit-trust library APIs into weaker verification
-  silently. Native-compatible validation and optional trust policies need distinct
-  result semantics and a migration plan where behavior changes.
-
-## 3. Work-package map and delivery order
-
-Work-package IDs are stable references, not estimates of equal effort. Each
-package below contains implementation tasks, independent acceptance and an exit
-condition. Dependencies can be delivered incrementally; unresolved portions must
-remain visible instead of holding unrelated portable work indefinitely.
-
-| ID | Work package | Main prerequisite or boundary |
-| --- | --- | --- |
-| [WP-01](#wp-01) | Native baseline, source/AST research and complete option inventory | Start first; continue throughout |
-| [WP-02](#wp-02) | Bundle file replacement and wider metadata preservation | APFS public API, native writer probes |
-| [WP-03](#wp-03) | Bundle discovery, paths and layout coverage | Path identity and containment contract |
-| [WP-04](#wp-04) | Resource policy, xattrs and strict verification | WP-02/WP-03; shared APFS metadata APIs |
-| [WP-05](#wp-05) | Signature metadata preservation and signing-option semantics | Existing signature readers; WP-07/WP-08/WP-09 as needed |
-| [WP-06](#wp-06) | Mach-O allocation, architecture and removal coverage | Native allocation evidence; streaming work for large offsets |
-| [WP-07](#wp-07) | CodeDirectory versions, digest selection and special slots | WP-06; CMS and nested-code integration |
-| [WP-08](#wp-08) | Entitlement representation and option equivalence | Typed plist/DER evidence |
-| [WP-09](#wp-09) | Complete requirements compiler, decoder, formatter and evaluator | Certificate/constraint/notarization contexts where predicates require them |
-| [WP-10](#wp-10) | Certificate validation and native verification semantics | WP-09/WP-12 interfaces; explicit policy separation |
-| [WP-11](#wp-11) | Identity formats and provider selection | Existing signer interface; host-state boundary |
-| [WP-12](#wp-12) | CMS representations and signature algorithms | WP-07/WP-11; independent crypto verification |
-| [WP-13](#wp-13) | Timestamp compatibility and transport policy | WP-10/WP-12 and portable transport audit |
-| [WP-14](#wp-14) | Launch/library constraints and validation | Typed plist/DER plus WP-07 special-slot binding |
-| [WP-15](#wp-15) | Native detached signature files | Representation dispatch, architecture IDs and external data |
-| [WP-16](#wp-16) | Generic/xattr signatures and other native representations | WP-15 and APFS xattr support |
-| [WP-17](#wp-17) | Wider DMG representations and streaming signing | APFS format APIs and WP-21 |
-| [WP-18](#wp-18) | Hybrid/PQC signatures, signature slots and detached certificates | Native fixtures, WP-07/WP-11/WP-12 |
-| [WP-19](#wp-19) | Notarization ticket checking | Native protocol/policy evidence and portable authenticated transport |
-| [WP-20](#wp-20) | Complete CLI, extraction, diagnostics and display behavior | Incremental integration with every work package |
-| [WP-21](#wp-21) | Streaming, limits, cancellation and resource accounting | Cross-cutting; start before widening allocation/DMG limits |
-| [WP-22](#wp-22) | Live macOS state and non-exportable identity blockers | Feasibility investigation now; actual state/key access required |
-| [WP-23](#wp-23) | Differential acceptance, portability, CI and distribution evidence | Continuous gate, not a final testing phase |
-| [WP-24](#wp-24) | Documentation, inventory maintenance and full-parity audit | Continuous updates; final closure after all relevant gates |
-
-Recommended sequence:
-
-1. Establish WP-01's expanded inventory and WP-22's access constraints. Maintain
-   WP-23/WP-24 continuously so the goal cannot shrink silently.
-2. Complete bundle writer behavior, path/layout coverage and resource/xattr policy
-   in WP-02 through WP-04. Deliver small native-proven profiles, not one large
-   filesystem rewrite.
-3. Add WP-05 preservation, useful WP-20 extraction/reporting options and WP-21
-   interfaces. These improve everyday re-signing without waiting for PQC.
-4. Widen Mach-O and CodeDirectory forms, entitlements and requirements in WP-06
-   through WP-09. Implement pure grammar/encoding portions before predicates that
-   require trust or remote state.
-5. Extend identities/CMS, then native validation and timestamp policy in WP-11,
-   WP-12, WP-10 and WP-13. Resolve circular integration incrementally through
-   explicit format and policy interfaces rather than mutual package dependencies.
-6. Deliver constraints, native detached signatures, generic representations and
-   wider DMGs in WP-14 through WP-17.
-7. Deliver WP-18 and WP-19 once algorithms, formats, credentials and service
-   behavior are evidenced. Do not postpone their discovery/fixture work until then.
-8. Complete remaining CLI interactions and final audits. WP-22 remains a blocker
-   for full equivalence unless its inputs/access constraints are actually resolved.
-
-No calendar estimate is assigned to private-format, credential-dependent or
-host-state work before investigation. Each implementation PR should identify a
-bounded observable behavior, its tests, remaining exclusions and dependent APFS PR.
-
-## 4. Traceability for every existing inventory entry
-
-Statuses below are copied from the PR #25 baseline. They are not upgraded by this
-plan. The work-package column maps every existing entry to remaining work.
-
-| Inventory entry | Baseline | Work packages and remaining obligation |
-| --- | --- | --- |
-| `--all-architectures` | partial | WP-06/WP-07/WP-20: precedence with architecture selection, every slice and damaged unselected slices |
-| `--architecture` | partial | WP-06/WP-20: names, numeric CPU/subtypes, host defaults, invalid/missing slices and non-Mach-O applicability |
-| `--bundle-version` | partial | WP-03/WP-04/WP-20: wider version layouts, malformed selectors, operation and nested-version interactions |
-| `--check-notarization` | not-implemented | WP-19: authenticated forced online ticket lookup, failures and native diagnostics |
-| `--display` | partial | WP-20 plus each format owner: complete metadata, extraction, architecture/slot selection and damaged signatures |
-| `--detached` | not-implemented | WP-15: native detached container creation, reading, validation and extraction |
-| `--deep` | partial | WP-03/WP-04/WP-09: wider nested layouts, alternate directories/digests, preservation and validation policy |
-| `--detached-database` | blocked | WP-22: actual native system database state/access; offline file support is not equivalence |
-| `--input-detached-certificates` | not-implemented | WP-18: native certificate interchange input and signature linkage |
-| `--output-detached-certificates` | not-implemented | WP-18: native interchange output, ordering and omission rules |
-| `--keep-root-detached-certificates` | not-implemented | WP-18: root classification, inclusion and merge interaction |
-| `--merge-detached-certificates` | not-implemented | WP-18/WP-20: standalone merge operation, repeated inputs, deduplication and output behavior |
-| `--use-software-signing-cert` | not-implemented | WP-01/WP-10/WP-20: establish documented software-update validation policy and operation interactions; identity-provider or hybrid behavior is unproven |
-| `--force` | partial | WP-05/WP-20: preservation, linker-signed inputs, nested signatures and invalid old metadata |
-| `--force-library-entitlements` | partial | WP-08: all applicable file types and conflict/default behavior |
-| `--generate-entitlement-der` | partial | WP-08/WP-20: confirm baseline no-op/deprecation behavior and XML/DER combinations |
-| `--hosting` | blocked | WP-22: live process hosting chain, validity and authorization |
-| `--identifier` | partial | WP-05/WP-20: embedded metadata defaults, Unicode/case/path rules, empty/duplicate options and formats |
-| `--options` | partial | WP-05/WP-07/WP-20: complete flags, numeric masks, applicability, preservation and conflicts |
-| `--pagesize` | partial | WP-06/WP-07/WP-17: boundaries, architecture/image defaults and interaction with CodeDirectory forms |
-| `--remove-signature` | partial | WP-02/WP-06/WP-15/WP-16: writer side effects, legacy layouts and additional signature representations |
-| `--requirements` | partial | WP-09/WP-20: complete source/binary forms, all requirement types and display/extraction |
-| `--test-requirement` | partial | WP-09/WP-10/WP-20: complete evaluation contexts, trust predicates and error behavior |
-| `--sign` | partial | WP-02 through WP-19 as applicable: format, identity, metadata, policy and complete operation matrix |
-| `--verbose` | partial | WP-20: all levels, overloaded short syntax, localization and channels |
-| `--verify` | partial | WP-04/WP-07/WP-09/WP-10/WP-13/WP-19/WP-22: validation, policy, representations and process targets |
-| `--continue` | partial | WP-20: mixed success/failure targets, output ordering, aggregate exit status and write preservation |
-| `--dryrun` | partial | WP-02/WP-05/WP-13/WP-20: all write forms, identity/TSA effects and failures |
-| `--entitlements` | partial | WP-08/WP-20: full typed input/output, missing slots and failure behavior |
-| `--enforce-constraint-validity` | not-implemented | WP-14: strict constraint validation during signing and default warning behavior |
-| `--extract-certificates` | partial | WP-20/WP-12/WP-18: supported CMS chain DER/order, prefixes and output lifecycle covered; wider CMS/chains, host augmentation, signature slots and full option/error interactions remain |
-| `--file-list` | partial | WP-20/WP-02/WP-04: bounded ordered signing/display lists, append and failure ordering; external CLI layouts, native crash differences and wider interactions remain |
-| `--ignore-resources` | partial | WP-04: bounded resource/nested suppression with retained integrity, trust, requirements and structure; broader discovery/representation/option profiles remain |
-| `--keychain` | blocked | WP-22/WP-11: native identity lookup, search lists, preferences and authorization |
-| `--prefix` | not-implemented | WP-05/WP-20: native identifier-prefix rules for each default/explicit identifier source |
-| `--preserve-metadata` | not-implemented | WP-05: signature fields, abbreviations, override precedence and linker-signed exception |
-| `--strict` | not-implemented | WP-04/WP-20: supported strictness selectors, all/default behavior and diagnostics |
-| `--timestamp` | partial | WP-13: native defaults, transport, TSA policy and error/output interactions |
-| `--runtime-version` | partial | WP-05/WP-07/WP-20: derivation, boundaries, preservation and architecture/platform defaults |
-| `--launch-constraint-self` | not-implemented | WP-14: native serialization, binding and validation |
-| `--launch-constraint-parent` | not-implemented | WP-14: native serialization, binding and validation |
-| `--launch-constraint-responsible` | not-implemented | WP-14: native serialization, binding and validation |
-| `--library-constraint` | not-implemented | WP-14: library constraint encoding, signing and inspection |
-| `--strip-disallowed-xattrs` | not-implemented | WP-04/WP-02: native disallowed-attribute policy, shared metadata mutation and preservation |
-| `--single-threaded-signing` | not-implemented | WP-04/WP-20: resource-seal scheduling contract and identical results |
-| `--validate-constraint` | not-implemented | WP-14/WP-20: separate operation, typed schema, known keys and optional extensions |
-| `--signature-slot` | not-implemented | WP-18/WP-20: native slot numbering, default preference and selected verification/display |
-| `certificate-signing` | partial | WP-09 through WP-13/WP-18: formats, algorithms, native policy and real credential evidence |
-| `bundles` | partial | WP-02/WP-03/WP-04/WP-09/WP-21: layout, resources, metadata, requirements and limits |
-| `dmg` | partial | WP-17/WP-07/WP-13/WP-19: APFS-backed representations, digests, timestamps and ticket policy |
-| `hybrid-pqc` | not-implemented | WP-18: complete evidenced native algorithms, combined signatures and interchange |
-| `generic-files` | partial | WP-16: generic removal implemented; native signing, verification, display and broader discovery remain |
-| `legacy-formats` | not-implemented | WP-06/WP-07/WP-12: native-supported old architectures, digests and signature structures |
-| `live-process-verification` | blocked | WP-22: actual process/kernel state and dynamic validity |
-| `hardware-identities` | blocked | WP-22/WP-11/WP-18: access to the original non-exportable key/device/service |
-
-The table above preserves the original 55-entry inventory and its statuses.
-PR #27 added 32 directly observed undocumented switches plus `CODESIGN_ALLOCATE`;
-all 33 additions remain in the [machine-readable inventory](../spec/compatibility.json)
-and [native operation record](../spec/apple-cli-inventory.json). WP-01/WP-20 own
-further applicability/semantic research and assignment to the relevant format or
-policy work package; option names alone do not establish a contract. WP-22 owns
-the added `--remote-signing`, `--signing-dylib` and allocator-hook blockers.
-The allocator and signing-library execution conflicts with the no-helper boundary
-are recorded, not resolved. The current total is 88; none of the new entries is verified.
-
-<a id="wp-01"></a>
-## WP-01: Native baseline, source research and inventory closure
-
-**Current state after PR #42:** the expanded inventory and writer AST are merged.
-Both Clang targets record twelve complete functions/methods and fifteen SDK
-constants, including allocation `mapFile`, creation-time attributes and mapping
-flags. The scope covers signing-envelope failures, 210 creation-time comparisons
-and 294 bundle access-time comparisons against the pinned source. PR #42 adds
-216 standalone, 168 bundle read-only and 80 DMG controls using the same functions.
-[Native inventory](native-inventory.md) describes the
-pinned host profile, parser-only evidence, unavailable operation contexts and the missing
-current parser source. Full semantics, ignored-option behavior, wider fixtures
-and later-discovered options remain open.
-
-**Delivered in PR #27:**
-
-- [x] Record the D01 oracle's OS/build, architecture, locale/timezone, filesystem,
-  case sensitivity and binary/manual/fixture/driver hashes.
-- [x] Record 79 recognized switches and ten rejected candidates, retaining all
-  55 original obligations and adding 33 to the compatibility inventory.
-- [x] Populate seven operation cells per option with bounded probes or explicit
-  unavailable contexts; retain argv, outputs, exit/signal and before/after hashes.
-- [x] Extend writer research to nine complete methods on both targets, with
-  source/excerpt/translation-unit/SDK-header hashes and explicit private shims.
-  Keep missing current-parser source and observed source/native differences visible.
-
-**Remaining research and continuing maintenance:**
-
-- [ ] Record host OS/build, architecture, locale, timezone, filesystem type,
-  case sensitivity, native binary hash and installed manual hash for each oracle.
-- [ ] Extend the merged enumeration with further manual/parser/SDK evidence and
-  binary-visible option names. Use isolated probes to distinguish
-  accepted options, ignored options, aliases, deprecated forms and unknown switches.
-- [ ] Create a complete applicability table for sign, verify, display, remove,
-  hosting, constraint validation and detached-certificate merging. Include options
-  accepted but ignored for particular operations.
-- [ ] Inventory undocumented features only after direct evidence. Candidate names
-  found in older source, such as digest selection or resource-rule options, are
-  research leads rather than promises that the current binary supports them.
-- [ ] Expand Clang extraction to complete relevant C/C++/Objective-C function bodies,
-  enums, constants and control flow on arm64 and x86_64 targets. Pin source,
-  excerpt, translation-unit and relevant SDK-header hashes.
-- [ ] Record private declarations/macros that need shims, excluded preprocessor
-  branches and unavailable source. Do not infer struct wire encoding from a shim.
-- [ ] Compare source-derived expectations with the installed binary. Retain the
-  discrepancy and version it when published source lags the host.
-- [ ] Use independent GitHub references for design and cross-checking; inspect
-  licenses and transitive dependencies before any reuse. Pin newly used revisions.
-- [ ] Add newly discovered native behavior to the machine-readable inventory;
-  retain the original entries and their meaning rather than narrowing them to pass.
-
-**Acceptance and exit:** every documented option is mapped; every discovered
-undocumented option has an observed applicability/status record; each claimed
-source fact has reproducible provenance; unresolved private behavior remains
-explicit. Existing full-parity guards continue to fail until the actual gaps close.
-
-**Touchpoints:** [spec](../spec/), [research drivers](../scripts/),
-[research guide](research.md), [reference review](reference-implementations.md),
-[CLI parser](../internal/cli/cli.go).
-
-<a id="wp-02"></a>
-## WP-02: Bundle writes and wider filesystem metadata preservation
-
-**Current state after PR #42:** standalone Mach-O uses APFS `PrepareReplacement`;
-bundle main/nested Mach-O uses `PrepareReplacementAt` under an opened `os.Root`.
-Both detach the selected hard-link name. DMGs and existing CodeResources retain
-in-place updates. Signing purges stale regular signature files after each rewritten
-main executable, keeping CodeResources; successful removal empties only the selected signature
-directory and retains it. Stale directories/symlinks now fail at cleanup after
-executable replacement; dry runs preserve them and succeed. Child cleanup failure
-stops the parent commit. Cleanup uses APFS ASCII hash/collision order; non-regular
-removal envelopes fail when reached after executable replacement. Signing rejects
-envelope directories at the envelope write before the affected executable commits;
-earlier child commits survive. Signing/removal skip unused old child-envelope reads,
-while verification retains required reads and limits. Released APFS v0.8.0 supplies
-the shared APIs, name-hash race fix, creation-time setter and read-access recorder. Darwin
-bundle executables receive a new creation time capped by source modification time;
-standalone replacement retains its source creation time. New signature directories
-copy canonical-root stat metadata; existing directories retain theirs. Explicit
-source ACL copying remains outside that profile. Internal write-target hard links
-and symlinked signing envelopes remain rejected. Signing and dry runs refresh bundle
-executable access; outer removal refreshes only the main executable. Each committed
-replacement receives a later access time after its signature cleanup succeeds;
-cleanup failure retains copied source access. Source hard links retain bytes and write
-timestamps. Standalone signing/removal/dry runs also record source access and later
-replacement access. Display/verification preserve executable metadata; supported
-DMG operations retain ordinary reads. The current WP-17 slice matches ad-hoc DMG
-dry-run writes; certificate path dry runs remain explicitly unsupported.
-
-**Delivered in PR #27 and APFS PR #102/v0.5.0:**
-
-- [x] Add 126 native tree/inode cases across seven layouts, three architectures and
-  six operations; include nested executables, external executable/envelope links,
-  new/existing envelopes, unsigned removal and dry runs.
-- [x] Add fifteen macOS metadata profiles for signing, read-only executables,
-  re-signing, removal and dry runs; record ACL inheritance, xattrs, flags and stat
-  observations, including native ACL/creation-time differences.
-- [x] Release and consume shared root-relative staging and metadata restoration
-  with explicit source/root/file lifetimes and caller-owned rename decisions.
-  Preserve containment without an APFS local replacement or copied platform code.
-- [x] Stage all executable replacements before bundle commits. Test cancellation,
-  preparation failure, changed targets and cleanup after partial commits; document
-  descendant-first commits with each envelope preceding its main executable.
-
-**Delivered in PR #30:**
-
-- [x] Purge stale regular signature files after each rewritten main executable;
-  preserve the new CodeResources on signing and empty the selected directory on
-  removal. Retain external hard-link neighbours, descendant signatures on outer
-  removal, dry-run contents and rejection of unexpected files during verification.
-- [x] Add 105 native cleanup tree cases across seven layouts, three architectures
-  and five operations, eight non-regular rejection profiles, and unit checks for
-  cancellation, partial commits, root containment and internal write aliases.
-  Export another 42 cleaned archives per foreign producer for native verification.
-  See [merged validation](#merged-pr30) and [file-write evidence and limits](file-writes.md).
-- [x] Pass final Linux/macOS/Windows execution and native-import gates, retaining
-  verification policy and early rejection of non-regular entries. Capture Windows
-  file identity before unlinking and reject case-variant CodeResources names.
-
-**Delivered in PR #31 and APFS PR #104/v0.6.0:**
-
-- [x] Copy stat metadata only into newly created signature directories, using held
-  source/target handles and the selected physical root for versioned frameworks.
-  Retain existing-directory metadata and no-creation behavior for dry runs/removal.
-- [x] Add 40 directory cases, eight native security profiles and unit tests for
-  held roots, cancellation, pre-commit metadata failure and staging cleanup.
-  Record explicit ACL copying and subsequent envelope inheritance as differences.
-- [x] Parse complete `copyfile_stat` source on both targets with pinned flag masks
-  and SDK constants; keep private state/helper interfaces explicit as shims.
-- [x] Release/pin the shared API and pass the final three-OS, package, race/fuzz and
-  native-import gates. Audit the actual merged source tree and retain the existing
-  606-import/88-removal gate. See [merged validation](#merged-pr31).
-
-**Delivered in PR #33:**
-
-- [x] Defer stale directory/symlink rejection until cleanup after executable commit;
-  exclude them from resource seals, retain dry-run trees and strict verification.
-- [x] Remove the regular CodeResources component before the removal stale scan
-  for the original one-stale-entry corpus. The follow-up below supersedes this
-  implementation assumption for multiple entries. Keep rejected entries, link
-  targets and external hard-link neighbours intact.
-- [x] Expand the original eight observations into 210 complete native comparisons:
-  seven layouts, five entry types and six operations; add four nested child-failure
-  cases proving earlier child commits survive and the parent remains unchanged.
-- [x] Retain bounded metadata traversal/internal alias rejection, cancellation and
-  staging cleanup; cover aliases hidden inside stale directories and changed
-  non-regular envelopes. Reuse APFS v0.6.0 without an upstream API change.
-- [x] Pass final three-OS execution/coverage, packaging, race/fuzz and native-import
-  gates. Audit the final artifacts and confirm that the actual merge shares the
-  tested source tree. See [merged validation](#merged-pr33).
-
-At PR #33, this was a bounded failure-timing profile. Named-component and
-multiple-entry ordering remained open, and non-regular envelopes could fail early.
-PR #34 subsequently delivers the ordering/removal-envelope behavior below;
-broader permissions, raw diagnostics, special files, unreadable subtrees and
-unsafe names/aliases remain outside the claim.
-The final validation and artifact audit are complete for PR #33's tested tree.
-The 88-entry inventory and existing 606-import/88-removal gate remain unchanged.
-
-**Delivered in PR #34 and PR #35, with APFS PR #106/v0.6.1:**
-
-- [x] Establish native case-insensitive APFS ASCII enumeration order, including
-  equal-hash names of different case/length and opposite creation orders.
-- [x] Parse complete `SecCodeSigner::Signer::remove` on both Clang targets. The
-  Mach-O path calls allocate/commit and flushes directly; generic removal alone
-  invokes the canonical-slot loop. CodeResources has no special removal priority.
-- [x] Implement bounded ordered cleanup through APFS's public hash/comparison API.
-  Reject non-regular removal envelopes when reached after executable replacement;
-  retain early signing validation, containment, bounds and write-alias rejection.
-- [x] Add 278 native tree comparisons across seven layouts, with cancellation and
-  entry-limit unit tests. Retain all merged writer/metadata/failure corpora.
-- [x] Pass the three-OS, packaging, race/fuzz and native-import gates on PR #34's
-  tested tree; audit its artifacts and confirm the actual merge has the same tree.
-  These binaries still use APFS v0.6.0. See [merged evidence](#merged-pr34).
-- [x] Merge [APFS PR #106](https://github.com/deploymenttheory/go-apfs-v2/pull/106)
-  as `1989afea6a0de3cbfe99930f20ec24b420666db9`. The APFS
-  regression reproduces the old race in a fresh process and passes after the fix.
-  Upstream head `0820e44cd0e095bf51932359bc42431e495a357a` passed its
-  [final PR workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35580019373):
-  three-OS unit/acceptance execution, the first-use race regression and six builds.
-- [x] Publish v0.6.1 through [APFS release PR #107](https://github.com/deploymenttheory/go-apfs-v2/pull/107)
-  and replace codesign's provisional v0.6.0 pin in merged PR #35.
-- [x] Complete final codesign three-OS execution/coverage, package, race/fuzz,
-  606-import/88-removal and actual-final-commit artifact audit after the release pin.
-  Confirm PR #35's actual merge shares that audited tree. See [merged evidence](#merged-pr35).
-
-**Delivered in PR #37:**
-
-- [x] Compare empty/populated signing-envelope directories across seven layouts:
-  84 native trees cover first signing, re-signing, signed/unsigned dry runs,
-  no-force rejection and verification. Affected executables stay intact while
-  earlier child commits survive; the directory and stale sidecars remain.
-- [x] Add 20 nested parent/child cases covering earlier sibling commits, shallow
-  signing, dry runs and outer-only removal. Defer directory rejection to the
-  envelope write while retaining bounded traversal and internal alias checks.
-- [x] Avoid reading old child envelopes when signing or removing signatures.
-  Keep required verification reads and limits. Twenty POSIX permission cases
-  compare read-only/write-only parent and child envelopes; Windows explicitly
-  skips this mode-bit profile. Successful deep rewrites pass native verification.
-- [x] Retain early rejection of signing-envelope symlinks, including outside and
-  dangling targets. Native probes may mutate their targets; reproducing that
-  behavior would violate the existing containment/no-follow boundary.
-- [x] Pass final three-OS coverage, packaging, race/fuzz, 606-import/88-removal
-  gates and the final-commit artifact audit. Confirm the actual merge shares the
-  audited tree. APFS v0.6.1 remains the released pin. See [merged evidence](#merged-pr37).
-
-Other filesystem orders, signing-envelope symlinks, special files, broader
-permission/ACL failures, raw diagnostics and explicit directory ACL copying
-remain open alongside executable ACL inheritance and access-time behavior.
-
-**Delivered in PR #39, with APFS PR #108/v0.7.0:**
-
-- [x] Establish Darwin APFS behavior with 210 native comparisons: seven layouts,
-  three architectures, past/future modification times and five operations.
-  Rewritten executables receive a new creation time capped by the source
-  modification time; dry runs, external hard-link neighbors and existing envelopes
-  retain their creation times. Outer removal preserves descendant signatures.
-- [x] Release an explicit descriptor-based `hostmeta.SetCreationTime` primitive from
-  [APFS PR #108](https://github.com/deploymenttheory/go-apfs-v2/pull/108), preserving
-  replacement API defaults. Darwin sets nanosecond creation time; other hosts
-  return an unsupported error without changing their metadata policy.
-- [x] Pass [APFS final CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35599205383)
-  on head `9b27bfd89d739e51440ac9f40a42b05f25f18219`: three-OS unit/image acceptance,
-  vet, the hash race regression and all six builds. The CI merge shares its tree.
-- [x] Apply the timestamp only to staged bundle executables; retain original-file
-  preservation and cleanup on metadata failure or cancellation. Extend both Clang
-  targets with the creation-time attribute and timestamp layout constants.
-- [x] Merge APFS PR #108 as `4e9d024c904c7cf08cc0cdf028a486b22d2c210b` and publish
-  [v0.7.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.7.0).
-  Pin its released module/checksums in codesign without a local replace or workspace.
-- [x] Validate the released pin locally and in final three-OS CI, including coverage,
-  lint, packaging, race/fuzz, native imports and all 210 creation-time comparisons.
-  Audit the final artifacts and confirm the actual merge shares the tested tree.
-  Keep ACL inheritance, access-time and broader filesystem differences explicit.
-  See [merged validation](#merged-pr39).
-
-**Delivered in PR #41, with APFS PR #110/v0.8.0:**
-
-- [x] Establish native source/replacement access behavior and show that the original
-  writer fails the new regression. Preserve source hard-link bytes, write times and
-  identity; leave descendant access unchanged during outer removal.
-- [x] Implement descriptor-based `hostmeta.RecordReadAccess` upstream. Darwin uses a
-  bounded read-only mapping without dereferencing mapped memory; other hosts
-  report unsupported. Test held descriptors, renamed paths, empty/read-only files,
-  attribute-denying ACLs, unchanged metadata and unreadable-descriptor rejection.
-- [x] Pass [APFS CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35607473862)
-  on head `5889b2c96bf06df42ddb5775b31435716daf3313`: three-OS tests/image acceptance,
-  vet, the hash race regression and all six CGO-disabled builds. CI merge
-  `827fd4fb2bfb4ecd0c08e60eb5ea2b791f5224e7` shares head tree
-  `b8993aa84d012da7181eb451aebed6d9f72d7617`. Hosted Darwin tests use macOS 26.6.2
-  arm64; local API/native tests use macOS 27.0 arm64.
-- [x] Add bounded codesign source reads and later staged-replacement access,
-  retaining unsupported-host behavior. Add 294 native comparisons and a
-  read-bound regression, plus complete allocation-mapping Clang evidence.
-- [x] Pass full local verification, lint and six CGO-disabled target builds against
-  the isolated upstream checkout. Coverage is 4,095/4,291 library statements
-  (95.43%), 423/425 CLI statements (99.53%) and 1/1 entry-point statement (100%).
-  Audit all 294 access-time cases, 1,120 retained native metadata/writer cases and
-  586 source/fixture hashes. `artifacts/access-time-development-audit.json` retains
-  this local evidence and exact development overrides; it is not released CI.
-- [x] Merge APFS PR #110 as `bc2854fca7fd32d0033b8bb684f5f94ad0d5525d` and publish
-  [v0.8.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.8.0) through
-  release PR #111, tagged at `a958828fc6816a7ad703191a68867447b08f88f3`.
-  Pin the published version/checksums without an APFS replace or workspace.
-  The actual upstream merge matches the tested tree; released metadata files match
-  the tested API. Final codesign checks use the published dependency.
-- [x] Pass final codesign three-OS execution, coverage, packaging, race/fuzz, lint,
-  the 606-import/88-removal gate and artifact audit. Confirm the actual merge
-  shares the tested tree. See [verified delivery](#merged-pr41).
-
-**Delivered in PR #42: standalone access-time slice:**
-
-- [x] Record the PR #41 actual merge and its released-dependency CI/artifact evidence.
-- [x] Reproduce the standalone access mismatch against merged code, then pass 216
-  native Mach-O comparisons with bounded source reads and later replacement access.
-- [x] Pass 168 bundle read-only controls and 80 DMG access-time controls; record the
-  20 native DMG dry-run byte/modification-time differences without changing policy.
-- [x] Reject oversized reads before mapping; retain ordinary read metadata, private
-  staging, physical alias resolution and released APFS v0.8.0 without overrides.
-- [x] Complete full local and three-OS validation, packaging, race/fuzz, lint and
-  exact-artifact audit. Merge PR #42 as `8c7c68fc` and confirm its tree matches the
-  tested head and CI merge. See [verified delivery](#merged-pr42).
-
-**Delivered in PR #44: executable-directory permission slice:**
-
-- [x] Reproduce incorrect dry-run success and missing partial commits against the
-  merged implementation before applying the fix.
-- [x] Add 624 native POSIX comparisons across three architectures, seven shapes,
-  directory modes 0755/0555 and file modes 0755/0551. Cover direct/aliased standalone
-  files, parent and either sibling failures, grandchildren, bare helpers, outer
-  removal, shallow signing and dry runs. Assert complete trees, inode effects,
-  external-link preservation, modes, source access and temporary-file cleanup.
-- [x] Check dry-run allocation without metadata restoration; retain independent
-  sibling commits and the failed bundle envelope, skip ancestor writes and retain
-  stale sidecars when the affected executable never commits. Keep other
-  preparation errors atomic and cancellation cleanup intact.
-- [x] Extend the two-target writer AST to complete allocation and global-populate
-  methods; review pinned signing/resource-dispatch call sites. Use released APFS
-  v0.8.0 with no new shared API or development override.
-- [x] Pass final local and three-OS validation, six-target packaging, lint,
-  race/fuzz, retained matrices, native imports and exact-artifact audit. Confirm
-  the actual PR #44 merge shares the tested tree. See [verified delivery](#merged-pr44).
-
-**Delivered in PR #45: bundle allocation-access slice:**
-
-- [x] Reproduce six selective-signing access regressions against merged PR #44
-  after independently passing each native expectation.
-- [x] Keep ordinary planning reads unmapped; record source access on the held
-  descriptor immediately before allocation. Preserve bounds, identity checks,
-  private staging, existing cancellation behavior and released APFS v0.8.0.
-- [x] Require read-access parity for dispatched work in all 624 directory cases;
-  explicitly verify native undispatched siblings remain wholly unchanged. Add 252 selective
-  signing/rejection cases and 36 explicit failure-boundary cases, retaining the
-  294 bundle-access and 464 standalone/read-only/DMG controls.
-- [x] Extract the complete native allocator on both Clang targets, recording input
-  mapping before output creation and declaring all private helper/cleanup shims.
-- [x] Pass full local and three-OS verification, packaging, lint, race/fuzz,
-  native imports/removals and the exact-artifact audit. Confirm the actual merge
-  tree matches the tested tree; see [verified delivery](#merged-pr45).
-
-**Delivered in PR #46: replacement-access cleanup slice:**
-
-- [x] Reproduce ten cleanup-access regressions against merged PR #45 after the
-  native expectations pass; retain two passing dry-run controls.
-- [x] Refresh the committed replacement only after its own signature cleanup
-  succeeds. Keep source allocation, private staging, preparation-error preservation,
-  identity validation and released APFS v0.8.0 unchanged.
-- [x] Add 504 native cleanup-access cases across seven layouts, three architectures,
-  past/future access times, two stale-entry types and six operations. Require
-  replacement-access parity in the retained 36 failure-boundary cases.
-- [x] Add changed-target and cleanup-cancellation guards; extract the complete
-  native signing controller on both Clang targets.
-- [x] Pass local and three-OS validation, packaging, lint, race/fuzz and the
-  606-import/88-removal gate. Confirm the actual merge shares the audited tree;
-  see [verified delivery](#merged-pr46).
-
-**Delivered in PR #47: source-access ordering slice:**
-
-- [x] Deliver the shared held-file access-time copy API through APFS PR #112 and
-  released v0.9.0; pin that release without a dependency override.
-- [x] Defer source access past envelope writes and child cleanup while preserving
-  private staging, identity checks and preparation-error guarantees.
-- [x] Require source-access parity for the supported failure profiles; retain
-  unsigned-child dry-run differences explicitly.
-- [x] Complete native regression, local and three-OS verification, packaging,
-  lint, race/fuzz, native imports/removals and exact-artifact auditing. Confirm the
-  actual merge shares the [audited tree](#merged-pr47).
-
-**Delivered unsigned-child dry-run slice in PR #48:**
-
-- [x] Measure helper, child and grandchild allocation before unsigned-seal failure,
-  including force, shallow controls and allocation denial.
-- [x] Retain reached dry-run allocations through nested seal failures without
-  committing bytes, envelopes or ancestor executables.
-- [x] Validate cancellation, allocation-error precedence, bounds and root ownership;
-  required three-OS, packaging and native-import CI passed. See the exact
-  [PR #48 delivery record](#merged-pr48) and its evidence boundary.
-
-**Implementation tasks:**
-
-- [ ] Probe native first signing, re-signing, removal and dry runs separately for
-  main executables, nested Mach-O code and existing/new `CodeResources` files.
-  Measure inodes, link counts, alias text, ownership, permissions, ACLs, xattrs,
-  creation/modification times and supported flags before/after. Extend the merged
-  corpus to the remaining metadata, permission and failure profiles.
-- [ ] Extend executable-directory permission and failure ordering beyond the
-  current readable/searchable 0755/0555 profile. Inaccessible directories still
-  expose discovery/removal differences. Allocation-blocked ancestors and shallow descendants are covered by the current
-  access slice. Single-chain unsigned-child dry runs are covered; wider asynchronous failure combinations,
-  other filesystems and raw diagnostic parity remain unproven.
-- [ ] Include internal/external hard links, read-only files, inherited directory
-  ACLs, signed/unsigned inputs and an existing signature directory. Do not assume
-  the standalone replacement policy applies to resource envelopes.
-- [ ] Resolve native executable ACL-inheritance and access-time differences.
-  Shared replacement defaults preserve source metadata; PR #39 uses the explicit
-  creation-time setter only for staged bundle executables. Preserve those API
-  contracts when adding independently evidenced metadata policies.
-- [ ] Implement any additional general metadata, clone-fallback or cleanup
-  primitive in APFS first, test it on the claimed platforms, release it, then
-  consume it. The initial root-relative staging gap is already resolved in v0.5.0.
-- [ ] Establish creation modes/inheritance for newly created signature files,
-  versus metadata restoration for existing files. Do not clone metadata from an
-  unrelated bundle file merely to populate a new envelope. Apple source's new
-  signature-directory stat copying is merged and verified in PR #31 against
-  released APFS v0.6.0. Copying explicit source ACL entries and subsequent envelope inheritance remain
-  unimplemented; the destination's existing/inherited ACL is retained.
-- [ ] Complete signature-file cleanup beyond the regular-file and bounded stale
-  directory/symlink failure profiles. PR #33 matches post-replacement
-  rejection and successful dry runs for the latter. PR #34 delivers
-  APFS ASCII named-component ordering; PR #35 pins and validates its released upstream
-  fix. Other filesystem orders, special files, broader permissions and raw diagnostic
-  parity remain open; retain stricter bounds and internal write-alias rejection.
-- [ ] Investigate safe non-cloning filesystem support on Darwin, including HFS+,
-  and compressed/protected inputs. Measure native behavior and leave unsupported
-  cases explicit until the APFS replacement contract can preserve their metadata.
-- [ ] Extend Linux/Windows metadata preservation where representable: ACLs,
-  xattrs, streams, read-only flags and rename/share-mode behavior. Separate native
-  macOS metadata from host-specific equivalents and state unavoidable differences.
-- [ ] Preserve all pre-write validation/staging guarantees. Document commit order,
-  cancellation points, failures after an earlier child has committed, and cleanup.
-  Native signing is not a whole-tree transaction; do not promise stronger atomicity
-  without implementing it as an explicitly separate behavior.
-- [ ] Re-evaluate internal hard-link rejection only after demonstrating how native
-  writes affect each name and how resource seals remain correct.
-
-**Acceptance:** architecture × bundle layout × operation × link/metadata profile;
-compare complete file/tree bytes and observable metadata separately. Force failure
-before staging, after staging, before rename, during writing and after a child
-commit. Check original bytes where preservation is promised, no leaked staging,
-correct neighbour behavior and repeatable errors on all three OSes. APFS owns
-platform-specific preservation tests; codesign owns signing/write integration tests.
-
-**Exit:** each bundle write kind has a native-proven policy and a shared APFS
-implementation where required; metadata exclusions and partial-commit behavior
-are documented. Standalone alias/hard-link and DMG behavior remain regression gates.
-
-**Touchpoints:** [bundle.go](../pkg/codesign/bundle.go),
-[bundle_tree.go](../pkg/codesign/bundle_tree.go),
-[bundle_writer.go](../pkg/codesign/bundle_writer.go), [io.go](../pkg/codesign/io.go),
-[APFS hostmeta](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
-
-<a id="wp-03"></a>
-## WP-03: Bundle discovery, path identity and layout coverage
-
-**Starting point:** Contents-based APPL/BNDL/XPC! layouts, supported frameworks,
-main-executable discovery, physical version selection and standalone aliases work.
-Directory/resource symlinks follow a narrower policy. Bundle paths require portable
-ASCII names and reject case collisions and Windows-reserved components.
-
-**Implementation tasks:**
-
-- [ ] Catalogue native layout selection for flat bundles, additional package types,
-  missing/partial Info.plist data, executable-name fallbacks and ambiguous roots.
-  Distinguish codesign-supported representations from installer package signing
-  that belongs to other Apple tools or the separate package project.
-- [ ] Extend path selection without confusing the root bundle, a physical framework
-  version, its Current alias, its main executable and an unrelated helper/hard link.
-- [ ] Probe root/intermediate/final symlinks, absolute/relative/chained targets,
-  `link/..`, broken/cyclic links, trailing separators and moved bundles. Record
-  which paths select an object and which paths native diagnostics display.
-- [x] Resolve directory parents for all supported bundle layouts before lexical
-  cleanup, reusing the framework-directory path resolver. Close PR #51's concrete
-  parent-alias display difference and fix physical `link/..` selection on Windows.
-  Keep final root aliases unsupported, strip trailing separators/`/.` before that
-  check, and preserve structural Current validation and selected-version display.
-  The 108-case matrix covers nine layouts, three architectures and four operand
-  forms with native signing/removal trees and five raw display comparisons each.
-  Require dry-run preservation, unchanged aliases/neighbours and native strict
-  verification; `TestCertificateExtractionBundleParentAlias` now requires equality.
-- [x] Complete per-commit three-OS/coverage, native-import, packaging, race/fuzz
-  and artifact audits for the directory-parent slice in PR #52. Broader bundle discovery,
-  final-root aliases, Unicode/case and inaccessible directories remain open.
-- [ ] Add Unicode names, composed/decomposed forms and case-sensitive versus
-  case-insensitive lookup tests. Do not use simplistic lowercasing as a substitute
-  for native filesystem name equivalence.
-- [ ] Define how names valid on macOS but unrepresentable on a Windows filesystem
-  can be handled. Investigate an archive/virtual filesystem input abstraction;
-  do not silently rename sealed paths and claim identical bundles.
-- [ ] Expand nested-code locations and package discovery from native evidence,
-  including alternate framework versions and unsealed root entries.
-- [ ] Test selectors on framework roots, direct version directories, executable
-  paths, unversioned bundles, parents containing frameworks and non-bundle files.
-- [ ] Expand plist types only where needed by native-compatible metadata. Separate
-  structural parser errors, absent keys, incorrect types and unsupported layouts.
-- [ ] Preserve bounded traversal and containment while exposing the selected
-  representation/path consistently to sign, inspect, verify and remove.
-
-**Acceptance:** complete-tree signing/removal comparison, display paths, resource
-tampering, selector errors and unchanged neighbours. Test filename collisions,
-aliases resolving outside the selected boundary and names unsupported by a producer
-filesystem. Such cases must be honestly marked blocked or tested through an
-equivalent virtual representation, never silently skipped as passing portability.
-
-**Exit:** a versioned layout/path decision table exists and every newly accepted
-layout has native and three-OS evidence. Remaining name/representation restrictions
-stay visible in the inventory.
-
-**Touchpoints:** [bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
-[bundle_layout.go](../pkg/codesign/bundle_layout.go),
-[bundle_paths.go](../pkg/codesign/bundle_paths.go),
-[bundle_versions.go](../pkg/codesign/bundle_versions.go), [bundle guide](bundles.md).
-
-<a id="wp-04"></a>
-## WP-04: Resource envelopes, extended attributes and strict verification
-
-**Starting point:** the supported resource-envelope profile handles XML/binary
-metadata, nested requirements and relative symlink text seals. Default checking
-is conservative. Bounded strict selectors and `--ignore-resources` are implemented.
-Full custom-rule/filesystem strict parity, `--strip-disallowed-xattrs` and
-`--single-threaded-signing` remain outstanding.
-
-**Implementation tasks:**
-
-- [ ] Extract native resource-rule precedence, weighting, omission, optionality,
-  nested-code classification and v1/v2 interactions. Validate extra/missing entries,
-  localization exceptions, symlink seals and legacy digest combinations.
-- [ ] Determine support for custom/deprecated resource specifications on the pinned
-  binary before adding a CLI surface. Implement only an observed native contract.
-- [x] Introduce bounded explicit verification options: symlinks, none/no-strict,
-  numeric masks and prefixes; include bounded bundle sideband/all. See [contract](strict-verification.md).
-- [ ] Complete all/sideband policy and operation/selector combinations.
-  Model plain/all, `symlinks`, `sideband`, combinations, invalid selectors and any
-  additional selectors found by WP-01. Native strictness may evolve by OS version.
-  - [x] Standalone Mach-O sideband/plain/all selectors, disabled controls, native
-    and explicit-carrier input, first-attribute diagnostics and selected architectures.
-    Retain UDIF's native exemption.
-  - [x] Integrate sideband/plain/all into supported bundles on all three hosts:
-    held resource observations, explicit AppleDouble object maps, nested/version
-    policy, root/executable ordering, link-open errors and native diagnostics.
-    Broader resource profiles and filesystem semantics remain open.
-- [ ] Match default versus strict treatment of broken, external, unsealed and
-  cyclic resource links without weakening path containment during writes.
-  - [x] Compare bounded default-verification link text without resolving targets.
-    Propagate that scan policy to deep children while preserving signing/removal
-    discovery. Cover matching and changed dangling/cyclic/chained/external text,
-    Apple-produced seals, JSON and complete signing-rejection preservation.
-  - [x] Implement bounded selector parsing, default layout checks and symlink
-    inclusion/outer-scope policy with native acceptance.
-  - [x] Implement earlier sideband traversal and its distinct open failures.
-  - [ ] Complete custom rules and broader filesystem semantics.
-    Retain 102 native observations: plain/all strict may fail with ENOENT
-    or ELOOP before the symlink validator; the symlinks selector reports modified
-    link details. Do not equate these distinct failure paths.
-- [ ] Detect native disallowed sideband attributes, including FinderInfo and
-  resource forks, on applicable code/resource objects. Preserve unrelated xattrs.
-  - [x] First extend the shared APFS module with strict no-follow/pinned-object
-    presence/read/removal operations; publish a release before pinning it here.
-    [APFS PR #131](https://github.com/deploymenttheory/go-apfs-v2/pull/131)
-    implements all six operations on Linux, macOS and Windows. Required runtime
-    tests must pass on all three; an unsupported platform stub or skip does not
-    complete this task. See the [API/research contract](sideband-policy.md).
-    Codesign now pins published v0.15.0, qualified and merged in PR70. The legacy
-    `hostdata.ListXattrs` is best effort and can suppress per-value read errors;
-    a successful returned map cannot prove that a prohibited attribute is absent.
-  - [x] Implement a read-only native/explicit-AppleDouble inspection adapter,
-    preserving native failure causes, empty-value semantics and Darwin EPERM
-    policy. Use strict Linux inventory without name remapping. Inspect all
-    declared carrier records additively; do not emulate mutating restore.
-    Retain malformed-input/cancellation/4 GiB boundary tests and 29 native-derived
-    portable fixtures. This does not complete traversal or enable strict selectors.
-  - [ ] Distinguish absence, present-empty, unreadable, oversized and concurrently
-    changed values. Preserve OS error causes and object identity across operations.
-    The eight-body Clang extraction establishes options-zero visibility for native
-    sideband checks: hidden compression metadata is not implicitly included.
-    Broader compression fidelity remains a separate obligation. Do not add direct
-    Darwin syscalls or duplicate a DMG/xattr implementation here. Preserve Windows
-    native EA limits, zero-length deletion and no-follow/held-object semantics.
-  - [ ] Measure native ordering on executable, outer root, signature directory,
-    ordinary resources, child bundles and resource links. Cover FinderInfo,
-    ResourceFork, unrelated attributes, empty values, aliases and denied access.
-    The first 203 native controls cover standalone/app code, root, ordinary
-    resources and signature-directory attributes under seven verification
-    policies. Forty-two directory-fork setups cannot be created and are recorded
-    as unexecuted. Verification-time strip is inert in this corpus; do not infer
-    CLI dispatch from the lower-level strip AST branch. Signing, nested/link and
-    permission-ordering profiles remain outstanding.
-- [ ] Implement `--strip-disallowed-xattrs` through APFS APIs, including native
-  diagnostic order, offending paths, partial failure and dry-run behavior. Do not
-  use the legacy best-effort attribute reader where exact failures matter.
-- [x] Implement bounded `--ignore-resources` suppression of the envelope slot,
-  envelope reads, resource traversal and parent-sealed children even with deep.
-  Retain pages, CMS/trust, non-resource slots, explicit/self requirements, selected
-  architecture and enabled structure; expose limited scope in verbose/JSON/API.
-  The [contract](ignore-resources.md) records 385 portable cases, 11 Mac-only
-  controls, 767 comparable hashes and four complete Apple bodies on two Clang targets.
-- [ ] Extend ignore-resources to broader native discovery, external signature
-  components and representations as they are implemented. Measure attached-value
-  error paths, special filesystem entries, symlinked metadata, xattr sidecar
-  files, alternate-version discovery and arbitrary option interactions. A framework's
-  Resources directory contains required Info.plist; losing it is not merely losing
-  ordinary resource contents. Keep safe discovery limits explicit under no-strict.
-- [ ] Support nested signatures with multiple/alternate CodeDirectories and the
-  expanded requirement language when WP-07/WP-09 provide them.
-- [ ] Implement the native single-thread resource-seal option. A currently serial
-  implementation may already have the scheduling property, but applicability,
-  parsing and byte/output equivalence still need tests.
-- [ ] If parallel sealing is added, retain deterministic entry ordering, global
-  budgets, error ordering and cancellation. Parallelism is not a parity shortcut.
-
-**Acceptance:** sign natively and mutate one resource property at a time; compare
-default, strict selectors, deep/shallow and ignore-resources outcomes. Include
-xattrs on executable, ordinary resource, symlink and signature directory; test
-absence, empty values, inheritance, permission failure and unrelated attributes.
-Compare envelope bytes, diagnostics, exit codes and filesystem side effects.
-
-**Exit:** the project's CLI implements the flags itself. Having Apple verify our
-outputs with `--strict` is useful evidence but does not satisfy this package.
-
-**Touchpoints:** [bundle_resources.go](../pkg/codesign/bundle_resources.go),
-[bundle_tree.go](../pkg/codesign/bundle_tree.go),
-[bundle_nested.go](../pkg/codesign/bundle_nested.go),
-[verify.go](../pkg/codesign/verify.go), [CLI](../internal/cli/cli.go).
-
-<a id="wp-05"></a>
-## WP-05: Signature metadata preservation and signing-option semantics
-
-**Starting point:** force signing and explicit options work for the tested profile.
-There is no `--preserve-metadata` or `--prefix`. Filesystem metadata preservation
-through APFS is a different capability from reusing fields of an old signature.
-
-**Implementation tasks:**
-
-- [ ] Represent option presence separately from its value so an explicit empty,
-  zero or false setting can be distinguished from an omitted setting.
-- [ ] Add preservation selectors for identifier, entitlements, requirements,
-  flags, runtime, launch constraints and library constraints. Implement abbreviations,
-  comma lists, repeated options, unknown names and the deprecated bare form based
-  on native probes, without confusing an optional value with the following path.
-- [ ] Establish precedence: explicit new metadata, selected preserved metadata,
-  derived defaults. Measure the linker-signed exception and unsigned/malformed
-  old signatures rather than assuming they supply usable values.
-- [ ] Preserve internal requirements as the correct native group; do not replace
-  all requirement kinds with the designated requirement alone.
-- [ ] Establish per-slice metadata rules for universal files with different old
-  identifiers, flags, requirements or runtime values. Do not copy the first slice
-  indiscriminately to every architecture.
-- [ ] Apply deep/force/preserve rules independently to the parent and eligible
-  children. Preserve the tested behavior for already-signed children when force
-  is absent.
-- [ ] Implement `--prefix` against each identifier source: explicit identifier,
-  embedded Info.plist, bundle metadata, canonical filename, ad-hoc UUID/hash suffix
-  and preserved identifier. Prefixing every string unconditionally is not a plan.
-- [ ] Complete flag masks/names and runtime-version syntax, overflow handling,
-  defaults by architecture/platform and applicability to non-Mach-O formats.
-- [ ] Preserve current native trailing-allocation-byte behavior when new metadata
-  shrinks or grows the signature, and define how retained bytes interact with
-  larger CMS allocations and additional signature slots.
-
-**Acceptance:** a pairwise matrix first, then high-risk combinations of force,
-deep, preserve selectors, explicit overrides, dry run, identity changes,
-timestamps and linker signatures. Compare bytes for deterministic cases, exact
-authenticated fields for nondeterministic ones, and untouched files on failures.
-
-**Exit:** every preservation selector has its own native tests, the CLI grammar
-matches native optional-value handling, and no unsupported preserved field is
-silently dropped. Constraints can remain a separately blocked selector until WP-14.
-
-**Touchpoints:** [types.go](../pkg/codesign/types.go),
-[sign.go](../pkg/codesign/sign.go), [identifier.go](../pkg/codesign/identifier.go),
-[bundle_tree.go](../pkg/codesign/bundle_tree.go), [CLI](../internal/cli/cli.go).
-
-<a id="wp-06"></a>
-## WP-06: Mach-O allocation, architectures and removal
-
-**Starting point:** bounded thin/universal parsing, ad-hoc/certificate allocation,
-force replacement and removal have substantial native evidence. That evidence
-does not cover every native architecture, load-command layout or file type.
-Universal output assembly currently rejects offsets above 32 bits; file APIs
-also have the memory limits listed in WP-21.
-
-**Implementation tasks:**
-
-- [ ] Build an explicit matrix of 32/64-bit, little/big-endian, thin/FAT32/FAT64,
-  CPU/subtype and Mach-O file type. Separate what the parser accepts, what the
-  writer produces, what the installed native tool accepts and what needs an older
-  native oracle. Synthetic CPU-tag changes are not evidence for real binaries.
-- [ ] Implement signing when there is insufficient load-command padding. First
-  enumerate every affected file offset, virtual address, section, relocation,
-  symbol table, export/bind/rebase record, chained fixup and link-edit reference
-  from pinned headers/source. Do not insert bytes and update only `__LINKEDIT`.
-- [ ] Preserve alignment and mapping relationships when adding or resizing
-  `LC_CODE_SIGNATURE`. Define behavior for unknown offset-bearing commands;
-  reject an unproven transformation before writing any output.
-- [ ] Handle native-supported nonterminal signatures, trailing data, sparse or
-  unusually ordered link-edit contents and larger existing signature allocations.
-  Keep PR #25's native allocation-padding behavior as a regression invariant.
-- [ ] Add FAT64 output and offsets through the streaming interfaces, with checked
-  arithmetic. Preserve observed slice order, alignment, inter-slice padding and
-  architecture-table representation rather than canonicalizing without evidence.
-- [ ] Complete architecture selection: names and aliases, numeric CPU with optional
-  subtype, duplicate/unavailable slices, subtype capability bits, `--architecture`
-  versus `--all-architectures`, and options ignored for non-Mach-O representations.
-- [ ] Make the reference architecture/default explicit. Current universal selection
-  follows the arm64 baseline across producer OSes; using a Linux runner's host
-  architecture would silently change that behavior. Record any future profile
-  selection/API change and test Intel-native defaults separately.
-- [ ] Extend removal only to forms native `codesign` removes. Preserve its measured
-  load-command padding, link-edit size, virtual size, truncation and trailer rules.
-  A format supporting signing does not imply native removal support.
-- [ ] Investigate legitimate older binaries and other file types only within the
-  installed/declared native version's scope. Keep unsupported historical cases
-  explicit if no independent oracle is available.
-
-**Acceptance:** native-to-Go and Go-to-native cases for every added matrix cell;
-compare entire output bytes, parsed offsets and untouched regions. Include old
-signatures smaller/equal/larger than the new allocation, slice-specific failures,
-integer boundaries, missing padding, truncated load commands and removal followed
-by re-signing. Use independent structural tools as supplemental evidence, not a
-replacement for native signing comparisons.
-
-**Exit:** layout transformations have complete offset coverage and bounded failure
-behavior. Real architecture fixtures establish claims; unavailable legacy evidence
-continues to limit the corresponding inventory entry.
-
-**Touchpoints:** [macho.go](../pkg/codesign/macho.go),
-[sign.go](../pkg/codesign/sign.go), [remove.go](../pkg/codesign/remove.go),
-[writer evidence](../spec/apple-writer.json),
-[removal evidence](../spec/apple-removal.json).
-
-<a id="wp-07"></a>
-## WP-07: CodeDirectory versions, digests and special-slot binding
-
-**Starting point:** signing emits the supported SHA-256 CodeDirectory profile;
-readers understand a wider bounded subset. Scatter directories are rejected, and
-CMS verification rejects multiple CodeDirectories using the same digest.
-
-**Implementation tasks:**
-
-- [ ] Inventory every CodeDirectory header version and extension in the pinned
-  SDK/source and actual fixtures. Document wire offsets, length prerequisites,
-  byte order, optional fields and reserved values independently of C struct padding.
-- [ ] Extend parsing, inspection and verification for native-supported scatter,
-  pre-encrypt, 64-bit code-limit, executable-segment, platform, runtime, linkage and
-  newer fields. Reading a field without applying its verification semantics is
-  not implementation of that field.
-- [ ] Implement applicable legacy/alternate digest forms, including selection rules
-  across multiple directories. Derive supported algorithms, truncation and
-  preferred-CDHash rules from native evidence; do not assume every Go hash belongs
-  in an Apple signature or change default signing to a weaker algorithm.
-- [ ] Support repeated digest families where native signatures require them.
-  Associate each directory with its CMS hash-agility binding and relevant signature
-  slot instead of indexing solely by digest name.
-- [ ] Complete page-size semantics: native defaults, zero/special values where
-  accepted, maximum values, final partial pages and representation-specific rules.
-- [ ] Model every special slot with its authenticated source, presence rules and
-  verifier. Distinguish an absent slot, a present empty blob, an externally supplied
-  value and a zero-filled unused hash. Unknown slots must not be reported verified.
-- [ ] Integrate requirements, XML/DER entitlements, resources, constraints and
-  external representation data without duplicate independent hashing logic.
-- [ ] Update allocation calculations before adding bytes. Use a checked two-pass
-  size/encode flow and ensure offsets remain consistent after larger CMS or
-  multiple-signature additions.
-- [ ] Propagate selected-directory rules into nested resource seals, display,
-  requirement evaluation, detached formats and notarization lookup.
-
-**Acceptance:** independent native fixtures for each version/field/hash combination;
-exact deterministic output comparisons; mutations of every newly authenticated
-field, directory ordering, omitted alternate hashes, duplicate slot IDs and
-inconsistent counts/lengths. Verify that a valid alternate directory cannot conceal
-a damaged directory which native verification would require.
-
-**Exit:** each supported directory variant has parser, writer where applicable,
-verifier, display and allocation coverage. SuperBlob slot IDs, native signature
-slots and architecture slices remain separate concepts in the API and tests.
-
-**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
-[sign.go](../pkg/codesign/sign.go), [verify.go](../pkg/codesign/verify.go),
-[cms.go](../pkg/codesign/cms.go), [types.go](../pkg/codesign/types.go).
-
-<a id="wp-08"></a>
-## WP-08: Entitlement representations and option equivalence
-
-**Starting point:** supported XML entitlements and generated DER already bind into
-signatures. The remaining work is full native type/format behavior, applicability,
-extraction and interaction coverage, not simply adding a DER encoder.
-
-**Implementation tasks:**
-
-- [x] Add bounded version-1 DER extraction with existing XML fallback, owned
-  compact XML/typed text metadata, signed integers, UTF-8 escaping, empty/nested
-  collections and mixed primitive-array text rejection. Preserve signing XML.
-- [x] Establish DER preference, XML-only/DER-only, changed unused XML, hash failure,
-  rebound malformed DER, missing/zero DER binding and page-tamper extraction.
-  Limit parser input/depth/value count and add direct DER fuzzing.
-- [x] Match append destinations, colon consumption across operands, absent outputs,
-  empty argument, file-open/exit-65 failures, architecture selection, normal display,
-  certificate-first and file-list-last ordering in the 90-case bounded matrix.
-- [x] Record six complete Apple functions in two-target Clang ASTs, with explicit
-  shims and the unavailable CoreEntitlements implementation/current CLI boundaries.
-- [ ] Complete final-commit local/three-OS/packaging/native-import and downloaded
-  artifact gates for this entitlement increment; keep the option partial.
-- [ ] Enumerate native-accepted plist types and their DER mapping: booleans,
-  integers, strings, data, arrays and dictionaries, with evidence for any additional
-  type. Distinguish accepted plist syntax from accepted entitlement values.
-- [ ] Establish integer widths/signs, dictionary ordering, duplicate-key handling,
-  Unicode, escaping, empty collections and nested collection rules. Preserve XML
-  bytes where native preserves them and canonicalize only where native does.
-- [ ] Compare XML-only, DER-only, matching/mismatched XML+DER, malformed DER and
-  missing slots during sign, display and verification. Determine which
-  representation native uses for requirements and each display operation.
-- [ ] Complete `--force-library-entitlements` applicability for executable, dylib,
-  bundle and non-Mach-O inputs. Test omission and explicit override when old
-  entitlements are preserved by WP-05.
-- [ ] Pin the installed baseline's `--generate-entitlement-der` behavior, including
-  any deprecated/no-effect behavior, and avoid inventing a toggle absent in native.
-- [ ] Keep native CLI input compatibility separate from library extensions. The
-  current baseline rejects binary-plist entitlement CLI input; supporting library
-  conversion does not justify accepting it in the native-compatible CLI path.
-- [ ] Complete extraction of raw and decoded forms, empty/absent-slot behavior,
-  stdout/file destinations and interactions with verbosity/architecture/slot.
-- [ ] Retain bounded plist/DER decoding, reject external entity expansion and
-  invalid encodings, and account for nested values under one operation budget.
-
-**Acceptance:** native-generated typed fixtures and independent DER inspection;
-full signature bytes for deterministic cases; malformed XML/DER corpus; mutations
-which independently break the XML slot, DER slot or selected entitlement predicate.
-Compare exact output channels, not just successful parsing of extracted content.
-
-**Exit:** entitlement data can round-trip through supported native and Go workflows
-with the same authenticated values, wire bytes where deterministic, and defaults.
-Runtime authorization to exercise an entitlement is a separate host policy claim.
-
-**Touchpoints:** [entitlements.go](../pkg/codesign/entitlements.go),
-[entitlement_metadata.go](../pkg/codesign/entitlement_metadata.go),
-[plist/binary.go](../pkg/plist/binary.go),
-[sign.go](../pkg/codesign/sign.go), [CLI](../internal/cli/cli.go).
-
-<a id="wp-09"></a>
-## WP-09: Complete requirements language and evaluation
-
-**Starting point:** a bounded subset is compiled, decoded, displayed and evaluated,
-including the predicates used by current bundle/certificate fixtures. Numerous
-anchor, certificate-field, extension-match and opcode forms remain unsupported.
-
-Merged PR #57 adds [bounded extraction](requirement-extraction.md), reusing
-that decoder/formatter and the existing default certificate builder. Six complete
-Apple bodies have two-target ASTs. The 87-case matrix covers explicit/implicit
-requirements, all set labels, existing expression families, native 255-byte simple
-string truncation, six representations, architecture selection, component hashes,
-file truncation/links, multiple operands and extraction ordering. Shared validation
-now rejects overlapping children before decoding. Binary-set fuzzing supplements
-the existing source-language target.
-
-Merged PR #58 adds [bounded set compilation](requirement-sets.md).
-Five named kinds and uint32 decimal kinds share the existing expression parser;
-unsigned ordering, last duplicate wins, comments, optional semicolons and implicit
-existence boundaries have native evidence. Four complete generated parser methods,
-the duplicate-replacement body and internal requirement merging have two-target
-Clang ASTs. The 33 compiler records, 18 complete ad-hoc signing comparisons,
-12 rejected-source preservation cases and 12 certificate layout comparisons do not
-complete the wider tasks below. Merged PR #59's [default-merging slice](requirement-defaults.md)
-adds certificate synthesis for empty/partial sets, preserves explicit overrides,
-and establishes fresh nested/replacement defaults. Representation defaults,
-preservation and syntax diagnostics remain gaps.
-
-**Implementation tasks:**
-
-- [ ] Expand Clang/source research to the requirement lexer/parser, opcode
-  definitions, binary builder, dumper and interpreter. Record inaccessible/private
-  paths and prove behavior with native `csreq`/`codesign` fixtures where possible.
-- [ ] Build a grammar and opcode checklist covering precedence, parentheses,
-  escaping, comments, numeric/date literals, certificate positions, named
-  requirements, binary input and requirement-set syntax.
-- [ ] Support all native requirement kinds, including designated, host, guest,
-  library and plug-in forms where accepted. Preserve an entire requirement set;
-  do not flatten it into a single designated expression.
-  - [x] Compile the five named kinds and uint32 decimal kinds using the existing
-    expression subset, with sorted encoding, last-duplicate replacement, comments,
-    semicolon separators and inline/source-file/compiled-file signing evidence.
-  - [x] Merge missing certificate designated requirements into empty/partial sets,
-    preserve explicit overrides without evaluation, repack by unsigned kind and
-    retain caller ownership and input/output limits. Compare every supported key
-    algorithm, six representations, organization chains, nested identifiers and
-    forced replacement; record the separate self-DR verification difference.
-  - [ ] Complete representation defaults, including `LC_DYLIB_CODE_SIGN_DRS` and
-    interpreter requirements, plus preservation and wider certificate policy.
-- [ ] Complete comparison operators and field contexts from evidence: existence,
-  absence, equality/order, string matching, Info.plist, entitlements, certificate
-  subjects/extensions/policies/dates and hash/identifier matching.
-- [ ] Complete Apple anchor and certificate-chain predicates using authenticated
-  chain context. A subject OU, familiar certificate name or an unverified marker
-  extension alone must not establish an Apple-issued identity.
-- [ ] Inventory platform, notarization, legacy, dynamic or other predicates exposed
-  by the pinned source/binary. Route each to an explicit evaluator context; mark
-  predicates needing unavailable state as unresolved instead of returning true.
-- [ ] Separate syntax acceptance, binary decoding, canonical rendering and
-  evaluation. Unsupported evaluation must not be mistaken for a false predicate,
-  successful verification or a successfully enforced policy.
-- [ ] Complete designated-requirement synthesis for all supported identity and
-  code representations, including explicit overrides and preserved requirements.
-- [ ] Match native `--requirements`/`--test-requirement` source/file/binary forms,
-  operation applicability and failure distinctions. Cover requirement extraction
-  and native canonical text, not just semantically equivalent custom formatting.
-- [ ] Preserve expression/depth/byte limits and avoid exponential evaluation,
-  unbounded certificate searches or repeated plist decoding.
-
-**Acceptance:** compile identical source with native and Go, compare binary bytes,
-decompile each other's output and compare native canonical text. Evaluate against
-independently signed objects; exercise true, false, malformed and unavailable-context
-outcomes for every predicate. Add operator/precedence metamorphic tests only as a
-supplement to the independent oracle.
-
-**Exit:** the grammar/opcode checklist is complete for the declared baseline and
-every supported predicate has a real context and failure test. Host-dependent
-predicates remain linked to WP-19/WP-22 until their inputs are obtainable.
-
-**Touchpoints:** [requirements.go](../pkg/codesign/requirements.go),
-[requirement_text.go](../pkg/codesign/requirement_text.go),
-[certificate.go](../pkg/codesign/certificate.go),
-[bundle_nested.go](../pkg/codesign/bundle_nested.go).
-
-<a id="wp-10"></a>
-## WP-10: Certificate validation and native verification semantics
-
-**Starting point:** portable ASN.1 certificate decoding, bounded chain validation,
-explicit leaf pins/CA roots, purpose/time checks, Team IDs and separate TSA trust
-are implemented for a defined profile. This is not complete Apple policy, and
-the current explicit-trust library contract is not identical to every native
-`codesign --verify` invocation.
-
-**Implementation tasks:**
-
-- [ ] Probe native default verification separately from explicit requirement,
-  certificate trust, timestamp validity, revocation and notarization checks.
-  Define which checks are actually requested by each operation/option combination.
-  - [x] Separate quiet integrity verification from verbose self checks and explicit
-    caller predicates for the [bounded 822-case profile](requirement-verification.md).
-    Resolve the thirty PR #59 false-self differences; retain malformed-set rejection,
-    explicit trust and mandatory parent seals. Expose opt-in API migration and
-    report methods. Check all-slice caller predicates versus selected self checks,
-    shallow/deep file/app/framework children, mutations and first-failing status.
-  - [x] Add [bounded failure diagnostics](verification-diagnostics.md): unsigned,
-    code-page/requirements/Info.plist/resource bindings, CMS import/signature,
-    missing architecture and parent-seal failure. Preserve detailed error causes;
-    expose structured architecture, subcomponent and modified-resource context.
-    Validate arm64 first without reordering reports. Check two-level innermost
-    paths, quiet/verbose streams, relative/absolute operands and parseable JSON.
-    Add eight complete Apple bodies, 182 cases and 340 producer hashes; strengthen
-    the prior exact diagnostic profiles from 630 to 808 of 814 native comparisons.
-  - [x] Add [bounded resource collection](resource-verification.md): ordinary and
-    symlink additions/modifications/removals, file/link exchanges, optional
-    localization semantics, missing nested executables, collected parent-seal
-    failures, nested exceptions, Current/A/direct framework paths, and JSON streams.
-    Retain all error causes and cancellation. Visit present names then absent
-    sealed names deterministically and sort detail groups. Eight complete Apple
-    bodies and 382 cases define the profile: 358 native profiles, 306 exact output
-    profiles and 686 deterministic hashes per producer.
-  - [ ] Resolve or retain the 24 native within-group ordering and 16 mixed-primary
-    profiles without claiming scheduling parity. Record all repeated native outputs;
-    compare full grouped details with duplicates preserved. Investigate native
-    scheduling separately from deterministic portable collection.
-  - [x] Define bounded default verification for dangling targets, chains, cycles,
-    absolute targets and escapes without traversing link targets. Preserve signing
-    guards. The twelve retained records now require exact native diagnostics,
-    resolving four optional-target acceptance differences. Nine complete Apple
-    bodies, 352 portable cases, 68 native-signing cases and 568 comparable hashes
-    define the new profile; absolute-target input hashes remain host-specific.
-  - [ ] Complete strict selectors and earlier traversal, inclusion rules and
-    outer-scope policy. Keep native scheduling differences explicit. See WP-04.
-  - [ ] Complete malformed containers, other CMS attributes/algorithms,
-    strict policy, alternate framework-version errors, aliases/localization and
-    other native architecture preferences. Preserve the six malformed-set records
-    and three quiet acceptance differences until a reviewed structural policy exists.
-- [ ] Establish `--use-software-signing-cert` software-update validation policy,
-  defaults, errors and operation interactions from independent native cases;
-  the merged D01 probes do not establish an identity-selection contract.
-- [ ] Design separate result/policy concepts for signature integrity, requirement
-  satisfaction, chain validity, trust decision, timestamp validity and ticket status.
-  Do not label parsed CMS or a valid page hash as a trusted signing identity.
-- [ ] Preserve existing explicit-trust APIs or introduce a documented migration
-  before changing defaults. A native-compatible CLI policy must not silently
-  weaken callers who currently require supplied pins or roots.
-- [ ] Complete evidenced certificate handling: chain ordering and alternatives,
-  cross-signs, self-issued versus self-signed certificates, name comparison,
-  constraints, critical extensions, policies, path length, key usage and EKU.
-  Document each unsupported PKIX feature instead of claiming general PKIX support.
-- [ ] Measure native handling of expired/not-yet-valid certificates, missing
-  intermediates, weak/legacy algorithms and validation time with/without trusted
-  timestamps. Avoid replacing native behavior with an assumed stricter policy.
-- [ ] Add issuer retrieval, OCSP/CRL and cache/freshness behavior only where required
-  by the observed operation. Make network/offline modes, cancellation, trust and
-  soft/hard failure decisions explicit; WP-13 owns reusable transport boundaries.
-- [ ] Complete Team ID derivation, missing/duplicate OU handling and equality
-  requirements across leaf, CodeDirectory and nested signatures. Validate Apple
-  marker extensions in the correct authenticated chain context.
-- [ ] Expand Developer ID and other Apple-issued signing evidence using legitimate
-  fixtures and authorized opt-in credentials. Synthetic look-alike certificates
-  are useful negative tests and cannot prove Apple-issued policy compatibility.
-- [ ] Keep cryptographic inspection separate from Gatekeeper execution policy.
-  Native `codesign` verification alone does not prove Gatekeeper acceptance or
-  launch eligibility under all system policies.
-
-**Acceptance:** native-produced and independently constructed chains covering
-positive/negative path decisions, alternate issuers, ambiguous subjects, missing
-and duplicate extensions, timestamps crossing validity boundaries and revocation
-states. Record evaluation time and trust inputs so tests are reproducible rather
-than dependent on the runner's changing trust store.
-
-**Exit:** operation-specific policy tables explain each native acceptance/rejection;
-tests cover the supported table, and the API reports integrity and trust distinctly.
-Unavailable credentials or live policy services remain explicit evidence gaps.
-
-**Touchpoints:** [certificate.go](../pkg/codesign/certificate.go),
-[certificate_sign.go](../pkg/codesign/certificate_sign.go),
-[verify.go](../pkg/codesign/verify.go), [types.go](../pkg/codesign/types.go),
-[certificate guide](certificates.md).
-
-<a id="wp-11"></a>
-## WP-11: Identity formats and provider selection
-
-**Starting point:** identities already expose `crypto.Signer`; PEM supports RSA,
-EC and unencrypted PKCS#8, and authenticated PKCS#12 supports a documented cipher
-and MAC subset. Native `codesign` identity lookup uses keychain semantics; portable
-PEM/PKCS#12 inputs are project extensions, not equivalent native CLI switches.
-
-**Implementation tasks:**
-
-- [ ] Add encrypted PEM/PKCS#8 through portable, reviewed cryptographic components.
-  Specify accepted encryption/KDF profiles, password encoding, authentication,
-  resource budgets and errors; do not accept unauthenticated contents accidentally.
-- [ ] Inventory unsupported PKCS#12 bag/content/cipher/integrity forms against
-  independent exported archives. Prioritize legitimate identity interchange needs;
-  distinguish interoperability extensions from native CLI feature parity.
-- [ ] Design explicit selection for archives containing multiple private keys,
-  certificates, friendly names or local key IDs. Reject ambiguity unless a
-  documented selector resolves it. Preserve current one-identity API behavior or
-  provide a separately named API rather than choosing a new arbitrary first key.
-- [ ] Support useful extra chain certificates and cross-signs with deterministic
-  path selection, while retaining proof that the selected private key matches the
-  selected leaf. Do not conflate archive ordering with validated chain ordering.
-- [ ] Expand key/signature algorithms only after native acceptance and dependency
-  review. RSA-PSS parameters, additional key encodings and hybrid identities require
-  coordinated certificate, CMS and timestamp changes rather than only key parsing.
-- [ ] Establish any native software-identity/provider selection contract from
-  independent evidence. D01 found that `--use-software-signing-cert` documents
-  software-update validation policy; route that option's behavior to WP-10/WP-20.
-  Do not treat it as evidence of identity lookup, key pairing or hybrid selection.
-- [ ] Reuse the existing signer interface for external/provider-backed signing;
-  document supported public keys, signer options, signature encoding and cancellation
-  limitations. Do not invent an export operation for a non-exportable private key.
-- [ ] Complete password-file behavior, empty versus absent passwords, newline
-  handling, malformed Unicode, wrong-password diagnostics and log redaction.
-  Do not claim guaranteed key-memory erasure from ordinary Go garbage collection.
-
-**Acceptance:** independent OpenSSL/LibreSSL or platform-exported archives with
-known public keys and native-accepted signatures; correct/wrong/empty passwords,
-multiple identities, duplicate bags, mismatched keys, unsupported algorithms and
-KDF budget exhaustion. Use public test identities in CI; no production key material
-in fixtures, logs, manifests or PR artifacts.
-
-**Exit:** each newly supported identity form has independent import/sign/verify
-evidence and a stated selection contract. Native keychain search and authorization
-remain WP-22 responsibilities; portable file input does not close those entries.
-
-**Touchpoints:** [identity.go](../pkg/codesign/identity.go),
-[pkcs12.go](../pkg/codesign/pkcs12.go),
-[certificate_sign.go](../pkg/codesign/certificate_sign.go),
-[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
-
-<a id="wp-12"></a>
-## WP-12: CMS representations and signature algorithms
-
-**Starting point:** code-signing CMS supports a bounded SHA-256 RSA/ECDSA profile,
-Apple hash-agility attributes and selected indefinite-length BER outer containers.
-It does not provide a general CMS/BER implementation, all algorithms or all signer
-and attribute combinations.
-
-**Implementation tasks:**
-
-- [ ] Inventory native-created CMS variants by signing identity, algorithm,
-  timestamp, legacy form, multiple CodeDirectories and hybrid signature slot.
-  Record SignedData/SignerInfo versions, identifier forms and algorithm parameters.
-- [ ] Extend only evidenced envelope encodings while retaining original
-  authenticated bytes. Re-encoding a certificate or signed-attribute set before
-  verification can change what was signed; parser normalization must not repair
-  malformed authenticated data into a successful signature.
-- [ ] Implement native-supported digest/signature combinations and strict parameter
-  validation, including RSA-PSS if accepted. Distinguish absent versus NULL parameters,
-  key algorithm constraints, digest identifiers and signature octet encoding.
-- [ ] Complete both hash-agility attributes for multiple/alternate directories,
-  including repeated digest families, preferred-directory selection and ordering.
-  Check all required bindings, not just the primary directory's content digest.
-- [ ] Investigate additional signer identifiers/counts, certificate choices, CRLs,
-  countersignatures and unsigned attributes. Support them where native requires
-  them; document rejection where outside the observed native profile.
-- [ ] Calculate signature allocation for larger keys, variable-length ECDSA,
-  timestamps, larger chains and PQC. Preserve the existing native reservation and
-  padding rules for current identities rather than globally changing their output.
-- [ ] Define inspection behavior when envelope metadata is readable but signature
-  algorithms or attributes are unsupported. Return descriptive metadata without
-  implying integrity or trust was verified.
-- [ ] Bound total ASN.1 elements/depth/bytes across wrappers, certificates, attributes
-  and nested tokens, including indefinite-length and concatenated-input cases.
-
-**Acceptance:** verify native fixtures with Go and Go fixtures with both native
-and an independent cryptographic implementation where available. Compare complete
-RSA outputs at recorded signing times. For randomized signatures, compare exact
-authenticated attributes/layout and independently verify signatures; declare only
-the genuinely nondeterministic byte ranges. Exercise wrong algorithm parameters,
-duplicate attributes, ambiguous signer certificates and partial hash-agility data.
-
-**Exit:** supported CMS profiles are explicit and independently verified, with
-allocation, display and failure coverage. A permissive parser alone never closes
-a CMS verification gap.
-
-**Touchpoints:** [cms.go](../pkg/codesign/cms.go),
-[cms_ber.go](../pkg/codesign/cms_ber.go),
-[certificate_sign.go](../pkg/codesign/certificate_sign.go),
-[identity.go](../pkg/codesign/identity.go), [CMS evidence](../spec/apple-cms.json).
-
-<a id="wp-13"></a>
-## WP-13: Timestamp compatibility and portable transport
-
-**Starting point:** explicit HTTP acquisition, nonce/imprint checking, supported
-RFC 3161 verification, separate TSA roots, deadlines/cancellation and native replay
-fixtures are delivered. Transport, CMS, TSA policy and native default selection
-remain a bounded subset.
-
-**Implementation tasks:**
-
-- [ ] Establish implicit/default timestamp selection for each identity/representation,
-  including Developer ID, ad-hoc, preserved metadata and explicit `none`. Test
-  omitted, bare and URL-valued options and malformed options before any mutation.
-- [ ] Probe native redirects, proxy settings, URL authentication, compression,
-  chunk extensions, retries, DNS/IPv6, connection failure and timeout behavior.
-  Implement the observed profile, with explicit cancellation and operation budgets.
-- [ ] Keep the recorded baseline distinction: native macOS 27 rejects HTTPS TSA
-  URLs too. HTTPS is not automatically a missing native feature; a future native
-  version or separate authenticated service may create a different requirement.
-- [ ] Preserve the production dependency guard. Any secure transport needed for
-  WP-10/WP-19 must have an audited pure-Go dependency path without the forbidden
-  Darwin trust bridge; adding `net/http` is not an implicit approved solution.
-- [ ] Extend TSTInfo/ESS handling where native accepts it: multiple certificate IDs,
-  policy information, supported TSA name forms, extensions, fractional time,
-  accuracy/ordering and nonce-present/absent contexts. Acquisition's nonce-bound
-  contract must remain distinct from verification of an imported token.
-- [ ] Complete TSA policy-OID, certificate-chain, revocation and trusted-time
-  behavior. Measure clock-skew tolerance, expired TSA/code certificates and
-  malformed optional attributes against the native operation being reproduced.
-- [ ] Extend token algorithms/BER/signer forms through WP-12 rather than creating
-  a second inconsistent CMS verifier. Account for larger signature octets from WP-18.
-- [ ] Define retry/idempotence behavior per architecture and per nested code object.
-  A dry run currently calls the provider; new behavior must preserve or explicitly
-  reconcile that contract with native evidence.
-- [ ] Keep recorded-token replay for deterministic tests, with exact binding to the
-  code signer's signature octets. Fresh online acquisition needs separate tests;
-  replay cannot prove a new signing event or current endpoint availability.
-
-**Acceptance:** deterministic offline fixtures plus local protocol-oracle tests
-for framing, cancellation, redirects and malformed responses. Use opt-in live TSA
-acceptance with recorded endpoint/time/native result; keep mandatory CI reliable
-without relying on external service uptime. Compare native acceptance and metadata
-while allowing only case-declared nonce/time/signature differences.
-
-**Exit:** default selection, transport and policy have separate completed matrices;
-TSA trust remains distinct from code trust and notarization. Unresolved transport
-or policy cases stay visible rather than becoming undocumented fallback behavior.
-
-**Touchpoints:** [timestamp.go](../pkg/codesign/timestamp.go),
-[timestamp_http.go](../pkg/codesign/timestamp_http.go),
-[timestamp_request.go](../pkg/codesign/timestamp_request.go),
-[timestamp_roots.go](../pkg/codesign/timestamp_roots.go),
-[timestamp guide](timestamps.md).
-
-<a id="wp-14"></a>
-## WP-14: Launch constraints, library constraints and validation
-
-**Starting point:** the six constraint-related inventory options are unimplemented.
-They need format, schema, signing, display and CLI work. Successful encoding does
-not prove that a non-macOS host can enforce Apple's runtime launch policy.
-
-**Implementation tasks:**
-
-- [ ] Extract versioned constraint keys/operators and slot definitions from the
-  SDK/source using Clang. Obtain native examples for self, parent, responsible and
-  library constraints, including minimal/empty and nested expressions.
-- [ ] Determine the native plist-to-DER format and canonical ordering. Reuse common
-  typed primitives only after proving equivalence; do not assume constraint DER
-  is identical to entitlement DER.
-- [ ] Implement `--validate-constraint` as its own operation, including input syntax,
-  schema/type errors, unknown keys, supported optional-extension mechanisms and
-  native output/exit behavior. Version the schema where native versions differ.
-- [ ] Implement the four signing inputs and bind each to its correct special slot.
-  Handle omission, explicit empty values, preservation, replacement and file-type
-  applicability. Carry them through allocation, inspection and removal.
-- [ ] Implement `--enforce-constraint-validity`, establishing the default warning
-  versus failure policy and the precise validation point before filesystem changes.
-- [ ] Integrate preservation selectors with WP-05 and architecture/slot selection
-  with WP-07/WP-18. A forced re-sign must not silently discard requested constraints.
-- [ ] Determine native deep-signing behavior: which constraints apply to the parent,
-  which are inherited/ignored for descendants and how per-object inputs are selected.
-- [ ] Separate structural validity, authenticated constraint binding and runtime
-  evaluation. Expose unavailable runtime context explicitly rather than reporting
-  that launch restrictions were enforced on Linux or Windows.
-
-**Acceptance:** byte-for-byte native constraint blobs and complete deterministic
-signatures; validation diagnostics for wrong types/operators/unknown keys; mutations
-of each slot; preserve/override/deep interactions. Where runtime behavior is part
-of the claim, use controlled harmless Mac fixtures and record OS-policy prerequisites.
-
-**Exit:** all six CLI options have positive, negative and interaction tests; slot
-binding and validation match native, and any runtime-only limitation is explicit.
-
-**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
-[entitlements.go](../pkg/codesign/entitlements.go),
-[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
-New constraint-specific codecs/schema files should keep common primitives shared.
-
-<a id="wp-15"></a>
-## WP-15: Native detached signature files
-
-**Starting point:** native `--detached` is unimplemented. Existing detached-content
-CMS is an internal cryptographic structure, not Apple's detached-signature file
-container. Reference projects' custom detached formats are not interchangeable
-without direct native evidence.
-
-**Implementation tasks:**
-
-- [ ] Recover the native container, indexing and per-architecture/object identity
-  rules from source/AST and native files. Distinguish detached signatures from
-  detached certificate interchange and the system detached-signature database.
-- [ ] Establish creation and consumption semantics for Mach-O, bundles, DMGs and
-  generic files where native accepts them, including required external resources.
-- [ ] Probe whether each operation changes the source object, which old embedded
-  metadata it reads, and how force/preserve/dry-run affect output. Do not assume
-  an external signature always means an entirely untouched input representation.
-- [ ] Add byte and streaming APIs with explicit detached-data ownership and path
-  lookup. Bind the signature to the intended object and selected architecture;
-  filenames alone are insufficient authentication.
-- [ ] Implement native precedence when embedded and detached signatures coexist,
-  disagree, are malformed or refer to different input bytes. Reject ambiguous
-  selection rather than silently choosing whichever verifies first.
-- [ ] Implement CLI output creation, multiple-target behavior, overwrite/append or
-  merge behavior where native supports it, stdout use and failure preservation.
-- [ ] Reuse the same CMS, requirements, timestamp, special-slot and trust validators
-  as embedded signatures. Detached verification must not bypass missing external
-  Info.plist, resources or constraint inputs.
-- [ ] Complete detached display/extraction and native errors for missing/stale files,
-  malformed containers, unsupported versions and invalid architecture indexes.
-
-**Acceptance:** native creates/Go reads and Go creates/native reads in both valid
-and tampered cases; exact container bytes for deterministic identities; multiple
-architectures/objects, moved paths, mismatched content and embedded/detached conflicts.
-Record input and output file hashes/metadata before and after each operation.
-
-**Exit:** native file interchange is independently demonstrated. This does not
-close `--detached-database`, which requires the actual system state in WP-22.
-
-**Touchpoints:** [blob.go](../pkg/codesign/blob.go),
-[verify.go](../pkg/codesign/verify.go), [sign.go](../pkg/codesign/sign.go),
-[types.go](../pkg/codesign/types.go), [CLI](../internal/cli/cli.go).
-Container encoding and lookup should live in dedicated new representation files.
-
-<a id="wp-16"></a>
-## WP-16: Generic files, xattr signatures and representation dispatch
-
-**Starting point:** Mach-O, supported bundles and UDIF have existing workflows.
-[Generic removal](generic-removal.md) now removes attached signatures through
-APFS native metadata and explicit AppleDouble carriers on all three hosts.
-Eight complete Apple bodies, forty retained native probes, real permissions,
-large-file and foreign-artifact acceptance qualify its bounded removal contract.
-Absent-executable and metadata-denial Info.plist fallback now work in supported layouts with valid
-metadata. Generic signing, verification, display and broader representation
-selection remain unimplemented beyond the qualified discovery-denial profile.
-
-**Implementation tasks:**
-
-- [x] Implement ordered, in-place generic removal for ordinary files, scripts,
-  object files and selected generic bundle executables. Preserve unrelated
-  metadata, data forks and links; retain partial failures and require native
-  writable-open authorization. Support explicit mutable AppleDouble carriers.
-- [x] Select valid Info.plist for removal when no executable candidate exists in
-  supported Contents/flat/versioned-framework layouts. Qualify name fallbacks,
-  optional signing metadata, native and explicit carriers, byte/inode preservation,
-  writable-open denial, dry-run behavior and mandatory foreign/native comparisons.
-- [x] Qualify readsecurity/readattr discovery denial separately from denied data
-  reads. Preserve selected-executable failures without redirecting removal. Use
-  APFS `hostdata.StatMetadata` for this profile and the existing SDK generic writer.
-- [ ] Complete broader CoreFoundation metadata/property authorization contexts.
-- [x] Qualify missing/zero-byte metadata and empty dictionaries in supported
-  layouts, versioned-framework name arbitration, no-mutation bad-bundle errors,
-  and portable/native/carrier outcomes with mandatory foreign imports.
-- [x] Implement the bounded macOS platform-plist and executable-key profile on
-  all three hosts using published APFS v0.17.0. Preserve acquired-empty raw URLs,
-  ordinary acquisition fallback and distinct basic-attribute discovery errors.
-  Retain the original fourteen research cases, 33 three-layout native cases,
-  eighteen native permission comparisons and 66 mandatory foreign imports.
-  [PR83](https://github.com/deploymenttheory/go-macos-codesign/pull/83) records
-  validation and merge status; an implementation checkbox does not waive CI.
-- [x] Qualify bounded XML/OpenStep/binary removal interpretation, captured invalid
-  and non-dictionary raw-plist fallback, XML/OpenStep last-duplicate and binary
-  first-duplicate semantics. Retain 180 native cases and 360 mandatory foreign
-  imports; keep resource bounds fatal and strict signing/verification parsing.
-- [x] Interpret BOM-marked UTF-16LE/BE during removal with native conversion-prefix
-  semantics, 120-case API/CLI replay, 240 mandatory foreign records and retained
-  resource limits. See [encoding profile](removal-plist-encodings.md).
-- [x] Interpret BOM-marked UTF-32LE/BE with strict scalar validation across the
-  entire input, incomplete-unit truncation, 276-case API/CLI replay and 552
-  mandatory foreign records. Keep size/complexity limits and prior profiles.
-- [x] Implement the retained 36-case XML character grammar (controls, U+FFFE/U+FFFF,
-  NUL inside strings). Add 192 native key/string/entity/CDATA cases, 38 native
-  value observations and 456 mandatory foreign records. Preserve accepted
-  OpenStep controls, ignored XML suffixes and fatal resource/representation limits.
-- [x] Qualify native unmarked UTF-16/32 interpretation: zero-byte heuristic,
-  discarded unit, fixed little-endian policy, short/partial/surrogate boundaries
-  and secondary parser/codec prevention. Retain 408 API/CLI cases, 816 foreign
-  records, 106 total native value observations and all resource/strict-parser gates.
-- [x] Implement eight qualified Shift-JIS/Windows Japanese names, distinct native
-  mappings and whole-stream failure behavior. Retain 1,052,672 byte-stream
-  observations, 912 removal cases, 1,824 mandatory imports and 390 complete values.
-  Enable exact UTF-8 removal executable names without dropping the 48 native
-  Unicode cases; broader normalization and alias semantics remain outstanding.
-- [x] Implement the qualified 55 declared single-byte charset names, exact native
-  mappings, declaration/BOM selection and invalid-byte stream behavior. Retain
-  14,080 byte replays, 792 native operation cases, 1,584 mandatory foreign results
-  and 238 complete values; enforce conversion budgets before mutation.
-- [x] Implement eight qualified EUC-JP names from 2,101,248 stream observations,
-  including unusual trails/extensions and native three-byte rejection. Qualify
-  assembled-string/key leading-BOM semantics. Add 1,488 native cases, 2,976
-  mandatory imports and 638 total complete values; preserve all earlier gates.
-- [x] Implement six qualified ISO-2022-JP names, five mapping states and exact
-  conversion-buffer EOF behavior from 23,623,680 stream observations and 3,240
-  boundary cases. Add 1,836 operation cases, 3,672 mandatory foreign results,
-  944 total complete values and two complete Apple dispatcher bodies.
-- [x] Implement seven JP-1/JP-2 names from 15,651,328 native byte observations
-  and 13,650 complete streams, retaining strict escapes, newline state, G2 and
-  full-buffer behavior. Add 2,100 operations, 4,200 mandatory imports, 1,294
-  total complete values and four complete Apple lookup/sizing bodies.
-- [ ] Qualify remaining declared codecs/aliases and OpenStep NUL contexts before
-  extending the portable decoder; retain explicit errors meanwhile.
-- [ ] Qualify remaining text encodings, wider grammar/object types,
-  broader platform/product key normalization, final plist aliases, legacy/shallow
-  layouts, widgets, resource-root policies, `.dist` discovery, executable-path
-  aliases and dynamic-loader environment selection. Extend the
-  [platform metadata contract](removal-platform-metadata.md) using native/Clang
-  evidence and require the same policy on every producer.
-- [ ] Inventory native representation dispatch from source and probes: ordinary
-  files, scripts, recognized bundle layouts, disk images and any additional format
-  actually accepted by the baseline. Record rejection as a valid native result.
-  Do not assume installer package signing belongs to `codesign` because another
-  Apple tool can sign a package.
-- [ ] Recover native xattr names, blob layout, allocation/chunking rules and
-  fallback behavior for generic signatures from the relevant disk-representation
-  code. Establish interactions with resource forks and existing unrelated xattrs.
-- [ ] Implement generic sign, verify, display, force, dry-run and removal where
-  supported. Probe unsigned removal, partial signature attributes, empty files,
-  executable permission changes and content changes independently.
-- [ ] Put missing strict xattr enumeration/read/write/remove operations in the APFS
-  public metadata API. Retain aggregate size bounds, no-follow behavior and error
-  propagation; do not add a second syscall/xattr implementation here.
-- [ ] Decide how Linux/Windows can ingest and emit the complete native metadata
-  representation. Their filesystems do not automatically provide the same xattr
-  namespace/semantics as a Mac. Evaluate an explicit archive/virtual-filesystem
-  carrier or native detached files rather than silently renaming attributes.
-- [ ] Label a portable carrier/sidecar as an extension unless native accepts it
-  directly. Demonstrate restoration on a Mac before claiming preservation of a
-  native generic signature; a JSON description alone is not a signed native file.
-- [ ] Define format precedence for ambiguous/malformed inputs, symlinks, executable
-  paths inside bundles and files with both embedded and attribute signatures.
-- [ ] Reuse identifier, requirements, certificate and timestamp policies across
-  representations with explicit per-format applicability.
-- [ ] Treat resource sidecars such as AppleDouble as a researched representation
-  issue where encountered, not an automatic substitute for native xattr storage.
-
-**Acceptance:** native generic signatures imported into Go on every OS through the
-declared carrier; Go-produced objects restored and accepted by native; content and
-attribute mutations; unrelated-xattr preservation; permission failures and partial
-attribute sets. Verify bytes, metadata, diagnostics and carrier limitations.
-
-**Exit:** the native-supported representation inventory is accounted for, and each
-portable storage path has a demonstrated native restoration/interchange story.
-Unrepresentable host filesystem behavior remains an explicit compatibility limit.
-
-**Touchpoints:** [io.go](../pkg/codesign/io.go),
-[bundle_discovery.go](../pkg/codesign/bundle_discovery.go),
-[types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md),
-[APFS public metadata API](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/hostmeta).
-
-<a id="wp-17"></a>
-## WP-17: Wider APFS-backed DMG support and streaming
-
-**Starting point:** codesign directly reuses APFS v0.8.0's UDIF model. Its own
-adapter currently accepts a single-segment version-4 image, flags equal to one,
-a resource plist, bounded non-overlapping ranges and a 1 GiB in-memory profile.
-APFS supporting a broader image format does not mean this signing adapter already
-handles that format.
-
-**Implementation tasks:**
-
-- [ ] Audit public APFS APIs against the signing adapter's remaining needs before
-  designing new code. Reuse existing footer/range/format handling and document any
-  genuinely missing public primitive as an upstream APFS issue/PR.
-- [ ] Introduce `ReaderAt`/size-based inspection and hashing, then bounded staged or
-  in-place output according to the native write contract. Avoid reading/rebuilding
-  the entire image merely to append or replace a signature.
-- [ ] Establish every byte participating in the image signature: code range,
-  footer/trailer canonicalization, special-slot binding, old signature allocation,
-  resource plist and any permitted trailing data. Preserve opaque image payload.
-- [ ] Probe encrypted, segmented, sparse or other native-accepted image forms and
-  malformed footer variants. Determine which operations need one segment versus
-  the full set, password access or additional APFS parsing before committing APIs.
-- [ ] Extend adapter checks for the evidenced cases rather than bypassing current
-  overlap/length/flag checks wholesale. Use checked 64-bit arithmetic throughout.
-- [ ] Keep image codecs, decryption, segment reconstruction and filesystem parsing
-  in APFS. Signing unchanged compressed bytes should not require unnecessary
-  decompression/recompression or a new codec implementation in this project.
-- [ ] Separate fixture-generation problems from signing compatibility. For example,
-  a failing upstream encoder does not prove an independently native-created image
-  cannot be signed or verified.
-- [ ] Complete identifier, page-size, digest, preservation, entitlement, timestamp,
-  architecture-option applicability and detached-signature behavior per image form.
-- [x] Implement the bounded ad-hoc DMG dry-run write profile from PR #42. The
-  current slice requires all 80 metadata cases to match bytes, including twenty
-  dry runs; 70 lifecycle cases cover options, repeated operations and recovery.
-  Components without a CodeDirectory leave the image unsigned. Four native
-  permission cases and portable cancellation/malformed-input checks cover failure
-  preservation. `SignBytes` still returns a full signature without path mutation.
-- [x] Complete final per-commit three-OS, 140 foreign dry-run output comparisons,
-  packaging and artifact gates for PR #49; [the merged evidence](#merged-pr49)
-  records commits, checks and downloaded artifacts. Certificate path dry runs are
-  unsupported: four pinned native public-identity probes terminate by signal.
-  Retain that safe divergence. The bounded CLI replacement notice is handled
-  separately by WP-20; broader diagnostic parity remains open.
-  Broader failure ordering, streaming and codec expansion remain separate work.
-- [ ] Retain native rejection of DMG `--remove-signature` on the recorded baseline;
-  implementing a custom remover would be an extension, not closing a parity gap.
-- [ ] Keep disk-image signature validation separate from filesystem mountability,
-  decryption success, notarization and Gatekeeper policy. Add those only where the
-  native codesign operation actually requires them.
-
-**Acceptance:** native-created images with different payload encodings, large/sparse
-sizes, supported encryption/segmentation and signature histories; deterministic
-whole-output or chunk-manifest comparisons; native verification of Linux/Windows
-outputs; footer/resource/trailer mutations; bounded memory and cancelled I/O.
-Use native tools only for fixtures/oracles, never as the portable production path.
-
-**Exit:** the supported image matrix extends beyond the current adapter profile
-with evidence and measured memory behavior. Any APFS change is released and consumed
-through its public API; no copied disk-image implementation is introduced.
-
-**Touchpoints:** [dmg.go](../pkg/codesign/dmg.go),
-[io.go](../pkg/codesign/io.go), [DMG guide](dmg-integration.md),
-[DMG evidence](../spec/apple-dmg.json),
-[APFS disk model](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.8.0/pkg/disk).
-
-<a id="wp-18"></a>
-## WP-18: Hybrid/PQC signatures, native signature slots and detached certificates
-
-**Starting point:** the macOS 27 inventory includes hybrid/PQC-related behavior,
-slot selection and certificate interchange. None is implemented. The precise
-algorithms, wire formats and credential availability require early investigation;
-this plan does not assume an algorithm or OID from the word “PQC.”
-
-**Implementation tasks:**
-
-- [ ] Obtain legitimate native-created examples and record the native version,
-  identity class, required entitlements/provider and availability constraints.
-  If creation requires unavailable credentials or hardware, record the blocker
-  immediately; public parse fixtures and fabricated test identities prove less.
-- [ ] Recover the relationship between classical and PQC components: certificate
-  representation, public keys, algorithm parameters, signed content, directory
-  binding, CMS structure and native acceptance rules for each component.
-- [ ] Implement native `--signature-slot` selection, numbering and default preferred
-  slot for display and verification. Keep this distinct from architecture slices
-  and SuperBlob slot identifiers. Probe missing, duplicate and out-of-range slots.
-- [ ] Define verification results for supported/unsupported components, damaged
-  classical/PQC parts and downgrade attempts. A passing classical signature must
-  not imply the required hybrid policy succeeded if the second component failed.
-- [ ] Select reviewed pure-Go cryptographic implementations with independent test
-  vectors and dependency/license audits. Do not translate unreviewed cryptographic
-  arithmetic merely to remove a dependency or claim performance equivalence.
-- [ ] Extend allocation, CMS, certificate parsing, timestamp imprint inputs and
-  resource budgets for the actual signature/key sizes. Avoid reusing the current
-  8 KiB timestamp-signature limit as an unexplained incompatibility.
-- [ ] Implement native detached-certificate input/output file format, chain/slot
-  linkage, ordering, duplicate handling and missing-certificate errors. A plain
-  concatenated PEM/DER file is not assumed equivalent without evidence.
-- [ ] Implement `--keep-root-detached-certificates` using native root classification;
-  self-issued, self-signed and trusted-anchor are not interchangeable properties.
-- [ ] Implement standalone `--merge-detached-certificates`: repeated inputs,
-  deduplication keys, cross-signed variants, ordering, output creation and collisions.
-  Define whether malformed/partial inputs leave an existing output untouched.
-- [ ] Test mixed classical/hybrid identity and explicit-slot interactions with
-  evidenced policy options. D01 did not establish that `--use-software-signing-cert`
-  selects a hybrid identity; its documented software-update validation policy
-  needs WP-10/WP-20 evidence before claiming any hybrid interaction.
-- [ ] Decide versioned library/report models before adding fields that assume
-  exactly one signature/certificate chain per architecture.
-
-**Acceptance:** native interchange in both directions for every supported identity
-and slot; independent algorithm vectors; exact deterministic container/certificate
-bytes; separately tampered components; missing chains; duplicate/merged inputs;
-all three OS producers. Record which tests require restricted credentials and
-which are reproducible from public fixtures.
-
-**Exit:** actual native hybrid signatures can be produced and validated according
-to native slot policy, and the four detached-certificate interchange flags plus
-`--signature-slot` have complete evidence. Any interaction with software-update
-validation policy requires its own evidence. Parser-only support or unavailable
-signing credentials cannot close the entire hybrid-signing entry.
-
-**Touchpoints:** [types.go](../pkg/codesign/types.go),
-[blob.go](../pkg/codesign/blob.go), [cms.go](../pkg/codesign/cms.go),
-[identity.go](../pkg/codesign/identity.go), [CLI](../internal/cli/cli.go).
-New codecs and algorithms require dedicated provenance and compatibility records.
-
-<a id="wp-19"></a>
-## WP-19: Notarization checking and ticket policy
-
-**Starting point:** `--check-notarization` is unimplemented. Existing Apple chain
-and timestamp validation does not imply notarization, and a successful native
-signature check does not imply a Gatekeeper allow decision.
-
-**Implementation tasks:**
-
-- [ ] Research the baseline's ticket discovery, lookup request/response, authenticated
-  ticket format, trust roots, object identifiers and forced-online behavior.
-  Pin source/fixtures and record private or undocumented protocol uncertainty.
-- [ ] Establish what the flag checks for Mach-O, bundles and DMGs, including which
-  architecture, CodeDirectory or signature slot identifies the submitted object.
-- [ ] Implement ticket parsing and cryptographic/content binding independently of
-  retrieval. Reject a valid ticket bound to different code, an unsupported ticket
-  version or an unauthenticated response presented as a positive result.
-- [ ] Reproduce required service lookup, cache/freshness, revoked/unknown/rejected
-  status and offline/error behavior. Forced online lookup must not silently succeed
-  from stale local data if native requires a fresh result.
-- [ ] Resolve portable authenticated transport under the dependency guard. Existing
-  HTTP TSA authentication depends on signed tokens; that does not justify using
-  unauthenticated transport for a different protocol without proving its security.
-- [ ] Connect requirement-language notarization predicates to an explicit verified
-  context. Do not let caller-provided metadata strings establish notarized status.
-- [ ] Complete CLI output, aggregate exit status and interaction with ordinary
-  verification, explicit requirements, timestamps and signature-slot selection.
-- [ ] Keep submission, account management and stapling out of this work unless
-  evidence establishes them as `codesign` operations. Other Apple tools' features
-  do not automatically belong in a codesign-equivalence backlog.
-
-**Acceptance:** legitimate public notarized artifacts and authorized opt-in live
-tests; bound/unbound ticket mutations; unknown/revoked/offline/service-error cases;
-native side-by-side results with recorded times and cache conditions. Replay tests
-prove decoder/policy behavior, not current remote service status.
-
-**Exit:** the requested native check is implemented with authenticated results and
-documented service dependencies. Missing protocol access, credentials or portable
-transport remains an explicit blocker rather than a hardcoded positive answer.
-
-**Touchpoints:** [requirements.go](../pkg/codesign/requirements.go),
-[certificate.go](../pkg/codesign/certificate.go),
-[verify.go](../pkg/codesign/verify.go), [types.go](../pkg/codesign/types.go),
-[CLI](../internal/cli/cli.go). Ticket and service logic need separate new modules.
-
-<a id="wp-20"></a>
-## WP-20: CLI equivalence, display, extraction and diagnostics
-
-**Starting point:** Cobra/Viper wrap a native-style parser and the main portable
-operations. Many flags are absent, and covered flags still lack complete native
-grammar, output, applicability and error behavior. The library having a capability
-does not prove CLI compatibility.
-
-**Implementation tasks:**
-
-- [ ] Build the complete operation matrix for sign, verify, display, remove,
-  hosting, constraint validation and detached-certificate merging. Cover missing
-  and conflicting operations, implicit modes, aliases and deprecated options.
-- [ ] Complete short-option clusters, repeated `-v`, optional values, equals forms,
-  abbreviations where native supports them, `--`, dash-prefixed paths, repeated
-  options and last-value/error precedence. Retain Cobra/Viper while preventing
-  their generic behavior from overriding native semantics.
-- [ ] Reproduce options accepted but ignored for a particular operation only after
-  native evidence. Unknown or unsupported behavior must not become a silent no-op.
-- [ ] Route numeric targets according to native process-versus-path rules, including
-  explicit `./` filename disambiguation. Until WP-22 exists, report unavailable
-  live-process behavior instead of treating every PID as an ordinary filename.
-- [ ] Complete verbosity-level display: architecture, flags, CodeDirectory fields,
-  hash candidates/preference, signature allocation, authorities, Team ID, runtime,
-  requirements, entitlements, constraints, timestamps and alternate signature slots.
-- [ ] Match canonical/physical path reporting, quoting, ordering, stdout versus
-  stderr, trailing newlines and exit codes. Preserve PR #25's physical-target
-  display/default-identifier behavior for standalone aliases.
-- [x] Add the bounded replacement-signature notice: one stderr line per signed,
-  forced top-level operand, native operand spelling, dry-run notices and notices
-  before later failures. Keep the library silent by default through an optional
-  path-only callback; retain byte API behavior and APFS source-access boundaries.
-  Add 80 lifecycle, seven signature-state and five operand/multiple-target cases,
-  plus eight Mac failure/continuation cases. Reject non-power-of-two page sizes
-  before processing targets. All 70 DMG dry-run cases require exact diagnostics.
-  Extend the path AST to six complete functions with Apple's published `note`.
-- [x] Complete final three-OS/coverage, native-import, race/fuzz, packaging and
-  downloaded-artifact gates for the notice slice in [PR #50](#merged-pr50).
-  Retain all 88 statuses at that milestone. Malformed-signature repair/rejection, mixed-signature
-  universal selection, linker-signature no-force handling, verbose completion
-  output and full OS error wording as separate outstanding work.
-- [ ] Replace the current fixed English UTC date approximation with an explicit
-  native locale/timezone contract. Test fixed baseline locale first; retain other
-  localized/native-version outputs as separate unproven profiles until evidenced.
-  Certificate extraction now records a concrete hosted difference at its fixed
-  signing time: native uses `Sep 24, 2026 at 12:00:00\u202fPM`, while Go and the
-  local baseline use `24 Sep 2026 at 12:00:00`. All eighteen affected verbose
-  cases retain raw outputs and require one complete observed profile; the hosted
-  form is marked as a remaining date difference rather than exact display parity.
-- [x] Implement bounded `--extract-certificates[=PREFIX]` display extraction using
-  owned DER copies from existing CMS metadata. Cover default `codesign`, empty
-  and custom prefixes, last-value wins, zero-based leaf-first numbering and
-  included roots. Keep optional values attached: a separate word is an operand.
-  Preserve normal display and shared architecture selection; ad-hoc signatures
-  produce no files. Extraction does not establish code integrity or trust.
-- [x] Match measured output lifecycle: truncate existing files in place, preserve
-  existing modes/inodes, follow symlink/hard-link targets, retain stale higher
-  indices and successful earlier writes, stop on failure unless `--continue`,
-  and let later operands overwrite the same prefix. Compare exact English
-  missing-parent/directory/permission errors; leave other OS errors explicit.
-- [x] Add 96 format/identity/prefix cases, eight lifecycle cases, three multiple
-  target cases, five signature-state/architecture cases and three ignored-operation
-  cases. Add two Mac cases for permission denial and bundle-parent alias display;
-  the latter now requires equality after the WP-03 fix. Extend the two-target path AST to eight complete
-  functions with `SecStaticCode::signature` and `SecStaticCode::certificates`.
-- [x] Complete combined PR #51/#52 three-OS coverage, native-import, race/fuzz,
-  packaging and downloaded-artifact gates for certificate extraction in PR #52. Keep
-  `--extract-certificates` partial after these bounded gates pass.
-- [ ] Extend extraction to unsupported CMS forms/algorithms, incomplete or
-  ambiguous chains, native host/keychain chain augmentation, detached/generic
-  representations and additional signature slots through WP-12/WP-15/WP-18.
-  Test corrupt CMS/CodeDirectory boundaries, unavailable issuers and native trust
-  policy effects without weakening explicit-trust verification APIs.
-- [ ] Complete extraction interactions with entitlements, requirements, constraints,
-  all verbosity/locales and architecture defaults. The bounded entitlement slice
-  restores normal display and colon warnings, with native certificate-first
-  ordering and appended outputs. Bundle-parent
-  display is closed for the bounded WP-03 profile; broader aliases remain open. Output paths
-  that alias inputs and wider filesystem failures require separate native evidence.
-- [x] Implement bounded `--file-list` signing/display lists: absolute ordered paths,
-  stdout or append output, framework literal-dot spelling, preserved existing
-  mode/inode and symlink/hard-link targets, last-option wins and multiple operands.
-  Match fatal output-open failures even with `--continue`, preserving earlier
-  signing or certificate-extraction effects. Verification ignores the option.
-- [x] Reuse shared report architecture selection and cache the pre-signing report
-  for signed DMG dry runs. Preserve the existing unsigned DMG writes. Deep signing
-  lists only the outer representation, as measured natively; do not claim a full
-  recursive mutation journal. Add 76 representation, 17 lifecycle and three
-  report-API cases, plus one Mac permission and six explicit crash differences.
-- [x] Extract six complete Apple file-list/slot/path functions on two Clang targets
-  and hash verbatim filename macros, all source files and excerpt bodies. Keep
-  private-interface shims and unavailable current CLI call sites explicit.
-- [x] Complete PR #53 coverage above 95% per production package on all
-  three OSes, race/fuzz, lint, packaging/native imports and downloaded-artifact
-  audits for the file-list slice. Match each foreign producer's exact checked
-  path records and unchanged signing/replacement/dry-run hashes to Mac records.
-- [ ] Extend file lists to external-signature CLI bundle layouts, malformed or
-  alternate slot metadata, detached/generic signatures and broader architecture
-  defaults. Report-API comparisons after adding external files do not bypass or
-  complete CLI inspection's stricter layout policy.
-- [ ] Resolve/document the six native crash divergences across versions. Go rejects
-  removal+file-list before mutation, errors on unsigned dry-run reports and lists
-  freshly signed DMGs successfully. Preserve raw exits/output and actual writes;
-  do not classify these outcomes as parity. Native DMG removal remains unsupported.
-- [ ] Cover output aliases to inputs, short/full/blocked streams, disk-full and
-  broader errno behavior, and all extraction/entitlement/requirement interactions.
-  Go checks write/close errors that the extracted Apple stdio helper ignores.
-- [ ] Complete requirement/entitlement/constraint extraction through the format
-  owners. Test absent/malformed slots, raw versus decoded output, architecture
-  and signature-slot selection, stdin/stdout where supported and multiple targets.
-- [ ] Finish `--continue` aggregate behavior: mixed successes/failures, processing
-  order, diagnostics and final exit code. Confirm which targets are mutated before
-  and after a failure, including nested and detached outputs.
-- [ ] Complete `--dryrun` across every writer. Record identity/provider/network
-  activity separately from filesystem changes; “no files changed” is not proof
-  that no signing or timestamp operation occurred.
-- [ ] Keep portable extensions such as JSON, explicit trust and file identities
-  documented separately. Evolve report fields without confusing parsed metadata,
-  integrity, policy, trust and actual native success.
-- [ ] Audit help and usage against overloaded native short flags; in particular,
-  a generic CLI help shortcut must not steal an actual native operation.
-
-**Acceptance:** execute identical argument vectors through native and Go against
-equivalent isolated inputs; capture raw stdout/stderr, exit status and filesystem
-snapshots. Include malformed options, unknown algorithms, missing files, permission
-errors, broken links, mixed targets and all new extraction outputs. Normalize only
-documented fixture-specific differences, never broad error text or missing fields.
-
-**Exit:** every documented and evidenced undocumented option has operation-specific
-tests and an honest status. Output compatibility is measured, not inferred from
-human-readable similarity or equal success codes.
-
-**Touchpoints:** [CLI](../internal/cli/cli.go),
-[entry point](../cmd/macoscodesign/), [types.go](../pkg/codesign/types.go),
-[acceptance tests](../acceptance/), [compatibility inventory](../spec/compatibility.json).
-
-<a id="wp-21"></a>
-## WP-21: Streaming, operational limits and cancellation
-
-**Starting point:** bounded inputs are intentional protections, but some bounds
-also exclude ordinary native-supported workloads. Increasing a constant is not
-an adequate streaming or performance implementation.
-
-The following baseline limits need explicit evaluation. This is an audit starting
-list, not permission to remove all limits:
-
-| Area | Current bound/profile | Remaining implementation question |
-| --- | --- | --- |
-| File/image processing | 1 GiB in-memory input/output profile | Seekable streaming, large offsets and bounded output staging |
-| Bundle traversal | Shared byte budget, 10,000 entries, 64 nested code objects, depth eight | Scalable traversal with global resource accounting |
-| Bundle plist | 8 MiB, binary graph depth 32 and 100,000 expanded values | Real native limits, graph amplification and larger resource envelopes |
-| Bundle paths | Portable ASCII restriction, 1,024-byte path, 255-byte component, bounded depth | Native Unicode/case semantics and cross-host representability |
-| Requirements | Depth 128 and 4,096 expression nodes | Bounded full grammar and deterministic evaluation cost |
-| CMS normalization | Bounded ASN.1 structure/element processing | Shared budgets across larger signatures and nested tokens |
-| Chain building | 64-certificate pool, 32-certificate path, 256 visits | Cross-sign/path policy without combinatorial search |
-| PKCS#12 | 16 MiB archive, 1,024-byte password, bounded salt and KDF work | Larger/multi-identity inputs with explicit resource policy |
-| Timestamp | 1 MiB token/response, 8 KiB signature input, 160-bit serial/nonce | Native-supported larger signatures and bounded protocol variants |
-| HTTP framing | 32 KiB framing/header budgets, 8 KiB lines, bounded line counts | Native-required transport forms without parser ambiguity |
-| Shared metadata | APFS metadata APIs have their own bounds/contracts | Upstream extension where needed; no local duplicate implementation |
-
-**Implementation tasks:**
-
-- [ ] Define seekable input, known size, hashing, output reservation and commit
-  interfaces. Preserve existing byte APIs as convenience wrappers with documented
-  memory limits and unchanged ownership contracts.
-- [ ] Use incremental page/resource hashing and bounded buffers. Design two-pass
-  allocation so adding a signature does not require keeping every input/output in
-  memory, including universal slices, bundle descendants and disk images.
-- [ ] Account for total memory, temporary disk space, open files, parsed objects,
-  network requests and cryptographic work across the entire operation. Per-child
-  limits alone do not prevent a large nested tree from exhausting resources.
-- [ ] Detect source changes between discovery, hashing and commit. Define stable
-  file identity and concurrent-write handling; avoid signing one byte sequence
-  while committing or reporting a different one.
-- [ ] Preserve path containment through root-relative handles and shared APFS
-  metadata operations. A streaming refactor must not reintroduce symlink races.
-- [ ] Make cancellation effective during reading, hashing, traversal, remote requests
-  and staging, with a documented last cancellable point before commit. External
-  signer callbacks need an explicit contract if they cannot be interrupted.
-- [ ] Add checked conversions for signed/unsigned sizes and host `int` values;
-  reject overflow before allocation, seeking or writing.
-- [ ] Define disk-full, short-write, permission-change and cleanup behavior. Do not
-  promise whole-bundle atomicity where native semantics and the filesystem cannot
-  provide it; document recoverable partial commits precisely.
-- [ ] Measure realistic large application/image workloads and worst-case malformed
-  inputs. Report peak memory, temporary storage, time and file descriptors against
-  a pinned environment; do not claim native performance parity without measurements.
-- [ ] Separate configurable operational budgets from fundamental unsupported
-  formats. If a deliberate bound still rejects native-accepted data, preserve that
-  compatibility limitation in documentation and the full-parity audit.
-
-**Acceptance:** files around every size boundary, large sparse files, many small
-resources, deep layouts, repeated plist references, ambiguous certificate graphs,
-cancelled reads/writes, disk exhaustion and changing inputs. Assert bounded resource
-usage and preserved original data on pre-commit failures; verify actual committed
-state for failures after the documented commit boundary.
-
-**Exit:** supported large workloads have measured bounded-memory behavior and
-portable failure semantics. Remaining limits are explicit, tested and not hidden
-by increasing test fixtures only slightly beyond the old bound.
-
-**Touchpoints:** [io.go](../pkg/codesign/io.go),
-[macho.go](../pkg/codesign/macho.go), [dmg.go](../pkg/codesign/dmg.go),
-[bundle_tree.go](../pkg/codesign/bundle_tree.go),
-[types.go](../pkg/codesign/types.go), [file-write guide](file-writes.md).
-
-<a id="wp-22"></a>
-## WP-22: Live-state, key-provider and external-helper blockers
-
-**Current state after PR #42:** eight inventory entries are explicitly blocked:
-the original five plus `--remote-signing`, `--signing-dylib` and `CODESIGN_ALLOCATE`.
-D01 records the missing inputs and helper-boundary conflicts in
-[native inventory](native-inventory.md). Pure Go can implement file formats;
-it cannot infer unavailable live state or recover a non-exportable key from a
-certificate. Inventorying these constraints does not resolve them.
-
-| Blocked feature | State needed for native-equivalent behavior | Useful portable work | What would still be missing |
-| --- | --- | --- | --- |
-| `--hosting` | Actual process, guest/host chain and dynamic validity | Decode documented representations; design explicit process-context models | A snapshot is not the current native hosting chain |
-| `live-process-verification` | Target process identity, loaded code and kernel-enforced signing state | Share static validation and model authenticated process evidence | File verification cannot prove the current process state |
-| `--keychain` | Search lists, identity preferences, unlock/ACL decisions and usable private-key provider | Offline supported archive formats and explicit provider interfaces | Native lookup/authorization behavior and protected key access |
-| `--detached-database` | Actual native system database contents, update semantics and permissions | Research/read/write a supplied offline database copy | Registering a record in the real system database and observing its effect |
-| `hardware-identities` | Authorized access to the original device/service and signing operation | Existing `crypto.Signer` integration and portable device protocols if available | A local substitute key is not the same hardware identity |
-| `--remote-signing` | Actual signer/provider protocol, identity and authorization | Research an explicit pure-Go provider contract where available | Parser recognition does not supply authorized provider access or native semantics |
-| `--signing-dylib` | Native external signing-library execution | Record required inputs and provider semantics | Executing an arbitrary native library conflicts with the no-native-binding boundary |
-| `CODESIGN_ALLOCATE` | Native external allocator override | Independent built-in allocation and native default-output comparisons | Arbitrary helper execution conflicts with the no-helper production requirement |
-
-**Research and resolution tasks:**
-
-- [ ] Enumerate the actual native operations and authorization requirements through
-  pinned source/AST and isolated tests. Separate representation decoding from
-  current-state access; do not use blanket “host feature” labels to avoid research.
-- [ ] For process operations, specify target identity, PID reuse, races, host/guest
-  ordering, dynamic invalidation and error behavior. Determine which observations
-  can be obtained through allowed portable interfaces and which cannot.
-- [ ] For keychain lookup, investigate preference/exact-name/substring/hash selection,
-  duplicate certificates, search ordering, explicit keychain scope, intermediate
-  lookup, locked stores and user authorization. File-based identities remain a
-  separate supported path, not a native search-list implementation.
-- [ ] For detached databases, establish the schema/version, matching keys, update
-  transaction, precedence over embedded/file-detached signatures and persistence.
-  Use disposable test state; reading an offline copy alone proves only the codec.
-- [ ] For hardware identities, document each accessible protocol and whether a
-  reviewed pure-Go client can use the real provider. Preserve key non-exportability
-  and record unavailable device/credential requirements without fabricating success.
-- [x] Inventory `CODESIGN_ALLOCATE`, `--remote-signing` and `--signing-dylib` with
-  evidence and explicit access/boundary constraints; retain blocked statuses.
-- [ ] Investigate additional evidenced environment/helper hooks and the complete
-  contracts of those already inventoried. The native external-helper override
-  has observable execution/selection behavior;
-  a built-in Go allocator can reproduce normal output but cannot also reproduce
-  arbitrary helper execution while honoring the no-helper requirement.
-- [ ] Record the feasibility outcome for every blocker: achievable within existing
-  constraints, needs an external input/provider, or conflicts with the original
-  constraints. Describe the exact missing input and independently testable contract.
-- [ ] Keep optional snapshots, remote services or experimental adapters visibly
-  separate if ever proposed. A macOS bridge/service would require an explicit
-  scope change and would not satisfy the original zero-macOS-dependency objective.
-- [ ] Maintain deterministic unsupported/unavailable diagnostics in the portable
-  CLI until real implementations exist. Correct failure reporting is useful but
-  does not upgrade a blocked feature to verified equivalence.
-
-**Acceptance:** real isolated native processes/stores/devices where authorized,
-with matching state and before/after observations. Public replay fixtures supplement
-those tests but cannot replace live-state proof. Do not access unrelated production
-keychains, alter system trust or write the system database to populate CI fixtures.
-
-**Exit:** each blocker is either truly implemented with the required state/key
-access inside the original constraints, or remains explicitly blocked. There is
-no unconditional full-parity completion while any of these remains unresolved.
-An agreed narrower product scope would be a different objective, not silent
-completion of this one.
-
-**Touchpoints:** [compatibility inventory](../spec/compatibility.json),
-[types.go](../pkg/codesign/types.go), [identity.go](../pkg/codesign/identity.go),
-[CLI](../internal/cli/cli.go), [research guide](research.md).
-
-<a id="wp-23"></a>
-## WP-23: Differential acceptance, portability, CI and distribution
-
-**Starting point:** three-OS tests, native verification of foreign-produced files,
-per-package coverage, race/fuzz checks, GoReleaser packaging, release workflows and
-golangci-lint already exist. They must expand with each feature; their existence
-alone does not prove a newly added capability.
-
-**Implementation and validation tasks:**
-
-- [ ] For each new feature, add native-produced public fixtures that Go consumes on
-  all three OSes, and Linux/Windows-produced outputs that a downstream Mac checks.
-  Record exact generating commands, tool/source versions, expected results and hashes.
-- [ ] Compare entire deterministic outputs and filesystem trees, not only CDHashes
-  or native verification success. For timestamps/randomized cryptography, declare
-  exact permitted differences per case and verify every authenticated invariant.
-- [ ] Extend evidence beyond bytes: mode/ownership/ACL/xattrs, link/inode behavior,
-  path spelling, stdout/stderr, exit status, changed-file lists and failure state.
-- [ ] Keep mandatory Ubuntu, Windows 2025 and baseline macOS execution jobs. Treat
-  missing native tools or skipped required cases as missing evidence; do not turn
-  a failed platform into a green job by excluding the difficult cases.
-- [ ] Preserve Windows diagnostics: operation, target path, current working
-  directory, temp volume, relevant access/rename errors and cleanup status, with
-  no private keys/passwords. Retain relative-input fixtures under the working
-  directory when cross-volume relative paths are impossible.
-- [ ] Pin the native OS/build/binary identity in each run. When a hosted runner
-  changes, detect drift and explicitly update the baseline/fixtures; do not silently
-  compare a new Apple behavior to old expected output and normalize the difference.
-- [ ] Enforce statement coverage strictly above 95% in every production package on each
-  required OS. Add meaningful behavior/mutation tests for new paths; no excluding
-  difficult files or packages merely to keep the coverage report green.
-- [ ] Keep race detection test-only where it needs a C toolchain. Expand the current
-  nine fuzz targets for new codecs, constraints, detached containers and tickets;
-  retain minimized regression inputs with provenance and reproducible failure cases.
-- [ ] Run dependency guards for Darwin, Linux and Windows, including transitive
-  production imports, vendored/local adapters and build tags. Inspect all six
-  packaged binaries for `CGO_ENABLED=0`, actual dependency versions and unintended
-  local replacements; source `go.mod` alone is insufficient evidence.
-- [ ] Keep production builds and archives in GoReleaser. Preserve Linux/macOS/Windows
-  amd64/arm64 packaging, SBOM contents, checksums and executable/version smoke tests
-  where the runner can execute the architecture.
-- [ ] Maintain Release Please and tag-release workflows using the established
-  go-macos-pkg reference patterns. Check manifest/version/config consistency,
-  credential/event triggering and permissions after changes; do not replace the
-  repaired workflow with an unrelated release system.
-- [ ] For an authorized tagged release, verify downloaded archives/SBOMs against
-  checksums and validate signed-checksum provenance with the expected repository
-  and workflow identity. A signature file existing is not signature verification.
-- [ ] Hash fixture bytes after checkout and preserve binary fixtures against line
-  ending conversion. Record expected text line-ending differences separately;
-  do not normalize signed binary content to make Windows comparisons pass.
-- [ ] Audit artifacts from the exact final PR commit after all implementation fixes.
-  Link the tested SHA and completed workflow; stale green runs from an earlier
-  commit are not final evidence.
-
-**Acceptance:** a complete feature PR has a green three-OS/native-import matrix,
-required coverage/lint/dependency gates and inspectable independent artifacts.
-Credential-dependent live tests may be opt-in, but their absence must remain a
-stated limitation on the feature claim. A documentation-only PR needs documentation
-checks and required CI, not invented new cryptographic acceptance results.
-
-**Exit:** every claimed feature/input profile has traceable independent evidence
-and the shipped binary contains the code/dependencies which produced it. Keep the
-full-parity guard failing while genuine inventory gaps remain.
-
-**Touchpoints:** [test workflow](../.github/workflows/test.yml),
-[lint workflow](../.github/workflows/go-lint.yml),
-[release workflow](../.github/workflows/release.yml),
-[Release Please workflow](../.github/workflows/release-please.yml),
-[guards](../scripts/guards.py), [testing guide](testing.md),
-[release guide](releases.md).
-
-<a id="wp-24"></a>
-## WP-24: Documentation, compatibility inventory and final audit
-
-**Starting point:** progress, focused guides, source manifests and the machine-readable
-inventory exist. Some focused guides retain historical phase counts; current
-aggregate evidence belongs to the dated progress record, not a sum of stale totals.
-
-**Implementation/documentation tasks:**
-
-- [ ] Update the inventory in the same PR as each behavior change. Retain `partial`
-  when only a bounded profile is proven; use `verified` only when the entire
-  entry's declared native scope and relevant interactions have evidence.
-- [ ] Expand coarse umbrella entries into traceable subprofiles where useful while
-  retaining their original obligations. Splitting entries must not make missing
-  behavior disappear or inflate a misleading completion percentage.
-- [ ] Keep this plan's baseline historical. Add dated completion/evidence links for
-  delivered work and revised outstanding tasks rather than rewriting past evidence
-  as though it applied to later commits.
-- [ ] Update CLI help, public API comments, README examples, focused guides and
-  compatibility limitations when behavior/defaults change. Explain portable
-  extensions and native-compatible paths distinctly.
-- [ ] Document per-format, per-operation, per-architecture and per-native-version
-  support. Include size/path/storage limitations, trust/network inputs and actual
-  runtime requirements for each profile.
-- [ ] Publish a migration note for changed trust defaults, signature/report models,
-  new option precedence or removal of a prior restriction. Version public API and
-  CLI compatibility deliberately rather than treating every pre-1.0 change as free.
-- [ ] Maintain Apple/source/Clang provenance, reference-project pins, attribution
-  and license obligations. Reference implementations inspire tests/design; none
-  independently proves our output matches Apple.
-- [ ] Reconcile tests, manifests, narrative counts and inventory at each milestone.
-  Verify fixture paths, local documentation links, public artifact links and the
-  exact commit associated with reported coverage.
-- [ ] Complete a final native delta audit beyond the original 55 entries: newly
-  discovered flags, environment hooks, live-state behavior, error conditions,
-  storage semantics and supported native-version differences.
-- [ ] Run `make release-check` only as a genuine full-parity closure check. Do not bypass
-  `--require-complete`, remove blocked entries or set `full_parity` merely to permit
-  a release. Supported-subset releases must continue to say they are partial.
-
-**Acceptance and exit:** every full-parity claim can be traced to current code,
-independent tests and shipped artifacts, with no unresolved original requirement.
-If an original constraint makes a feature impossible, preserve that fact and the
-blocked objective instead of declaring success through rewording.
-
-**Touchpoints:** [documentation index](README.md), [progress](progress.md),
-[compatibility guide](compatibility.md),
-[implementation stages](implementation.md),
-[machine-readable inventory](../spec/compatibility.json),
-[reference review](reference-implementations.md).
-
-## 5. Research inputs and ownership boundaries
-
-Research should answer a concrete implementation question before expanding a
-parser or writer. These are existing reviewed reference families; new revisions
-must be pinned and reviewed before relying on changed behavior.
-
-| Work | Primary evidence | Supplemental reference/design input | Required caution |
-| --- | --- | --- | --- |
-| Operation grammar and defaults | Installed manual/binary; Apple CLI source; differential probes | Existing CLI acceptance harness | Public source may lag the installed binary |
-| Mach-O and CodeDirectory | Apple Security/SDK declarations and native files | Go linker, LLVM LLD, go-macho | Linker ad-hoc signing is a narrower use case |
-| Allocation/removal/file writes | Apple writer and disk-representation source; filesystem snapshots | Existing writer/path/removal AST manifests | Output hashes alone miss inode/metadata differences |
-| Bundle discovery/resources | Apple bundle and resource code; native complete trees | apple-platform-rs, sigtool, zsign | Do not import their host helpers or assume identical resource rules |
-| Requirements | Apple lexer/compiler/interpreter; `csreq` and `codesign` output | apple-platform-rs and existing local compiler fixtures | A semantically similar expression can still have different native bytes/text |
-| Certificates/CMS/PKCS#12 | Apple CMS/policy source; independent encoded fixtures | Relic, ipsw, zsign-rs, signapple | Audit native-framework dependencies and preserve signed bytes |
-| Timestamping | Apple timestamp source/AST and recorded/live native exchanges | Relic and existing independent protocol tests | Replay and live service evidence answer different questions |
-| DMG and filesystem APIs | Existing APFS public implementations and native signed images | Relic as a signature-placement cross-check | APFS owns image codecs and metadata mechanics |
-| Detached signatures | Apple native container and disk-representation source | Other projects' external-signature designs | signapple's custom detached format is not Apple's format |
-| Constraints, PQC and tickets | Current SDK, native fixtures and available Apple source | Reviewed independent implementations if found | Do not guess private wire formats, algorithms or trust decisions |
-
-Exact pins, reviewed limitations and URLs are in [research.md](research.md) and
-[reference-implementations.md](reference-implementations.md). Third-party licenses
-must be checked before copying code; a reference is not automatically a dependency.
-
-The ownership split for future changes is:
-
-| Layer | Owns | Must not absorb |
-| --- | --- | --- |
-| APFS project | Disk-image models/codecs and reusable host metadata/file primitives | codesign CLI semantics, requirements or CMS policy |
-| `pkg/codesign` | Native signature representations, hashing/signing/verification and format-specific write decisions | CLI argument policy or duplicated low-level APFS implementations |
-| `internal/cli` | Cobra/Viper integration, native arguments, operation dispatch, output and exit behavior | A second cryptographic verifier or private format implementation |
-| Research/acceptance | Clang extraction, native tools, independent encoders and captured evidence | A production runtime fallback to macOS or external helpers |
-| CI/release | Portability/coverage/provenance gates and GoReleaser artifacts | Unverified declarations that a partial profile is full equivalence |
+| `--hosting` | Actual authorized host/guest process state and dynamic ordering, accessible under the allowed runtime boundary |
+| `live-process-verification` | Actual loaded-code/kernel signing state, target identity and race handling; an on-disk signature is insufficient |
+| `--keychain` | Real search lists, preferences, scope, duplicate selection, unlock/ACL decisions and usable protected-key access |
+| `--detached-database` | Actual native database access/update semantics and observable effect; offline replay proves only the format |
+| `hardware-identities` | The real device/service and authorized signing operation through a permitted implementation |
+| `--remote-signing` | The actual protocol/provider, identity and authorization, with matching failure and cancellation behavior |
+| `--signing-dylib` | A resolution of native arbitrary-library execution versus the no-native-binding requirement |
+| `CODESIGN_ALLOCATE` | A resolution of arbitrary external allocator execution versus the no-production-helper requirement |
+
+Phase 01 must classify each as achievable, awaiting a concrete external input or
+conflicting with the original constraints. A macOS bridge/service would change
+the objective and cannot silently resolve a zero-macOS-dependency requirement.
+Implement all feasible behavior within the constraints; keep unsupported state
+explicit and preserve the blocker until the required capability exists.
+
+**Source/oracles:** installed manual/parser behavior, available `cs_utils.cpp`,
+`dispatch.cpp`, `cserror.cpp`, dynamic-code/provider/database sources and SDK APIs.
+The pinned systemkeychain utility source is not assumed to be the current CLI
+parser. Use isolated harmless processes/stores and authorized test providers only.
+
+**Data points:** the complete operation/argument/error matrix; repeated extraction
+and collisions; locale profiles; process/PID reuse; keychain preference/duplicate/
+locked-store behavior; denied/cancelled provider calls; database precedence and
+persistence; actual helper selection behavior where research can safely observe it.
+
+**Exit:** all owned entries have full evidence or remain explicitly blocked. Do
+not replace real behavior with a successful no-op, simulation or portable snapshot.
+
+<a id="phase-12"></a>
+## Phase 12 — Full-objective qualification and documentation
+
+**Deliverable:** a defensible final parity decision based on the exact code and
+artifacts being released, including every original obligation and discovered delta.
+
+- [ ] Re-run the entire applicability and high-risk interaction matrix against the
+  declared native profiles and every portable OS. Re-enumerate manual/parser/SDK
+  inputs for newly discovered options and environment behavior. Preserve all
+  original obligations when splitting umbrella entries into subprofiles.
+- [ ] Close inventory entries only when all applicable operations, negative cases,
+  interactions and dependencies are independently verified. Statement coverage,
+  parser recognition and success on one fixture are separate from feature closure.
+- [ ] Qualify all six packaged OS/architecture targets. Inspect linked dependencies,
+  CGO status, version/APFS pins, checksums and SBOMs; perform executable smoke and
+  feature tests on actual matching runtimes. Cross-compilation alone does not prove
+  target runtime behavior. Add runners/emulation with declared limits as needed.
+- [ ] Audit final-commit CI artifacts: source hashes for each checkout, fresh native
+  observations, both foreign producers, complete case manifests, coverage per OS,
+  race/fuzz, guards, lint and package contents. A stale green commit or cancelled
+  upload/import job cannot qualify the final tree.
+- [ ] Reconcile API comments, CLI help, README, focused guides, compatibility tables,
+  examples and migration notes with actual behavior. Describe storage/name/size,
+  trust/network/provider and native-version requirements; distinguish extensions
+  from native CLI behavior. Retain source/reference license attribution.
+- [ ] Remove completed tasks from this roadmap and retain their evidence in focused
+  guides/PR records. Keep current inventory counts mechanically reconciled; avoid
+  summing historical fixture counts as if they were disjoint current totals.
+- [ ] Run `make release-check` with its complete-inventory requirement intact.
+  Do not remove blocked entries, bypass guards or set `full_parity` just to release.
+  Any unresolved behavior, unavailable required context or deliberate safe
+  divergence means the original full-equivalence objective remains incomplete.
+- [ ] After user-authorized release, verify downloaded archives, checksums/SBOMs and
+  signed-checksum provenance against the expected repository/workflow identity.
+  Continue to label supported-subset releases as partial until every gate is met.
+
+**Exit:** current code, native evidence, all portable runtimes and shipped artifacts
+support every full-parity claim. If a constraint prevents completion, report the
+specific unresolved obligation rather than declaring a narrower objective complete.
 
 <a id="delivery-status"></a>
-## 6. Delivery status, remaining slices and merge order
+## Phase delivery contract
 
-The following are review boundaries, not promised PR numbers or a claim that one
-row will always fit one PR. Split further by observed behavior when necessary.
-Each implementation slice includes tests, documentation and inventory updates;
-none leaves independent acceptance for a later “testing PR.”
+For each phase, complete these gates before requesting merge:
 
-| Slice | Current status | Scope and first reviewable result | Dependency / gate |
-| --- | --- | --- | --- |
-| D01 | Initial evidence merged; wider applicability open | Expand baseline option/applicability inventory and record live-state/PQC/ticket research unknowns | WP-01/WP-22; no speculative feature-status upgrades |
-| D02 | Corpora through unsigned-child allocation merged | PR #48 closes the single-chain dry-run allocation/access profile; broader failures remain | Final released-dependency CI/artifact gates for each delivered profile |
-| D03 | Access-time copy API released as APFS v0.9.0 | Released API integration merged in PR #47 | Additional reusable metadata APIs require their own upstream release |
-| D04 | Source access and unsigned-child allocation merged | Inaccessible directories, broader planning/sibling failures and ACL inheritance remain | Preserve private staging and supported APIs; final native/CI gates for each profile |
-| D05 | Parent path increment merged; wider work open | Native Unicode/case/root-alias handling and additional bundle layouts | WP-03 evidence; do not combine a broad discovery rewrite with writer changes |
-| D06 | Outstanding increment | Disallowed xattr enforcement/stripping and baseline strict/resource-ignore options | APFS public mutation API and native mutation matrix |
-| D07 | Outstanding increment | Signature preservation for existing supported fields, then prefix/option precedence | Constraints explicitly deferred until D16; unsupported selectors still fail |
-| D08 | Certificates/file lists/entitlements/requirements merged | Bounded canonical extraction/defaults/lifecycle; broader extraction remains | Complete raw output/file side-effect comparisons |
-| D09 | Outstanding increment | Seekable hashing/output interfaces and first large-file/image path | WP-21 budgets and source-change detection; preserve existing byte APIs |
-| D10 | Outstanding increment | Mach-O header expansion, then FAT64/legacy layout/removal profiles | D09 where large offsets apply; every transformation independently evidenced |
-| D11 | Outstanding increment | One CodeDirectory/digest/slot family per slice, with CMS/nested integration | WP-07; no parser-only feature completion |
-| D12 | Outstanding increment | Complete entitlement types, extraction and applicability | D11 as needed; native XML/DER byte comparisons |
-| D13 | Default merging merged in PR #59 | Named/decimal compiler, missing certificate DRs, explicit overrides and repacking delivered; representation/preservation policy remains | WP-09; unavailable contexts remain explicitly unsupported |
-| D14 | Outstanding increment | Identity/PFX extensions and CMS algorithms in matching increments | Independent identity and signature fixtures; no native dependency regression |
-| D15 | Bounded requirement verification active | Separate integrity, verbose self checks, caller predicates and parent requirements; wider trust/timestamp policy remains | WP-10/WP-13; preserve explicit trust and document self-check migration |
-| D16 | Outstanding increment | Constraint codec/validator, then four signing slots and enforcement/preservation | D11/D12; validate operation separately from launch enforcement |
-| D17 | Outstanding increment | Native detached container reading/writing and operation matrix | D10–D15 as applicable; bidirectional native interchange |
-| D18 | Outstanding increment | Generic signatures and declared portable metadata carrier | D06/D17 and APFS support; native restoration proves the carrier |
-| D19 | Ad-hoc dry-run slice merged in PR #49; wider representations outstanding | Additional APFS-backed representations, streaming and certificate dry-run semantics | APFS v0.11.2 supplies streaming APIs; codesign integration still needs D09 |
-| D20 | Outstanding increment | Native hybrid fixtures/model, detached certificate interchange, then signing/slot policy | Early research complete; real credentials/algorithm availability determine sequencing |
-| D21 | Outstanding increment | Authenticated notarization ticket decoding, then live checking and requirements integration | Early protocol research and portable transport must resolve first |
-| D22 | Outstanding increment | Remaining CLI errors/defaults/locale and multi-operation interactions | Feature implementations ready; each remaining option retains its owner |
-| D23 | Outstanding increment | Any feasible live-state/provider implementation within original constraints | Requires actual state/key access; no scope downgrade disguised as implementation |
-| D24 | Outstanding increment | Final inventory, baseline-version, distribution and full-parity audit | All original obligations satisfied; otherwise publish only an honest partial milestone |
+1. Cut a fresh branch from merged main. Define the owned remaining behaviors and
+   prerequisite releases; keep unrelated local work intact.
+2. Complete its case manifest, pinned source/Clang research and native captures.
+   Investigate contradictory observations before implementing their expected policy.
+3. Implement the complete subsystem phase, including portable APIs, CLI behavior,
+   malformed inputs, cancellation/cleanup and important interactions. Extend the
+   existing harness; do not defer its difficult cases to make the PR smaller.
+4. Keep every existing gate and add meaningful tests for the new behavior. Require
+   strict >95% coverage for every production package on each OS, complete native
+   capture/imports, all fuzz/race checks, guards, lint and GoReleaser packaging.
+5. Update source/fixture manifests, focused documentation and the compatibility
+   inventory in the same PR. Remove only completed roadmap tasks; retain any
+   residual profiles with explicit ownership and dependencies.
+6. Commit and push all reviewed work so the IDE branch matches the PR. Use ordinary
+   conventional commit titles without `!` or unintended breaking-change markers.
+   Open the PR **as a draft**, with concrete behavior, evidence and remaining gaps.
+7. Wait for all required CI on the final commit, inspect its artifacts and report
+   readiness. A new commit invalidates stale final evidence. The user merges;
+   do not merge, publish or start the next implementation branch from an unmerged PR.
 
-CI improvements and documentation corrections can accompany any slice. APFS PRs
-remain separate upstream changes. After the user merges a project PR, start the
-next slice from the new `main`, carry only needed work, and link its dependent
-upstream release. Do not accumulate unrelated feature packages in one long branch.
+The normal target is one draft PR per phase. Split only for an independently
+reviewable dependency, an evidenced size/risk boundary or an upstream release;
+explain the remaining phase scope. A dependency PR does not count as finishing
+its consumer. Do not return to one native encoding or tiny discovery case per PR.
 
-### Completed PR #33 delivery
+<a id="inventory-ownership"></a>
+## Inventory ownership
 
-PR #33 merged the cleanup-failure slice described [above](#merged-pr33), starting
-from PR #32's documentation update. Its implementation, 214 native comparisons,
-three-OS execution, packaging, race/fuzz checks and final artifact audit are
-complete. The actual merge `d322e85` shares the tested source tree.
+Each existing ID below has exactly one accountable phase. Status is copied from
+`spec/compatibility.json` at the planning baseline, not upgraded by this roadmap.
+Cross-phase dependencies are specified above. Phases 01 and 12 apply to all rows.
 
-APFS v0.6.0 remained the released pin at PR #33, which needed no upstream change. Its
-directory-stat API was delivered through APFS PR #104, merged as
-`b77926ec2b33b178084015f94b5f1e1043401026`; the user published v0.6.0 on 2026-09-21.
-That upstream tested head `59f15729c46ed2cce75c866174f7cb9f81814a34` passed the
-[upstream final workflow](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35562856598).
-Codesign consumes that published API without an APFS replace or workspace.
-
-### Completed PR #34 and PR #35 delivery
-
-PR #34 merged the ordering implementation and its 278 native comparisons as
-`f4d7e284f5ce21deeae80890238d1344f155ce72`. Its actual merge shares the tested and
-audited source tree documented [above](#merged-pr34), which still pinned APFS
-v0.6.0. Those historical results do not validate a subsequent dependency change.
-
-APFS PR #106's concurrency fix was released in v0.6.1 through PR #107. PR #35
-pins that published release and removes obsolete v0.6.0 sums, without a local
-APFS replace/workspace. Its final three-OS, packaging, race/fuzz, native-import
-and artifact checks passed, and its actual merge `0457f52` shares the tested tree.
-The [PR #35 milestone](#merged-pr35) records those results. The released-dependency
-follow-up is complete.
-
-### Completed PR #36 and PR #37 delivery
-
-PR #36's plan update and PR #37's signing-envelope failure profile are on `main`.
-The [PR #37 milestone](#merged-pr37) records the 104 portable and 20 POSIX cases,
-final three-OS and native-import gates, packaging, race/fuzz and artifact audit.
-Actual merge `83e8f895` shares the audited source tree. This profile used APFS v0.6.1.
-
-### Completed PR #39 delivery
-
-PR #39's creation-time implementation, released APFS v0.7.0 integration and final
-validation are on `main`. Actual merge `448c4090` shares the audited source tree.
-The [PR #39 milestone](#merged-pr39) records its 210 native comparisons, three-OS
-coverage, packaging, race/fuzz, lint, native-import and artifact results.
-
-### Completed PR #41 delivery
-
-The executable access-time profile, released APFS v0.8.0 pin and final validation
-are on `main`. Actual merge `32620f8c` shares the audited source tree. The
-[PR #41 milestone](#merged-pr41) records the 294 native cases and final evidence.
-
-### Completed PR #42 delivery
-
-Standalone access-time behavior, read-only controls and final validation are on
-`main`. Actual merge `8c7c68fc` shares the audited tree. The
-[PR #42 milestone](#merged-pr42) records all 464 new cases and the retained gates.
-The dependency remains released APFS v0.8.0.
-
-### Completed PR #43 and PR #44 delivery
-
-The progress update and executable-directory implementation are on `main`.
-PR #44's actual merge shares the audited tree recorded [above](#merged-pr44).
-The dependency remains released APFS v0.8.0; all native and portable gates pass.
-
-### Completed PR #45 delivery
-
-Selective bundle allocation access is on `main`. Its actual merge shares the
-[verified source tree](#merged-pr45); the dependency remains released APFS v0.8.0.
-
-### Completed PR #46 delivery
-
-Replacement access after successful cleanup is on `main`. The actual merge shares
-its [audited source tree](#merged-pr46). This delivered profile uses APFS v0.8.0.
-
-### Completed PR #47 delivery
-
-Source-access ordering and released APFS v0.9.0 are on `main`. The actual merge
-shares the [audited source tree](#merged-pr47). APFS PR #112's tested head
-`69722d3b71151c109be1ac887258097a3f71d25e` and actual merge
-`57acdbae080fcc4d711a2189085c10cd81a0fdd0` share tree
-`cef9966fb5ec202a834022ea26a30d0adcb9b82e`. Its
-[three-OS/six-target CI](https://github.com/deploymenttheory/go-apfs-v2/actions/runs/35654356345)
-passes. Release PR #113 published v0.9.0 at
-`985912043393298d6964be2c0915e49de00b3960`; released hostmeta sources match the
-tested implementation.
-
-### Completed PR #49 delivery
-
-Ad-hoc DMG dry-run writes, unsigned recovery and the 140 foreign-image comparisons
-are on `main`. The actual merge shares the [audited source tree](#merged-pr49).
-Released APFS v0.9.0 remains pinned.
-
-### Active sideband work after PR #73
-
-The resource-suppression, APFS v0.15.0 and read-only metadata adapter increments
-are merged, together with strict bundle sideband verification. This phase starts
-from main at `5cfffbe8082e9be1f7b7e8abd074e971bbd751e8` on
-`feat/signing-sideband-policy`. The [sideband contract](sideband-policy.md)
-defines the shared API, source evidence, native controls and integration sequence.
-
-1. **Completed and released:** APFS PR #131's strict size/read/remove APIs on Linux,
-   macOS and Windows, including held-object/no-follow behavior and error causes.
-   Require runtime operation, identity and permission tests and coverage above
-   95% in the new API on every producer. Preserve the user's separate APFS tree.
-2. **Recorded:** twelve complete Apple bodies on both Clang targets and 203 exact
-   native verification controls. Retain all 42 unavailable directory-fork setups
-   explicitly; they are not successful tests. Separate generic attribute results
-   from codesign's nonempty/EPERM policy and source branches from CLI dispatch.
-3. **Dependency and adapter merged:** native held-object inspection and
-   explicit additive AppleDouble input, plus 29 native-derived portable fixtures.
-   Standalone object/carrier binding, first-error order and selectors are now
-   merged with green three-host CI. Bundle sideband resource traversal, explicit
-   AppleDouble maps, error order, selectors and native diagnostics are implemented
-   in merged PR73 with green CI. All three operating
-   systems are required; a missing platform implementation cannot be waived.
-4. **Current implementation:** signing-time default preflight, stripping, mutable
-   explicit carriers, already-signed/force ordering, dry-run removals and independent
-   child commits after metadata failures. The [signing contract](signing-sideband.md)
-   defines the native/portable acceptance matrix and remaining scope. Source-reviewed
-   signer dispatch complements the complete compiled resource-hashing body.
-   Retain native imports, coverage, race/eleven fuzz, lint, six GoReleaser packages,
-   PR66 native stress controls and hard process-termination checks. Record actual
-   workflow results and independently check their source/artifact provenance.
-5. Retain custom rules, prefix containment, concurrent mutation, Unicode/reparse,
-   native scheduling, aliases/streams, inaccessible-directory discovery, removal
-   ordering, ACLs, root/case aliases and localized dates as outstanding. Streaming
-   integration is separate. Stripping is now recorded as partial; no feature is
-   promoted to fully verified by this bounded implementation.
-
-Released APFS v0.15.0 provides the typed ACL and metadata wrappers. Codesign still
-needs operation-specific inheritance and denial qualification; the earlier
-security-xattr EPERM observation is not proof of ACL absence. A parent-directory
-clone also clones its children,
-matching Apple's [clonefile contract](https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/bsd/man/man2/clonefile.2).
-Do not use recursive cloning as an ACL-only snapshot or relax the supported-API
-boundary. Merge and release remain maintainer gates.
-
-## 7. Common differential acceptance matrix
-
-Use this matrix to select cases for each slice. Cover every relevant value and use
-pairwise combinations for broad interactions, then exhaustive combinations for
-high-risk trust, preservation, alias and multi-signature cases. The full Cartesian
-product is not required, but exclusions need a reason and an explicit scope limit.
-
-| Dimension | Cases to include where applicable |
-| --- | --- |
-| Producer/consumer | Native to Go on all OSes; each Go OS to native; committed public fixtures to all OSes |
-| Operation | Sign, force re-sign, verify, display/extract, remove, dry run, standalone validate/merge |
-| Representation | Thin/universal Mach-O; supported app/bundle/framework layouts; DMG; detached; generic/xattr |
-| Architecture | arm64, x86_64, real supported legacy/subtype fixtures; native default and explicit selection |
-| Identity | Ad-hoc, RSA, each supported EC curve, real Apple-issued public fixtures, new algorithms/providers |
-| Signature state | Unsigned, valid, linker-signed, malformed, oversized old allocation, multiple directories/slots |
-| Metadata | Default, explicit, preserved, explicit override of preserved, missing, malformed and contradictory |
-| Bundle structure | Nested code, alternate framework versions, helper paths, resource-only changes, shallow/deep |
-| Path | Absolute/relative, canonical/alias, alias followed by `..`, Unicode/case variants, broken/cyclic/outside links |
-| Host filesystem | Supported APFS and other claimed Mac filesystems; Linux; Windows volumes, ACLs, ADS and readonly states |
-| File identity | No link, internal/external hard link, symlink chain, inode replacement and source changed during operation |
-| Resources | Required/optional/omitted/nested/symlink seals, added/removed/changed bytes, xattr sideband, strict selectors |
-| Trust | Explicit pin/root, missing root, alternate chain, wrong usage, expired/future/revoked, unavailable service |
-| Time/network | Fixed time, valid/invalid timestamp, replay/fresh token, timeout/cancel, proxy/redirect/error framing |
-| Output | Whole bytes/tree, parsed authenticated fields, raw stdout/stderr, status, extracted files and file list |
-| Failure timing | Parse, identity selection, traversal, hashing, signing, network, staging, metadata restoration, commit |
-| Scale | Empty/minimal, typical, boundary, above-boundary, large sparse and adversarial bounded inputs |
-
-High-risk combinations that need explicit named cases include:
-
-1. Force + selected preservation + explicit override + different per-architecture
-   old metadata; then repeat for linker signatures and malformed old signatures.
-2. Deep signing + nested framework versions + constraints/entitlements + failure
-   in a later child, with exact before/after tree and metadata comparison.
-3. Symlink input + physical filename-derived identifier + hard-linked target +
-   signature growth/shrinkage + dry run/removal.
-4. Multiple CodeDirectories + CMS hash-agility + native preferred slot + damaged
-   alternate directory or hybrid component.
-5. Expired signing certificate + valid/invalid/untrusted timestamp + explicit
-   requirement + current-time versus authenticated-time policy.
-6. Detached versus embedded signature disagreement + resource changes + selected
-   architecture, including a detached certificate set from another object.
-7. Multi-target `--continue` + output extraction/file-list collision + one failed
-   write, with aggregate exit status and subsequent-target behavior.
-8. Large streamed input + cancellation/source mutation/disk exhaustion + metadata
-   restoration, with no unexplained partial success.
-
-### Required evidence record per acceptance case
-
-Capture enough information to reproduce and audit the result:
-
-- Case ID, work-package/inventory IDs, profile scope and expected native behavior.
-- Input hashes, fixture source/license, generator source revision and command.
-- Native OS/build/architecture/tool hash, locale/timezone and relevant filesystem
-  properties; producer OS, Go version and tested project commit.
-- Exact argument vector, nonsecret configuration, working-directory relationship,
-  selected trust roots/time and external-provider prerequisites.
-- Raw native and Go stdout/stderr, exit statuses and complete output hashes or
-  chunk/tree manifests; metadata snapshots where filesystem behavior matters.
-- Explicit nondeterministic fields and independent validation of their meaning.
-  Never normalize an unexplained mismatch out of the comparison.
-- Verification commands/results from Apple and any supplemental independent
-  cryptographic parser, plus negative mutation outcomes.
-- Any skipped/unavailable portion and its effect on the compatibility claim.
-
-Store private keys only for deliberately public test identities. Live credential
-tests should retain public outputs and redacted command/configuration evidence,
-not passwords, access tokens or confidential signing material.
-
-## 8. Decision and risk register
-
-These questions must be resolved by evidence or an explicit scope decision when
-their implementation is reached. They do not block writing or reviewing this plan.
-
-| Question/risk | Owner | Required resolution |
+| Inventory ID | Current status | Accountable phase |
 | --- | --- | --- |
-| Published Apple source differs from the installed macOS 27 binary | WP-01 | Native probe wins for that baseline; record the source discrepancy and hashes |
-| Unicode/metadata cannot be represented faithfully on a producer filesystem | WP-03/WP-16 | Prove a declared carrier/virtual representation or retain the limitation; no silent renaming |
-| Bundle replacement needs functionality missing from APFS's public API | WP-02 | Small upstream API with tests and release, then consume it |
-| Replacing in-place writes changes hard-link, ACL or failure behavior | WP-02 | Compare each write class independently; avoid assuming one strategy fits all formats |
-| Native verification differs from the library's explicit-trust contract | WP-10 | Separate policies/results or documented migration; no silent trust weakening |
-| A private format/algorithm lacks native fixtures or usable credentials | WP-14/WP-18/WP-19 | Acquire legitimate public evidence/authorized test access or retain an explicit blocker |
-| Authenticated networking pulls an Apple bridge through dependencies | WP-13/WP-19 | Audited portable implementation or unresolved transport requirement; preserve guards |
-| Larger signatures/files exceed allocation and parser budgets | WP-07/WP-18/WP-21 | Streaming, checked arithmetic and measured budgets before lifting bounds |
-| Apple behavior changes with OS, locale, architecture or trust state | WP-01/WP-20/WP-23 | Versioned profiles and recorded environment; no universal claim from one host |
-| Native input acceptance would require unsafe/unbounded behavior | WP-21 | Document a safe divergence; it remains an exception to literal full equivalence |
-| Live state or a non-exportable key is unavailable | WP-22 | Actual authorized access or explicit unresolved original requirement |
-| Coverage rises while native feature evidence stays incomplete | WP-23/WP-24 | Keep statement coverage and feature verification as independent gates |
-| Research reference uses incompatible license/runtime dependencies | WP-01 | Independent implementation or compatible reviewed component with attribution |
-
-## 9. Definition of done for a feature PR
-
-- [ ] State the concrete native behavior and baseline/profile being added.
-- [ ] Identify the work-package and inventory entries affected, with remaining
-  scope spelled out; do not mark an umbrella complete after one successful case.
-- [ ] Include pinned source/Clang evidence and independent native fixtures/probes.
-- [ ] Implement parser, operation, verifier, inspection and CLI behavior needed by
-  the claim, with explicit errors for unsupported subcases.
-- [ ] Reuse APFS APIs for image/metadata mechanics; consume a released dependency
-  if an upstream change was required.
-- [ ] Test failure boundaries, malformed inputs, cancellation and important option
-  interactions, including original-file preservation where promised.
-- [ ] Pass required execution/native-import checks and coverage strictly above 95%
-  for every production package on every required OS.
-- [ ] Pass golangci-lint, dependency/provenance guards and relevant race/fuzz checks.
-- [ ] Verify deterministic bytes or precisely declared cryptographic invariants;
-  inspect required filesystem side effects and raw CLI outputs.
-- [ ] Audit the actual final commit's artifacts and record workflow/commit links.
-- [ ] Update docs, help/API comments, source/fixture manifests and inventory together.
-- [ ] Explain remaining risks, unavailable credentials and untested native profiles
-  in the PR; do not count unavailable evidence as passed acceptance.
-- [ ] Present a focused PR for the user to merge. Do not publish a release or
-  merge the PR as a side effect of finishing an implementation slice.
-
-## 10. Full-objective completion gate
-
-The original objective is complete only when **all** of the following hold:
-
-1. Every original and subsequently discovered codesign capability is implemented
-   and independently verified for the declared native scope, including live-state
-   and hardware/provider behavior rather than substitutes.
-2. Native-compatible defaults, outputs, errors, filesystem effects and interactions
-   are covered, not just valid signature creation.
-3. The same production Go implementation executes on Linux, macOS and Windows
-   without Apple code-signing frameworks, helper executables or runtime SDKs.
-4. Every production package exceeds 95% coverage and the full portability,
-   provenance, native acceptance and distribution gates pass for the shipped commit.
-5. `spec/compatibility.json` truthfully contains no unresolved entry, its
-   `full_parity` value is justified, and `make release-check` passes without bypasses.
-6. Deliberate limitations, unavailable state and version-specific differences have
-   actually been resolved for that claim. Documenting a blocker is not resolving it.
-
-Until then, continue delivering useful, independently proven partial capabilities
-with accurate release notes. The historical baseline and dated merged milestones
-above are distinct; recording a delivered profile does not close its outstanding
-work package or the full original objective.
+| `--sign` | partial | [02](#phase-02) |
+| `--remove-signature` | partial | [02](#phase-02) |
+| `--force` | partial | [02](#phase-02) |
+| `--deep` | partial | [02](#phase-02) |
+| `--dryrun` | partial | [02](#phase-02) |
+| `--single-threaded-signing` | not-implemented | [02](#phase-02) |
+| `--preserve-afsc` | not-implemented | [02](#phase-02) |
+| `bundles` | partial | [03](#phase-03) |
+| `--bundle-version` | partial | [03](#phase-03) |
+| `--ignore-resources` | partial | [03](#phase-03) |
+| `--strict` | partial | [03](#phase-03) |
+| `--no-strict` | partial | [03](#phase-03) |
+| `--strip-disallowed-xattrs` | partial | [03](#phase-03) |
+| `--resource-rules` | not-implemented | [03](#phase-03) |
+| `--seal-root` | not-implemented | [03](#phase-03) |
+| `--verify-resource` | not-implemented | [03](#phase-03) |
+| `--deep-verify` | not-implemented | [03](#phase-03) |
+| `--all-architectures` | partial | [04](#phase-04) |
+| `--architecture` | partial | [04](#phase-04) |
+| `--options` | partial | [04](#phase-04) |
+| `--pagesize` | partial | [04](#phase-04) |
+| `--runtime-version` | partial | [04](#phase-04) |
+| `--digest-algorithm` | not-implemented | [04](#phase-04) |
+| `--edit-arch` | not-implemented | [04](#phase-04) |
+| `--full-metal-jacket` | not-implemented | [04](#phase-04) |
+| `--generate-pre-encrypt-hashes` | not-implemented | [04](#phase-04) |
+| `--legacy-signing` | not-implemented | [04](#phase-04) |
+| `--no-legacy-signing` | not-implemented | [04](#phase-04) |
+| `--no-macho` | not-implemented | [04](#phase-04) |
+| `--omit-adhoc-flag` | not-implemented | [04](#phase-04) |
+| `--platform-identifier` | not-implemented | [04](#phase-04) |
+| `--signature-size` | not-implemented | [04](#phase-04) |
+| `--validate-pre-encrypt-hashes` | not-implemented | [04](#phase-04) |
+| `legacy-formats` | not-implemented | [04](#phase-04) |
+| `--force-library-entitlements` | partial | [05](#phase-05) |
+| `--generate-entitlement-der` | partial | [05](#phase-05) |
+| `--identifier` | partial | [05](#phase-05) |
+| `--entitlements` | partial | [05](#phase-05) |
+| `--requirements` | partial | [05](#phase-05) |
+| `--test-requirement` | partial | [05](#phase-05) |
+| `--prefix` | not-implemented | [05](#phase-05) |
+| `--preserve-metadata` | not-implemented | [05](#phase-05) |
+| `--launch-constraint-self` | not-implemented | [05](#phase-05) |
+| `--launch-constraint-parent` | not-implemented | [05](#phase-05) |
+| `--launch-constraint-responsible` | not-implemented | [05](#phase-05) |
+| `--library-constraint` | not-implemented | [05](#phase-05) |
+| `--enforce-constraint-validity` | not-implemented | [05](#phase-05) |
+| `--validate-constraint` | not-implemented | [05](#phase-05) |
+| `--constraint-category` | not-implemented | [05](#phase-05) |
+| `--designated-lwcr` | not-implemented | [05](#phase-05) |
+| `--team-identifier` | not-implemented | [05](#phase-05) |
+| `certificate-signing` | partial | [06](#phase-06) |
+| `hybrid-pqc` | not-implemented | [06](#phase-06) |
+| `--signature-slot` | not-implemented | [06](#phase-06) |
+| `--edit-cms` | not-implemented | [06](#phase-06) |
+| `--dump-cms` | not-implemented | [06](#phase-06) |
+| `--signing-data` | not-implemented | [06](#phase-06) |
+| `--signing-time` | not-implemented | [06](#phase-06) |
+| `--timestamp` | partial | [07](#phase-07) |
+| `--check-expiration` | not-implemented | [07](#phase-07) |
+| `--check-revocation` | not-implemented | [07](#phase-07) |
+| `--use-software-signing-cert` | not-implemented | [07](#phase-07) |
+| `--no-tsa-certs` | not-implemented | [07](#phase-07) |
+| `--skip-root-exception` | not-implemented | [07](#phase-07) |
+| `--skip-validation` | not-implemented | [07](#phase-07) |
+| `generic-files` | partial | [08](#phase-08) |
+| `--detached` | not-implemented | [08](#phase-08) |
+| `--input-detached-certificates` | not-implemented | [08](#phase-08) |
+| `--output-detached-certificates` | not-implemented | [08](#phase-08) |
+| `--keep-root-detached-certificates` | not-implemented | [08](#phase-08) |
+| `--merge-detached-certificates` | not-implemented | [08](#phase-08) |
+| `dmg` | partial | [09](#phase-09) |
+| `--check-notarization` | not-implemented | [10](#phase-10) |
+| `--display` | partial | [11](#phase-11) |
+| `--verbose` | partial | [11](#phase-11) |
+| `--verify` | partial | [11](#phase-11) |
+| `--continue` | partial | [11](#phase-11) |
+| `--extract-certificates` | partial | [11](#phase-11) |
+| `--file-list` | partial | [11](#phase-11) |
+| `--numeric-errors` | not-implemented | [11](#phase-11) |
+| `--detached-database` | blocked | [11](#phase-11) |
+| `--hosting` | blocked | [11](#phase-11) |
+| `--keychain` | blocked | [11](#phase-11) |
+| `live-process-verification` | blocked | [11](#phase-11) |
+| `hardware-identities` | blocked | [11](#phase-11) |
+| `--remote-signing` | blocked | [11](#phase-11) |
+| `--signing-dylib` | blocked | [11](#phase-11) |
+| `CODESIGN_ALLOCATE` | blocked | [11](#phase-11) |

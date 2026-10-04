@@ -173,32 +173,39 @@ See [progress](progress.md) for the tested commit, native evidence and coverage.
 | Other representations | Single-segment UDIF v4 signing/verification/inspection via go-apfs-v2; generic attached-signature removal with native and explicit AppleDouble metadata; absent-executable and metadata-denial Info.plist removal in supported layouts | Large-image streaming, encrypted/segmented images, detached signatures, generic signing/verification/display, broader Info.plist selection and certificate interchange |
 | Verification and policy | Page/special-slot checks, supported requirements, CMS integrity, explicit leaf pins and CA roots, bounded chain validation, purpose/validity and Team ID checks; RFC 3161 signature/imprint/ESS binding and separate TSA roots | General CMS/BER forms, full PKIX and Apple timestamp policy, revocation, notarization and constraints |
 | Host-state features | Blockers recorded | A provable portable equivalent for hosting/PIDs, native keychain/database state, and non-exportable hardware identities; none is currently available |
-| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 606 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and eleven fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
+| Proof and distribution | >95% package coverage gate; host differential tests; three-OS CI; Apple verification of 606 signed artifacts and 88 removal byte comparisons configured for Linux/Windows; six-target GoReleaser builds, SBOMs/checksums and App-based Release Please; successful v0.1.0 release workflow; golangci-lint, race and thirteen fuzz targets | Validate each changed commit and authorized tagged release, extend acceptance to every feature/input class, clear every full-parity blocker |
 
 ## Next implementation sequence
 
-1. **Complete bounded filesystem profiles:** validate replacement access after
-   signature cleanup and retain the merged metadata/writer matrices. Complete
-   the ad-hoc DMG dry-run gates, then inaccessible-directory behavior and broader
-   planning/sibling failures.
-   Investigate supported ACL APIs without relaxing private staging;
-   keep certificate DMG dry runs and diagnostic differences explicit.
-   Follow the detailed [D04 delivery plan](implementation_plan.md#delivery-status).
-2. **Extend bundle compatibility:** retain the tested resource, nested Mach-O
-   and recursive bundle/framework profiles while extending executable discovery,
-   broader symlink/xattr policy and full strict
-   verification. Expand the pinned source/Clang record and independent host
-   comparisons for each added case.
-3. **Extend representations:** retain go-apfs-v2 as the DMG format dependency,
-   add bounded streaming for large images and broader image/policy cases, then
-   detached and generic-file representations. Keep image codecs and filesystem
-   handling in the APFS project; see the [integration boundary](dmg-integration.md).
-4. **Wider signature and policy compatibility:** add remaining requirement
-   predicates, CodeDirectory/digest variants, preservation semantics, certificate
-   and timestamp policy, and diagnostic parity with independent acceptance cases.
+The [remaining implementation roadmap](implementation_plan.md) groups all 88
+outstanding inventory entries into twelve larger phases. It replaces the former
+incremental sequence and contains only unfinished work.
 
-These are proposed implementation stages, not delivered capabilities. Host-state
-features retain the portability blockers described below.
+1. Research the whole roadmap, resolve prerequisite feasibility and partition the
+   existing evidence harness without dropping cases or weakening gates.
+2. Complete portable streaming, filesystem behavior and operation lifecycle.
+3. Complete remaining plist, bundle discovery and resource-policy families together.
+4. Complete Mach-O allocation, architectures and CodeDirectory profiles.
+5. Complete metadata preservation, entitlements, requirements and constraints.
+6. Complete identity/CMS interoperability, native signature slots and hybrid formats.
+7. Complete certificate policy, timestamps, revocation and portable transport.
+8. Complete generic files, native detached signatures and certificate interchange.
+9. Complete wider and large APFS-backed DMG signing profiles.
+10. Implement authenticated notarization checks.
+11. Close remaining CLI behavior and feasible live-state/provider operations.
+12. Qualify all interactions and packaged targets, reconcile documentation and
+    audit the full-equivalence objective.
+
+The roadmap specifies ownership, dependencies, source/Clang research, native data
+points and exit criteria. Research every subsystem first, then capture each phase's
+native corpus before implementing its behavior. Investigate host-state/provider
+blockers in phase 01; they cannot be deferred until the final qualification.
+
+Each phase starts from merged main and produces a draft PR for the user to merge
+after final-commit CI and artifact checks. APFS prerequisites need their own tested
+release before adoption. See the [delivery contract](implementation_plan.md#delivery-status).
+These phases are planned work, not delivered capabilities or a guarantee that
+unavailable state can be reproduced within the production constraints.
 
 ## Requirements for every phase
 
