@@ -293,6 +293,15 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if !os.SameFile(st, current) {
 		return nil, fmt.Errorf("bundle write target changed")
 	}
+	held := write.bundle.sources[write.name]
+	if held != nil {
+		if err := write.bundle.checkCode(write.name, held); err != nil {
+			return nil, err
+		}
+		if !os.SameFile(held.info, current) {
+			return nil, invalid("bundle write source changed")
+		}
+	}
 	// Dry runs reach allocation without writing envelopes or committing children.
 	if dryRun {
 		if err := accesstime.RecordReadAccess(source); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
@@ -320,7 +329,23 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	}
 	// Darwin's new executable inherits an earlier source modification time as
 	// its creation time. Other hosts retain their replacement metadata policy.
-	if err := populateOutput(ctx, r.File, byteOutput(write.data), func() error {
+	output := write.output
+	if output.reader == nil {
+		output = byteOutput(write.data)
+	}
+	if err := populateOutput(ctx, r.File, output, func() error {
+		if err := sourceUnchanged(source, current); err != nil {
+			return err
+		}
+		if held != nil {
+			if err := write.bundle.checkCode(write.name, held); err != nil {
+				return err
+			}
+			if err := held.closer.Close(); err != nil {
+				return err
+			}
+			held.released = true
+		}
 		if err := hostdata.SetCreationTime(r.File, created); err != nil && !errors.Is(err, hostdata.ErrCreationTimeUnsupported) {
 			return err
 		}
@@ -376,6 +401,11 @@ func (p *preparedBundleExecutable) recordReadAccess() error {
 // Defer source access until preceding envelope writes and descendant cleanup
 // succeed. Copy its exact time into the private replacement before rename.
 func (p *preparedBundleExecutable) copySourceAccess() (result error) {
+	if p.write.output.reader != nil {
+		if err := sourceUnchanged(p.replacement.source, p.original); err != nil {
+			return err
+		}
+	}
 	root := p.write.bundle.root
 	source, err := openBundleExecutable(root, p.write.name, p.original)
 	if err != nil {

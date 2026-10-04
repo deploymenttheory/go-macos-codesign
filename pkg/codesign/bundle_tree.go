@@ -3,6 +3,7 @@ package codesign
 import (
 	"context"
 	"errors"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,7 +11,7 @@ import (
 
 const maxBundleDepth = 8
 
-// A single budget and inode registry cover the complete containment tree.
+// A single checked byte count, entry budget and inode registry cover the tree.
 type bundleScan struct {
 	entries, nested   int
 	bytes             int64
@@ -39,6 +40,14 @@ func (s *bundleScan) entry(name string) error {
 		return unsupported("case-colliding bundle paths")
 	}
 	s.seen[lower] = true
+	return nil
+}
+
+func (s *bundleScan) addBytes(n int64) error {
+	if n < 0 || s.bytes > math.MaxInt64-n {
+		return unsupported("bundle byte count overflow")
+	}
+	s.bytes += n
 	return nil
 }
 
@@ -71,10 +80,11 @@ func (s *bundleScan) regularFile(name string, st os.FileInfo) error {
 }
 
 type nestedAppResource struct {
-	bundle          *appBundle
-	files, files2   map[string]any
-	data, resources []byte
-	otherVersions   []*nestedAppResource
+	bundle        *appBundle
+	files, files2 map[string]any
+	data          codeSource
+	resources     []byte
+	otherVersions []*nestedAppResource
 }
 
 func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleScan, depth int, prefix string) (*nestedAppResource, error) {
@@ -147,9 +157,8 @@ func (b *appBundle) scanChild(ctx context.Context, name string, scope *bundleSca
 }
 
 func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth int, prefix string) (*nestedAppResource, error) {
-	scope.bytes += int64(len(child.info))
-	if scope.bytes > maxFileSize {
-		return nil, unsupported("bundle input exceeds 1 GiB")
+	if err := scope.addBytes(int64(len(child.info))); err != nil {
+		return nil, err
 	}
 	var files, files2 map[string]any
 	var err error
@@ -165,32 +174,37 @@ func (child *appBundle) snapshot(ctx context.Context, scope *bundleScan, depth i
 			}
 		}
 	}
-	data, err := child.read(child.executable, maxFileSize-scope.bytes)
+	data, err := child.holdCode(ctx, child.executable)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := parseContainer(data); err != nil {
+	if _, err := data.container(); err != nil {
 		return nil, err
 	}
-	scope.bytes += int64(len(data))
+	if err := scope.addBytes(data.source.size); err != nil {
+		return nil, err
+	}
 	var resources []byte
 	// Read child envelopes only to verify resource seals. Signing rebuilds
 	// envelopes or seals existing executables; removal preserves children.
 	if scope.recurse && !scope.signatureCleanup {
-		resources, err = child.read(child.resourcesPath(), min(maxBundlePlist, maxFileSize-scope.bytes))
+		resources, err = child.read(child.resourcesPath(), maxBundlePlist)
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return nil, err
 		}
 	}
-	scope.bytes += int64(len(resources))
+	if err := scope.addBytes(int64(len(resources))); err != nil {
+		return nil, err
+	}
 	return &nestedAppResource{bundle: child, files: files, files2: files2, data: data, resources: resources}, nil
 }
 
 // forceMain controls this executable; opts.Force controls signed descendants.
 // Dry-run seal errors retain reached child allocations with their owning roots.
-func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files2 map[string]any, opts SignOptions, forceMain bool) ([]byte, []bundleWrite, error) {
+func (b *appBundle) planSignature(ctx context.Context, data codeSource, files, files2 map[string]any, opts SignOptions, forceMain bool) (codeSource, []bundleWrite, error) {
+	data.ctx = ctx
 	if b.signingPreflightFailed {
-		return nil, nil, &signingMetadataError{b.signingFailure}
+		return codeSource{}, nil, &signingMetadataError{b.signingFailure}
 	}
 	writes, err := prepareNestedForBundle(ctx, files2, opts, b.base, b)
 	for i := range writes {
@@ -199,32 +213,25 @@ func (b *appBundle) planSignature(ctx context.Context, data []byte, files, files
 		}
 	}
 	if err != nil {
-		return nil, writes, err
+		return codeSource{}, writes, err
 	}
 	if b.signingFailure != nil {
-		return nil, writes, &signingMetadataError{b.signingFailure}
+		return codeSource{}, writes, &signingMetadataError{b.signingFailure}
 	}
 	opts.InfoPlist, opts.Resources = b.info, encodeBundleResources(files, files2)
 	if len(opts.Resources) > maxBundlePlist {
-		return nil, nil, unsupported("bundle resource envelope size")
+		return codeSource{}, nil, unsupported("bundle resource envelope size")
 	}
 	if opts.Identifier == "" {
 		opts.Identifier = b.identifier
 	}
 	opts.Force = forceMain
-	out, err := signBytes(ctx, data, opts, false)
+	out, err := signCodeSource(data, opts)
 	if err != nil {
-		return nil, nil, err
+		return codeSource{}, nil, err
 	}
-	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupKeepResources})
-	var total int64
-	for i := range writes {
-		total += int64(len(writes[i].data))
-	}
-	if total > maxFileSize {
-		return nil, nil, unsupported("bundle signature output exceeds 1 GiB")
-	}
-	return out, writes, nil
+	writes = append(writes, bundleWrite{name: b.resourcesPath(), data: opts.Resources, bundle: b, kind: bundleResourceWrite}, bundleWrite{name: b.executable, output: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupKeepResources})
+	return codeSource{ctx, out}, writes, nil
 }
 
 func verifyNestedApp(ctx context.Context, name string, value any, app *nestedAppResource, opts VerifyOptions) error {

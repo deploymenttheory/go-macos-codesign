@@ -15,17 +15,17 @@ import (
 // BundleDiskRep constructs its executable representation before signing starts.
 // checkPlainFile qualifies pathname failures with the executable; the subsequent
 // appleInternalForcePlatform metadata query fails without that qualification.
-func (b *appBundle) signingExecutable(ctx context.Context) ([]byte, error) {
-	data, err := b.read(b.executable, maxFileSize)
+func (b *appBundle) signingExecutable(ctx context.Context) (codeSource, error) {
+	data, err := b.holdCode(ctx, b.executable)
 	if err != nil {
 		if errors.Is(err, os.ErrPermission) {
 			name, absErr := filepath.Abs(filepath.Join(b.path, filepath.FromSlash(b.executable)))
 			if absErr != nil {
-				return nil, absErr
+				return codeSource{}, absErr
 			}
-			return nil, signingNestedError(name, err)
+			return codeSource{}, signingNestedError(name, err)
 		}
-		return nil, err
+		return codeSource{}, err
 	}
 	return data, b.checkExecutablePlatformAttribute(ctx)
 }
@@ -82,8 +82,8 @@ func metadataSigningFailure(err error) bool {
 	return errors.As(err, &failure)
 }
 
-func signingHasSignature(data []byte) bool {
-	r, err := InspectBytes(data)
+func signingHasSignature(data codeSource) bool {
+	r, err := data.inspect()
 	if err != nil {
 		return false
 	}
@@ -95,11 +95,11 @@ func signingHasSignature(data []byte) bool {
 	return false
 }
 
-func signingNeedsNested(data []byte, force bool) bool {
+func signingNeedsNested(data codeSource, force bool) bool {
 	if force {
 		return true
 	}
-	r, err := InspectBytes(data)
+	r, err := data.inspect()
 	return err != nil || !signingComplete(r)
 }
 

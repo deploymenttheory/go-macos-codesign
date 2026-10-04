@@ -8,7 +8,7 @@ import (
 
 // Unselected versions are not signed or cryptographically inspected. Inventory
 // their physical members without following links so that writes cannot alter
-// them through a hard link and they share the tree's path and size budgets.
+// them through a hard link and they share the tree's path budgets and checked byte accounting.
 func (b *appBundle) inventoryOtherVersions(ctx context.Context, scope *bundleScan, prefix string) error {
 	for _, version := range b.versions {
 		if version == b.version {
@@ -44,10 +44,9 @@ func (b *appBundle) inventoryOtherVersions(ctx context.Context, scope *bundleSca
 			if err := scope.regularFile(prefix+name, st); err != nil {
 				return err
 			}
-			if st.Size() > maxFileSize-scope.bytes {
-				return unsupported("bundle input exceeds 1 GiB")
+			if err := scope.addBytes(st.Size()); err != nil {
+				return err
 			}
-			scope.bytes += st.Size()
 			return nil
 		}); err != nil {
 			return err

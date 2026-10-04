@@ -145,6 +145,10 @@ jobs:
         run: go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
       - name: Recapture native large Mach-O signing and removal boundaries
         run: go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
+      - name: Check complete Apple bundle hashing bodies with both Clang targets
+        run: go run scripts/extract-bundle-streaming.go -check -out artifacts/apple-bundle-streaming.json
+      - name: Recapture native large bundle operations and complete member hashes
+        run: go run scripts/probe-large-bundles.go -check -out artifacts/large-bundles.json
       - name: Check native incremental digest boundary corpus
         run: go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json
       - name: Check pinned Apple hashing methods with both Clang targets
@@ -236,6 +240,34 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: apple-verification-of-foreign-signatures
+          path: artifacts/verification/
+          if-no-files-found: error
+  verify-foreign-bundles:
+    needs: [test, native-capture]
+    runs-on: xcode-27
+    # Add independent capacity; keep the existing foreign corpus and deadlines.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: signed-*
+          path: artifacts/import
+      - name: Require exactly two complete foreign producers
+        run: python3 scripts/evidence.py foreign --inputs artifacts/import
+      - name: Apple verifies every complete large Linux and Windows bundle
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImportedLargeBundles$'
+        env:
+          CGO_ENABLED: '0'
+          MACOSCODESIGN_REQUIRE_APPLE: '1'
+          MACOSCODESIGN_IMPORT_DIR: ${{ github.workspace }}/artifacts/import
+          MACOSCODESIGN_EVIDENCE_DIR: ${{ github.workspace }}/artifacts/verification
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: apple-verification-of-foreign-bundles
           path: artifacts/verification/
           if-no-files-found: error
   build:

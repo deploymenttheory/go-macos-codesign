@@ -422,7 +422,7 @@ func TestBundleSymlinksAndLimits(t *testing.T) {
 	if err := Sign(ctx, link, SignOptions{}); err == nil {
 		t.Fatal("root symlink")
 	}
-	// Sparse resource exercises the streaming bound without a GiB allocation.
+	// The old resource ceiling is now a required successful streaming control.
 	app = testBundle(t)
 	path := filepath.Join(app, "Contents/Resources/huge")
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -438,8 +438,11 @@ func TestBundleSymlinksAndLimits(t *testing.T) {
 	if err := f.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if err := Sign(ctx, app, SignOptions{}); !errors.Is(err, ErrUnsupported) {
+	if err := Sign(ctx, app, SignOptions{}); err != nil {
 		t.Fatal(err)
+	}
+	if _, err := Verify(ctx, app, VerifyOptions{Deep: true}); err != nil {
+		t.Fatal("large resource seal", err)
 	}
 }
 

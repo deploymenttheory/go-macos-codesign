@@ -51,14 +51,24 @@ only signature/trailer bytes. Native byte controls cover all nine large boundari
 new portable failure tests and eighteen reconstructed foreign images extend the
 existing harness. The 4 GiB + 1-byte local signing control allocated 81,128 Go bytes.
 
-The current branch starts from merged PR102 and adds [streaming Mach-O mutation](macho-streaming.md):
+Merged PR103 adds [streaming Mach-O mutation](macho-streaming.md):
 standalone sign/re-sign/remove/dry-run operations share checked output plans with
 the byte APIs and retain the held source through SDK metadata restoration. Twelve
 native controls cover thin and universal inputs, native 32-bit allocation limits
 and a populated-region case. Portable acceptance compares complete native hashes;
 nine signed outputs per foreign producer are exported for native verification.
 The virtual 1 GiB-plus-one allocation regression measured 4,306,328 Go bytes locally.
-Full branch CI and per-OS coverage qualification remain required.
+All required PR103 checks passed, including native verification of both foreign producers.
+
+The current branch adds [streaming bundle operations](bundle-streaming.md), removing
+the executable and aggregate payload ceilings while preserving rooted staging,
+partial commits and metadata ordering. Ten independent native cases cover large
+executables, populated resources around 4 GiB, nested code, an aggregate tree above
+4 GiB and a universal framework above 2 GiB. Complete member hashes and hard-link
+effects pass local replay. Three complete Apple hashing bodies have two-target
+Clang evidence. The harness adds 29 unit outcomes, 12 acceptance outcomes and ten
+complete signed bundle exports per OS. Full branch CI and per-OS coverage remain
+required before qualification.
 
 Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
 held-source range parsing, incremental hashing, streamed write plans and temporary

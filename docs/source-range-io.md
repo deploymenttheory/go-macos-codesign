@@ -88,12 +88,12 @@ working set, a general peak-memory result or implementation of the planned share
 | Location | Current contract | Remaining Phase 02 work |
 | --- | --- | --- |
 | `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
-| `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Bundle integration, shared metadata budgets and remaining lifecycle policy |
+| `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Shared metadata budgets and remaining lifecycle policy |
 | `macho.go` / `macho_source.go` | Range parsing and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Wider allocation profiles, metadata spilling and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
-| `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable/plist reads and aggregate scan budgets remain bounded | Integrate held sources and operation-wide budgets across discovery, verification and nested work |
-| `bundle_tree.go`, `bundle_nested.go` | Staged signature output totals remain bounded | Shared write plans and temporary storage across children/siblings |
-| `hashing.go` | Resource hashes stream, but callers still impose the legacy bundle budget | Separate memory consumption from bytes processed |
+| `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable reads use held ranges; resources stream; plists/envelopes retain parser bounds | Shared metadata budgets and complete discovery/lifecycle qualification |
+| `bundle_tree.go`, `bundle_nested.go` | Nested signatures use shared output plans without an aggregate payload ceiling | Shared budgets, metadata spilling and temporary storage accounting |
+| `hashing.go` | Resource hashes stream to a known-size bound with identity/content checks | Shared managed-buffer accounting |
 
 No new APFS API is needed for this standalone read-only step: Go's existing held
 file descriptor provides data reads/stat, while APFS remains responsible for
@@ -114,7 +114,7 @@ Its real-file corpus covers thin/universal inputs around 1/2/4 GiB, native alloc
 rejections and an additional populated-region control.
 
 The [Phase 02 plan](implementation_plan.md#phase-02) still requires populated
-multi-gigabyte inputs, large bundle mutation paths, resource-budget/spill
+multi-gigabyte dense inputs, resource-budget/spill
 failures, memory/storage scaling measurements on all hosts and complete operation
 lifecycle qualification. This step does not finish Phase 02 or promote a whole
 compatibility feature to verified.

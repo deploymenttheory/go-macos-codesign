@@ -29,12 +29,12 @@ func TestNestedSeals(t *testing.T) {
 	for _, arch := range []string{"arm64", "x86_64", "universal"} {
 		t.Run(arch, func(t *testing.T) {
 			data := signedNested(t, arch, SignOptions{})
-			seal, err := nestedSeal(data)
+			seal, err := nestedSeal(testBundleCode(data))
 			if err != nil {
 				t.Fatal(err)
 			}
 			for _, deep := range []bool{false, true} {
-				if err := verifyNestedResource(ctx, "helper", seal, nestedResource{data}, VerifyOptions{Deep: deep}); err != nil {
+				if err := verifyNestedResource(ctx, "helper", seal, nestedResource{testBundleCode(data)}, VerifyOptions{Deep: deep}); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -43,30 +43,30 @@ func TestNestedSeals(t *testing.T) {
 				t.Fatal(err)
 			}
 			data[int(c.slices[0].offset)+4096] ^= 1
-			if err := verifyNestedResource(ctx, "helper", seal, nestedResource{data}, VerifyOptions{}); err != nil {
+			if err := verifyNestedResource(ctx, "helper", seal, nestedResource{testBundleCode(data)}, VerifyOptions{}); err != nil {
 				t.Fatal(err)
 			}
-			if err := verifyNestedResource(ctx, "helper", seal, nestedResource{data}, VerifyOptions{Deep: true}); !errors.Is(err, ErrInvalid) {
+			if err := verifyNestedResource(ctx, "helper", seal, nestedResource{testBundleCode(data)}, VerifyOptions{Deep: true}); !errors.Is(err, ErrInvalid) {
 				t.Fatal(err)
 			}
 		})
 	}
 	data := signedNested(t, "arm64", SignOptions{})
-	seal, _ := nestedSeal(data)
+	seal, _ := nestedSeal(testBundleCode(data))
 	for _, bad := range []any{nil, true, map[string]any{}, map[string]any{"requirement": ""}, map[string]any{"requirement": "always", "cdhash": []byte{1}}, map[string]any{"requirement": "always", "extra": true}, map[string]any{"requirement": "always", "cdhash": make([]byte, 20), "extra": true}, map[string]any{"requirement": "never"}} {
-		if err := verifyNestedResource(ctx, "helper", bad, nestedResource{data}, VerifyOptions{}); err == nil {
+		if err := verifyNestedResource(ctx, "helper", bad, nestedResource{testBundleCode(data)}, VerifyOptions{}); err == nil {
 			t.Fatalf("accepted %#v", bad)
 		}
 	}
 	delete(seal, "cdhash") // Native uses the requirement; cdhash is optional metadata.
-	if err := verifyNestedResource(ctx, "helper", seal, nestedResource{data}, VerifyOptions{}); err != nil {
+	if err := verifyNestedResource(ctx, "helper", seal, nestedResource{testBundleCode(data)}, VerifyOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	for _, bad := range [][]byte{nil, fixture(t, "unsigned-arm64"), testDMG(t)} {
-		if _, err := nestedSeal(bad); err == nil {
+		if _, err := nestedSeal(testBundleCode(bad)); err == nil {
 			t.Fatal("invalid child sealed")
 		}
-		if err := verifyNestedResource(ctx, "helper", seal, nestedResource{bad}, VerifyOptions{}); err == nil {
+		if err := verifyNestedResource(ctx, "helper", seal, nestedResource{testBundleCode(bad)}, VerifyOptions{}); err == nil {
 			t.Fatal("invalid child verified")
 		}
 	}
@@ -76,7 +76,7 @@ func TestNestedSeals(t *testing.T) {
 	cd := int(be.Uint32(data[off+16:])) + off
 	data[cd+37] = 1
 	data[cd+36] = 20
-	if _, err := nestedSeal(data); err == nil {
+	if _, err := nestedSeal(testBundleCode(data)); err == nil {
 		t.Fatal("SHA-1 nested seal accepted")
 	}
 }
@@ -86,15 +86,15 @@ func TestNestedCertificateTrust(t *testing.T) {
 	for _, algorithm := range []string{"rsa", "p256"} {
 		id := testIdentity(t, algorithm)
 		data := signedNested(t, "universal", SignOptions{Identity: id})
-		seal, err := nestedSeal(data)
+		seal, err := nestedSeal(testBundleCode(data))
 		if err != nil {
 			t.Fatal(err)
 		}
 		for _, deep := range []bool{false, true} {
-			if err := verifyNestedResource(ctx, "child", seal, nestedResource{data}, VerifyOptions{Deep: deep}); err == nil {
+			if err := verifyNestedResource(ctx, "child", seal, nestedResource{testBundleCode(data)}, VerifyOptions{Deep: deep}); err == nil {
 				t.Fatal("untrusted nested certificate accepted")
 			}
-			if err := verifyNestedResource(ctx, "child", seal, nestedResource{data}, VerifyOptions{Deep: deep, TrustedCertificates: id.Certificates}); err != nil {
+			if err := verifyNestedResource(ctx, "child", seal, nestedResource{testBundleCode(data)}, VerifyOptions{Deep: deep, TrustedCertificates: id.Certificates}); err != nil {
 				t.Fatal(err)
 			}
 		}
@@ -195,11 +195,11 @@ func TestPrepareNestedFailures(t *testing.T) {
 	ctx := context.Background()
 	// Native deep signing always replaces linker signatures, even without force.
 	linker := signedNested(t, "arm64", SignOptions{Flags: 0x20000})
-	writes, err := prepareNested(ctx, map[string]any{"Helpers/tool": nestedResource{linker}}, SignOptions{Deep: true})
+	writes, err := prepareNested(ctx, map[string]any{"Helpers/tool": nestedResource{testBundleCode(linker)}}, SignOptions{Deep: true})
 	if err != nil || len(writes) != 1 {
 		t.Fatal("linker signature was preserved", err)
 	}
-	r, err := InspectBytes(writes[0].data)
+	r, err := (codeSource{ctx, writes[0].output}).inspect()
 	if err != nil || r.Architectures[0].Signature.Directories[0].Flags&0x20000 != 0 {
 		t.Fatal("linker flag retained", err)
 	}
@@ -211,7 +211,7 @@ func TestPrepareNestedFailures(t *testing.T) {
 		{fixture(t, "unsigned-arm64"), SignOptions{}},
 		{fixture(t, "unsigned-arm64"), SignOptions{Deep: true, Identifier: "\x00"}},
 	} {
-		if _, err := prepareNested(ctx, map[string]any{"Helpers/tool": nestedResource{tc.data}}, tc.opts); err == nil {
+		if _, err := prepareNested(ctx, map[string]any{"Helpers/tool": nestedResource{testBundleCode(tc.data)}}, tc.opts); err == nil {
 			t.Fatal("accepted invalid child")
 		}
 	}

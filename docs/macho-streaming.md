@@ -99,7 +99,7 @@ file acceptance substitute; the native corpus supplies the latter separately.
 
 ## Remaining Phase 02 work
 
-Bundle executables/resources still need streaming integration. Shared 128 MiB
+[Bundle executables/resources](bundle-streaming.md) now use the same ranged pipeline. Shared 128 MiB
 reservation accounting, metadata spilling, nested/concurrent operation budgets,
 dense multi-gigabyte qualification and process-memory/storage measurements remain
 outstanding. Complete operation policy and lifecycle qualification also remain.

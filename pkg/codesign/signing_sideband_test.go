@@ -128,7 +128,7 @@ func TestSigningBundleMetadataInputs(t *testing.T) {
 	if err := Sign(ctx, app, SignOptions{AppleDoubleFiles: map[string]appledouble.Value{"absent": sidebandCarrier(t, appledouble.File{})}}); !errors.Is(err, os.ErrNotExist) {
 		t.Fatal(err)
 	}
-	if signingHasSignature([]byte("bad")) || signingHasSignature(fixture(t, "unsigned-arm64")) {
+	if signingHasSignature(testBundleCode([]byte("bad"))) || signingHasSignature(testBundleCode(fixture(t, "unsigned-arm64"))) {
 		t.Fatal("signature detection")
 	}
 	if err := signingNestedError("child", os.ErrPermission); !errors.Is(err, os.ErrPermission) {
@@ -140,11 +140,11 @@ func TestNestedSigningSelection(t *testing.T) {
 	for _, name := range []string{"unsigned-arm64", "adhoc-arm64", "unsigned-universal", "adhoc-universal"} {
 		data := fixture(t, name)
 		want := name == "unsigned-arm64" || name == "unsigned-universal"
-		if signingNeedsNested(data, false) != want || !signingNeedsNested(data, true) {
+		if signingNeedsNested(testBundleCode(data), false) != want || !signingNeedsNested(testBundleCode(data), true) {
 			t.Fatal(name)
 		}
 	}
-	if !signingNeedsNested([]byte("bad"), false) || signingComplete(&Report{}) {
+	if !signingNeedsNested(testBundleCode([]byte("bad")), false) || signingComplete(&Report{}) {
 		t.Fatal("invalid input")
 	}
 	r, err := InspectBytes(fixture(t, "adhoc-universal"))

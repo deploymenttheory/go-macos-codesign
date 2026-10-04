@@ -20,6 +20,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
+| [Streaming bundles](bundle-streaming.md) | Held executables, nested plans, large resources, native captures and foreign bundle verification |
 | [DMG signing](dmg-integration.md) | Direct go-apfs-v2 dependency, native signatures, evidence and limits |
 | [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
 | [Native inventory](native-inventory.md) | Expanded parser/operation evidence, source gaps and live-state access constraints |

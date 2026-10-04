@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -211,6 +212,10 @@ func TestBundleLinkBoundsAndFailures(t *testing.T) {
 	defer opened.close()
 	scope := newBundleScan()
 	scope.bytes = maxFileSize
+	if _, err := opened.resourceLink("Contents/Resources/link", "Resources/link", scope); err != nil || scope.bytes != maxFileSize+4 {
+		t.Fatal("streamed bundle accounting rejected legacy boundary", scope.bytes, err)
+	}
+	scope.bytes = math.MaxInt64
 	if _, err := opened.resourceLink("Contents/Resources/link", "Resources/link", scope); !errors.Is(err, ErrUnsupported) {
 		t.Fatal(err)
 	}

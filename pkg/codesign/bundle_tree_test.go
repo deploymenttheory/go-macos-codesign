@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -104,8 +105,13 @@ func TestRecursiveAppBounds(t *testing.T) {
 	}
 	scope = newBundleScan()
 	scope.bytes = maxFileSize
+	if _, err := b.scanChild(ctx, "Contents/Helpers/Child.app", scope, 1, ""); err != nil || scope.bytes <= maxFileSize {
+		t.Fatal("streamed child rejected legacy aggregate boundary", scope.bytes, err)
+	}
+	scope = newBundleScan()
+	scope.bytes = math.MaxInt64
 	if _, err := b.scanChild(ctx, "Contents/Helpers/Child.app", scope, 1, ""); !errors.Is(err, ErrUnsupported) {
-		t.Fatal("metadata budget", err)
+		t.Fatal("byte count overflow", err)
 	}
 	scope = newBundleScan()
 	scope.nested = maxNestedFiles

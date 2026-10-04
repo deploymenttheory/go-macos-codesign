@@ -146,9 +146,59 @@ def validate_large_macho(capture, inventory):
                     "Native signing stability changed")
 
 
+def validate_large_bundles(capture, inventory):
+    names = {f"executable-{(1 << 30) + d}" for d in (-1, 0, 1)}
+    names |= {f"resource-{(4 << 30) + d}" for d in (-1, 0, 1)}
+    names |= {"nested-app", "nested-helper", "aggregate", "framework-universal-2147483649"}
+    require(len(capture["cases"]) == 10 and {c["name"] for c in capture["cases"]} == names,
+            "Incomplete native bundle boundaries")
+    paths = {"scripts/probe-large-bundles.go", "testdata/research/large-macho.json",
+             "testdata/removal/unsigned-arm64.macho", "spec/apple-writer.json",
+             "spec/apple-hashing.json", "spec/apple-macho-allocation.json", "/usr/bin/codesign"}
+    require(set(capture["source_sha256"]) == paths, "Missing bundle provenance")
+    for path, expected in capture["source_sha256"].items():
+        actual = inventory["baseline"]["codesign_sha256"] if path == "/usr/bin/codesign" else sha(ROOT / path)
+        require(actual == expected, "Stale bundle capture: " + path)
+    for case in capture["cases"]:
+        require(set(case["operations"]) == {"sign", "verify", "resign", "dryrun", "remove"},
+                "Incomplete bundle operation sequence")
+        members = {m["name"]: m for m in case["members"]}
+        require(len(members) == len(case["members"]) and case["executable"] in members, "Invalid bundle recipe")
+        require(all(m["size"] > 0 and m["prefix"] for m in members.values()), "Incomplete bundle member")
+        if case["name"].startswith("resource-"):
+            resource = members["Contents/Resources/payload"]
+            require(resource["size"] == int(case["name"].split("-")[1]) and resource["populated"],
+                    "Lost populated resource boundary")
+        if case["name"].startswith("executable-"):
+            require(members[case["executable"]]["size"] == int(case["name"].split("-")[1]),
+                    "Lost executable boundary")
+        if case["name"] == "aggregate":
+            require(sum(m["size"] for m in members.values()) > 4 << 30, "Lost aggregate bundle boundary")
+        signed = case["operations"]["sign"]["files"]
+        for operation, value in case["operations"].items():
+            require(value["exit"] == 0, "Failed native bundle control")
+            require(value["diagnostic"] == ("<bundle>: replacing existing signature\n" if operation in ("resign", "dryrun") else ""),
+                    "Changed native bundle diagnostic")
+            require(value["executable_same"] == (operation in ("verify", "dryrun")) and value["neighbour_same"],
+                    "Lost native bundle inode behavior")
+            require(set(value["files"]) >= set(members), "Missing native bundle members")
+            for member in value["files"].values():
+                require(member["size"] > 0 and re.fullmatch(r"[0-9a-f]{64}", member["sha256"]), "Invalid native bundle hash")
+            if operation != "remove":
+                require(value["files"] == signed, "Changed bundle signing stability")
+
+
 def main():
     plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
     validate(plan, inventory)
+    validate_large_bundles(read("testdata/research/large-bundles.json"), inventory)
+    bundle_ast = read("spec/apple-bundle-streaming.json")
+    require(bundle_ast["driver_sha256"] == sha(ROOT / "scripts/extract-bundle-streaming.go"), "Stale bundle streaming driver")
+    require(len(bundle_ast["excerpt_sha256"]) == 3 and len(bundle_ast["sources"]) == 2, "Incomplete resource hashing bodies")
+    require(set(bundle_ast["targets"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"}, "Missing bundle Clang target")
+    for methods in bundle_ast["targets"].values():
+        require(len(methods) == 3 and sorted(m["name"] for m in methods) == ["hashFile", "hashFile", "multipleHashFileData"]
+                and all(m["ast_kinds"].get("CompoundStmt") for m in methods), "Incomplete bundle AST")
     validate_filesystem_discovery(read("testdata/research/filesystem-prerequisite.json"), plan, inventory)
     validate_filesystem_history(plan)
     native = read("spec/apple-cli-inventory.json")
