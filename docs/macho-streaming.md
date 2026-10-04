@@ -83,6 +83,11 @@ Sparse input setup is explicit on Windows. Output transfer still reads and write
 every logical byte; no sparse-extent shortcut replaces hashing or comparison.
 The 30-second command deadline and all prior matrix cases remain unchanged.
 The populated control is not a densely populated multi-gigabyte benchmark.
+Large mutable fixtures use GitHub's provisioned `RUNNER_TEMP` scratch directory
+when available and the normal temporary directory for local runs. Each case logs
+its location and operation timings; Windows CI also records volume capacity and
+filesystem type. File IDs are captured before mutation, including Windows' lazy
+`Stat` identity lookup, so post-operation checks compare the original object.
 
 Unit coverage includes 64-bit FAT assembly, patch boundaries, preservation of
 unmodified ranges, short/invalid/failing reads, cancellation, source changes,

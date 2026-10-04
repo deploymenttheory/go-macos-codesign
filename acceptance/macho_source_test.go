@@ -99,7 +99,20 @@ func exportLargeMachO(t *testing.T, path, name string) {
 func TestLargeMachOMutation(t *testing.T) {
 	for _, tc := range largeMachOCases(t) {
 		t.Run(tc.Name, func(t *testing.T) {
-			path := filepath.Join(t.TempDir(), "large.macho")
+			// Use the runner's provisioned scratch storage for multi-GiB copies.
+			// A local run keeps the normal OS temporary directory. Every case
+			// still performs the full physical transfer and 30-second CLI check.
+			dir, err := os.MkdirTemp(os.Getenv("RUNNER_TEMP"), "codesign-large-macho-")
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() {
+				if err := os.RemoveAll(dir); err != nil {
+					t.Error(err)
+				}
+			})
+			path := filepath.Join(dir, "large.macho")
+			t.Logf("fixture=%s logical_length=%d", path, tc.Length)
 			f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0755)
 			if err != nil {
 				t.Fatal(err)
@@ -144,6 +157,11 @@ func TestLargeMachOMutation(t *testing.T) {
 				if err := os.Link(path, link); err != nil {
 					t.Fatal(err)
 				}
+				// Windows Stat defers loading file IDs until SameFile. Capture
+				// both identities before replacement, as in the writer harness.
+				if !os.SameFile(before, accessFileInfo(t, link)) {
+					t.Fatal("initial hard-link identity")
+				}
 				started := time.Now()
 				out, diagnostic, exit := run(t, binaryPath, append(op.args, path)...)
 				t.Logf("operation=%s length=%d elapsed=%s", op.name, tc.Length, time.Since(started))
@@ -152,8 +170,10 @@ func TestLargeMachOMutation(t *testing.T) {
 				}
 				assertLargeMachO(t, path, op.want)
 				unchanged := op.name == "dryrun" || exit != 0
-				if os.SameFile(before, accessFileInfo(t, path)) != unchanged || !os.SameFile(before, accessFileInfo(t, link)) {
-					t.Fatal("wrong native replacement/hard-link behavior", op.name)
+				selectedSame := os.SameFile(before, accessFileInfo(t, path))
+				neighbourSame := os.SameFile(before, accessFileInfo(t, link))
+				if selectedSame != unchanged || !neighbourSame {
+					t.Fatalf("operation=%s selected_same=%t want=%t neighbour_same=%t", op.name, selectedSame, unchanged, neighbourSame)
 				}
 				if err := os.Remove(link); err != nil {
 					t.Fatal(err)

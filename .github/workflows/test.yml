@@ -42,6 +42,12 @@ jobs:
         run: python3 scripts/check-research.py
       - name: Test evidence harness
         run: python3 -m unittest discover -s scripts -p "test_*.py"
+      - name: Record Windows storage for large-copy qualification
+        if: runner.os == 'Windows' && matrix.part == 3
+        shell: pwsh
+        run: |
+          Write-Output "RUNNER_TEMP=$env:RUNNER_TEMP TEMP=$env:TEMP"
+          Get-Volume | Select-Object DriveLetter, FileSystemType, SizeRemaining, Size | Format-Table
       - name: Run every assigned case and seal its evidence
         run: python3 scripts/evidence.py shard ${{ matrix.part }} --output artifacts/shard
         env:
