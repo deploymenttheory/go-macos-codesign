@@ -40,13 +40,24 @@ func parseDMG(data []byte) (*dmgImage, error) {
 	if len(data) < dmgFooterSize+8 || len(data) > maxFileSize || !isDMG(data) {
 		return nil, malformed("UDIF image size or trailer")
 	}
+	m, err := parseDMGRange(uint64(len(data)), data[len(data)-dmgFooterSize:], memoryRange(data))
+	if err == nil {
+		m.content = data[:m.footer.CodeSignatureOffset]
+	}
+	return m, err
+}
+
+func parseDMGRange(length uint64, trailer []byte, read rangeReader) (*dmgImage, error) {
+	if length < uint64(dmgFooterSize+8) {
+		return nil, malformed("UDIF image size or trailer")
+	}
 	m := &dmgImage{}
-	_ = binary.Read(bytes.NewReader(data[len(data)-dmgFooterSize:]), be, &m.footer)
+	_ = binary.Read(bytes.NewReader(trailer), be, &m.footer)
 	h := &m.footer
 	if h.Version != 4 || h.HeaderSize != uint32(dmgFooterSize) || h.Flags != 1 || h.SegmentNumber != 1 || h.SegmentCount != 1 || h.RunningDataForkOffset != 0 {
 		return nil, unsupported("UDIF version, flags or segmented image")
 	}
-	end := uint64(len(data) - dmgFooterSize)
+	end := length - uint64(dmgFooterSize)
 	if h.CodeSignatureOffset == 0 {
 		if h.CodeSignatureLength != 0 {
 			return nil, malformed("UDIF signature length without offset")
@@ -55,8 +66,11 @@ func parseDMG(data []byte) (*dmgImage, error) {
 		if h.CodeSignatureOffset < 8 || !rangeOK(h.CodeSignatureOffset, h.CodeSignatureLength, end) || h.CodeSignatureLength == 0 || h.CodeSignatureOffset+h.CodeSignatureLength != end {
 			return nil, malformed("UDIF signature bounds")
 		}
-		var err error
-		m.signature, err = parseSignature(data[h.CodeSignatureOffset:end], true)
+		signature, err := read(h.CodeSignatureOffset, end-h.CodeSignatureOffset)
+		if err != nil {
+			return nil, err
+		}
+		m.signature, err = parseSignature(signature, true)
 		if err != nil {
 			return nil, err
 		}
@@ -82,7 +96,6 @@ func parseDMG(data []byte) (*dmgImage, error) {
 	if h.PlistLength == 0 {
 		return nil, unsupported("UDIF image without a resource plist")
 	}
-	m.content = data[:end]
 	// Apple binds the trailer with the signature length blinded, and with the
 	// future signature offset already set when the source image is unsigned.
 	h.CodeSignatureOffset, h.CodeSignatureLength = end, 0
@@ -100,12 +113,16 @@ func inspectDMG(data []byte) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	a := Architecture{Name: "dmg", Size: uint64(len(data)), SignatureOffset: uint64(len(m.content)), Signature: m.signature}
+	return inspectDMGImage(m, uint64(len(data))), nil
+}
+
+func inspectDMGImage(m *dmgImage, length uint64) *Report {
+	a := Architecture{Name: "dmg", Size: length, SignatureOffset: m.footer.CodeSignatureOffset, Signature: m.signature}
 	if a.Signature != nil {
 		a.SignatureSize = a.Signature.Length
 		a.Signature.CertificateMetadata, _ = InspectCertificateMetadata(a.Signature)
 	}
-	return &Report{Format: "disk image", Architectures: []Architecture{a}, repSpecific: m.trailer()}, nil
+	return &Report{Format: "disk image", Architectures: []Architecture{a}, repSpecific: m.trailer()}
 }
 
 func dmgIdentifier(path string, data []byte, adhoc bool) (string, error) {

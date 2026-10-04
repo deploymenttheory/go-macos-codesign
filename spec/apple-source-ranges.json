@@ -1,0 +1,167 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "6ad8e9391596c37e49d7a14380ab7a4c1fffbe2bc30187010461d27cd9e08f7a",
+  "excerpt_sha256": [
+    "4908933678d89f4f71d454b7dd97c72e029f0700c2ed4af7fbc51d7ec7428fc2",
+    "1feb4bc8f320675372e91056b5488a789426495ae32fa29170b4bbd8f2eed2af",
+    "98bde7fe1e1b3ab9eb71ab86798fa58eea736bfbc6f15a7566010325be1f3325"
+  ],
+  "helper_sha256": "180a4e48926823e99a5da4e2b9c6c118cec04de56d63901c97373918f5b28e33",
+  "schema": 1,
+  "scope": "two complete verbatim Apple held-file reader methods and inline CodeDirectory signingLimit with declaration-only shims; not full translation units, runtime execution or UDIF layout derivation",
+  "sources": {
+    "codedirectory.h": {
+      "sha256": "dfc86acb9a1aaacdaf0f37aae0902df854c6cb384831caf8ca230eaa89189804",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/codedirectory.h"
+    },
+    "diskimagerep.cpp": {
+      "sha256": "ca424f5b65da6534d332bcc64277bdf0133442e63586ed5cd8b01c3f125165df",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/diskimagerep.cpp"
+    },
+    "machorep.cpp": {
+      "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": [
+      {
+        "name": "readHeader",
+        "nodes": {
+          "BinaryOperator": 6,
+          "CXXBoolLiteralExpr": 5,
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 13,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 5,
+          "UnaryExprOrTypeTraitExpr": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 3
+        },
+        "type": "bool (FileDesc &, UDIFFileHeader &)"
+      },
+      {
+        "name": "signingData",
+        "nodes": {
+          "BinaryOperator": 2,
+          "CXXBindTemporaryExpr": 2,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 18,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 7,
+          "CXXThisExpr": 8,
+          "CallExpr": 4,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 25,
+          "DeclStmt": 4,
+          "ExprWithCleanups": 2,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 44,
+          "MaterializeTemporaryExpr": 4,
+          "MemberExpr": 25,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 4
+        },
+        "type": "EmbeddedSignatureBlob *()"
+      },
+      {
+        "name": "signingLimit",
+        "nodes": {
+          "BinaryOperator": 2,
+          "CXXFunctionalCastExpr": 2,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 4,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 1,
+          "ImplicitCastExpr": 8,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ReturnStmt": 1
+        },
+        "type": "size_t () const"
+      }
+    ],
+    "x86_64-apple-macos27": [
+      {
+        "name": "readHeader",
+        "nodes": {
+          "BinaryOperator": 6,
+          "CXXBoolLiteralExpr": 5,
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 13,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ParmVarDecl": 2,
+          "ReturnStmt": 5,
+          "UnaryExprOrTypeTraitExpr": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 3
+        },
+        "type": "bool (FileDesc &, UDIFFileHeader &)"
+      },
+      {
+        "name": "signingData",
+        "nodes": {
+          "BinaryOperator": 2,
+          "CXXBindTemporaryExpr": 2,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 18,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 7,
+          "CXXThisExpr": 8,
+          "CallExpr": 4,
+          "CompoundStmt": 5,
+          "DeclRefExpr": 25,
+          "DeclStmt": 4,
+          "ExprWithCleanups": 2,
+          "IfStmt": 4,
+          "ImplicitCastExpr": 44,
+          "MaterializeTemporaryExpr": 4,
+          "MemberExpr": 25,
+          "ParenExpr": 1,
+          "ReturnStmt": 1,
+          "StringLiteral": 4,
+          "UnaryOperator": 1,
+          "VarDecl": 4
+        },
+        "type": "EmbeddedSignatureBlob *()"
+      },
+      {
+        "name": "signingLimit",
+        "nodes": {
+          "BinaryOperator": 2,
+          "CXXFunctionalCastExpr": 2,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 4,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 1,
+          "ImplicitCastExpr": 8,
+          "MemberExpr": 4,
+          "ParenExpr": 1,
+          "ReturnStmt": 1
+        },
+        "type": "size_t () const"
+      }
+    ]
+  },
+  "translation_unit_sha256": "3984ef1f170ae37cca0b80b156537bb1efffb70724c26e7ec874a96816266491"
+}

@@ -234,7 +234,9 @@ resolved standalone path. Mach-O writes stage a replacement through go-apfs-v2,
 preserving other hard-link names for standalone and bundle executables. DMGs and
 existing bundle resource envelopes retain their in-place behavior. Bundle commits
 can leave partial output on I/O failure. See [writer behavior and limits](docs/file-writes.md).
-File operations currently have a 1 GiB input/output limit.
+Standalone display/inspection and verification use file ranges, with native UDIF
+acceptance above 4 GiB. Signing/removal construction and bundle operations retain
+their 1 GiB bounds. Metadata is still materialized; see [streaming limits](docs/source-range-io.md).
 The path APIs also accept supported app bundles; byte APIs accept Mach-O and UDIF.
 See [bundle layouts and limits](docs/bundles.md).
 

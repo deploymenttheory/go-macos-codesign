@@ -29,14 +29,21 @@ It adds 60 required portable outcomes for short/failing I/O, 64-bit offsets,
 close ownership and real filesystem cancellation. The new transfer implementation
 has 100% local statement coverage; PR99’s three-OS CI, native capture and foreign
 verification completed successfully.
-The current branch starts from merged PR99 and adds cancellable incremental
+Merged [PR100](https://github.com/deploymenttheory/go-macos-codesign/pull/100) adds cancellable incremental
 hashing for code pages, special slots and bundle resources. It includes 156
 independent CommonCrypto digest observations, four complete Apple hashing methods
 compiled into two-target Clang AST evidence, and 192 new portable unit outcomes.
 Twelve new bundle boundary cases pass native byte comparison locally and run
 signing/verification on every CI host. Existing acceptance membership and all
 coverage/race/fuzz gates remain required. See [operation I/O](operation-io.md)
-for the contract, evidence and limits; full branch CI is still required.
+for the contract, evidence and limits; PR100 completed all required CI successfully.
+
+The current branch starts from merged PR100 and moves standalone inspection and
+verification onto [held-file range reads](source-range-io.md). Nine real native
+UDIF controls around 1/2/4 GiB pass locally, including content above 4 GiB. Their
+capture also corrects the CodeDirectory 64-bit limit precedence. The local
+4 GiB + 1-byte API control allocates 76,536 Go bytes during verification; this is
+not a total-process memory claim. Full branch three-OS CI remains required.
 
 Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
 held-source range parsing, incremental hashing, streamed write plans and temporary

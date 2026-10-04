@@ -5,8 +5,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -135,7 +137,12 @@ func FuzzInspect(f *testing.F) {
 		if len(b) > 1<<20 {
 			t.Skip()
 		}
-		_, _ = InspectBytes(b)
+		want, wantErr := InspectBytes(b)
+		source := codeSource{context.Background(), byteOutput(b)}
+		got, gotErr := source.inspect()
+		if fmt.Sprint(wantErr) != fmt.Sprint(gotErr) || !reflect.DeepEqual(want, got) {
+			t.Fatal("byte/range inspection drift", wantErr, gotErr)
+		}
 		before := bytes.Clone(b)
 		if report, err := VerifyBytes(context.Background(), b, VerifyOptions{}); err == nil {
 			_ = report.CheckDesignatedRequirement("")

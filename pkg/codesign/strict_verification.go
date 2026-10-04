@@ -21,6 +21,17 @@ func verifyStrictLayout(data []byte, architecture string, disabled bool) error {
 	if err != nil {
 		return err
 	}
+	return verifyStrictContainer(c, uint64(len(data)), architecture, disabled, func(offset, length uint64) (bool, error) {
+		for _, b := range data[offset : offset+length] {
+			if b != 0 {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
+}
+
+func verifyStrictContainer(c *container, length uint64, architecture string, disabled bool, zero func(uint64, uint64) (bool, error)) error {
 	if architecture == "" && c.fat && (c.fat64 || c.order != be) {
 		if disabled {
 			return nil
@@ -39,12 +50,11 @@ func verifyStrictLayout(data []byte, architecture string, disabled bool) error {
 		}
 		for i, s := range ordered {
 			bad := i > 0 && s.offset-end >= uint64(1)<<s.alignment
-			for _, b := range data[end:s.offset] {
-				if b != 0 {
-					bad = true
-					break
-				}
+			padding, err := zero(end, s.offset-end)
+			if err != nil {
+				return err
 			}
+			bad = bad || !padding
 			if bad {
 				// Apple's Universal constructor stops populating its slice-size
 				// map at the first suspicious gap. Subsequent all-architecture
@@ -58,7 +68,7 @@ func verifyStrictLayout(data []byte, architecture string, disabled bool) error {
 			}
 			end = s.offset + s.size
 		}
-		if !disabled && end != uint64(len(data)) {
+		if !disabled && end != length {
 			return failure("trailing universal data")
 		}
 	}
@@ -84,10 +94,10 @@ func verifyStrictLayout(data []byte, architecture string, disabled bool) error {
 				} else {
 					offset, size = im.order.Uint64(im.data[p+40:]), im.order.Uint64(im.data[p+48:])
 				}
-				valid = offset <= uint64(len(im.data)) && size == uint64(len(im.data))-offset
+				valid = offset <= s.size && size == s.size-offset
 			case 2: // LC_SYMTAB, the legacy PPC fallback precedes later commands
 				if cmd.size >= 24 {
-					valid = uint64(im.order.Uint32(im.data[p+16:]))+uint64(im.order.Uint32(im.data[p+20:])) == uint64(len(im.data))
+					valid = uint64(im.order.Uint32(im.data[p+16:]))+uint64(im.order.Uint32(im.data[p+20:])) == s.size
 				}
 			default:
 				continue

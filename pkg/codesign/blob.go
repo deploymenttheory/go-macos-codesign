@@ -177,8 +177,10 @@ func parseDirectory(raw []byte) (Directory, error) {
 			return d, err
 		}
 	}
-	if d.Version >= 0x20300 && d.CodeLimit == 0 {
-		d.CodeLimit = be.Uint64(raw[56:])
+	if d.Version >= 0x20300 {
+		if limit := be.Uint64(raw[56:]); limit != 0 {
+			d.CodeLimit = limit
+		}
 	}
 	if d.Version >= 0x20400 {
 		d.ExecBase = be.Uint64(raw[64:])

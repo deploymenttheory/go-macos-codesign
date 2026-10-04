@@ -36,11 +36,29 @@ type container struct {
 	slices []slice
 }
 
+type rangeReader func(offset, length uint64) ([]byte, error)
+
+func memoryRange(data []byte) rangeReader {
+	return func(offset, length uint64) ([]byte, error) { return data[offset : offset+length], nil }
+}
+
 func parseImage(data []byte) (*image, error) {
-	if len(data) < 28 {
+	im, err := parseImageRange(uint64(len(data)), memoryRange(data))
+	if err == nil {
+		im.data = data
+	}
+	return im, err
+}
+
+func parseImageRange(length uint64, read rangeReader) (*image, error) {
+	if length < 28 {
 		return nil, malformed("Mach-O header")
 	}
-	im := &image{data: data, header: 28, sigCommand: -1, linkedit: -1, firstSection: uint64(len(data))}
+	data, err := read(0, min(length, 32))
+	if err != nil {
+		return nil, err
+	}
+	im := &image{header: 28, sigCommand: -1, linkedit: -1, firstSection: length}
 	switch be.Uint32(data) {
 	case 0xfeedface:
 		im.order = be
@@ -55,7 +73,7 @@ func parseImage(data []byte) (*image, error) {
 	default:
 		return nil, malformed("Mach-O magic")
 	}
-	if len(data) < im.header {
+	if length < uint64(im.header) {
 		return nil, malformed("64-bit Mach-O header")
 	}
 	o := im.order
@@ -63,9 +81,14 @@ func parseImage(data []byte) (*image, error) {
 	im.subtype = o.Uint32(data[8:])
 	im.filetype = o.Uint32(data[12:])
 	n, sz := o.Uint32(data[16:]), o.Uint32(data[20:])
-	if !rangeOK(uint64(im.header), uint64(sz), uint64(len(data))) || uint64(n)*8 > uint64(sz) {
+	if !rangeOK(uint64(im.header), uint64(sz), length) || uint64(n)*8 > uint64(sz) {
 		return nil, malformed("load command bounds")
 	}
+	data, err = read(0, uint64(im.header)+uint64(sz))
+	if err != nil {
+		return nil, err
+	}
+	im.data = data
 	end := im.header + int(sz)
 	p := im.header
 	for i := uint32(0); i < n; i++ {
@@ -84,7 +107,7 @@ func parseImage(data []byte) (*image, error) {
 			im.sigCommand = p
 			im.sigOffset = o.Uint32(data[p+8:])
 			im.sigSize = o.Uint32(data[p+12:])
-			if im.sigOffset < uint32(end) || !rangeOK(uint64(im.sigOffset), uint64(im.sigSize), uint64(len(data))) {
+			if im.sigOffset < uint32(end) || !rangeOK(uint64(im.sigOffset), uint64(im.sigSize), length) {
 				return nil, malformed("code signature range")
 			}
 		}
@@ -97,18 +120,18 @@ func parseImage(data []byte) (*image, error) {
 				return nil, malformed("segment header")
 			}
 			name := string(bytes.TrimRight(data[p+8:p+24], "\x00"))
-			var offset, length uint64
+			var offset, segmentLength uint64
 			var count uint32
 			if kind == 0x19 {
 				offset = o.Uint64(data[p+40:])
-				length = o.Uint64(data[p+48:])
+				segmentLength = o.Uint64(data[p+48:])
 				count = o.Uint32(data[p+64:])
 			} else {
 				offset = uint64(o.Uint32(data[p+32:]))
-				length = uint64(o.Uint32(data[p+36:]))
+				segmentLength = uint64(o.Uint32(data[p+36:]))
 				count = o.Uint32(data[p+48:])
 			}
-			if !rangeOK(offset, length, uint64(len(data))) || uint64(count)*uint64(sectionSize) > uint64(size)-uint64(base) {
+			if !rangeOK(offset, segmentLength, length) || uint64(count)*uint64(sectionSize) > uint64(size)-uint64(base) {
 				return nil, malformed("segment bounds")
 			}
 			if name == "__LINKEDIT" {
@@ -119,7 +142,7 @@ func parseImage(data []byte) (*image, error) {
 			}
 			if name == "__TEXT" {
 				im.textBase = offset
-				im.textSize = length
+				im.textSize = segmentLength
 			}
 			for j := uint32(0); j < count; j++ {
 				pos := p + base + int(j)*sectionSize
@@ -142,17 +165,29 @@ func parseImage(data []byte) (*image, error) {
 }
 
 func parseContainer(data []byte) (*container, error) {
-	c := &container{data: data, order: be}
-	if len(data) < 4 {
+	c, err := parseContainerRange(uint64(len(data)), memoryRange(data), func(offset, length uint64) (*image, error) { return parseImage(data[offset : offset+length]) })
+	if err == nil {
+		c.data = data
+	}
+	return c, err
+}
+
+func parseContainerRange(length uint64, read rangeReader, readImage func(uint64, uint64) (*image, error)) (*container, error) {
+	c := &container{order: be}
+	if length < 4 {
 		return nil, malformed("empty or truncated file")
+	}
+	data, err := read(0, min(length, 8))
+	if err != nil {
+		return nil, err
 	}
 	magic := be.Uint32(data)
 	if magic != 0xcafebabe && magic != 0xbebafeca && magic != 0xcafebabf && magic != 0xbfbafeca {
-		im, err := parseImage(data)
+		im, err := readImage(0, length)
 		if err != nil {
 			return nil, err
 		}
-		c.slices = []slice{{0, uint64(len(data)), im.cpu, im.subtype, 0, im}}
+		c.slices = []slice{{0, length, im.cpu, im.subtype, 0, im}}
 		return c, nil
 	}
 	c.fat = true
@@ -160,7 +195,7 @@ func parseContainer(data []byte) (*container, error) {
 	if magic == 0xbebafeca || magic == 0xbfbafeca {
 		c.order = binary.LittleEndian
 	}
-	if len(data) < 8 {
+	if length < 8 {
 		return nil, malformed("universal header")
 	}
 	n := c.order.Uint32(data[4:])
@@ -168,9 +203,14 @@ func parseContainer(data []byte) (*container, error) {
 	if c.fat64 {
 		entry = 32
 	}
-	if n == 0 || n > 128 || uint64(n)*uint64(entry)+8 > uint64(len(data)) {
+	if n == 0 || n > 128 || uint64(n)*uint64(entry)+8 > length {
 		return nil, malformed("universal index bounds")
 	}
+	data, err = read(0, 8+uint64(n)*uint64(entry))
+	if err != nil {
+		return nil, err
+	}
+	c.data = data
 	for i := uint32(0); i < n; i++ {
 		p := 8 + int(i)*entry
 		s := slice{cpu: c.order.Uint32(data[p:]), subtype: c.order.Uint32(data[p+4:])}
@@ -183,7 +223,7 @@ func parseContainer(data []byte) (*container, error) {
 			s.size = uint64(c.order.Uint32(data[p+12:]))
 			s.alignment = c.order.Uint32(data[p+16:])
 		}
-		if s.alignment > 30 || s.offset%(uint64(1)<<s.alignment) != 0 || s.offset < uint64(8+int(n)*entry) || !rangeOK(s.offset, s.size, uint64(len(data))) {
+		if s.alignment > 30 || s.offset%(uint64(1)<<s.alignment) != 0 || s.offset < uint64(8+int(n)*entry) || !rangeOK(s.offset, s.size, length) {
 			return nil, malformed("universal slice bounds")
 		}
 		for _, old := range c.slices {
@@ -194,7 +234,7 @@ func parseContainer(data []byte) (*container, error) {
 				return nil, malformed("overlapping architectures")
 			}
 		}
-		im, err := parseImage(data[s.offset : s.offset+s.size])
+		im, err := readImage(s.offset, s.size)
 		if err != nil {
 			return nil, err
 		}

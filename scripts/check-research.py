@@ -98,6 +98,20 @@ def validate_filesystem_history(plan):
                 "Lost historical HFS+ failure")
 
 
+def validate_large_source(large, inventory):
+    require(len(large["cases"]) == 9 and {c["content_length"] for c in large["cases"]} ==
+            {b + d for b in (1 << 30, 2 << 30, 4 << 30) for d in (-1, 0, 1)}, "Incomplete large-source capture")
+    for path, expected in large["source_sha256"].items():
+        if path != "/usr/bin/codesign":
+            require(sha(ROOT / path) == expected, "Stale large-source capture: " + path)
+    require(large["source_sha256"]["/usr/bin/codesign"] == inventory["baseline"]["codesign_sha256"], "Unexpected large-source oracle")
+    for case in large["cases"]:
+        require(case["display"].splitlines()[0] == "Executable=<image>",
+                "Large-source display retains a host path prefix")
+        require(case["verify"].splitlines() == ["<image>: valid on disk", "<image>: satisfies its Designated Requirement"],
+                "Large-source verification retains a host path or changed diagnostics")
+
+
 def main():
     plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
     validate(plan, inventory)
@@ -124,6 +138,14 @@ def main():
     for methods in hashing["targets"].values():
         require(len(methods) == 4 and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete hashing AST")
         require(sorted(m["name"] for m in methods) == ["generateHash", "generateHash", "validateSlot", "validateSlot"], "Unexpected hashing methods")
+    ranges = read("spec/apple-source-ranges.json")
+    require(ranges["driver_sha256"] == sha(ROOT / "scripts/extract-source-ranges.py"), "Stale range AST driver")
+    require(ranges["helper_sha256"] == sha(ROOT / "scripts/extract-hashing.py"), "Stale range AST helper")
+    require(set(ranges["targets"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"}, "Missing range Clang target")
+    require(len(ranges["excerpt_sha256"]) == 3, "Missing range reader bodies")
+    for methods in ranges["targets"].values():
+        require(len(methods) == 3 and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete range reader AST")
+    validate_large_source(read("testdata/research/large-source.json"), inventory)
     process = read("testdata/research/process-context.json")
     for path, expected in process["source_sha256"].items():
         require(sha(ROOT / path) == expected, f"Stale SDK oracle: {path}")

@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`c3373fafa0314c38119b7ecb9fe4959d3a067488`, consuming published go-apfs-v2 v0.17.1.
+`ca06d02a3d66ace8c40f2a8a479c6467a7f15b9d`, consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -195,7 +195,8 @@ requirements. Preserve the existing byte APIs while moving path operations onto
 the following pipeline.
 
 1. **Native contract and prerequisite audit.**
-   - [ ] Inventory every `maxFileSize` check, bundle aggregate limit, whole-file
+   - [ ] Complete and reconcile the [size-limit audit](source-range-io.md#size-limit-audit-and-remaining-integration)
+     for every `maxFileSize` check, bundle aggregate limit, whole-file
      read/clone, output assembly and host-`int` conversion. Assign each an owner
      and classify it as format validation, allocation budget or legacy ceiling.
    - [ ] Extend pinned Apple source and host SDK research with complete relevant
@@ -207,7 +208,8 @@ the following pipeline.
      missing shared primitive, implement and qualify it upstream, then consume
      its published release before dependent codesign integration.
 2. **Held sources and range-based parsing.**
-   - [ ] Introduce operation-owned sources with known size, `ReaderAt`, checked
+   - [ ] Extend standalone held-source inspection/verification into bundle and
+     mutation operations with known size, `ReaderAt`, checked
      64-bit ranges and explicit close ownership. Read headers, load commands,
      trailers and required signature structures without materializing payloads.
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,

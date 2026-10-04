@@ -24,11 +24,7 @@ func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Re
 	if bundle {
 		return inspectBundle(ctx, path, opts)
 	}
-	data, err := readFileContext(ctx, path, false)
-	if err != nil {
-		return nil, err
-	}
-	r, err := InspectBytes(data)
+	r, err := withCodeSource(ctx, path, func(source codeSource, _ *os.File) (*Report, error) { return source.inspect() })
 	if r != nil {
 		r.Path = path
 	}
@@ -43,6 +39,10 @@ func InspectBytes(data []byte) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
+	return inspectContainer(c, memoryRange(data))
+}
+
+func inspectContainer(c *container, read rangeReader) (*Report, error) {
 	r := &Report{Format: "Mach-O thin"}
 	if c.fat {
 		r.Format = "Mach-O universal"
@@ -58,7 +58,11 @@ func InspectBytes(data []byte) (*Report, error) {
 			}
 		}
 		if im.sigCommand >= 0 {
-			a.Signature, err = ParseSignature(im.data[im.sigOffset : uint64(im.sigOffset)+uint64(im.sigSize)])
+			data, err := read(s.offset+uint64(im.sigOffset), uint64(im.sigSize))
+			if err != nil {
+				return nil, err
+			}
+			a.Signature, err = ParseSignature(data)
 			if err != nil {
 				return nil, err
 			}
@@ -116,24 +120,31 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 	if opts.AppleDoubleFiles != nil {
 		return nil, unsupported("AppleDoubleFiles requires a bundle operand; use AppleDouble for a standalone file")
 	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	data, err := readOpenFileContext(ctx, f, false)
-	if err != nil {
-		return nil, err
-	}
-	opts.sidebandFile, opts.sidebandPath = f, path
-	r, err := VerifyBytes(ctx, data, opts)
+	r, err := withCodeSource(ctx, path, func(source codeSource, f *os.File) (*Report, error) {
+		opts.sidebandFile, opts.sidebandPath = f, path
+		dmg, err := source.isDMG()
+		if err != nil {
+			return nil, err
+		}
+		return verifyInput(ctx, opts, dmg, source.inspect, source.digest, source.strict)
+	})
 	if r != nil {
 		r.Path = path
 	}
 	return r, err
 }
 
-func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *Report, failure error) {
+func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report, error) {
+	return verifyInput(ctx, opts, isDMG(data), func() (*Report, error) { return InspectBytes(data) },
+		func(kind uint8, offset, length uint64) ([]byte, error) {
+			return digestContext(ctx, kind, data[offset:offset+length])
+		},
+		func(architecture string, disabled bool) error {
+			return verifyStrictLayout(data, architecture, disabled)
+		})
+}
+
+func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func() (*Report, error), pageDigest func(uint8, uint64, uint64) ([]byte, error), strict func(string, bool) error) (report *Report, failure error) {
 	var architecture string
 	defer func() { failure = verificationArchitecture(failure, architecture) }()
 	if err := ctx.Err(); err != nil {
@@ -142,13 +153,13 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	if opts.AppleDoubleFiles != nil && opts.sidebandObject == nil {
 		return nil, unsupported("AppleDoubleFiles requires a bundle filesystem scope; use Verify")
 	}
-	if err := sidebandOptions(ctx, opts, !isDMG(data)); err != nil {
+	if err := sidebandOptions(ctx, opts, !dmg); err != nil {
 		return nil, err
 	}
 	if opts.StrictSymlinks && !opts.NoStrict && !opts.IgnoreResources && opts.linkScope == nil && len(opts.Resources) > 0 {
 		return nil, unsupported("strict resource links require a bundle filesystem scope")
 	}
-	r, err := InspectBytes(data)
+	r, err := inspect()
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +262,7 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 			for i := uint32(0); !opts.directoryOnly && i < d.CodeSlots; i++ {
 				start := a.Offset + uint64(i)*page
 				end := min(start+page, a.Offset+d.CodeLimit)
-				h, err := digestContext(ctx, d.HashType, data[start:end])
+				h, err := pageDigest(d.HashType, start, end-start)
 				if err != nil {
 					return r, err
 				}
@@ -315,12 +326,12 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 	if opts.linkScope == nil {
 		// DiskImageRep overrides SingleDiskRep strict validation and does not
 		// apply its sideband restriction. Retain ordinary UDIF signature checks.
-		if !isDMG(data) {
+		if !dmg {
 			if err := verifySideband(ctx, opts); err != nil {
 				return r, err
 			}
 		}
-		if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
+		if err := strict(opts.Architecture, opts.NoStrict); err != nil {
 			return r, err
 		}
 	}
