@@ -105,5 +105,5 @@ but retain different syntax diagnostics. Other outstanding work includes:
 - Stdin, `$self.identifier`, broader expression grammar and exact parser errors.
 - Wider slots, representations, resource policies and operation interactions.
 
-The [implementation plan](implementation_plan.md#wp-09) retains these obligations.
+The [implementation plan](implementation_plan.md#phase-05) retains these obligations.
 No broad compatibility inventory item becomes fully verified.

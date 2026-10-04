@@ -129,5 +129,5 @@ CI revisions, downloaded artifacts and packaged-binary evidence belong to the PR
 
 Full certificate/default policy, contextual host/guest/library/plugin enforcement,
 revocation, notarization, process targets, remaining requirement opcodes and all
-verification diagnostic forms remain outstanding in [WP-10](implementation_plan.md#wp-10).
+verification diagnostic forms remain outstanding in [phase 07](implementation_plan.md#phase-07).
 No broad inventory obligation becomes fully verified.

@@ -3,10 +3,11 @@
 Updated 2026-10-04. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
-full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
+full-equivalence audit; the [remaining roadmap](implementation_plan.md) assigns
+the outstanding work to twelve larger implementation phases.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current ISO-2022 extension phase
+## Merged ISO-2022 extension profile
 
 PR93 merged at `759a00cd6a80809cb92722da2edcd17f6fcee21b` after
 [all required CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37151404299).
@@ -14,7 +15,7 @@ Audited codesign coverage was 95.09% Linux, 95.46% macOS and 95.03% Windows;
 plist was 99.23% on each host. All 812 committed source hashes matched their OS
 checkouts and all 12,480 plist foreign results matched native operations.
 
-This branch starts from that main and adds
+[PR #94](https://github.com/deploymenttheory/go-macos-codesign/pull/94) adds
 [ISO-2022-JP-1 and ISO-2022-JP-2](removal-iso2022-extensions.md), retaining APFS
 v0.17.0. Seven names in two families are qualified by 15,651,328 native byte
 observations, 28,511 direct plutil comparisons and 13,650 complete stream cases.
@@ -25,8 +26,10 @@ Eleven plist profiles now require 16,680 foreign results. Complete native values
 total 1,294; Clang evidence retains 31 complete Apple bodies for both targets.
 All previous cases, thirteen one-minute fuzz targets, full race checks, strict
 coverage gates and six release builds remain. Native capture and foreign
-verification remain mandatory. This branch needs its own final CI; the linked
-PR93 run is the baseline only.
+verification remain mandatory. The linked PR93 run is the preceding baseline;
+the [PR95 workflow](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37174795827)
+validates the merged extension and Windows artifact-upload budget. Final evidence
+for that implementation belongs to its own workflow and artifact audit.
 
 The Windows matrix job has a 45-minute budget: the complete suite passed in the
 initial run, but the former 35-minute job limit expired during mandatory artifact
@@ -258,7 +261,7 @@ inventory is now 30 partial, 50 not implemented, eight blocked and zero verified
 and lint passed. Library coverage was 95.55% Mac, 95.41% Linux and 95.33% Windows;
 CLI was 99.06%, 98.44% and 98.44%, with entry point 100%. The downloaded Mac
 package passed 507 native comparisons (497 exact, ten retained bounded).
-[The merged record](implementation_plan.md#merged-pr68) preserves revisions,
+[Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr68) preserves revisions,
 source/artifact checks and the remaining limits.
 
 ## Merged strict-verification slice
@@ -275,7 +278,7 @@ passed all three OS, native imports, race/eleven fuzz and six GoReleaser package
 lint passed. Library coverage was 95.60% Mac, 95.46% Linux and 95.38% Windows;
 CLI was 99.05%, 98.42% and 98.42%, with entry point 100%. The audit checked
 668 source hashes per producer, 4,002 verification hashes and 415 downloaded Mac
-package comparisons. The [merged record](implementation_plan.md#merged-pr66)
+package comparisons. The [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr66)
 preserves exact revisions, native-crash evidence and bounded diagnostic differences.
 
 ## Merged APFS fixture-validation follow-up
@@ -317,7 +320,7 @@ differences. Four dangling cases expose native acceptance versus portable reject
 [PR #63](https://github.com/deploymenttheory/go-macos-codesign/pull/63) passed all
 three OS, native-import, race/eleven fuzz, lint and package gates. Library coverage
 was 95.61% Linux, 95.53% Windows and 95.69% Mac; CLI coverage was 98.33%, 98.33%
-and 99.00%. Its actual merge shares the audited tree. [The plan](implementation_plan.md#merged-pr63)
+and 99.00%. Its actual merge shares the audited tree. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr63)
 records 660 source hashes per OS, 2,408 producer hashes and 327 packaged native
 comparisons. The four dangling-link acceptance differences were resolved above.
 
@@ -332,7 +335,7 @@ diagnostics. [PR #61](https://github.com/deploymenttheory/go-macos-codesign/pull
 passed all three OS, native-import, lint, race/eleven fuzz and packaging gates.
 Library coverage was 95.56% Linux, 95.48% Windows and 95.64% Mac; CLI coverage was
 98.32%, 98.32% and 98.99%, with entry point 100%. The actual merge shares the
-tested CI tree. [The plan](implementation_plan.md#merged-pr61) records 655 source
+tested CI tree. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr61) records 655 source
 hashes per OS, producer audits and 251 exact packaged native comparisons.
 
 ## Merged requirement-verification slice
@@ -348,7 +351,7 @@ targets and remaining malformed-structure differences. Merged
 three OS, native import, lint, race/eleven fuzz and packaging gates. Library
 coverage was 95.56% Linux, 95.47% Windows and 95.64% Mac; CLI coverage was
 98.28%, 98.28% and 98.97%, with entry point 100%. Its actual merge shares the
-audited tree. [The plan](implementation_plan.md#merged-pr60) records revisions,
+audited tree. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr60) records revisions,
 649 source hashes per OS and 1,382 deterministic hashes per foreign producer.
 The broad inventory is unchanged.
 
@@ -363,7 +366,7 @@ two-target Clang evidence. [PR #59](https://github.com/deploymenttheory/go-macos
 passed the three OS jobs, native imports, race/eleven fuzz targets, lint and
 packaging. Library coverage was 95.55% Linux, 95.47% Windows and 95.64% Mac; CLI
 was 98.92%, 98.92% and 99.64%, with entry point 100%. Its actual merge shares the
-audited tree. [The plan](implementation_plan.md#merged-pr59) records exact revisions,
+audited tree. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr59) records exact revisions,
 643 source hashes per OS, 1,338 deterministic hashes per foreign producer and
 retained matrices/package audits. The thirty quiet-verification differences found
 in that slice are resolved by the current increment above. Representation defaults
@@ -382,7 +385,7 @@ error diagnostics as outstanding. [PR #58](https://github.com/deploymenttheory/g
 passed all three OS jobs, native imports, race/eleven fuzz targets, lint and
 packaging. Audited library coverage is 95.51% Linux, 95.42% Windows and 95.59% Mac;
 CLI is 98.92%, 98.92% and 99.64%, with entry point 100%. Its actual merge shares
-the audited tree; [the plan](implementation_plan.md#merged-pr58) records revisions,
+the audited tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr58) records revisions,
 638 source hashes per OS, 117 new deterministic hashes per foreign producer and
 all retained matrices/package audits. The inventory remains unchanged.
 
@@ -403,7 +406,7 @@ passing. Audited library coverage is 95.49% Linux, 95.40% Windows and 95.57% Mac
 CLI is 98.92%, 98.92% and 99.64%, with entry point 100%. The audit checked 634
 source hashes per OS, 188 deterministic requirement hashes per foreign producer,
 the retained matrices, six binaries and twelve archive/SBOM checksums. The actual
-merge shares the audited tree; [the plan](implementation_plan.md#merged-pr57)
+merge shares the audited tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr57)
 records exact revisions. The inventory remains 27 partial, 53 not implemented,
 eight blocked and zero verified.
 
@@ -424,7 +427,7 @@ Audited library coverage is 95.46% Linux, 95.37% Windows and 95.55% Mac; CLI is
 98.86%, 98.86% and 99.62%, with entry point 100%. The audit checked 627 source hashes
 per OS, 178 entitlement input/output hashes per foreign producer, all retained
 matrices, six binaries and twelve archive/SBOM checksums. Its actual merge shares
-the audited tree; [the plan](implementation_plan.md#merged-pr54) records exact evidence.
+the audited tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr54) records exact evidence.
 
 ## Merged file-list slice
 
@@ -444,7 +447,7 @@ library coverage is 95.31% on Linux, 95.22% on Windows and 95.40% on Mac; CLI is
 98.77%, 98.77% and 99.59%, with the entry point at 100%. The audit checked 620 source
 hashes per OS and 327 file-list path/tree values per foreign producer, retained
 previous matrices, six packaged binaries and twelve checksums. Its actual merge
-matches the audited tree; [the plan](implementation_plan.md#merged-pr53) records
+matches the audited tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr53) records
 exact revisions, artifacts and the six explicit native crash differences.
 
 ## Merged bundle-parent path slice
@@ -466,7 +469,7 @@ is 100% everywhere. The audit checked 611 source hashes per OS, all 108 parent
 signing/removal hashes and 96 DER sets per foreign producer, 606 signed imports,
 88 removals, 140 DMG dry-run imports, six packaged binaries and twelve checksums.
 The hosted verbose-date profile remains an explicit difference; parent-alias
-extraction display is now exact. [The plan](implementation_plan.md#merged-pr52)
+extraction display is now exact. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr52)
 records the revisions and complete combined gates.
 
 ## Merged certificate-extraction slice
@@ -487,7 +490,7 @@ write contract and remaining chain, signature-slot, entitlement-display and
 filesystem limits. PR #51 moved only extraction to partial: 26 partial,
 54 not implemented, eight blocked and zero fully verified. Its final PR workflow
 passed Linux, Windows, packaging and race/fuzz, but Mac failed on the native date
-profile and imports were skipped. [The plan](implementation_plan.md#merged-pr51)
+profile and imports were skipped. [Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr51)
 records the exact merged revision and validation limits. PR #52 subsequently established the passing combined gates, retaining the
 localized-date difference explicitly.
 
@@ -508,7 +511,7 @@ coverage is 95.30% on Linux, 95.21% on Windows and 95.39% on Mac; CLI coverage
 exceeds 98% and the entry point is 100%. The audit checked 604 source hashes per
 OS, all 80 lifecycle output hashes per foreign producer against native-compared
 Mac records, packaged binaries and twelve checksums. The actual merge shares the
-audited tree; [the plan](implementation_plan.md#merged-pr50) records exact commits
+audited tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr50) records exact commits
 and the local native chain-setup failure that did not recur in hosted CI.
 
 ## Merged ad-hoc DMG dry-run slice
@@ -531,7 +534,7 @@ PR #49 passed all three OS jobs, lint, six-target packaging, race/fuzz and nativ
 imports. Library coverage is 95.29% on Linux, 95.20% on Windows and 95.38% on Mac;
 CLI coverage exceeds 98% and the entry point is 100% on each. All 601 source hashes
 per OS and packaged binary/checksum evidence were audited. The actual merge shares
-the tested tree; [the plan](implementation_plan.md#merged-pr49) records exact commits.
+the tested tree; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr49) records exact commits.
 
 The native certificate dry-run probe terminates by signal before writing. Four
 public RSA/P-256 observations are pinned; Go returns unsupported before writing
@@ -542,14 +545,14 @@ Merged [PR #48](https://github.com/deploymenttheory/go-macos-codesign/pull/48)
 delivers unsigned-child dry-run allocation, 72 native cases and twelve portable
 failure/cancellation controls. All 54 failure-boundary cases require matching
 source/replacement access. Its [required CI](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/35686294132)
-passed; [the plan](implementation_plan.md#merged-pr48) identifies the tested and
+passed; [historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr48) identifies the tested and
 merged commits without claiming a new artifact audit of that historical run.
 
 Merged [PR #47](https://github.com/deploymenttheory/go-macos-codesign/pull/47)
 defers source access until execution reaches each executable and pins released
 APFS v0.9.0. Its actual merge shares the audited tree; three-OS CI, six packages,
 race/fuzz, 606 signed imports and 88 removals pass. The
-[implementation plan](implementation_plan.md#merged-pr47) records exact evidence.
+[Historical evidence](https://github.com/deploymenttheory/go-macos-codesign/blob/8fb245506427ddef51c572a6f5cda2e32b6b57c3/docs/implementation_plan.md#merged-pr47) records exact evidence.
 
 Inaccessible directories, broader planning and asynchronous sibling failures,
 ACL inheritance/copying remain open. The merged bundle dry-run corpus covers a
