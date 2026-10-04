@@ -69,5 +69,12 @@
   ],
   "comparison": "complete cases objects and native binary hash; no expected value changes",
   "base_commit": "ba9d623f65e3c926c138f355246dfda0e441f604",
-  "native_cases": 8340
+  "native_cases": 8340,
+  "complete_value_replay": {
+    "file": "plist-xml-values.json",
+    "cases": 1294,
+    "previous_sha256": "92135a105733c973c39084ba8be58d69cd3fbe8163bb3828f0b5720a001dc5c9",
+    "fresh_sha256": "de38b1e37d3b2d5520ddce2b08eae77e4169b9d180e2a90249dce257c5096a79",
+    "comparison": "all complete native values, inputs and statuses unchanged"
+  }
 }

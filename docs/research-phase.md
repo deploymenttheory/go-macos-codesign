@@ -82,6 +82,8 @@ The [refactor audit](../testdata/research/plist-probe-refactor.json) records a f
 native recapture of **all 8,340 cases in eleven profiles**. Every complete `cases`
 object and native binary hash matched the pre-refactor record. Only provenance
 changed; no expected selection, bytes, metadata or mutation result was replaced.
+The dependent complete-value corpus was also freshly recaptured with `plutil`: all
+1,294 inputs, statuses and complete values matched before its input hashes changed.
 The CI native-capture job continues running every profile and the exhaustive value
 and stream oracles. The refactor does not substitute cached answers for execution.
 
