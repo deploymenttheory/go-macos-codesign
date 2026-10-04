@@ -20,6 +20,12 @@ complete Apple bodies on both targets. Every earlier case and every strict
 coverage, native acceptance, fuzz, race, guard, lint and release gate remains.
 This branch requires its own final CI before the draft PR is ready for review.
 
+The Windows matrix job has a 45-minute budget: the complete suite passed in the
+initial run, but the former 35-minute job limit expired during mandatory artifact
+upload. Linux/macOS retain 35 minutes. The acceptance test's 30-minute deadline,
+all cases/assertions and strict coverage thresholds remain unchanged; the added
+job time permits evidence and foreign-artifact publication after successful tests.
+
 **Merged base ISO-2022 baseline:** PR93's
 [final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37151404299):
 codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.23%

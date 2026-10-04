@@ -19,7 +19,9 @@ jobs:
       matrix:
         os: [ubuntu-24.04, windows-2025, xcode-27]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 35
+    # Windows completes the full suite in ~34 minutes; retain time for both
+    # mandatory evidence and foreign-artifact uploads. Go test deadlines stay fixed.
+    timeout-minutes: ${{ matrix.os == 'windows-2025' && 45 || 35 }}
     env:
       CGO_ENABLED: '0'
       MACOSCODESIGN_EXPORT_DIR: ${{ github.workspace }}/artifacts/export

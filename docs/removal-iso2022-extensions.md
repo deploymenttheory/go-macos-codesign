@@ -82,6 +82,12 @@ race suite, strict coverage above 95% for each production package on each OS,
 guards, lint and six GoReleaser targets remain required. The native-capture job
 runs alongside the three-OS matrix; foreign verification requires both.
 
+The Windows matrix job has a 45-minute budget: the complete suite passed in the
+initial run, but the former 35-minute job limit expired during mandatory artifact
+upload. Linux/macOS retain 35 minutes. The acceptance test's 30-minute deadline,
+all cases/assertions and strict coverage thresholds remain unchanged; the added
+job time permits evidence and foreign-artifact publication after successful tests.
+
 ## Remaining work
 
 GB18030, other stateful codecs and aliases, Unicode normalization and filesystem
