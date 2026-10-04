@@ -38,8 +38,15 @@ signing/verification on every CI host. Existing acceptance membership and all
 coverage/race/fuzz gates remain required. See [operation I/O](operation-io.md)
 for the contract, evidence and limits; full branch CI is still required.
 
-Streaming format integration, complete operation metadata profiles, cancellation, partial failures,
-identity checks and scheduling remain Phase 02 work.
+Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
+held-source range parsing, incremental hashing, streamed write plans and temporary
+spill storage, with an initial shared 128 MiB working-buffer budget to benchmark.
+This is planned work to remove the arbitrary 1 GiB path limit, not an implemented
+memory cap or a completed large-file capability. Real multi-gigabyte tests and
+memory measurements on all three hosts are required before closure.
+
+Complete operation metadata profiles, cancellation, partial failures, identity
+checks and scheduling also remain Phase 02 work.
 
 ## Merged whole-roadmap research and harness
 

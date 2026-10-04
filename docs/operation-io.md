@@ -116,3 +116,13 @@ yet hash directly from held file ranges. Bundle planning reads,
 metadata/close checkpoints outside the shared transfer, source-content races,
 compression policy, asynchronous sibling scheduling and full native failure
 qualification remain in the [roadmap](implementation_plan.md#phase-02).
+
+The agreed Phase 02 architecture replaces these whole-file path operations with
+held-source range parsing, direct range hashing, streamed write plans and spill
+storage. Its initial shared managed-buffer budget is 128 MiB across nested and
+concurrent work. This is a proposed budget to benchmark, not implemented behavior
+or a total-process memory cap. The intended result removes the arbitrary 1 GiB
+file-size ceiling while preserving byte API contracts and native commit effects.
+See the [implementation sequence](implementation_plan.md#pipeline-implementation-sequence)
+for the prerequisite audit, real-file size boundaries, memory measurements and
+mandatory three-OS qualification.

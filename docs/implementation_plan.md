@@ -173,11 +173,116 @@ disk exhaustion + metadata restoration.
 **Deliverable:** remaining creation/open/transfer/restore/close behavior integrated
 with streaming, cancellation and precise partial-failure semantics on all hosts.
 
-- [ ] Extend the internal bounded `ReaderAt` transfer to streaming format readers,
-  output reservation and hashing directly from held file ranges throughout the
-  parsers/builders. Retain byte APIs as bounded
-  convenience paths. Share global budgets for memory, temporary storage, open handles, parsed
-  values, network work and nested children; do not multiply per-child limits.
+**Agreed architecture:** rework the file-processing pipeline within this phase.
+Retain the signing policy, codecs, APFS integration and acceptance harness. The
+target for path-based operations is no arbitrary 1 GiB file-size ceiling, with
+memory use controlled independently of payload size. Format representability,
+checked arithmetic and actual storage availability remain constraints.
+
+Use **128 MiB (134,217,728 bytes) as the initial shared working-buffer budget**
+for an operation, including nested code and concurrent workers. Treat it as a
+proposed allocation budget to benchmark, not a measured optimum, per-file
+allowance or total-process RSS guarantee. Reaching the budget must select
+streaming, spill intermediate state to temporary storage or wait for budget
+already reserved by another worker; it must not reject an otherwise supported
+file merely because its payload exceeds the budget. Do not enlarge the current
+file-size constant as a substitute for this architecture.
+
+### Pipeline implementation sequence
+
+These are coordinated workstreams within Phase 02, not separate per-feature PR
+requirements. Preserve the existing byte APIs while moving path operations onto
+the following pipeline.
+
+1. **Native contract and prerequisite audit.**
+   - [ ] Inventory every `maxFileSize` check, bundle aggregate limit, whole-file
+     read/clone, output assembly and host-`int` conversion. Assign each an owner
+     and classify it as format validation, allocation budget or legacy ceiling.
+   - [ ] Extend pinned Apple source and host SDK research with complete relevant
+     parsing, sizing, hashing, allocation and commit bodies, using both Clang AST
+     targets. Capture runtime behavior separately; declarations do not establish
+     I/O, failure or size-limit behavior.
+   - [ ] Audit released APFS APIs for held-file access, bounded replacement,
+     temporary storage, metadata restoration and DMG range access. Record any
+     missing shared primitive, implement and qualify it upstream, then consume
+     its published release before dependent codesign integration.
+2. **Held sources and range-based parsing.**
+   - [ ] Introduce operation-owned sources with known size, `ReaderAt`, checked
+     64-bit ranges and explicit close ownership. Read headers, load commands,
+     trailers and required signature structures without materializing payloads.
+   - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
+     bundle executable/resource and supported DMG paths. Bound or spill large
+     metadata/index tables too; moving only payload bytes is insufficient.
+   - [ ] Track source identity and relevant content stability from discovery to
+     hashing and commit. Define descriptor handoff for Windows share/rename
+     rules, revalidation and remaining races without promising a filesystem
+     snapshot or atomicity the host cannot supply.
+3. **Shared budgets and incremental processing.**
+   - [ ] Reserve/release managed buffers against the 128 MiB starting budget;
+     nested work and sibling workers share it. Retain bounded chunk hashing and
+     integrate direct file-range hashing for pages, special slots, resources and
+     other relevant metadata/CMS paths without whole-file backing slices.
+   - [ ] Account separately for memory, temporary storage, handles, parsed values
+     and queued work. Limit concurrent reservations, avoid deadlocks during
+     spills, and release reservations on cancellation and every failure path.
+   - [ ] Document caller-owned byte buffers, runtime overhead and other excluded
+     allocations; measure them independently. Do not use `GOMEMLIMIT` as a hard
+     budget or change process-global runtime settings from library operations.
+     Byte convenience APIs keep their ownership and return-value contracts;
+     returning a complete byte slice necessarily requires that output in memory.
+4. **Write plans and temporary storage.**
+   - [ ] Represent output as checked source ranges and generated sections, with
+     explicit offsets, lengths, alignment and reservation. Stream unchanged
+     bytes and produce modified sections without assembling a whole-file output.
+   - [ ] Spill intermediate sections and metadata when needed. Define temporary
+     file location, permissions, storage accounting, sync/close ownership and
+     cleanup for success, read/write failures, disk exhaustion and cancellation.
+   - [ ] Preserve representation-specific commit behavior: Mach-O replacement,
+     in-place DMG updates, resource-envelope inode effects and native partial
+     commits. Handle overlapping source/destination ranges safely before writes
+     can destroy bytes still needed for hashing or copying.
+5. **API/CLI integration and ceiling removal.**
+   - [ ] Route sign, force re-sign, verify, inspect/display, remove and dry-run
+     path operations through the new pipeline for their supported representations.
+     Apply the same capabilities on Linux, macOS and Windows; preserve existing
+     CLI options, diagnostics, trust policy and operation ordering.
+   - [ ] Replace legacy per-file, aggregate bundle and staged-output 1 GiB checks
+     only after their streaming paths are qualified. Keep structural validation
+     and arithmetic checks; distinguish a real resource failure from unsupported
+     format. An input just below the old limit must also support signature growth
+     across it. Do not silently weaken separate plist/parser safety contracts.
+6. **Scale and failure qualification.**
+   - [ ] Add versioned, reproducible real-file fixtures at one byte below, at and
+     above 1 GiB, 2 GiB and 4 GiB where the format permits; include sparse and
+     populated multi-gigabyte payloads, FAT slices, supported DMGs and bundles
+     whose aggregate size exceeds the old limit. Record native rejection of an
+     invalid representation separately from a supported large-file control.
+   - [ ] Capture native operations on the macOS runner with the existing Clang,
+     codesign and mounted-image/hdiutil harness. Compare full output through
+     bounded reads, signature/resource data, verification, diagnostics, metadata,
+     inode/link effects and retained partial commits. Generate large payloads
+     deterministically and retain recipes, source hashes and observations.
+   - [ ] Execute corresponding real-file operations on Linux and Windows and
+     require native verification of their exported results. Logical high-offset
+     readers remain unit tests, not substitutes for real-file acceptance. Add
+     runner/storage capacity when needed; insufficient space must not skip cases.
+   - [ ] Measure peak managed reservations, Go heap, host-reported resident memory
+     or Windows working set, temporary storage and elapsed time in isolated test
+     processes. Compare increasing payloads and nested/concurrent workloads;
+     explain measurement differences and metadata-dependent growth. Set explicit
+     regression bounds from these measurements before phase closure, and validate
+     the initial 128 MiB choice against smaller and larger budgets.
+   - [ ] Exercise allocation/spill boundaries, source replacement/truncation or
+     growth, short/failing reads and writes, disk full, denied metadata restoration,
+     close failures and cancellation at each lifecycle checkpoint. Require cleanup
+     and reservation release, and retain native-permitted partial writes/commits.
+   - [ ] Extend exact case/artifact manifests without removing existing cases or
+     weakening any gate: every production package remains above 95% coverage on
+     each OS, with native capture, foreign-producer verification, race checks,
+     full-duration fuzzing and all GoReleaser targets still mandatory.
+
+### Remaining filesystem and operation policy
+
 - [ ] Audit current size/path/parser/chain/KDF limits against native-accepted
   workloads. Distinguish intentional resource budgets from unsupported formats.
   Use checked 64-bit offsets and host-int conversions before allocation or seeks;
@@ -220,8 +325,14 @@ changed source identity; deep children and siblings; sparse inputs across old an
 32-bit size boundaries. Record bytes, inode/link identity, timestamps and cleanup.
 
 **Exit:** owned operations have matching qualified commit/failure behavior, measured
-bounded memory and portable execution. Any required APFS extension is released and
-consumed before this phase's PR is ready to merge.
+bounded working memory and portable real-file execution beyond the old 1 GiB
+ceiling. The shared budget and spill behavior are measured and documented, with
+no file-size-only rejection imposed by the former in-memory implementation. Any
+required APFS extension is released and consumed before this phase's PR is ready
+to merge. Update capability documentation and reconcile every audited legacy
+limit before declaring the pipeline complete; unqualified paths remain explicit
+gaps. Keep the implementation PR in draft until all required CI passes; the user
+performs the merge.
 
 <a id="phase-03"></a>
 ## Phase 03 — Plists, discovery and resource policy

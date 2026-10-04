@@ -6,6 +6,45 @@ partial failures and commit order. It starts from merged PR97
 [remaining roadmap](implementation_plan.md#phase-02); none of its seven feature
 owners is promoted to full parity by the prerequisite work below.
 
+## Agreed file-processing architecture
+
+Phase 02 includes re-architecting the path-based file-processing pipeline to
+remove the arbitrary 1 GiB ceiling. This is planned work; the current parsers and
+builders still hold whole-file byte slices. The signing policy, codecs, APFS
+integration and existing acceptance harness remain the foundation.
+
+| Component | Required implementation |
+| --- | --- |
+| Sources | Held files with known size, checked 64-bit ranges, identity tracking and explicit descriptor ownership |
+| Parsing | Read required headers/metadata and bounded subranges; avoid whole-file payload allocations and unbounded metadata tables |
+| Hashing | Consume held file ranges incrementally for code pages, special slots and resources |
+| Planning/output | Stream source ranges and generated sections according to checked offsets, sizes and alignment |
+| Working storage | Share an initial 128 MiB managed-buffer budget across the operation, nested code and concurrent workers; spill or schedule work when it is exhausted |
+| Commit/cleanup | Preserve native replacement/in-place differences, metadata, partial failures, Windows handle semantics and temporary-file cleanup |
+| APIs | Integrate path operations while retaining byte APIs and their caller ownership/complete-output contracts |
+
+The 128 MiB value is a starting budget to benchmark, not a file-size threshold
+or a total-process memory guarantee. Payload size alone must not cause rejection
+when streaming or temporary storage can handle it. Runtime/metadata overhead and
+caller-owned byte buffers require separate accounting and measurement. Library
+operations must not enforce the budget by changing process-global Go settings.
+
+The [Phase 02 implementation sequence](implementation_plan.md#pipeline-implementation-sequence)
+specifies six workstreams: native/API audit, held sources and parsing, shared
+budgets and hashing, write plans and spill storage, API/CLI integration and ceiling
+removal, then scale/failure qualification. Shared filesystem prerequisites belong
+in APFS and must be released before consumption. New implementation phases start
+from merged main; the current hashing draft is groundwork, not completion of this
+pipeline.
+
+Qualification must include real sparse and populated multi-gigabyte files,
+boundaries around 1/2/4 GiB, aggregate bundle size, output growth, measured memory
+and temporary-storage use, source changes, cancellation and cleanup. Linux and
+Windows execute the same supported operations; the macOS harness captures native
+behavior and verifies foreign results. Virtual high-offset tests cannot replace
+real-file acceptance. All existing exact-case/artifact, >95% per-package/per-OS
+coverage, race, fuzz and native CI requirements remain in force.
+
 ## Confirmed shared-library prerequisite
 
 The [original six native observations](../testdata/research/filesystem-prerequisite-v0.17.0.json)
@@ -90,10 +129,11 @@ operation-specific metadata policy; changing the SDK transport does not settle i
 
 ## Remaining integration work
 
-The next branch integrates [bounded operation I/O and cancellation](operation-io.md)
-across existing writers. Its new portable failure cases remain subject to full CI.
+Merged PR99 integrates [bounded operation I/O and cancellation](operation-io.md)
+across existing writers. Draft PR100 extends incremental hashing and its evidence;
+neither change removes the whole-file parsers/builders or the 1 GiB ceiling.
 
-Complete the rest of Phase 02: streaming/budgets,
+Complete the agreed pipeline above and the rest of Phase 02:
 metadata/compression profiles, cancellation, partial failures, source identity,
 asynchronous siblings and `--single-threaded-signing`.
 
