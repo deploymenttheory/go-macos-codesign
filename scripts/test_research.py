@@ -49,6 +49,31 @@ class ResearchTests(unittest.TestCase):
     def test_large_source_capture(self):
         research.validate_large_source(research.read("testdata/research/large-source.json"), self.inventory)
 
+    def test_large_macho_capture(self):
+        research.validate_large_macho(research.read("testdata/research/large-macho.json"), self.inventory)
+
+    def test_large_macho_rejects_missing_or_changed_evidence(self):
+        for mutation in ("case", "provenance", "populated", "hash", "diagnostic", "verify", "boundary", "stability"):
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                capture = research.read("testdata/research/large-macho.json")
+                if mutation == "case":
+                    capture["cases"].pop()
+                elif mutation == "provenance":
+                    capture["source_sha256"].pop("spec/apple-writer.json")
+                elif mutation == "populated":
+                    capture["cases"][-1]["populated"] = False
+                elif mutation == "hash":
+                    capture["cases"][0]["Sign"]["sha256"] = "invalid"
+                elif mutation == "diagnostic":
+                    capture["cases"][0]["Verify"]["diagnostic"] = "/private<image>: valid on disk\n"
+                elif mutation == "verify":
+                    capture["cases"][0]["Verify"]["exit"] = 1
+                elif mutation == "boundary":
+                    capture["cases"][0]["Sign"]["exit"] = 1
+                else:
+                    capture["cases"][0]["DryRun"]["sha256"] = "0" * 64
+                research.validate_large_macho(capture, self.inventory)
+
     def test_large_source_requires_native_dryrun_tail(self):
         for field in ("dry_signature", "dry_trailer"):
             with self.subTest(field=field), self.assertRaisesRegex(ValueError, "dry-run tail"):

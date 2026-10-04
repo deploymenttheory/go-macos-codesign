@@ -30,6 +30,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.1 integration, mounted HFS+ acceptance and remaining work |
 | [Held-file inspection](source-range-io.md) | Range parsing, native large-file verification, memory evidence and remaining size limits |
 | [Streaming DMG signing](dmg-streaming.md) | Held-file signing, 64-bit limits, native tail writes and large-file qualification |
+| [Streaming Mach-O mutation](macho-streaming.md) | Held-file signing/removal, universal assembly, native allocation limits and staged replacement |
 | [Operation I/O](operation-io.md) | Bounded transfers, cancellation checkpoints, partial writes, cleanup and current streaming limits |
 | [Research phase and harness](research-phase.md) | Whole-roadmap evidence map, prerequisite findings, native probe refactor and strict CI partitioning |
 | [Research](research.md) | Clang AST extraction, source pins and provenance |

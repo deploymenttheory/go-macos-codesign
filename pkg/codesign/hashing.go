@@ -58,6 +58,46 @@ func digestSource(ctx context.Context, kind uint8, src outputSource) ([]byte, er
 	return sum, nil
 }
 
+// A single transfer buffer feeds every page. Even a 1 GiB page needs only the
+// hash state and the existing bounded transport buffer, not a page allocation.
+type codePageOutput struct {
+	hash            hash.Hash
+	page, remaining int64
+	sums            []byte
+}
+
+func (p *codePageOutput) WriteAt(data []byte, _ int64) (int, error) {
+	n := len(data)
+	for len(data) > 0 {
+		chunk := min(int64(len(data)), p.remaining)
+		_, _ = p.hash.Write(data[:chunk])
+		data = data[chunk:]
+		p.remaining -= chunk
+		if p.remaining == 0 {
+			p.finish()
+		}
+	}
+	return n, nil
+}
+
+func (p *codePageOutput) finish() {
+	p.hash.Sum(p.sums[:0])
+	p.sums = p.sums[sha256.Size:]
+	p.hash.Reset()
+	p.remaining = p.page
+}
+
+func hashCodePages(ctx context.Context, src outputSource, page uint32, sums []byte) error {
+	p := codePageOutput{hash: sha256.New(), page: int64(page), remaining: int64(page), sums: sums}
+	if err := transferOutput(ctx, &p, src); err != nil {
+		return err
+	}
+	if p.remaining != p.page {
+		p.finish()
+	}
+	return nil
+}
+
 // Read to EOF rather than the initial stat size: a growing resource must still
 // consume the operation budget. Both resource seals cover the same byte stream.
 func resourceDigests(ctx context.Context, r io.Reader, limit int64) ([]byte, []byte, int64, error) {

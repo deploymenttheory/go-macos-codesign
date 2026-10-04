@@ -42,6 +42,12 @@ jobs:
         run: python3 scripts/check-research.py
       - name: Test evidence harness
         run: python3 -m unittest discover -s scripts -p "test_*.py"
+      - name: Record Windows storage for large-copy qualification
+        if: runner.os == 'Windows' && matrix.part == 3
+        shell: pwsh
+        run: |
+          Write-Output "RUNNER_TEMP=$env:RUNNER_TEMP TEMP=$env:TEMP"
+          Get-Volume | Select-Object DriveLetter, FileSystemType, SizeRemaining, Size | Format-Table
       - name: Run every assigned case and seal its evidence
         run: python3 scripts/evidence.py shard ${{ matrix.part }} --output artifacts/shard
         env:
@@ -135,6 +141,10 @@ jobs:
         run: python3 scripts/extract-dmg-builder.py --check --output artifacts/apple-dmg-builder.json
       - name: Recapture native large-file signatures and strict verification
         run: go run scripts/probe-large-source.go -check -out artifacts/large-source.json
+      - name: Check complete Apple Mach-O allocation bodies with both Clang targets
+        run: go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
+      - name: Recapture native large Mach-O signing and removal boundaries
+        run: go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
       - name: Check native incremental digest boundary corpus
         run: go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json
       - name: Check pinned Apple hashing methods with both Clang targets
@@ -217,7 +227,7 @@ jobs:
       - name: Require exactly two complete foreign producers
         run: python3 scripts/evidence.py foreign --inputs artifacts/import
       - name: Apple verifies imported signatures and compares removal bytes
-        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns|LargeDMGs)$'
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns|LargeDMGs|LargeMachO)$'
         env:
           CGO_ENABLED: '0'
           MACOSCODESIGN_REQUIRE_APPLE: '1'

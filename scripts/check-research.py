@@ -113,6 +113,39 @@ def validate_large_source(large, inventory):
                 "Large-source verification retains a host path or changed diagnostics")
 
 
+def validate_large_macho(capture, inventory):
+    names = {str(b + d) for b in (1 << 30, 2 << 30, 4 << 30) for d in (-1, 0, 1)}
+    names |= {"universal-1073741825", "universal-2147483649", "populated-1073741825"}
+    require(len(capture["cases"]) == 12 and {c["name"] for c in capture["cases"]} == names,
+            "Incomplete Mach-O boundary capture")
+    paths = {"scripts/probe-large-macho.go", "spec/apple-writer.json", "spec/apple-removal.json",
+             "spec/apple-macho-allocation.json", "testdata/removal/unsigned-arm64.macho",
+             "testdata/removal/unsigned-universal.macho", "/usr/bin/codesign"}
+    require(set(capture["source_sha256"]) == paths, "Missing Mach-O provenance")
+    for path, expected in capture["source_sha256"].items():
+        actual = inventory["baseline"]["codesign_sha256"] if path == "/usr/bin/codesign" else sha(ROOT / path)
+        require(actual == expected, "Stale Mach-O capture: " + path)
+    for case in capture["cases"]:
+        require(case["populated"] == case["name"].startswith("populated-"), "Lost populated Mach-O control")
+        success = case["length"] < (1 << 32) - 1
+        require(case["Sign"]["exit"] == (0 if success else 1), "Changed native signing boundary")
+        require(case["Remove"]["exit"] == (0 if case["length"] < 1 << 32 else 1), "Changed native removal boundary")
+        operations = ["Sign", "Remove"] + (["Resign", "DryRun", "Verify"] if success else [])
+        for operation in operations:
+            value = case[operation]
+            require(value["size"] > 0 and re.fullmatch(r"[0-9a-f]{64}", value["sha256"]), "Missing complete native hash")
+            diagnostic = value["diagnostic"]
+            allowed = {"", "<image>: replacing existing signature\n",
+                       "<image>: internal error in Code Signing subsystem\n",
+                       "<image>: valid on disk\n<image>: satisfies its Designated Requirement\n"}
+            require(diagnostic in allowed, "Native Mach-O diagnostic retains host path or changed behavior")
+        if success:
+            require(case["Verify"]["exit"] == 0 and case["Resign"]["exit"] == 0 and case["DryRun"]["exit"] == 0,
+                    "Missing native verification/re-sign/dry-run")
+            require(len({case[k]["sha256"] for k in ("Sign", "Resign", "DryRun", "Verify")}) == 1,
+                    "Native signing stability changed")
+
+
 def main():
     plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
     validate(plan, inventory)
@@ -153,6 +186,13 @@ def main():
     for methods in builder["targets"].values():
         require({m["name"] for m in methods} == {"fixedSize", "size", "build"} and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete builder AST")
     validate_large_source(read("testdata/research/large-source.json"), inventory)
+    allocation = read("spec/apple-macho-allocation.json")
+    require(allocation["driver_sha256"] == sha(ROOT / "scripts/extract-macho-allocation.go"), "Stale allocation AST driver")
+    require(set(allocation["targets"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"}, "Missing allocation Clang target")
+    for methods in allocation["targets"].values():
+        require(set(methods) == {"get32", "get64", "assure_signature_space"}, "Missing allocation bodies")
+        require(all(m["ast_kinds"].get("CompoundStmt") for m in methods.values()), "Declaration-only allocation body")
+    validate_large_macho(read("testdata/research/large-macho.json"), inventory)
     process = read("testdata/research/process-context.json")
     for path, expected in process["source_sha256"].items():
         require(sha(ROOT / path) == expected, f"Stale SDK oracle: {path}")

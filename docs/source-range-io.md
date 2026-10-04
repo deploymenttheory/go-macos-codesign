@@ -88,8 +88,8 @@ working set, a general peak-memory result or implementation of the planned share
 | Location | Current contract | Remaining Phase 02 work |
 | --- | --- | --- |
 | `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
-| `sign.go` / `io.go` | Mach-O signing and removal read/construct full byte buffers with the legacy ceiling | Held-source mutation plans, streaming output, metadata/commit integration |
-| `macho.go` | Byte output assembly remains bounded; range parsing supports FAT64 offsets | Stream architecture assembly, output growth and real large Mach-O qualification |
+| `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Bundle integration, shared metadata budgets and remaining lifecycle policy |
+| `macho.go` / `macho_source.go` | Range parsing and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Wider allocation profiles, metadata spilling and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
 | `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable/plist reads and aggregate scan budgets remain bounded | Integrate held sources and operation-wide budgets across discovery, verification and nested work |
 | `bundle_tree.go`, `bundle_nested.go` | Staged signature output totals remain bounded | Shared write plans and temporary storage across children/siblings |
@@ -108,8 +108,13 @@ metadata and architecture count. There is no aggregate 128 MiB enforcement or
 spill store yet. The next integration must address that ownership explicitly,
 retain byte API compatibility and measure total process memory separately.
 
+Standalone [Mach-O mutation](macho-streaming.md) now reuses the released held-source
+replacement API through metadata restore and a Windows-compatible close/rename handoff.
+Its real-file corpus covers thin/universal inputs around 1/2/4 GiB, native allocation
+rejections and an additional populated-region control.
+
 The [Phase 02 plan](implementation_plan.md#phase-02) still requires populated
-multi-gigabyte inputs, large Mach-O/bundle mutation paths, resource-budget/spill
+multi-gigabyte inputs, large bundle mutation paths, resource-budget/spill
 failures, memory/storage scaling measurements on all hosts and complete operation
 lifecycle qualification. This step does not finish Phase 02 or promote a whole
 compatibility feature to verified.

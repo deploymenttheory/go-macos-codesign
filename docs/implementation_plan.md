@@ -208,8 +208,8 @@ the following pipeline.
      missing shared primitive, implement and qualify it upstream, then consume
      its published release before dependent codesign integration.
 2. **Held sources and range-based parsing.**
-   - [ ] Extend standalone held-source inspection/verification and DMG signing
-     into bundle and Mach-O mutation operations with known size, `ReaderAt`, checked
+   - [ ] Extend standalone held-source inspection/verification, DMG signing and
+     [Mach-O mutation](macho-streaming.md) into bundle operations with known size, `ReaderAt`, checked
      64-bit ranges and explicit close ownership. Read headers, load commands,
      trailers and required signature structures without materializing payloads.
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
@@ -236,8 +236,9 @@ the following pipeline.
    - [ ] Represent output as checked source ranges and generated sections, with
      explicit offsets, lengths, alignment and reservation. Stream unchanged
      bytes and produce modified sections without assembling a whole-file output.
-     The [DMG tail writer](dmg-streaming.md) is integrated; general Mach-O/bundle
-     plans, large metadata and overlap-sensitive assembly remain.
+     The [DMG tail writer](dmg-streaming.md) and standalone [Mach-O plans](macho-streaming.md)
+     are integrated; bundle plans, large metadata and their overlap-sensitive
+     assembly remain.
    - [ ] Spill intermediate sections and metadata when needed. Define temporary
      file location, permissions, storage accounting, sync/close ownership and
      cleanup for success, read/write failures, disk exhaustion and cancellation.

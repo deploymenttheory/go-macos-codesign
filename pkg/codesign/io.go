@@ -59,12 +59,27 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) (resu
 	}
 	sourceCloser := operationCloser{source.Close}
 	defer func() { result = errors.Join(result, sourceCloser.Close()) }()
-	current, err := source.Stat()
+	return replaceSource(ctx, path, source, &sourceCloser, st, byteOutput(data), dryRun)
+}
+
+// Keep the preflight descriptor through payload transfer and metadata restore.
+// Windows requires closing that ordinary read handle before the final rename.
+func replaceSource(ctx context.Context, path string, source *os.File, sourceCloser *operationCloser, st os.FileInfo, output outputSource, dryRun bool) (result error) {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	current, err := os.Lstat(path)
 	if err != nil {
 		return err
 	}
+	if !current.Mode().IsRegular() {
+		return unsupported("replacing non-regular file")
+	}
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("target changed during signing")
+	}
+	if err := sourceUnchanged(source, st); err != nil {
+		return err
 	}
 	replacement, err := hostdata.PrepareReplacement(source, filepath.Dir(path))
 	if err != nil {
@@ -78,7 +93,10 @@ func writeFile(ctx context.Context, path string, data []byte, dryRun bool) (resu
 		return ctx.Err()
 	}
 	f := replacement.File
-	if err := populateOutput(ctx, f, byteOutput(data), func() error {
+	if err := populateOutput(ctx, f, output, func() error {
+		if err := sourceUnchanged(source, st); err != nil {
+			return err
+		}
 		if err := replacement.RestoreMetadata(); err != nil {
 			return err
 		}

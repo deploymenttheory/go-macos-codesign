@@ -193,7 +193,11 @@ func TestTeamIDDirectoryStorage(t *testing.T) {
 		t.Fatal(err)
 	}
 	id := testIdentity(t, "rsa")
-	out, err := signImage(context.Background(), c.slices[0].image, SignOptions{Identity: id, Identifier: "team-storage", teamID: "TESTTEAM00", SigningTime: certificateTime})
+	source, err := signImageSource(context.Background(), c.slices[0].image, byteOutput(c.slices[0].image.data), SignOptions{Identity: id, Identifier: "team-storage", teamID: "TESTTEAM00", SigningTime: certificateTime})
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := materializeOutput(context.Background(), source)
 	if err != nil {
 		t.Fatal(err)
 	}
