@@ -86,7 +86,7 @@ func run(t *testing.T, exe string, args ...string) (string, string, int) {
 	started := time.Now()
 	err := cmd.Run()
 	if ctx.Err() != nil {
-		t.Fatal("command timeout", args)
+		t.Fatalf("command timeout: executable=%q arguments=%q started=%s elapsed=%s state=%v error=%v stdout=%q stderr=%q", exe, args, started.UTC().Format(time.RFC3339Nano), time.Since(started), cmd.ProcessState, err, stdout.String(), stderr.String())
 	}
 	if err != nil {
 		var e *exec.ExitError

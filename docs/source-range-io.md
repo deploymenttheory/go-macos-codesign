@@ -61,6 +61,17 @@ and verifies the full corpus afresh and compares it with the recorded cases.
 File creation/truncation failures fail the test rather than skip it. Existing
 hdiutil, mounted-image, foreign-producer and signature-byte tests remain required.
 
+Windows explicitly marks each new fixture sparse through the supported
+`x/sys/windows` wrapper before truncation and checks the resulting attribute.
+This follows [Windows sparse-file semantics](https://learn.microsoft.com/en-us/windows/win32/fileio/sparse-file-operations)
+and reconstructs the same zero-extent recipe used by the native capture. The CLI
+still reads and hashes every logical payload byte; it does not query or skip
+sparse extents. All nine sizes, recorded signatures, exact diagnostics and the
+30-second per-command deadline remain required. The transcript records fixture
+setup, display and verification timings separately, including command details
+and captured output on timeout. Dense/populated large-file qualification remains
+an explicit Phase 02 obligation.
+
 The unit tests also cover existing fixture parity, each held read failing or
 being cancelled, descriptor cleanup, detectable source changes and FAT64 slice
 offsets above 4 GiB. The existing inspection fuzzer now compares byte and range

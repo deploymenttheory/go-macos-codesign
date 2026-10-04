@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestLargeSourceVerification(t *testing.T) {
@@ -31,6 +32,7 @@ func TestLargeSourceVerification(t *testing.T) {
 	}
 	for _, tc := range capture.Cases {
 		t.Run(fmt.Sprint(tc.ContentLength), func(t *testing.T) {
+			started := time.Now()
 			dir, err := filepath.Abs(t.TempDir())
 			if err != nil {
 				t.Fatal(err)
@@ -44,8 +46,12 @@ func TestLargeSourceVerification(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			// Truncate a real file, then write the recorded independently signed ranges.
-			// Windows also executes this case; allocation failure is never a skip.
+			// Reconstruct the native sparse-file recipe on every host, then write
+			// the recorded independently signed ranges. Setup failure is never a skip.
+			if err = prepareSparseFixture(f); err != nil {
+				f.Close()
+				t.Fatal(err)
+			}
 			total := tc.ContentLength + int64(len(tc.Signature)+len(tc.Trailer))
 			if err = f.Truncate(total); err != nil {
 				f.Close()
@@ -63,18 +69,25 @@ func TestLargeSourceVerification(t *testing.T) {
 			if err = f.Close(); err != nil {
 				t.Fatal(err)
 			}
+			t.Logf("fixture ready: content=%d total=%d elapsed=%s", tc.ContentLength, total, time.Since(started))
+			started = time.Now()
 			out, stderr, code := run(t, binaryPath, "-dvvvv", path)
+			t.Logf("display elapsed=%s exit=%d", time.Since(started), code)
 			got := strings.ReplaceAll(out+stderr, path, "<image>")
 			if code != 0 || got != tc.Display {
 				t.Fatalf("display %d\nwant %s\ngot %s", code, tc.Display, got)
 			}
+			started = time.Now()
 			out, stderr, code = run(t, binaryPath, "--verify", "--strict", "--verbose=4", path)
+			t.Logf("verification elapsed=%s exit=%d", time.Since(started), code)
 			got = strings.ReplaceAll(out+stderr, path, "<image>")
 			if code != 0 || got != tc.Verify {
 				t.Fatalf("verify %d\nwant %s\ngot %s", code, tc.Verify, got)
 			}
 			if runtime.GOOS == "darwin" {
+				started = time.Now()
 				out, stderr, code = run(t, apple(t), "--verify", "--strict", "--verbose=4", path)
+				t.Logf("native verification elapsed=%s exit=%d", time.Since(started), code)
 				if code != 0 || strings.ReplaceAll(out+stderr, path, "<image>") != tc.Verify {
 					t.Fatal("native reconstruction verification", code, out, stderr)
 				}
