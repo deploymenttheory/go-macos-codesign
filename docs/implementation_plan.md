@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`41da4e52b4bd588781c689e06e5146a35637d2d0`, consuming published go-apfs-v2 v0.17.1.
+`c3373fafa0314c38119b7ecb9fe4959d3a067488`, consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -174,7 +174,8 @@ disk exhaustion + metadata restoration.
 with streaming, cancellation and precise partial-failure semantics on all hosts.
 
 - [ ] Extend the internal bounded `ReaderAt` transfer to streaming format readers,
-  output reservation and incremental hashing. Retain byte APIs as bounded
+  output reservation and hashing directly from held file ranges throughout the
+  parsers/builders. Retain byte APIs as bounded
   convenience paths. Share global budgets for memory, temporary storage, open handles, parsed
   values, network work and nested children; do not multiply per-child limits.
 - [ ] Audit current size/path/parser/chain/KDF limits against native-accepted

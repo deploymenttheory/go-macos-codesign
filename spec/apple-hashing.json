@@ -1,0 +1,177 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "180a4e48926823e99a5da4e2b9c6c118cec04de56d63901c97373918f5b28e33",
+  "excerpt_sha256": [
+    "39ae669651ab66749f35b7046c5793c15d94391a761fa55667628bdc07951f9b",
+    "704e30cbbd52aebbb8873c59efeaa66761a3aba4f92f9766cad0d00fbdb88b51",
+    "8d366efadafe4e2ec2f201ea269e542c65cab6b991f957df22193841a185e6dd",
+    "02e9377e74e8c6dd9042f0cac98451861f4b7831c3951bfa3f5be23027333998"
+  ],
+  "schema": 1,
+  "scope": "four complete verbatim Apple methods with declaration-only type shims; neither full translation unit nor runtime evidence for hashFileData",
+  "source_sha256": "9a4b47e6cee40983d71e3214286415ed7b83b22b403d5a7e89fad50d776646af",
+  "source_url": "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/codedirectory.cpp",
+  "targets": {
+    "arm64-apple-macos27": [
+      {
+        "name": "validateSlot",
+        "nodes": {
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 2,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 3,
+          "CallExpr": 3,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 2,
+          "ImplicitCastExpr": 19,
+          "IntegerLiteral": 1,
+          "MemberExpr": 6,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "VarDecl": 2
+        },
+        "type": "bool (const void *, size_t, Slot, bool) const"
+      },
+      {
+        "name": "validateSlot",
+        "nodes": {
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 2,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 2,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 1,
+          "MemberExpr": 6,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "type": "bool (FileDesc, size_t, Slot, bool) const"
+      },
+      {
+        "name": "generateHash",
+        "nodes": {
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 7,
+          "MemberExpr": 1,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "type": "size_t (DynamicHash *, FileDesc, Hashing::Byte *, size_t)"
+      },
+      {
+        "name": "generateHash",
+        "nodes": {
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "ImplicitCastExpr": 6,
+          "MemberExpr": 2,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1
+        },
+        "type": "size_t (DynamicHash *, const void *, size_t, Hashing::Byte *)"
+      }
+    ],
+    "x86_64-apple-macos27": [
+      {
+        "name": "validateSlot",
+        "nodes": {
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 2,
+          "CXXFunctionalCastExpr": 1,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 3,
+          "CallExpr": 3,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 2,
+          "ImplicitCastExpr": 19,
+          "IntegerLiteral": 1,
+          "MemberExpr": 6,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "StringLiteral": 2,
+          "VarDecl": 2
+        },
+        "type": "bool (const void *, size_t, Slot, bool) const"
+      },
+      {
+        "name": "validateSlot",
+        "nodes": {
+          "BinaryOperator": 1,
+          "CXXConstructExpr": 3,
+          "CXXMemberCallExpr": 6,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 2,
+          "CXXThisExpr": 2,
+          "CallExpr": 2,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 13,
+          "DeclStmt": 2,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 1,
+          "MemberExpr": 6,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "VarDecl": 2
+        },
+        "type": "bool (FileDesc, size_t, Slot, bool) const"
+      },
+      {
+        "name": "generateHash",
+        "nodes": {
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CallExpr": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 7,
+          "MemberExpr": 1,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "type": "size_t (DynamicHash *, FileDesc, Hashing::Byte *, size_t)"
+      },
+      {
+        "name": "generateHash",
+        "nodes": {
+          "CXXMemberCallExpr": 2,
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 6,
+          "ImplicitCastExpr": 6,
+          "MemberExpr": 2,
+          "ParmVarDecl": 4,
+          "ReturnStmt": 1
+        },
+        "type": "size_t (DynamicHash *, const void *, size_t, Hashing::Byte *)"
+      }
+    ]
+  },
+  "translation_unit_sha256": "1f34ecd3cc5bd4df407a775e4fc6572c8eee93d6b09db24a7a59d7c2180b3d17"
+}

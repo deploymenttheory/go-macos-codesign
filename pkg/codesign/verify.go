@@ -251,7 +251,10 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 			for i := uint32(0); !opts.directoryOnly && i < d.CodeSlots; i++ {
 				start := a.Offset + uint64(i)*page
 				end := min(start+page, a.Offset+d.CodeLimit)
-				h, _ := digest(d.HashType, data[start:end])
+				h, err := digestContext(ctx, d.HashType, data[start:end])
+				if err != nil {
+					return r, err
+				}
 				p := uint64(d.HashOffset) + uint64(i)*uint64(d.HashSize)
 				if !bytes.Equal(h, d.Raw[p:p+uint64(d.HashSize)]) {
 					return r, verificationFailure(signatureDiagnostic, invalid("%s: code page %d", a.Name, i))
@@ -285,7 +288,10 @@ func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *
 					}
 					return r, slotVerificationFailure(slot, invalid("missing special slot %d", slot))
 				}
-				h, _ := digest(d.HashType, payload)
+				h, err := digestContext(ctx, d.HashType, payload)
+				if err != nil {
+					return r, err
+				}
 				if !bytes.Equal(h, want) {
 					return r, slotVerificationFailure(slot, invalid("special slot %d", slot))
 				}

@@ -117,6 +117,13 @@ def main():
     for target in ast["targets"].values():
         require(set(target) == set(ast["excerpt_sha256"]), "Missing AST body")
         require(all(v["ast_kinds"].get("CompoundStmt", 0) for v in target.values()), "Declaration-only body")
+    hashing = read("spec/apple-hashing.json")
+    require(hashing["driver_sha256"] == sha(ROOT / "scripts/extract-hashing.py"), "Stale hashing AST driver")
+    require(len(hashing["excerpt_sha256"]) == 4, "Missing hashing method bodies")
+    require(set(hashing["targets"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"}, "Missing hashing Clang target")
+    for methods in hashing["targets"].values():
+        require(len(methods) == 4 and all(m["nodes"].get("CompoundStmt") for m in methods), "Incomplete hashing AST")
+        require(sorted(m["name"] for m in methods) == ["generateHash", "generateHash", "validateSlot", "validateSlot"], "Unexpected hashing methods")
     process = read("testdata/research/process-context.json")
     for path, expected in process["source_sha256"].items():
         require(sha(ROOT / path) == expected, f"Stale SDK oracle: {path}")
