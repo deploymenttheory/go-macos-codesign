@@ -4,13 +4,18 @@ The implementation remains incomplete against the full original objective.
 The stages below retain all requirements rather than declaring a smaller scope
 to be complete.
 
-Current work continues after merged PR92 with APFS v0.17.0.
+Current work continues after merged PR93 with APFS v0.17.0.
 The [`plist` package](../pkg/plist/README.md) owns bounded parsing and text
 conversion; codesign retains file selection, operation policy and serialization.
+The [ISO-2022 extension phase](removal-iso2022-extensions.md) adds seven JP-1/JP-2
+names with strict state handling, 15,651,328 native byte observations and 13,650
+complete stream cases. Its 2,100 operations add 4,200 required foreign results,
+for 16,680 total across eleven profiles. Complete values total 1,294; Clang
+retains 31 complete Apple bodies. All prior profiles and strict gates remain.
 The [ISO-2022-JP phase](removal-iso2022-jp-plists.md) adds six names, five native
 mapping states and conversion-buffer EOF behavior. Its 23,623,680 native stream
 observations and 3,240 boundary cases qualify 1,836 new operation cases and
-3,672 mandatory foreign results. Complete values total 944; Clang retains 27
+3,672 mandatory foreign results. That phase brought complete values to 944 and Clang evidence to 27
 complete bodies. All earlier captures remain in a required parallel macOS job.
 The [EUC-JP phase](removal-euc-jp-plists.md) adds eight native-qualified names,
 whole-stream validation and assembled-string/key leading-BOM semantics. Its

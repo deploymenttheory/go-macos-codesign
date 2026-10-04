@@ -162,3 +162,7 @@ func TestRemovalPlistEUCJP(t *testing.T) {
 func TestRemovalPlistISO2022JP(t *testing.T) {
 	checkRemovalPlistCases(t, removalPlistCases(t, "plist-iso2022-jp.json", 1836), "plist-iso2022-jp-")
 }
+
+func TestRemovalPlistISO2022Extensions(t *testing.T) {
+	checkRemovalPlistCases(t, removalPlistCases(t, "plist-iso2022-extensions.json", 2100), "plist-iso2022-extensions-")
+}

@@ -60,6 +60,9 @@ func declaredText(data []byte) ([]byte, error) {
 	if eucJPCharsets[name] {
 		return eucJPText(data)
 	}
+	if family, ok := iso2022ExtensionCharsets[name]; ok {
+		return iso2022ExtensionText(data, family)
+	}
 	if iso2022JPCharsets[name] {
 		return iso2022JPText(data)
 	}

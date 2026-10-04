@@ -36,12 +36,12 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	check("scripts/extract-removal-discovery.go", ast.Driver)
-	if ast.Schema != 1 || len(ast.Bodies) != 27 || len(ast.Targets) != 2 {
+	if ast.Schema != 1 || len(ast.Bodies) != 31 || len(ast.Targets) != 2 {
 		t.Fatal("incomplete AST")
 	}
 	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
 		methods := ast.Targets[target]
-		if len(methods) != 27 {
+		if len(methods) != 31 {
 			t.Fatal(target)
 		}
 		for name := range ast.Bodies {
@@ -68,6 +68,9 @@ func TestRemovalDiscoveryEvidence(t *testing.T) {
 			t.Fatal("missing native string assembly bodies", target)
 		}
 
+		if methods["__CFGetEncodingIndex"].References["__CFKnownEncodingList"] < 2 || methods["__CFStringEncodingGetWindowsCodePage"].References["__CFWindowsCPList"] != 1 || methods["__CFStringEncodingGetCanonicalName"].References["__CFCanonicalNameList"] != 1 || methods["__CFStringEncodingICUCharLength"].References["__CFStringEncodingICUToUnicode"] != 1 {
+			t.Fatal("missing complete encoding selection and sizing bodies", target)
+		}
 		if methods["CFStringEncodingCharLengthForBytes"].References["__CFStringEncodingPlatformCharLengthForBytes"] != 1 || methods["CFStringEncodingCharLengthForBytes"].References["__CFStringEncodingICUCharLength"] != 1 {
 			t.Fatal("missing converter sizing body", target)
 		}

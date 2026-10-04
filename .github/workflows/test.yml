@@ -36,6 +36,7 @@ jobs:
           go run scripts/generate-plist-shift-jis.go -check
           go run scripts/generate-plist-euc-jp.go -check
           go run scripts/generate-plist-iso2022-jp.go -check
+          go run scripts/generate-plist-iso2022-extensions.go -check
       - name: Run unit and CLI acceptance tests; enforce coverage above 95%
         run: python3 scripts/verify.py
         env:
@@ -114,6 +115,12 @@ jobs:
         run: go run scripts/probe-plist-iso2022-jp.go -check -out artifacts/plist-iso2022-jp-values.json
       - name: Check native ISO-2022-JP conversion boundaries
         run: go run scripts/probe-plist-iso2022-jp-boundaries.go -check -out artifacts/plist-iso2022-jp-boundaries.json
+      - name: Capture native ISO-2022 extension removal operations
+        run: go run scripts/probe-removal-plist-interpretation.go -profile iso2022-extensions -out artifacts/plist-iso2022-extensions.json
+      - name: Check exhaustive native ISO-2022 extension mappings
+        run: go run scripts/probe-plist-iso2022-extensions.go -check -out artifacts/plist-iso2022-extensions-values.json
+      - name: Check native ISO-2022 extension streams
+        run: go run scripts/probe-plist-iso2022-extension-streams.go -check -out artifacts/plist-iso2022-extension-streams.json
       - name: Collect native failure diagnostics
         if: failure()
         continue-on-error: true

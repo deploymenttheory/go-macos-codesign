@@ -1,6 +1,6 @@
 # Detailed implementation plan: remaining codesign equivalence
 
-Status: updated 2026-10-03 after codesign PR92 merged. This branch uses published APFS v0.17.0. The upstream
+Status: updated 2026-10-04 after codesign PR93 merged. This branch uses published APFS v0.17.0. The upstream
 AppleDouble/resource-fork implementation, hostdata separation and removal of
 purego are released. APFS PR184 passed all 64 applicable checks, including the
 strict native/portable harness and 98.8% typed-wrapper coverage. The current
@@ -8,22 +8,24 @@ codesign branch pins the published SDK and uses `hostdata` and
 `hostdata/accesstime`. The new `hostdata.StatMetadata` query provides metadata-only
 discovery on Windows as well as Unix. No local APFS replacement is used.
 
-**Current increment:** implement [ISO-2022-JP plist interpretation](removal-iso2022-jp-plists.md)
-on a fresh branch from merged PR92 main at
-`69ef71fc485a4df761cf8177f788f085299912f3`, retaining published APFS v0.17.0.
-Six declarations share five native mapping states across ten prefixes. Capture
-23,623,680 body/EOF observations, 17,580 direct plutil comparisons and 3,240
-conversion-buffer boundaries before implementing whole-stream conversion.
-Preserve native malformed-stream fallback and fatal resource-limit behavior.
+**Current increment:** implement [ISO-2022 extensions](removal-iso2022-extensions.md)
+on a fresh branch from merged PR93 main at
+`759a00cd6a80809cb92722da2edcd17f6fcee21b`, retaining published APFS v0.17.0.
+Qualify seven JP-1/JP-2 names, fifteen state prefixes, strict escapes, G2 shifts,
+newline resets and conversion-buffer boundaries. Retain 15,651,328 native byte
+observations, 28,511 independent plutil comparisons and 13,650 complete streams.
+Add 2,100 native operations and 4,200 mandatory foreign results; eleven plist
+profiles total 16,680 results. Full native values total 1,294. Clang retains 31
+complete Apple bodies on both targets. Every earlier case and every strict
+coverage, native acceptance, fuzz, race, guard, lint and release gate remains.
+This branch requires its own final CI before the draft PR is ready for review.
 
-The increment adds 1,836 native operation cases, 3,672 mandatory foreign results
-and 306 complete values (944 total). Ten plist profiles require 12,480 foreign
-results. All earlier cases remain. Clang retains 27 complete Apple bodies on both
-targets. Deterministic generation, fresh native captures, all 13 fuzz targets,
-strict >95% coverage for every production package/host, race, guards, lint and
-six GoReleaser targets remain mandatory. Native capture runs as a separate
-required macOS job alongside full tests, retaining all previous commands;
-foreign verification depends on both. This branch requires its own final CI.
+**Merged base ISO-2022 baseline:** PR93's
+[final CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37151404299):
+codesign coverage 95.09% Linux, 95.46% macOS and 95.03% Windows; plist 99.23%
+on every host. All 812 committed source hashes and 12,480 foreign plist results
+were audited. Its six names and different native state/reset contract remain
+unchanged; all 23,623,680 byte observations and 3,240 boundary cases remain.
 
 Race and all thirteen one-minute fuzz runs execute in separate required jobs;
 the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
@@ -49,7 +51,7 @@ required plist foreign results matched native operations, and all 48 Unicode
 executable cases passed. Strict UTF-8 evidence collection works on Windows.
 
 **Next work:** qualify remaining multibyte/stateful codecs and aliases separately,
-including ISO-2022-JP-1, ISO-2022-JP-2 and GB18030. Native stream/error contracts must be captured
+including GB18030 and other ISO-2022 families. Native stream/error contracts must be captured
 before removing explicit unsupported errors. Unicode normalization and aliases,
 remaining OpenStep NUL contexts, XML grammar/types, malformed binary graphs and
 metadata normalization remain outstanding. Codesign owns operation policy,
@@ -2999,6 +3001,10 @@ selection remain unimplemented beyond the qualified discovery-denial profile.
   conversion-buffer EOF behavior from 23,623,680 stream observations and 3,240
   boundary cases. Add 1,836 operation cases, 3,672 mandatory foreign results,
   944 total complete values and two complete Apple dispatcher bodies.
+- [x] Implement seven JP-1/JP-2 names from 15,651,328 native byte observations
+  and 13,650 complete streams, retaining strict escapes, newline state, G2 and
+  full-buffer behavior. Add 2,100 operations, 4,200 mandatory imports, 1,294
+  total complete values and four complete Apple lookup/sizing bodies.
 - [ ] Qualify remaining declared codecs/aliases and OpenStep NUL contexts before
   extending the portable decoder; retain explicit errors meanwhile.
 - [ ] Qualify remaining text encodings, wider grammar/object types,
