@@ -2386,6 +2386,10 @@
           "cases": 14,
           "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceSourceRevalidation": {
+          "cases": 6,
+          "sha256": "47ad11bafde719970dd1f5222fd3039c66ed6de94308d8f753406f6ea3ced873"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,
           "sha256": "a453287ec095a77d0f0c8f51c2b6bac7a74d857fdb613c36f4fc4799e5a3ef31"
@@ -4670,6 +4674,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceHashStreams": {
           "cases": 14,
           "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceSourceRevalidation": {
+          "cases": 6,
+          "sha256": "47ad11bafde719970dd1f5222fd3039c66ed6de94308d8f753406f6ea3ced873"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,
@@ -6959,6 +6967,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceHashStreams": {
           "cases": 14,
           "sha256": "e2849db456077f8f0705756688de5eb4beb6b1d25e9700007a0fbe478158fb71"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestResourceSourceRevalidation": {
+          "cases": 6,
+          "sha256": "47ad11bafde719970dd1f5222fd3039c66ed6de94308d8f753406f6ea3ced873"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSidebandDoesNotBypassCertificateTrust": {
           "cases": 1,

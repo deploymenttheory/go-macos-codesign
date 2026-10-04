@@ -15,6 +15,8 @@ directory entry, file identity, size and modification time. Resource hashing
 reads the known size plus at most one byte to detect growth, verifies the byte
 count and rechecks identity and content metadata. Resources close individually;
 executable handles remain available for nested seals and output transfer.
+Resource identity rechecks use APFS's content-only reader, preserving Windows
+signing when data access is allowed but unrelated ACL or EA reads are denied.
 
 Output plans reuse the standalone Mach-O implementation. Parent envelopes seal
 the planned child signatures; dry runs continue to seal unchanged on-disk child

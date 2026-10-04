@@ -439,7 +439,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if n != current.Size() {
 			return invalid("resource changed: %s", rel)
 		}
-		if err := b.checkCode(name, &bundleSource{file: f, info: current}); err != nil {
+		if err := resourceUnchanged(b.root, name, f, current); err != nil {
 			return err
 		}
 		if err := scope.addBytes(n); err != nil {

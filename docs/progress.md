@@ -66,7 +66,7 @@ partial commits and metadata ordering. Ten independent native cases cover large
 executables, populated resources around 4 GiB, nested code, an aggregate tree above
 4 GiB and a universal framework above 2 GiB. Complete member hashes and hard-link
 effects pass local replay. Three complete Apple hashing bodies have two-target
-Clang evidence. The harness adds 29 unit outcomes, 12 acceptance outcomes and ten
+Clang evidence. The harness adds 35 unit outcomes, 12 acceptance outcomes and ten
 complete signed bundle exports per OS. Full branch CI and per-OS coverage remain
 required before qualification.
 

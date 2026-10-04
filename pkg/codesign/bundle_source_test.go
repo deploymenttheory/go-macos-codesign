@@ -92,7 +92,7 @@ func TestBundleHeldSources(t *testing.T) {
 			if err := b.close(); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := held.file.Stat(); !errors.Is(err, os.ErrClosed) {
+			if _, err := held.file.ReadAt(make([]byte, 1), 0); !errors.Is(err, os.ErrClosed) {
 				t.Fatal("held source leaked", err)
 			}
 		})
@@ -173,7 +173,7 @@ func TestBundleSourceWriteLifecycle(t *testing.T) {
 				if !held.released {
 					t.Fatal("borrowed reader retained through rename")
 				}
-				if _, err := held.file.Stat(); !errors.Is(err, os.ErrClosed) {
+				if _, err := held.file.ReadAt(make([]byte, 1), 0); !errors.Is(err, os.ErrClosed) {
 					t.Fatal("borrowed handle open", err)
 				}
 				if phase == "grow-after" {
@@ -286,5 +286,53 @@ func TestBundleSourcePlanningFailures(t *testing.T) {
 	src := codeSource{context.Background(), outputSource{transferReaderFunc(func([]byte, int64) (int, error) { return 0, io.ErrUnexpectedEOF }), 0, 1024}}
 	if r, err := verifyCodeSource(src, VerifyOptions{}); err == nil || r != nil && r.Valid {
 		t.Fatal(r, err)
+	}
+}
+
+func TestResourceSourceRevalidation(t *testing.T) {
+	for _, change := range []string{"unchanged", "replaced", "truncated", "missing", "closed-root"} {
+		t.Run(change, func(t *testing.T) {
+			b, err := openAppBundle(testBundle(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			const name = "Contents/Resources/data"
+			bundleFile(t, b.path, name, []byte("resource contents"))
+			file, err := openResourceFile(b.root, name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer file.Close()
+			before, err := file.Stat()
+			if err != nil {
+				t.Fatal(err)
+			}
+			switch change {
+			case "replaced", "missing":
+				if err := b.root.Rename(name, name+".old"); err != nil {
+					t.Fatal(err)
+				}
+				if change == "replaced" {
+					bundleFile(t, b.path, name, []byte("resource contents"))
+				}
+			case "truncated":
+				if err := os.Truncate(filepath.Join(b.path, name), 1); err != nil {
+					t.Fatal(err)
+				}
+			case "closed-root":
+				if err := b.root.Close(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			err = resourceUnchanged(b.root, name, file, before)
+			if change == "unchanged" {
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else if err == nil {
+				t.Fatal("resource identity/content change accepted")
+			}
+		})
 	}
 }
