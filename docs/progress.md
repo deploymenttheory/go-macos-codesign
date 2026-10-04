@@ -38,12 +38,19 @@ signing/verification on every CI host. Existing acceptance membership and all
 coverage/race/fuzz gates remain required. See [operation I/O](operation-io.md)
 for the contract, evidence and limits; PR100 completed all required CI successfully.
 
-The current branch starts from merged PR100 and moves standalone inspection and
+Merged PR101 moves standalone inspection and
 verification onto [held-file range reads](source-range-io.md). Nine real native
 UDIF controls around 1/2/4 GiB pass locally, including content above 4 GiB. Their
 capture also corrects the CodeDirectory 64-bit limit precedence. The local
 4 GiB + 1-byte API control allocates 76,536 Go bytes during verification; this is
-not a total-process memory claim. Full branch three-OS CI remains required.
+not a total-process memory claim. PR101 completed its required CI before merging.
+
+The current branch starts from PR101 main and integrates [streaming DMG signing](dmg-streaming.md):
+first sign, force re-sign and ad-hoc dry run hash held payload ranges and update
+only signature/trailer bytes. Native byte controls cover all nine large boundaries;
+new portable failure tests and eighteen reconstructed foreign images extend the
+existing harness. The 4 GiB + 1-byte local signing control allocated 81,128 Go bytes.
+Full branch CI and per-OS coverage qualification remain required.
 
 Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
 held-source range parsing, incremental hashing, streamed write plans and temporary

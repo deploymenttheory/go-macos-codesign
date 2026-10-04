@@ -49,6 +49,13 @@ class ResearchTests(unittest.TestCase):
     def test_large_source_capture(self):
         research.validate_large_source(research.read("testdata/research/large-source.json"), self.inventory)
 
+    def test_large_source_requires_native_dryrun_tail(self):
+        for field in ("dry_signature", "dry_trailer"):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "dry-run tail"):
+                capture = research.read("testdata/research/large-source.json")
+                del capture["cases"][0][field]
+                research.validate_large_source(capture, self.inventory)
+
     def test_large_source_rejects_host_path_prefixes(self):
         original = research.read("testdata/research/large-source.json")
         for field, value in (("display", "Executable=/private<image>"),

@@ -28,6 +28,8 @@ type observation struct {
 	Trailer       []byte `json:"trailer"`
 	Display       string `json:"display"`
 	Verify        string `json:"verify"`
+	DrySignature  []byte `json:"dry_signature"`
+	DryTrailer    []byte `json:"dry_trailer"`
 }
 type capture struct {
 	Schema  int               `json:"schema"`
@@ -113,7 +115,28 @@ func main() {
 			_, err = f.ReadAt(signature, size)
 			must(err)
 			must(f.Close())
-			c.Cases = append(c.Cases, observation{size, prefix, signature, trailer, string(bytes.ReplaceAll([]byte(display), []byte(path), []byte("<image>"))), string(bytes.ReplaceAll([]byte(verify), []byte(path), []byte("<image>")))})
+			// Re-signing must preserve the complete deterministic native tail.
+			run("/usr/bin/codesign", "-f", "-s", "-", "-i", "org.example.large-source", "--timestamp=none", path)
+			readTail := func() []byte {
+				f, err := os.Open(path)
+				must(err)
+				st, err := f.Stat()
+				must(err)
+				if st.Size()-size > 1<<20 {
+					panic("unexpected tail size")
+				}
+				b := make([]byte, st.Size()-size)
+				_, err = f.ReadAt(b, size)
+				must(err)
+				must(f.Close())
+				return b
+			}
+			if !bytes.Equal(readTail(), append(bytes.Clone(signature), trailer...)) {
+				panic("native re-sign changed tail")
+			}
+			run("/usr/bin/codesign", "-f", "--dryrun", "-s", "-", "-i", "org.example.large-source", "--timestamp=none", path)
+			dry := readTail()
+			c.Cases = append(c.Cases, observation{size, prefix, signature, trailer, string(bytes.ReplaceAll([]byte(display), []byte(path), []byte("<image>"))), string(bytes.ReplaceAll([]byte(verify), []byte(path), []byte("<image>"))), dry[:len(dry)-512], dry[len(dry)-512:]})
 			must(os.Remove(path))
 			fmt.Println("Captured native content length", size)
 		}

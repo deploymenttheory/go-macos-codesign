@@ -3,8 +3,8 @@
 Standalone `Inspect`/`InspectWithOptions` and `Verify`, including the CLI display
 and verification operations, read supported Mach-O and UDIF representations through
 held file descriptors. They no longer read the entire payload into a byte slice
-or reject the file solely because it exceeds 1 GiB. Bundle paths and signing/
-removal output construction still use their existing bounded byte plans.
+or reject the file solely because it exceeds 1 GiB. [DMG signing](dmg-streaming.md) also uses held ranges. Bundle paths and Mach-O
+signing/removal output construction still use their bounded byte plans.
 
 The range and byte paths share Mach-O/FAT parsing, UDIF structure validation,
 report construction, certificate/requirement policy and strict-layout validation.
@@ -88,9 +88,9 @@ working set, a general peak-memory result or implementation of the planned share
 | Location | Current contract | Remaining Phase 02 work |
 | --- | --- | --- |
 | `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
-| `sign.go` / `io.go` | Signing and Mach-O removal read/construct full byte buffers with the legacy ceiling | Held-source mutation plans, streaming output, metadata/commit integration |
+| `sign.go` / `io.go` | Mach-O signing and removal read/construct full byte buffers with the legacy ceiling | Held-source mutation plans, streaming output, metadata/commit integration |
 | `macho.go` | Byte output assembly remains bounded; range parsing supports FAT64 offsets | Stream architecture assembly, output growth and real large Mach-O qualification |
-| `dmg.go` | Byte parsing/signing and generated output retain their memory bounds; range inspection bypasses the payload ceiling | Stream signing, safe in-place overlap handling and larger page/metadata profiles |
+| `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
 | `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable/plist reads and aggregate scan budgets remain bounded | Integrate held sources and operation-wide budgets across discovery, verification and nested work |
 | `bundle_tree.go`, `bundle_nested.go` | Staged signature output totals remain bounded | Shared write plans and temporary storage across children/siblings |
 | `hashing.go` | Resource hashes stream, but callers still impose the legacy bundle budget | Separate memory consumption from bytes processed |

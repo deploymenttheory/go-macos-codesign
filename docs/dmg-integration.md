@@ -120,10 +120,11 @@ MACOSCODESIGN_LIVE_TIMESTAMP=1 MACOSCODESIGN_REQUIRE_APPLE=1 \
 
 The profile is single-segment UDIF v4, with a 512-byte footer, flags equal to 1,
 a resource plist and non-overlapping data/resource/plist ranges. The in-memory
-limit for byte APIs and signing is 1 GiB, including output. Standalone path-based
+limit for byte APIs is 1 GiB, including output. [Path-based signing](dmg-streaming.md)
+hashes held ranges and writes only the signature/trailer. Standalone path-based
 display and verification use [file ranges](source-range-io.md), with native
 acceptance around 1/2/4 GiB; metadata is still materialized. Encrypted/segmented representations, detached
-signatures, alternate digest writing, large-image streaming, stapled-ticket and
+signatures, alternate digest writing, shared metadata budgets/spilling, stapled-ticket and
 notarization policy, and full option/diagnostic parity remain incomplete.
 External Info.plist/resource overrides are rejected. Production does not mount
 or decompress the image; a valid signature does not prove filesystem mountability.

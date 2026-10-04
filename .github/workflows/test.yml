@@ -131,6 +131,8 @@ jobs:
         run: python3 scripts/guards.py
       - name: Check held-file Apple readers with both Clang targets
         run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
+      - name: Check pinned Apple CodeDirectory sizing and builder bodies
+        run: python3 scripts/extract-dmg-builder.py --check --output artifacts/apple-dmg-builder.json
       - name: Recapture native large-file signatures and strict verification
         run: go run scripts/probe-large-source.go -check -out artifacts/large-source.json
       - name: Check native incremental digest boundary corpus
@@ -215,7 +217,7 @@ jobs:
       - name: Require exactly two complete foreign producers
         run: python3 scripts/evidence.py foreign --inputs artifacts/import
       - name: Apple verifies imported signatures and compares removal bytes
-        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns)$'
+        run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns|LargeDMGs)$'
         env:
           CGO_ENABLED: '0'
           MACOSCODESIGN_REQUIRE_APPLE: '1'

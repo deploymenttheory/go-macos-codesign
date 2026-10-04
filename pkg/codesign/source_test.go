@@ -409,4 +409,27 @@ func TestSourceLargeMemoryBound(t *testing.T) {
 		t.Fatalf("large-source allocation regression: %d bytes", allocated)
 	}
 	t.Logf("verified %d-byte content; Go allocated %d bytes", tc.ContentLength, allocated)
+	runtime.ReadMemStats(&before)
+	err = Sign(context.Background(), path, SignOptions{Identifier: "org.example.large-source", Force: true})
+	runtime.ReadMemStats(&after)
+	if err != nil {
+		t.Fatal(err)
+	}
+	allocated = after.TotalAlloc - before.TotalAlloc
+	if allocated > 8<<20 {
+		t.Fatalf("large signing allocation regression: %d bytes", allocated)
+	}
+	t.Logf("signed %d-byte content; Go allocated %d bytes", tc.ContentLength, allocated)
+	f, err = os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	tail := make([]byte, len(tc.Signature)+len(tc.Trailer))
+	if _, err = f.ReadAt(tail, tc.ContentLength); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(tail, append(bytes.Clone(tc.Signature), tc.Trailer...)) {
+		t.Fatal("large signed bytes differ from native")
+	}
 }
