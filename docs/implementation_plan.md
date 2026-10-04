@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`8fb245506427ddef51c572a6f5cda2e32b6b57c3`, published go-apfs-v2 v0.17.0.
+`12b40468f39d040d66776d3eed6c18b8cd090d48`, now consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -16,31 +16,31 @@ that inventory. Other native versions and architectures need explicit profiles.
 
 The delivery unit is now a cohesive subsystem phase, including research,
 implementation, API/CLI integration, failure behavior, portable tests, native
-acceptance and documentation. The default is **12 phase PRs**, with separately
+acceptance and documentation. The default is **11 remaining phase PRs (02–12)**,
+with separately
 released APFS prerequisites and justified splits when required. This is not a
-promise that twelve PRs can resolve unavailable hardware, private protocols or
+promise that eleven PRs can resolve unavailable hardware, private protocols or
 conflicting constraints. No partial or blocked entry disappears to meet a PR count.
 
-The work below is planned, not new execution evidence. Research the entire
-roadmap first; capture and audit each phase's complete native case corpus before
-implementing its behavior. Avoid both one-encoding-per-PR delivery and speculative
-implementation based only on source declarations.
+The work below remains outstanding. Use the merged [whole-roadmap research](research-phase.md)
+and capture/audit each phase's complete native case corpus before implementing its
+behavior. Avoid both one-encoding-per-PR delivery and speculative implementation
+based only on source declarations.
 
 ## Delivery map and dependencies
 
 | Phase | Cohesive result still required | Inventory owners | Dependencies |
 | --- | --- | ---: | --- |
-| [01](#phase-01) | Whole-roadmap research, case manifests and scalable evidence harness | Cross-cutting | None; investigate every blocker here |
-| [02](#phase-02) | Portable streaming, filesystem behavior and operation lifecycle | 7 | 01; released APFS prerequisites |
-| [03](#phase-03) | Remaining plist interpretation, bundle discovery and resource policy | 10 | 01–02 |
-| [04](#phase-04) | Mach-O allocation, architectures and complete CodeDirectory profiles | 17 | 01–02; 03 for bundle interactions |
+| [02](#phase-02) | Portable streaming, filesystem behavior and operation lifecycle | 7 | Merged research; released APFS prerequisites |
+| [03](#phase-03) | Remaining plist interpretation, bundle discovery and resource policy | 10 | 02 |
+| [04](#phase-04) | Mach-O allocation, architectures and complete CodeDirectory profiles | 17 | 02; 03 for bundle interactions |
 | [05](#phase-05) | Metadata preservation, entitlements, requirements and constraints | 17 | 03–04; authenticated evaluation also needs 07/10/11 |
 | [06](#phase-06) | Identities, CMS, multiple signature slots and hybrid signatures | 7 | 04–05; legitimate native hybrid/provider evidence |
 | [07](#phase-07) | Certificate policy, timestamps, revocation and portable transport | 7 | 05–06 |
 | [08](#phase-08) | Generic files, native detached signatures and certificate interchange | 6 | 02–07; released APFS prerequisites |
 | [09](#phase-09) | Wider and large DMG signing profiles | 1 | 02/04–08; released APFS image prerequisites |
 | [10](#phase-10) | Authenticated notarization checks | 1 | 04–09; legitimate tickets/protocol evidence |
-| [11](#phase-11) | Remaining CLI contracts and actual live-state/provider operations | 15 | 01 feasibility findings; 02–10 integration |
+| [11](#phase-11) | Remaining CLI contracts and actual live-state/provider operations | 15 | Recorded feasibility findings; 02–10 integration |
 | [12](#phase-12) | Full interaction qualification, documentation and release audit | Cross-cutting | All owners and prerequisites closed |
 
 Feature ownership is enumerated [below](#inventory-ownership). An owner coordinates
@@ -167,33 +167,6 @@ explicit requirement; detached/embedded disagreement + resource change; continue
 extraction collision + failed write; and streaming + cancellation/source mutation/
 disk exhaustion + metadata restoration.
 
-<a id="phase-01"></a>
-## Phase 01 — Research the whole roadmap and scale the harness
-
-The [research map and harness implementation](research-phase.md) contains the
-source/probe ownership, prerequisite findings, native recapture and partitioning
-contracts. Its observations do not change any feature status. The remaining phase
-01 delivery gate is qualification of the actual final branch, not more small
-feature increments:
-
-- [ ] Complete the partitioned suite on Linux, macOS and Windows and reconcile every
-  retained nested case/status, attestation and exported file with the checked
-  manifest. Require all shards and all original native captures/imports.
-- [ ] Audit exact final-commit source hashes, within-OS coverage strictly above 95%
-  per production package, all package race workers, thirteen full-duration fuzz
-  targets, guards/lint and six GoReleaser builds. Deliberately failing harness tests
-  must continue to reject missing/duplicate/stale/cancelled evidence.
-- [ ] Measure actual wall/worker time and artifact costs before claiming a speedup.
-  Keep native hypotheses and source-only/unavailable contexts explicitly distinct
-  from executed implementation evidence.
-- [ ] Present the complete phase as a draft PR, retain any failing case and obtain
-  the user's merge before starting phase 02 from main. External-state and constraint
-  conflicts remain tracked prerequisites; none is silently declared implemented.
-
-**Exit:** every obligation retains its source/probe plan and prerequisite outcome;
-all old cases remain required and executed under the faster scheduling structure.
-Any unavailable original requirement remains explicitly open.
-
 <a id="phase-02"></a>
 ## Phase 02 — Portable I/O, filesystem behavior and lifecycle
 
@@ -228,6 +201,12 @@ with streaming, cancellation and precise partial-failure semantics on all hosts.
 - [ ] Complete `--preserve-afsc` and other compression interactions from observed
   option applicability. Keep representation-specific dry runs and signing/removal
   side effects distinct; do not infer that every dry run avoids writes.
+
+**Dependency integration gate:** qualify published APFS v0.17.1 with the complete
+three-OS harness. The [filesystem controls](portable-io-lifecycle.md) now pass
+locally, including 108 mounted comparisons of standalone and rooted bundle writers.
+Keep source-preserving SDK transport distinct from the still-unqualified native
+operation metadata profiles. No complete Phase 02 family is closed by this fix.
 
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
 `codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/
@@ -659,8 +638,9 @@ The eight existing blocked entries require the following evidence:
 | `--signing-dylib` | A resolution of native arbitrary-library execution versus the no-native-binding requirement |
 | `CODESIGN_ALLOCATE` | A resolution of arbitrary external allocator execution versus the no-production-helper requirement |
 
-Phase 01 must classify each as achievable, awaiting a concrete external input or
-conflicting with the original constraints. A macOS bridge/service would change
+Maintain the [recorded prerequisite classifications](research-phase.md) and resolve
+their concrete external inputs or conflicts with the original constraints. A
+macOS bridge/service would change
 the objective and cannot silently resolve a zero-macOS-dependency requirement.
 Implement all feasible behavior within the constraints; keep unsupported state
 explicit and preserve the blocker until the required capability exists.

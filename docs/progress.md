@@ -4,25 +4,43 @@ Updated 2026-10-04. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [remaining roadmap](implementation_plan.md) assigns
-the outstanding work to twelve larger implementation phases.
+the outstanding work to eleven remaining larger implementation phases (02–12).
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current whole-roadmap research phase
+## Current portable I/O and lifecycle phase
 
-[Phase 01](research-phase.md) starts from merged PR96 main at
-`ba9d623f65e3c926c138f355246dfda0e441f604`. The machine-readable research map covers
-all 88 obligations, 39 future native case families and twelve prerequisite decisions.
-Eleven additional complete Apple bodies have two-target Clang AST evidence, and
-six controlled process/path cases plus five SDK controls retain native observations.
-The plist probe refactor reproduced all 8,340 operation cases exactly and now
-records transitive inputs. These research results do not upgrade feature statuses.
+[Phase 02](portable-io-lifecycle.md) starts from merged PR97 main. Native controls
+confirmed a shared prerequisite: HFS+ sign, dry-run and remove succeed with Apple
+but fail during replacement preparation with released APFS v0.17.0.
+[Merged APFS PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
+the non-cloning fallback with its own portable and native qualification. This
+branch now consumes published v0.17.1 and refreshes the released API hash audit.
+All 63 applicable upstream CI checks passed, with 100% coverage of the new
+fallback files on each applicable host and audited native/source evidence.
+All six recaptured controls succeed and match native bytes. Another 108 local
+mounted APFS/HFS+ comparisons cover both writers, three architectures and ordinary,
+readonly and deny-write ACL profiles. They are added to strict CI without removing
+any previous case or artifact. Full three-OS qualification remains required.
+Streaming, complete operation metadata profiles, cancellation, partial failures,
+identity checks and scheduling remain Phase 02 work.
 
-The CI change assigns every existing nested test/status to a checked manifest,
-partitions acceptance into four workers per OS, and keeps complete package race,
-thirteen one-minute fuzz, native capture/import, coverage, guards/lint and six-target
-GoReleaser gates. Missing/cancelled/duplicate/stale evidence fails aggregation.
-Final-commit three-OS execution and artifact auditing are required before this
-phase is ready to merge; the baseline workflow is not proof of the changed harness.
+## Merged whole-roadmap research and harness
+
+[PR97](https://github.com/deploymenttheory/go-macos-codesign/pull/97) merged at
+`12b40468f39d040d66776d3eed6c18b8cd090d48` after the
+[final CI and artifact audit](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37180275225).
+The research baseline covers all 88 obligations, 39 future case families and
+twelve prerequisite decisions; the new filesystem finding adds a thirteenth.
+Eleven complete Apple bodies have two-target Clang AST evidence. Six native
+process/path cases, five SDK controls, all 8,340 plist operation cases and all
+1,294 native values retain their evidence. Feature statuses remain unchanged.
+
+The partitioned harness retained complete nested cases/statuses, native captures
+and foreign imports, within-OS coverage, race checks, thirteen full-duration fuzz
+targets, guards/lint and six GoReleaser builds. Every host exported all 9,724 required
+files. Minimum audited production-package coverage was 95.0892% Linux, 95.4571%
+macOS and 95.0340% Windows. See [the measured harness result](research-phase.md#merged-qualification)
+for timing, artifact costs and the limits of that comparison.
 
 ## Merged ISO-2022 extension profile
 
@@ -221,7 +239,7 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.17.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.0)
+Codesign pins [APFS v0.17.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.1)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes

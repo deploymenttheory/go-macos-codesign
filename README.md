@@ -76,7 +76,7 @@ by default. `--strip-disallowed-xattrs` removes it through the APFS SDK, includi
 explicit AppleDouble inputs. Removals also occur during dry runs and can remain
 after later failures. `--deep` applies to selected nested signing operations.
 [Signing permissions](docs/signing-permissions.md) cover readable code with denied
-write access, metadata failures and partial removal, using APFS v0.16.0.
+write access, metadata failures and partial removal, using APFS v0.17.1.
 Final executable metadata restoration follows timestamp writes, with native
 comparisons of write-attribute, write-security and append ACLs. Destination ACL
 inheritance and broader removal/failure-artifact behavior remain roadmap items.

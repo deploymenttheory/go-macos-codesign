@@ -1,0 +1,81 @@
+{
+  "base_commit": "12925d48904607a8ace07d51f0da60ec58b8c2c3",
+  "dependency": "github.com/deploymenttheory/go-apfs-v2@v0.17.1",
+  "comparison": "All complete native cases and all non-source-provenance fields unchanged; only go.mod and go.sum provenance changed after fresh execution.",
+  "profiles": [
+    {
+      "file": "plist-interpretation.json",
+      "cases": 180,
+      "previous_sha256": "5deec0e73786dea511a6ab2e80e10dbfcd99224d62fe94c7d316ddc690884dcb",
+      "fresh_sha256": "5406d526beeae0fbfd18734a0a7ac40dbb4e8833109fe1147abad21ea477f499"
+    },
+    {
+      "file": "plist-encodings.json",
+      "cases": 120,
+      "previous_sha256": "bcd1c757755a2659330ee66e937dda809f8d2cd4871ba970d93461fffaf0d8ad",
+      "fresh_sha256": "aa45a1f20b2fd5bebf9fdbb54b84862dc71c4fab680bd4e190123333fe4e6ccc"
+    },
+    {
+      "file": "plist-utf32.json",
+      "cases": 276,
+      "previous_sha256": "dfa8a3e839675feb5759ba78931717947dd1e8309048dee2bc74473ee192ca34",
+      "fresh_sha256": "1c547f8e8bc0577e9da328ef2c98f296207b8bfea88b6db21099a81774495a81"
+    },
+    {
+      "file": "plist-utf32-grammar.json",
+      "cases": 36,
+      "previous_sha256": "4d99a13fbc44ad44ba56da3de9dce229654f8d89663fb92b848735e6829791b6",
+      "fresh_sha256": "30fba87ed860527975b01593d4f1a231c7e24150c58556535fae6a179e459540"
+    },
+    {
+      "file": "plist-xml-characters.json",
+      "cases": 192,
+      "previous_sha256": "df1f6c81e7e9e4ec0d8f8d7da7c3f9127da1c047c14d61db8f5484723dd48e20",
+      "fresh_sha256": "14941180cec3d4a36e8b5002516a813af8b333009b4e9d5b7f3f4f952cd8bb04"
+    },
+    {
+      "file": "plist-unmarked.json",
+      "cases": 408,
+      "previous_sha256": "489c175524d20c51e433b70b182877b925932c379cf210a6609673b3f36c960b",
+      "fresh_sha256": "c230af95d1d8aeaa64f716887fb47d918da0a630ec21ad287cef759cd55a2312"
+    },
+    {
+      "file": "plist-legacy.json",
+      "cases": 792,
+      "previous_sha256": "e1ccb1c339756a147fea579c74b4cdf55bbb9d0c744cea2734158c9870303e8d",
+      "fresh_sha256": "928d73164faaa5ae68cf176cdc5c13237ffed985c6a80e8fe1ae4daf1f0443b3"
+    },
+    {
+      "file": "plist-shift-jis.json",
+      "cases": 912,
+      "previous_sha256": "6a4dc4a64c8a29a28c8eb01cf9440e6b5abf38595d74324cee4891682768927a",
+      "fresh_sha256": "1400448f5827e6a4713b2db9903ad290aa183644ec4fd42de63f3e16aedd1973"
+    },
+    {
+      "file": "plist-euc-jp.json",
+      "cases": 1488,
+      "previous_sha256": "5aae079f3e56c0d7807a53d181d6c94f1f363a452a5da753b046f60a198f4bb8",
+      "fresh_sha256": "178d9d18632620fee76fbb77ee41ba4a0b6cd59ed68aa535f2e9cd89cce9d414"
+    },
+    {
+      "file": "plist-iso2022-jp.json",
+      "cases": 1836,
+      "previous_sha256": "7d6605dce01a62d40bf71a870deb7da13f239c5612ee82e44234d8538a455b17",
+      "fresh_sha256": "fada5977b15e436b55d1e8a022abf8092fd0843ae479375a91d82eda996e71d8"
+    },
+    {
+      "file": "plist-iso2022-extensions.json",
+      "cases": 2100,
+      "previous_sha256": "0932bd937edd235f85b2cd329da0b70afaaa6eea323df3a7badfcb561d8dff20",
+      "fresh_sha256": "0d7dba698d50c861e5e0606610d5b2b1d3b9c6348e4bbf6f90bb67c8f0e9ad91"
+    }
+  ],
+  "native_cases": 8340,
+  "complete_value_replay": {
+    "file": "plist-xml-values.json",
+    "cases": 1294,
+    "previous_sha256": "de38b1e37d3b2d5520ddce2b08eae77e4169b9d180e2a90249dce257c5096a79",
+    "fresh_sha256": "b683b5a0734a482676d14d83a38a1e72caa7688e7da2af3ac49d0dafcc20516d",
+    "comparison": "All complete native values, inputs and statuses unchanged after fresh plutil execution."
+  }
+}

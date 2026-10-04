@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Consume APFS v0.17.1 to enable Mach-O signing, dry runs and removal on HFS+
+  through the shared replacement APIs. Add 108 mounted APFS/HFS+ comparisons
+  for standalone and rooted bundle writers, including readonly and deny-write
+  sources. Preserve the original failure evidence and every existing CI gate.
+
 - Interpret seven native-qualified ISO-2022-JP-1/JP-2 declarations on every host,
   including strict escapes, Chinese/Korean mappings, G2 shifts and newline/buffer
   behavior. Add 15,651,328 byte observations, 13,650 complete native streams,
