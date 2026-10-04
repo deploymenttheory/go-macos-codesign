@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Planning baseline: 2026-10-04, main at
-`12b40468f39d040d66776d3eed6c18b8cd090d48`, published go-apfs-v2 v0.17.0.
+`12b40468f39d040d66776d3eed6c18b8cd090d48`, now consuming published go-apfs-v2 v0.17.1.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -202,13 +202,11 @@ with streaming, cancellation and precise partial-failure semantics on all hosts.
   option applicability. Keep representation-specific dry runs and signing/removal
   side effects distinct; do not infer that every dry run avoids writes.
 
-**Confirmed prerequisite:** the [filesystem discovery corpus](portable-io-lifecycle.md)
-shows native HFS+ sign/dry-run/remove succeeding while released APFS v0.17.0
-rejects replacement preparation. Obtain green CI, user merge and a published
-release of [APFS PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194),
-then consume it and qualify codesign integration. Keep source-preserving SDK
-transport distinct from the still-unqualified native operation metadata profiles.
-This closes no complete Phase 02 family by itself.
+**Dependency integration gate:** qualify published APFS v0.17.1 with the complete
+three-OS harness. The [filesystem controls](portable-io-lifecycle.md) now pass
+locally, including 108 mounted comparisons of standalone and rooted bundle writers.
+Keep source-preserving SDK transport distinct from the still-unqualified native
+operation metadata profiles. No complete Phase 02 family is closed by this fix.
 
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
 `codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/

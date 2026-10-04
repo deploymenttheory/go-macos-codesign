@@ -12,11 +12,15 @@ Versioned releases of the supported subset use [Release Please and GoReleaser](r
 [Phase 02](portable-io-lifecycle.md) starts from merged PR97 main. Native controls
 confirmed a shared prerequisite: HFS+ sign, dry-run and remove succeed with Apple
 but fail during replacement preparation with released APFS v0.17.0.
-[APFS draft PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
-the non-cloning fallback with its own portable and native qualification. Codesign
-keeps the released dependency until the upstream fix is merged and released.
+[Merged APFS PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
+the non-cloning fallback with its own portable and native qualification. This
+branch now consumes published v0.17.1 and refreshes the released API hash audit.
 All 63 applicable upstream CI checks passed, with 100% coverage of the new
 fallback files on each applicable host and audited native/source evidence.
+All six recaptured controls succeed and match native bytes. Another 108 local
+mounted APFS/HFS+ comparisons cover both writers, three architectures and ordinary,
+readonly and deny-write ACL profiles. They are added to strict CI without removing
+any previous case or artifact. Full three-OS qualification remains required.
 Streaming, complete operation metadata profiles, cancellation, partial failures,
 identity checks and scheduling remain Phase 02 work.
 
@@ -235,7 +239,7 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.17.0](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.0)
+Codesign pins [APFS v0.17.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.1)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes

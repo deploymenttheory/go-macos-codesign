@@ -77,12 +77,32 @@ def validate_filesystem_discovery(capture, plan, inventory):
                 "Inconsistent filesystem byte comparison")
         require(isinstance(case["go_error"], str) and isinstance(case["sdk_prepare_error"], str),
                 "Missing filesystem operation outcome")
+        require(not case["go_error"] and not case["sdk_prepare_error"] and case["output_bytes_match"],
+                "Released filesystem prerequisite regressed")
+
+
+def validate_filesystem_history(plan):
+    # Preserve the original failing observations byte-for-byte. Their source
+    # hashes describe that old capture, not the current module or working tree.
+    history = plan["apfs_audit"]["filesystem_history"]
+    require(sha(ROOT / history["path"]) == history["sha256"], "Changed historical filesystem capture")
+    capture = read(history["path"])
+    sdk = json.loads(capture["provenance"]["go"])
+    require(sdk["Version"] == history["version"] and sdk["Sum"] == history["sum"],
+            "Changed historical filesystem SDK")
+    require(len(capture["cases"]) == 6, "Missing historical filesystem cases")
+    for case in capture["cases"]:
+        require(case["native"]["exit"] == 0, "Lost historical native control")
+        failed = case["filesystem"] == "HFS+"
+        require(bool(case["go_error"]) == failed and bool(case["sdk_prepare_error"]) == failed,
+                "Lost historical HFS+ failure")
 
 
 def main():
     plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
     validate(plan, inventory)
     validate_filesystem_discovery(read("testdata/research/filesystem-prerequisite.json"), plan, inventory)
+    validate_filesystem_history(plan)
     native = read("spec/apple-cli-inventory.json")
     for row in plan["features"]:
         probes = native["options"].get(row["id"], {}).get("applicability_probes", {})

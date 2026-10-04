@@ -9477,8 +9477,8 @@
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "schema": 1,
   "source_files_sha256": {
-    "go.mod": "59a88a73b9f4fdec62c1758a4da49a9b3c74d63c144f492cc8bf84e81ef4e1a1",
-    "go.sum": "aff57964a3f3675117b521b25e81517f42ceddcc59ad0df210357c1397682013",
+    "go.mod": "55f7d2af1acd36bee73e2bcf6c0bfef9caee672fee3730ca3b58cf71a554c46e",
+    "go.sum": "1f19966b5edb407ccc32a16fd0515c2a22e7f58c9ad4947ad3780b02e297c342",
     "scripts/probe-plist-inputs-grammar.go": "bae3e7dee486a52d883e647e5f2f3a86ca2cc1dd6f4b8b624dece2b1b883ae7a",
     "scripts/probe-plist-inputs-legacy.go": "fa5dbf6365945546754d157f65854691356397200e576ceb0783c6b1c3f01327",
     "scripts/probe-plist-inputs-multibyte.go": "77792a5be739c7ac098acad216326dc43d6fd4fc5afb5523a061d3c85626bdb2",

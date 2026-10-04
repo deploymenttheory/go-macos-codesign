@@ -112,6 +112,7 @@
     "TestLayoutMutationParity": 0,
     "TestLayoutRemoval": 0,
     "TestMixedLayoutTimestamps": 0,
+    "TestMountedFilesystemWriterParity": 3,
     "TestNativeBinaryBundleFixtures": 3,
     "TestNativeBundleFixtures": 1,
     "TestNativeDMGFixtures": 2,
@@ -696,6 +697,10 @@
           "cases": 1,
           "sha256": "3d6b862e28b9ae380d4ee01b6817b2da44fd468c5c92d9a001785805b98335de"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemWriterParity": {
+          "cases": 111,
+          "sha256": "29f6836b4c88dce696cf39eaf244d5fe613b5ecf3d6f138ad9d35a4d2cb5684c"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeBinaryBundleFixtures": {
           "cases": 4,
           "sha256": "087ba4d9c97ee72f9eb23c7c35ccc1d69894f0ac51472d1a38fa2db01c10f123"
@@ -1166,8 +1171,8 @@
         }
       },
       "attestations": {
-        "count": 23717,
-        "sha256": "930b955000fa3389b3398cd6fdae6f8093078dc3bf7761196c0498a8aaccef26"
+        "count": 23825,
+        "sha256": "2d85a4549eac10d67800fd2ef95228ae5296aa2a096c3fc4fdd5912cc4d00508"
       },
       "baseline_logs": {
         "acceptance.jsonl": "471156684f6b15e8c46facde4453181764f42fe5e98352568f48bf961fde1d92",

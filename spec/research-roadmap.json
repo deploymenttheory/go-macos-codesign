@@ -200,15 +200,18 @@
         "--sign",
         "--dryrun"
       ],
-      "status": "upstream-release-required",
+      "status": "released-consumer-qualification",
       "evidence": [
         "testdata/research/filesystem-prerequisite.json",
         "scripts/capture-filesystem-prerequisite.go",
         "spec/apple-writer.json",
-        "docs/portable-io-lifecycle.md"
+        "docs/portable-io-lifecycle.md",
+        "testdata/research/filesystem-prerequisite-v0.17.0.json",
+        "acceptance/filesystem_writer_darwin_test.go",
+        "testdata/research/apfs-v0.17.1-recapture.json"
       ],
       "finding": "Six disposable-filesystem controls show native sign/dry-run/remove succeeding on APFS and HFS+. Released go-apfs-v2 v0.17.0 prepares replacements on APFS but fails with ENOTSUP on HFS+, preventing all three Go operations. Raw copyfile metadata policy and the SDK source-preservation contract are distinct.",
-      "resolution": "Qualify, merge and release go-apfs-v2 PR194, then consume the published version and qualify codesign integration. Preserve every other Phase 02 obligation and do not replace the module locally.",
+      "resolution": "Consume published v0.17.1 after merged APFS PR194. All six recaptured discovery controls succeed and match native bytes. Qualify standalone and rooted bundle writers in strict mounted-filesystem acceptance; retain all other Phase 02 obligations.",
       "owner": 2
     }
   ],
@@ -5923,12 +5926,12 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.0",
-    "sum": "h1:MjYtnrBQhq7rW2JNv6obY76JK4UXLbGEyZMafK66AZE=",
+    "version": "v0.17.1",
+    "sum": "h1:Ssfv3Se8jzikQaMb2Kc+u68ZyH+rGIjcFAcrECZ9eZ8=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
-        "sha256": "520e449675ceb675fe0c6a3cc1e3cc6c097c3cc0bfca75cc34c12fca06174914",
+        "sha256": "be9a96012519e7810b281fce1c8e21df15cd5a1d3da62993788bc066f68f26c1",
         "symbols": [
           "PrepareReplacementAt",
           "RestoreMetadata",
@@ -5938,7 +5941,7 @@
       },
       {
         "path": "pkg/hostdata/replacement.go",
-        "sha256": "0c3b3f6a5331a3faea397d65ef9f41ffcfd5e3d83af2041b4da8d9b39f7709cf",
+        "sha256": "cdee3ad9fe59d5ef43cf947b7da2ce14596a616a0d801b27381e5577b10e0870",
         "symbols": [
           "PrepareReplacement",
           "RestoreMetadata",
@@ -5962,6 +5965,25 @@
           "DMGFooter"
         ],
         "decision": "Use existing footer/range model; audit signature adapter restrictions separately from SDK codec capability."
+      },
+      {
+        "path": "pkg/hostdata/replacement_copy.go",
+        "sha256": "26ef7ccfb8b63377dd8a8e642d5fa3066a395fa60410288cdd12500e833b2bb6",
+        "symbols": [
+          "prepareReplacementUsing",
+          "copyReplacementMetadataUsing",
+          "copyReplacementFork"
+        ],
+        "decision": "Released non-cloning fallback; reuse bounded xattr copying and streamed resource forks. Native codesign metadata policy remains consumer work."
+      },
+      {
+        "path": "pkg/hostdata/replacement_copy_darwin.go",
+        "sha256": "fd0d84f511263af2bba7cd635ded3559cbd22886feda486fdebd9311863d08f9",
+        "symbols": [
+          "replacementCloneUnavailable",
+          "copyReplacementMetadata"
+        ],
+        "decision": "Released non-cloning fallback; reuse bounded xattr copying and streamed resource forks. Native codesign metadata policy remains consumer work."
       }
     ],
     "prerequisite_findings": [
@@ -5989,7 +6011,13 @@
         "status": "native-format-matrix-required",
         "test_contract": "Native-produced encrypted/segmented/sparse image signing needs must be measured; SDK owning a codec does not prove codesign needs to decode it."
       }
-    ]
+    ],
+    "filesystem_history": {
+      "path": "testdata/research/filesystem-prerequisite-v0.17.0.json",
+      "sha256": "bf2ff6ab77e7a437825f7365503789d91d6a26844545bfe2509a5ea9f08a078d",
+      "version": "v0.17.0",
+      "sum": "h1:MjYtnrBQhq7rW2JNv6obY76JK4UXLbGEyZMafK66AZE="
+    }
   },
   "classification_limits": "Single-probe acceptance/rejection records one exact fixture/value only; ignored/default/precedence/representation behavior remains to be captured. Future case families are specifications, not fabricated observations.",
   "source_reviews": [

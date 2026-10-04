@@ -49,10 +49,23 @@ class ResearchTests(unittest.TestCase):
     def test_filesystem_discovery(self):
         capture = research.read("testdata/research/filesystem-prerequisite.json")
         research.validate_filesystem_discovery(capture, self.plan, self.inventory)
+        self.assertTrue(all(not c["go_error"] and not c["sdk_prepare_error"] and c["output_bytes_match"]
+                            for c in capture["cases"]))
+
+    def test_filesystem_history(self):
+        research.validate_filesystem_history(self.plan)
+        capture = research.read(self.plan["apfs_audit"]["filesystem_history"]["path"])
         # A dry run can retain identical bytes while failing operationally.
         case = next(c for c in capture["cases"] if c["id"] == "p02.metadata.hfsplus.dryrun")
         self.assertTrue(case["output_bytes_match"])
         self.assertTrue(case["go_error"])
+
+    def test_filesystem_history_rejects_changes(self):
+        for key, value in (("sha256", "0" * 64), ("version", "unreleased"), ("sum", "invalid")):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                plan = copy.deepcopy(self.plan)
+                plan["apfs_audit"]["filesystem_history"][key] = value
+                research.validate_filesystem_history(plan)
 
     def test_filesystem_discovery_rejects_lost_or_stale_evidence(self):
         original = research.read("testdata/research/filesystem-prerequisite.json")
@@ -67,6 +80,8 @@ class ResearchTests(unittest.TestCase):
             lambda c: c["cases"][0].__setitem__("input_sha256", "invalid"),
             lambda c: c["cases"][0].__setitem__("output_bytes_match", not c["cases"][0]["output_bytes_match"]),
             lambda c: c["cases"][0].__setitem__("go_error", None),
+            lambda c: c["cases"][0].__setitem__("go_error", "operation not supported"),
+            lambda c: c["cases"][0].__setitem__("sdk_prepare_error", "operation not supported"),
             lambda c: c["provenance"].__setitem__("go", '{"Version":"unreleased","Sum":"invalid"}'),
         ]
         for index, mutate in enumerate(mutations):
