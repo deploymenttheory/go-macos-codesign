@@ -190,6 +190,26 @@
       "finding": "The baseline rejects HTTPS TSA URLs; separate issuer/revocation/notary services may require secure transport. Existing net/http and crypto/tls paths violate the production Darwin-bridge guard.",
       "resolution": "Audit a portable authenticated transport implementation without relaxing guards; do not mislabel baseline HTTPS TSA rejection as a missing native feature.",
       "owner": 7
+    },
+    {
+      "id": "apfs-noncloning-replacement",
+      "features": [
+        "--deep",
+        "--force",
+        "--remove-signature",
+        "--sign",
+        "--dryrun"
+      ],
+      "status": "upstream-release-required",
+      "evidence": [
+        "testdata/research/filesystem-prerequisite.json",
+        "scripts/capture-filesystem-prerequisite.go",
+        "spec/apple-writer.json",
+        "docs/portable-io-lifecycle.md"
+      ],
+      "finding": "Six disposable-filesystem controls show native sign/dry-run/remove succeeding on APFS and HFS+. Released go-apfs-v2 v0.17.0 prepares replacements on APFS but fails with ENOTSUP on HFS+, preventing all three Go operations. Raw copyfile metadata policy and the SDK source-preservation contract are distinct.",
+      "resolution": "Qualify, merge and release go-apfs-v2 PR194, then consume the published version and qualify codesign integration. Preserve every other Phase 02 obligation and do not replace the module locally.",
+      "owner": 2
     }
   ],
   "phases": {
@@ -2014,7 +2034,9 @@
         "p02.scheduling",
         "p02.scale"
       ],
-      "prerequisites": [],
+      "prerequisites": [
+        "apfs-noncloning-replacement"
+      ],
       "inventory_pointer": "spec/compatibility.json#/features/6"
     },
     {
@@ -2367,7 +2389,9 @@
         "p02.scheduling",
         "p02.scale"
       ],
-      "prerequisites": [],
+      "prerequisites": [
+        "apfs-noncloning-replacement"
+      ],
       "inventory_pointer": "spec/compatibility.json#/features/13"
     },
     {
@@ -2723,7 +2747,9 @@
         "p02.scheduling",
         "p02.scale"
       ],
-      "prerequisites": [],
+      "prerequisites": [
+        "apfs-noncloning-replacement"
+      ],
       "inventory_pointer": "spec/compatibility.json#/features/20"
     },
     {
@@ -2875,7 +2901,9 @@
         "p02.scheduling",
         "p02.scale"
       ],
-      "prerequisites": [],
+      "prerequisites": [
+        "apfs-noncloning-replacement"
+      ],
       "inventory_pointer": "spec/compatibility.json#/features/23"
     },
     {
@@ -3084,7 +3112,9 @@
         "p02.scheduling",
         "p02.scale"
       ],
-      "prerequisites": [],
+      "prerequisites": [
+        "apfs-noncloning-replacement"
+      ],
       "inventory_pointer": "spec/compatibility.json#/features/27"
     },
     {

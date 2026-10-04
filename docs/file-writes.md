@@ -8,11 +8,11 @@ remove a private temporary file to check directory creation permission. They
 preserve all names and contents and skip metadata restoration and commit.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostdata` in v0.14.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.14.0/pkg/hostdata).
+[`go-apfs-v2/pkg/hostdata` in v0.17.0](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.17.0/pkg/hostdata).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.14.0. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.17.0. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 Access-time recording and copying use the shared `hostdata/accesstime` package.
 The package migration retains the existing call order, cancellation, error and
@@ -32,6 +32,9 @@ cannot add permissions to the source ACL. Ownership, mode, xattrs, ACLs, birth
 time and supported BSD flags are preserved. It requires filesystem clone support:
 HFS+ and other non-cloning filesystems fail before replacement. Protected and
 compressed source files are also unsupported by this path.
+The [Phase 02 native controls](portable-io-lifecycle.md) confirm this HFS+ gap;
+[APFS draft PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) addresses
+the shared writer. The current codesign dependency has not yet consumed that fix.
 
 Linux restores ownership, mode and readable xattrs, including POSIX ACLs, with
 8 MiB bounds for attribute names and values. Linux inode flags and creation time

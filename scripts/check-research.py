@@ -51,9 +51,38 @@ def validate(plan, inventory):
             require((ROOT / path).is_file(), f"Missing prerequisite evidence: {path}")
 
 
+def validate_filesystem_discovery(capture, plan, inventory):
+    require(capture["schema"] == 1, "Unexpected filesystem capture schema")
+    expected = {(fs, operation) for fs in ("APFS", "HFS+") for operation in ("sign", "dryrun", "remove")}
+    cases = capture["cases"]
+    require(len(cases) == len(expected) and {(c["filesystem"], c["operation"]) for c in cases} == expected,
+            "Incomplete or duplicate filesystem controls")
+    paths = {"scripts/capture-filesystem-prerequisite.go", "testdata/removal/unsigned-arm64.macho",
+             "spec/apple-writer.json", "go.mod", "go.sum"}
+    require(set(capture["source_sha256"]) == paths | {"/usr/bin/codesign"}, "Missing filesystem provenance")
+    for path in paths:
+        require(sha(ROOT / path) == capture["source_sha256"][path], f"Stale filesystem capture: {path}")
+    require(capture["source_sha256"]["/usr/bin/codesign"] == inventory["baseline"]["codesign_sha256"],
+            "Unexpected filesystem oracle binary")
+    sdk = json.loads(capture["provenance"]["go"])
+    require(sdk["Version"] == plan["apfs_audit"]["version"] and sdk["Sum"] == plan["apfs_audit"]["sum"],
+            "Stale filesystem SDK observation")
+    for case in cases:
+        family = case["filesystem"].lower().replace("+", "plus")
+        require(case["id"] == f"p02.metadata.{family}.{case['operation']}", "Wrong filesystem case ID")
+        require(case["native"]["exit"] == 0, "Native filesystem control failed")
+        for key in ("input_sha256", "native_output_sha256", "go_output_sha256"):
+            require(re.fullmatch(r"[0-9a-f]{64}", case[key]) is not None, "Invalid filesystem hash")
+        require(case["output_bytes_match"] == (case["native_output_sha256"] == case["go_output_sha256"]),
+                "Inconsistent filesystem byte comparison")
+        require(isinstance(case["go_error"], str) and isinstance(case["sdk_prepare_error"], str),
+                "Missing filesystem operation outcome")
+
+
 def main():
     plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
     validate(plan, inventory)
+    validate_filesystem_discovery(read("testdata/research/filesystem-prerequisite.json"), plan, inventory)
     native = read("spec/apple-cli-inventory.json")
     for row in plan["features"]:
         probes = native["options"].get(row["id"], {}).get("applicability_probes", {})

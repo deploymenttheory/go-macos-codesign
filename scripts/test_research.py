@@ -46,6 +46,35 @@ class ResearchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Uninvestigated blocked"):
             research.validate(self.plan, self.inventory)
 
+    def test_filesystem_discovery(self):
+        capture = research.read("testdata/research/filesystem-prerequisite.json")
+        research.validate_filesystem_discovery(capture, self.plan, self.inventory)
+        # A dry run can retain identical bytes while failing operationally.
+        case = next(c for c in capture["cases"] if c["id"] == "p02.metadata.hfsplus.dryrun")
+        self.assertTrue(case["output_bytes_match"])
+        self.assertTrue(case["go_error"])
+
+    def test_filesystem_discovery_rejects_lost_or_stale_evidence(self):
+        original = research.read("testdata/research/filesystem-prerequisite.json")
+        mutations = [
+            lambda c: c["cases"].pop(),
+            lambda c: c["cases"].__setitem__(0, c["cases"][1]),
+            lambda c: c["cases"][0].__setitem__("id", "wrong"),
+            lambda c: c["cases"][0]["native"].__setitem__("exit", 1),
+            lambda c: c["source_sha256"].pop("go.mod"),
+            lambda c: c["source_sha256"].__setitem__("go.mod", "0" * 64),
+            lambda c: c["source_sha256"].__setitem__("/usr/bin/codesign", "0" * 64),
+            lambda c: c["cases"][0].__setitem__("input_sha256", "invalid"),
+            lambda c: c["cases"][0].__setitem__("output_bytes_match", not c["cases"][0]["output_bytes_match"]),
+            lambda c: c["cases"][0].__setitem__("go_error", None),
+            lambda c: c["provenance"].__setitem__("go", '{"Version":"unreleased","Sum":"invalid"}'),
+        ]
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index), self.assertRaises(ValueError):
+                capture = copy.deepcopy(original)
+                mutate(capture)
+                research.validate_filesystem_discovery(capture, self.plan, self.inventory)
+
 
 if __name__ == "__main__":
     unittest.main()
