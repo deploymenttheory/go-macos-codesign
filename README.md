@@ -276,7 +276,7 @@ progress page for completed runs. Go code linting uses golangci-lint only.
 - [Resource suppression and retained verification policy](docs/ignore-resources.md)
 - [Default resource-symlink verification and strict-policy evidence](docs/resource-symlinks.md)
 - [Implemented behavior and compatibility gaps](docs/compatibility.md)
-- [Implementation stages and outstanding work](docs/implementation.md)
+- [Implementation stages and outstanding work](docs/implementation_plan.md)
 - [Testing and native evidence](docs/testing.md)
 - [Release automation](docs/releases.md)
 

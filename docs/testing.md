@@ -26,11 +26,23 @@ counts each statement once, and requires more than 95% in every package under
 in the production statement denominator. New production packages enter the gate
 automatically through `go list`.
 
-The acceptance suite has an explicit twenty-minute timeout, below the producer
-job's twenty-five-minute limit. The final PR65 hosted Mac suite took about 14m33s,
-close to the former fifteen-minute deadline; the new strict matrix needs headroom.
-All cases, hard failure diagnostics and coverage thresholds remain enabled.
-The [strict matrix](strict-verification.md) adds 561 portable cases.
+The acceptance test deadline is thirty minutes. Producer worker budgets remain
+45 minutes on Windows and 35 minutes on Linux/macOS. CI now runs one unit worker
+and four acceptance workers per OS, then a required within-OS coverage/evidence
+aggregation job. Whole test matrices, assertions and native controls are retained.
+See the [phase 01 evidence contract](research-phase.md#required-evidence-partitioning)
+for pinned nested-case manifests, missing/duplicate/cancelled-shard rejection,
+four package race workers and four groups retaining all thirteen sixty-second
+fuzz targets. GoReleaser still produces all six release targets.
+
+The following file table describes the monolithic local `make verify` path.
+CI retains raw transcripts in `evidence-shard-<runner>-<part>` and merged coverage,
+attestations, provenance and completion records in `evidence-<runner>`. Each contains
+`evidence.tar`, preserving native filenames that artifact storage cannot accept as
+loose files; extract it on the producing OS to inspect the original tree. Failed
+workers still upload their raw logs and source provenance; Mac failure diagnostics
+have a separate artifact. Both foreign exports carry a producer manifest checked
+before Apple's unchanged case-by-case import suite.
 
 The resulting files under `artifacts/` include:
 
@@ -52,7 +64,7 @@ satisfy delivery. The APFS release must precede codesign's dependency pin.
 
 On failure, the verification script prints the failed tests' output and package
 diagnostics in the CI job log. Full transcripts and provenance remain available
-in the `evidence-<runner>` artifact uploaded even if a test fails. Apple fixture
+in local artifacts or the CI shard artifacts uploaded even if a test fails. Apple fixture
 comparisons report both file lengths and SHA-256 hashes, the first differing
 offset, and nearby bytes. Entitlement cases also record the input XML hash and
 line-ending counts. The XML fixture is pinned to LF in `.gitattributes` because

@@ -7,6 +7,23 @@ full-equivalence audit; the [remaining roadmap](implementation_plan.md) assigns
 the outstanding work to twelve larger implementation phases.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
+## Current whole-roadmap research phase
+
+[Phase 01](research-phase.md) starts from merged PR96 main at
+`ba9d623f65e3c926c138f355246dfda0e441f604`. The machine-readable research map covers
+all 88 obligations, 39 future native case families and twelve prerequisite decisions.
+Eleven additional complete Apple bodies have two-target Clang AST evidence, and
+six controlled process/path cases plus five SDK controls retain native observations.
+The plist probe refactor reproduced all 8,340 operation cases exactly and now
+records transitive inputs. These research results do not upgrade feature statuses.
+
+The CI change assigns every existing nested test/status to a checked manifest,
+partitions acceptance into four workers per OS, and keeps complete package race,
+thirteen one-minute fuzz, native capture/import, coverage, guards/lint and six-target
+GoReleaser gates. Missing/cancelled/duplicate/stale evidence fails aggregation.
+Final-commit three-OS execution and artifact auditing are required before this
+phase is ready to merge; the baseline workflow is not proof of the changed harness.
+
 ## Merged ISO-2022 extension profile
 
 PR93 merged at `759a00cd6a80809cb92722da2edcd17f6fcee21b` after

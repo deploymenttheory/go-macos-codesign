@@ -13,18 +13,17 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  test:
+  test-shards:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, windows-2025, xcode-27]
+        part: [unit, 0, 1, 2, 3]
     runs-on: ${{ matrix.os }}
-    # Windows completes the full suite in ~34 minutes; retain time for both
-    # mandatory evidence and foreign-artifact uploads. Go test deadlines stay fixed.
+    # Retain existing limits; partitioning changes scheduling, never test depth.
     timeout-minutes: ${{ matrix.os == 'windows-2025' && 45 || 35 }}
     env:
       CGO_ENABLED: '0'
-      MACOSCODESIGN_EXPORT_DIR: ${{ github.workspace }}/artifacts/export
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -39,27 +38,83 @@ jobs:
           go run scripts/generate-plist-euc-jp.go -check
           go run scripts/generate-plist-iso2022-jp.go -check
           go run scripts/generate-plist-iso2022-extensions.go -check
-      - name: Run unit and CLI acceptance tests; enforce coverage above 95%
-        run: python3 scripts/verify.py
+      - name: Check roadmap evidence and complete race/fuzz membership
+        run: python3 scripts/check-research.py
+      - name: Test evidence harness
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
+      - name: Run every assigned case and seal its evidence
+        run: python3 scripts/evidence.py shard ${{ matrix.part }} --output artifacts/shard
         env:
           MACOSCODESIGN_REQUIRE_APPLE: ${{ runner.os == 'macOS' && '1' || '0' }}
       - name: Collect native failure diagnostics
         if: failure() && runner.os == 'macOS'
         continue-on-error: true
         run: go run scripts/collect-native-diagnostics.go
+      - name: Upload native failure diagnostics
+        if: failure() && runner.os == 'macOS'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: native-failure-${{ matrix.part }}
+          path: artifacts/native-diagnostics/
+          if-no-files-found: error
+      - name: Package exact evidence names for artifact transport
+        if: always()
+        run: python3 scripts/evidence.py pack --inputs artifacts/shard --output artifacts/evidence.tar
       - name: Upload coverage and acceptance evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
+          name: evidence-shard-${{ matrix.os }}-${{ matrix.part }}
+          path: artifacts/evidence.tar
+          include-hidden-files: true
+          if-no-files-found: error
+  test:
+    needs: test-shards
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, xcode-27]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - name: Require every shard job to succeed
+        env:
+          SHARD_RESULT: ${{ needs.test-shards.result }}
+        run: python3 -c "import os; assert os.environ['SHARD_RESULT'] == 'success', 'A required shard failed or was cancelled'"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: evidence-shard-${{ matrix.os }}-*
+          path: artifacts/packages
+      - name: Extract complete shard evidence
+        run: python3 scripts/evidence.py unpack --inputs artifacts/packages --output artifacts/shards
+      - name: Require all cases, artifacts and coverage above 95% per package
+        run: python3 scripts/evidence.py aggregate --inputs artifacts/shards --output artifacts/complete
+      - name: Package complete OS evidence
+        if: always()
+        run: python3 scripts/evidence.py pack --inputs artifacts/complete --output artifacts/evidence.tar
+      - name: Upload complete OS evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
           name: evidence-${{ matrix.os }}
-          path: artifacts/
+          path: artifacts/evidence.tar
+          include-hidden-files: true
           if-no-files-found: error
       - name: Upload signed artifacts and removal results from Linux and Windows
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: signed-${{ matrix.os }}
-          path: artifacts/export/
+          path: |
+            artifacts/complete/export/
+            artifacts/complete/producer.json
           include-hidden-files: true
           if-no-files-found: error
   native-capture:
@@ -74,6 +129,8 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Check controlled native live-process prerequisites
+        run: go run scripts/probe-process-context.go -check -out artifacts/process-context.json
       - name: Stress native strict reference profiles with 100 fresh frameworks
         run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
         env:
@@ -85,26 +142,26 @@ jobs:
       - name: Check native platform plist selection across bundle layouts
         run: go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json
       - name: Check native plist interpretation across bundle layouts
-        run: go run scripts/probe-removal-plist-interpretation.go -out artifacts/plist-interpretation.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -out artifacts/plist-interpretation.json
 
       - name: Capture native removal plist encodings
-        run: go run scripts/probe-removal-plist-interpretation.go -profile encodings -out artifacts/plist-encodings.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile encodings -out artifacts/plist-encodings.json
       - name: Capture native UTF-32 removal plists
-        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32 -out artifacts/plist-utf32.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32 -out artifacts/plist-utf32.json
       - name: Capture native UTF-32 XML character grammar
-        run: go run scripts/probe-removal-plist-interpretation.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
       - name: Capture native XML strings and character selection
-        run: go run scripts/probe-removal-plist-interpretation.go -profile xml-characters -out artifacts/plist-xml-characters.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile xml-characters -out artifacts/plist-xml-characters.json
       - name: Capture native unmarked plist encodings
-        run: go run scripts/probe-removal-plist-interpretation.go -profile unmarked -out artifacts/plist-unmarked.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile unmarked -out artifacts/plist-unmarked.json
       - name: Capture native declared legacy plist encodings
-        run: go run scripts/probe-removal-plist-interpretation.go -profile legacy -out artifacts/plist-legacy.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile legacy -out artifacts/plist-legacy.json
       - name: Capture native Shift-JIS removal interpretation
-        run: go run scripts/probe-removal-plist-interpretation.go -profile shift-jis -out artifacts/plist-shift-jis.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile shift-jis -out artifacts/plist-shift-jis.json
       - name: Check exhaustive native Shift-JIS streams
         run: go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json
       - name: Capture native EUC-JP removal interpretation
-        run: go run scripts/probe-removal-plist-interpretation.go -profile euc-jp -out artifacts/plist-euc-jp.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile euc-jp -out artifacts/plist-euc-jp.json
       - name: Check exhaustive native EUC-JP streams
         run: go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json
       - name: Capture native XML value fidelity
@@ -112,13 +169,13 @@ jobs:
       - name: Check native legacy encoding byte observations
         run: go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json
       - name: Capture native ISO-2022-JP removal interpretation
-        run: go run scripts/probe-removal-plist-interpretation.go -profile iso2022-jp -out artifacts/plist-iso2022-jp.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-jp -out artifacts/plist-iso2022-jp.json
       - name: Check exhaustive native ISO-2022-JP states and transitions
         run: go run scripts/probe-plist-iso2022-jp.go -check -out artifacts/plist-iso2022-jp-values.json
       - name: Check native ISO-2022-JP conversion boundaries
         run: go run scripts/probe-plist-iso2022-jp-boundaries.go -check -out artifacts/plist-iso2022-jp-boundaries.json
       - name: Capture native ISO-2022 extension removal operations
-        run: go run scripts/probe-removal-plist-interpretation.go -profile iso2022-extensions -out artifacts/plist-iso2022-extensions.json
+        run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-extensions -out artifacts/plist-iso2022-extensions.json
       - name: Check exhaustive native ISO-2022 extension mappings
         run: go run scripts/probe-plist-iso2022-extensions.go -check -out artifacts/plist-iso2022-extensions-values.json
       - name: Check native ISO-2022 extension streams
@@ -147,6 +204,8 @@ jobs:
         with:
           pattern: signed-*
           path: artifacts/import
+      - name: Require exactly two complete foreign producers
+        run: python3 scripts/evidence.py foreign --inputs artifacts/import
       - name: Apple verifies imported signatures and compares removal bytes
         run: go test -count=1 -v ./acceptance -run '^TestVerifyImported(Artifacts|Removal|DMGDryRuns)$'
         env:
@@ -183,6 +242,10 @@ jobs:
           path: dist/
           if-no-files-found: error
   race:
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [./pkg/codesign, ./pkg/plist, ./internal/cli, ./internal/sideband]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -192,10 +255,14 @@ jobs:
           go-version-file: go.mod
       # The Go race detector needs a C compiler; this is a test-only binary.
       # Exhaustive native replay stays complete, within the 20-minute job budget.
-      - run: go test -race -timeout=18m -count=1 ./pkg/... ./internal/...
+      - run: go test -race -timeout=18m -count=1 ${{ matrix.package }}
         env:
           CGO_ENABLED: '1'
   fuzz:
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0, 1, 2, 3]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -204,46 +271,60 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzInspect$' -fuzztime=60s -parallel=2
+        if: matrix.group == 0
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzIdentity$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 1
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzCMS$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 2
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzPKCS12$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 3
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzTimestamp$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 0
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzTimestampHTTP$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 1
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzBundleResources$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 2
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzDMG$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 3
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzEntitlementMetadata$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 0
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRequirementText$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 1
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRequirementSet$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 2
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/codesign -run '^$' -fuzz '^FuzzRemovalPlist$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 3
         env:
           CGO_ENABLED: '0'
       - run: go test ./pkg/plist -run '^$' -fuzz '^FuzzDecode$' -fuzztime=60s -fuzzminimizetime=0 -parallel=2
+        if: matrix.group == 0
         env:
           CGO_ENABLED: '0'
       - run: go test ./...
         working-directory: third_party/rc2
+        if: matrix.group == 0
         env:
           CGO_ENABLED: '0'
   race-and-fuzz:

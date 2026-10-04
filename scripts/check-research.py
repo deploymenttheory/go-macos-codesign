@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Validate phase ownership, evidence references and immutable source contracts."""
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def read(path):
+    return json.loads((ROOT / path).read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate(plan, inventory):
+    rows = plan["features"]
+    require(len(rows) == len({r["id"] for r in rows}), "Duplicate research owner")
+    require({r["id"]: r["baseline_status"] for r in rows} == {f["id"]: f["status"] for f in inventory["features"]},
+            "Research inventory/status drift")
+    require(plan["baseline"] == inventory["baseline"], "Native reference drift")
+    families = {}
+    for phase, value in plan["phases"].items():
+        for case in value["native_cases"]:
+            require(case["id"] not in families, "Duplicate case family")
+            require(case["qualification"] == "specified-not-captured", "Case specification presented as observation")
+            require(case["dimensions"] and case["failures"] and case["oracles"] and case["required_observations"], "Incomplete case contract")
+            families[case["id"]] = int(phase)
+    prerequisites = {p["id"]: p for p in plan["phase_prerequisites"]}
+    require(len(prerequisites) == len(plan["phase_prerequisites"]), "Duplicate prerequisite")
+    for row in rows:
+        require(str(row["phase"]) in plan["phases"], "Missing phase")
+        require(row["case_families"], "Missing case families")
+        require(all(families.get(c) == row["phase"] for c in row["case_families"]), "Wrong case owner")
+        require(all(p in prerequisites for p in row["prerequisites"]), "Missing prerequisite")
+        require(row["baseline_status"] != "blocked" or row["prerequisites"], "Uninvestigated blocked feature")
+        for path in row["source_manifests"]:
+            require((ROOT / path).is_file(), f"Missing source manifest: {path}")
+    for value in prerequisites.values():
+        require(value["finding"] and value["resolution"], "Unexplained prerequisite")
+        for path in value["evidence"]:
+            require((ROOT / path).is_file(), f"Missing prerequisite evidence: {path}")
+
+
+def main():
+    plan, inventory = read("spec/research-roadmap.json"), read("spec/compatibility.json")
+    validate(plan, inventory)
+    native = read("spec/apple-cli-inventory.json")
+    for row in plan["features"]:
+        probes = native["options"].get(row["id"], {}).get("applicability_probes", {})
+        require(set(probes) == set(row["native_applicability"]), "Missing applicability cell")
+        for operation, p in probes.items():
+            expected = "unavailable-context" if p.get("unavailable") else "native-signal" if p.get("signal") else "single-probe-accepted" if p["exit"] == 0 else "single-probe-rejected"
+            require(row["native_applicability"][operation]["classification"] == expected, "Misclassified native observation")
+    ast = read("spec/apple-prerequisites.json")
+    require(ast["driver_sha256"] == sha(ROOT / "scripts/extract-prerequisites.go"), "Stale AST driver")
+    require(len(ast["excerpt_sha256"]) == 11, "Missing complete Apple bodies")
+    require(set(ast["targets"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"}, "Missing Clang target")
+    for target in ast["targets"].values():
+        require(set(target) == set(ast["excerpt_sha256"]), "Missing AST body")
+        require(all(v["ast_kinds"].get("CompoundStmt", 0) for v in target.values()), "Declaration-only body")
+    process = read("testdata/research/process-context.json")
+    for path, expected in process["source_sha256"].items():
+        require(sha(ROOT / path) == expected, f"Stale SDK oracle: {path}")
+    require(len({r["id"] for r in process["cases"]}) == len(process["cases"]) == 6, "Missing native process cases")
+    require(process["codesign_sha256"] == inventory["baseline"]["codesign_sha256"], "Unexpected native binary")
+    module = json.loads(subprocess.check_output(["go", "list", "-m", "-json", plan["apfs_audit"]["module"]], cwd=ROOT, text=True))
+    require(module["Version"] == plan["apfs_audit"]["version"] and module["Sum"] == plan["apfs_audit"]["sum"], "Stale released APFS audit")
+    for api in plan["apfs_audit"]["apis"]:
+        require(sha(Path(module["Dir"]) / api["path"]) == api["sha256"], "Changed APFS API evidence")
+    # Pin race/fuzz membership as well as worker success: a smaller matrix cannot
+    # become green merely by leaving a package or fuzzer out of the workflow.
+    workflow = (ROOT / ".github/workflows/test.yml").read_text(encoding="utf-8")
+    packages = subprocess.check_output(["go", "list", "./pkg/...", "./internal/..."], cwd=ROOT, text=True).splitlines()
+    prefix = "github.com/deploymenttheory/go-macos-codesign/"
+    wanted = {"./" + p.removeprefix(prefix) for p in packages}
+    matrix = re.search(r"package: \[([^\]]+)\]", workflow)
+    require(matrix and {p.strip() for p in matrix[1].split(",")} == wanted, "Incomplete race package matrix")
+    fuzzers = {m for path in (ROOT / "pkg").rglob("*_test.go") for m in re.findall(r"^func (Fuzz\w+)\(", path.read_text(encoding="utf-8"), re.M)}
+    commands = re.findall(r"-fuzz '\^(Fuzz\w+)\$'[^\n]+", workflow)
+    require(len(commands) == len(set(commands)) and set(commands) == fuzzers, "Incomplete fuzz matrix")
+    require(len(re.findall(r"-fuzz '\^Fuzz\w+\$'[^\n]*-fuzztime=60s", workflow)) == len(fuzzers), "Reduced fuzz duration")
+    require("working-directory: third_party/rc2" in workflow, "Missing RC2 tests")
+    print(f"Research map: {len(plan['features'])} owners, {sum(len(v['native_cases']) for v in plan['phases'].values())} case families; source/API/harness contracts pass")
+
+
+if __name__ == "__main__":
+    main()
