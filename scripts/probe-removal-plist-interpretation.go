@@ -52,7 +52,7 @@ type record struct {
 
 func main() {
 	out := flag.String("out", "testdata/bundle-removal/plist-interpretation.json", "capture output")
-	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked, legacy, shift-jis, euc-jp or iso2022-jp")
+	profile := flag.String("profile", "interpretation", "interpretation, encodings, utf32, utf32-grammar, xml-characters, unmarked, legacy, shift-jis, euc-jp, iso2022-jp or iso2022-extensions")
 	flag.Parse()
 	selectedInputs := inputs()
 	if *profile == "encodings" {
@@ -67,6 +67,8 @@ func main() {
 		selectedInputs = unmarkedInputs()
 	} else if *profile == "legacy" {
 		selectedInputs = legacyInputs()
+	} else if *profile == "iso2022-extensions" {
+		selectedInputs = iso2022ExtensionInputs()
 	} else if *profile == "iso2022-jp" {
 		selectedInputs = iso2022JPInputs()
 	} else if *profile == "euc-jp" {
@@ -192,6 +194,113 @@ func main() {
 
 // Native state mappings are independent of production. Continuous long streams
 // qualify state retention; the transition matrix includes every accepted prefix.
+// Extension mappings and stream predictions come from independent native
+// property-list captures. codesign must independently confirm every operation.
+func iso2022ExtensionInputs() []input {
+	var corpus struct {
+		Codecs []struct {
+			Name  string
+			Table int
+		}
+		Tables []struct {
+			States []struct {
+				Name    string
+				Prefix  []byte
+				Mapping int
+			}
+			Mappings []struct{ Values []*string }
+		}
+	}
+	must(json.Unmarshal(read("testdata/bundle-removal/plist-iso2022-extensions-values.json"), &corpus))
+	var streams struct {
+		Cases []struct {
+			Name   string
+			Input  []byte
+			Status int
+		}
+	}
+	must(json.Unmarshal(read("testdata/bundle-removal/plist-iso2022-extension-streams.json"), &streams))
+	observed := map[string]input{}
+	for _, c := range streams.Cases {
+		observed[c.Name] = input{c.Name, c.Input, c.Status == 0}
+	}
+	const body = `<dict><key>CFBundleExecutable</key><string>second</string><key>value</key><string><![CDATA[%s]]></string></dict>`
+	var result []input
+	for _, c := range corpus.Codecs {
+		decl := `<?xml version="1.0" encoding="` + c.Name + `"?>`
+		table := corpus.Tables[c.Table]
+		for i, st := range table.States[:9] {
+			v := append([]byte{}, st.Prefix...)
+			if i < 3 || i > 6 {
+				for b := 0x21; b < 0x7f; b++ {
+					if table.Mappings[st.Mapping].Values[b] != nil {
+						if i > 6 {
+							v = append(v, 0x1b, 'N')
+						}
+						v = append(v, byte(b))
+					}
+				}
+			} else {
+				for a := 0x21; a < 0x7f; a++ {
+					for b := 0x21; b < 0x7f; b++ {
+						if table.Mappings[st.Mapping].Values[256+a*256+b] != nil {
+							v = append(v, byte(a), byte(b))
+						}
+					}
+				}
+			}
+			v = append(v, []byte("\x1b(Bx")...)
+			result = append(result, input{"all-defined-" + st.Name + "-" + c.Name, []byte(decl + fmt.Sprintf(body, string(v)) + string(v)), c.Table == 1 || i < 5})
+		}
+		for i, st := range table.States {
+			valid := c.Table == 1 || i < 5 || (i >= 9 && i <= 12)
+			result = append(result, input{"eof-state-" + st.Name + "-" + c.Name, []byte(decl + fmt.Sprintf(body, "ok") + string(st.Prefix)), valid})
+		}
+		for _, key := range []string{
+			"control/ascii/nul/body", "control/ascii/si/body", "control/ascii/so/tail",
+			"control/jis0208/cr/body", "control/jis0212/lf/body", "control/roman/cr-roman/body", "control/roman/lf-roman/body",
+			"control/ascii/high80/body", "control/ascii/highff/tail", "control/jis0208/mid-pair/body",
+			"control/latin/ss2-return/body", "control/greek/ss2-repeat/body", "control/latin/ss2-redesignate/body",
+			"control/greek/newline-clears-g2/body", "control/latin/ss2-g0-switch/body",
+		} {
+			tc, ok := observed[c.Name+"/"+key]
+			if !ok {
+				panic(key)
+			}
+			tc.name = strings.ReplaceAll(key, "/", "-") + "-" + c.Name
+			result = append(result, tc)
+		}
+		for _, state := range []string{"ascii", "jis0208"} {
+			for _, units := range []int{503, 504, 505} {
+				key := fmt.Sprintf("buffer/%s/%d/ascii-b", state, units)
+				tc, ok := observed[c.Name+"/"+key]
+				if !ok {
+					panic(key)
+				}
+				tc.name = strings.ReplaceAll(key, "/", "-") + "-" + c.Name
+				result = append(result, tc)
+			}
+		}
+		result = append(result, input{"unicode-executable-" + c.Name, []byte(decl + strings.Replace(fmt.Sprintf(body, "ok"), "second", "\x1b$B\x24\x22\x1b(B", 1)), true})
+		result = append(result, input{"declared-openstep-" + c.Name, []byte(decl + `{CFBundleExecutable=second;}`), false})
+		result = append(result, input{"bom-priority-" + c.Name, []byte("\xef\xbb\xbf" + decl + fmt.Sprintf(body, "あ😀")), true})
+		result = append(result, input{"mixed-case-" + c.Name, []byte(strings.Replace(decl, c.Name, strings.ToUpper(c.Name), 1) + fmt.Sprintf(body, "\x1b$(D\x22\x2f\x1b(B")), true})
+		var boundary strings.Builder
+		for _, n := range []int{998, 999, 1000, 1001, 1023, 1024, 4095, 4096} {
+			boundary.WriteString(strings.Repeat("a", n))
+			boundary.WriteString("\x1b$B\x24\x22\x1b(J\\\x1b(I\x21\x1b$(D\x22\x2f\x1b(B")
+			if c.Table == 1 {
+				boundary.WriteString("\x1b$A!!\x1b$(C!!\x1b.A\x1bN!\x1b.F\x1bNa\x1b(B")
+			}
+		}
+		result = append(result, input{"boundary-transitions-" + c.Name, []byte(decl + fmt.Sprintf(body, boundary.String())), true})
+	}
+	if len(result) != 350 {
+		panic(fmt.Sprint("extension input inventory: ", len(result)))
+	}
+	return result
+}
+
 func iso2022JPInputs() []input {
 	var corpus struct {
 		Codecs []struct {

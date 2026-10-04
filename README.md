@@ -208,6 +208,10 @@ The [Shift-JIS profile](docs/removal-shift-jis-plists.md) adds eight Japanese ch
 names with distinct native mappings and exact UTF-8 executable discovery for removal.
 The [EUC-JP profile](docs/removal-euc-jp-plists.md) adds eight further names with
 native trail/extension mappings and assembled-string/key leading-BOM behavior.
+The [ISO-2022 extension profile](docs/removal-iso2022-extensions.md) adds seven
+JP-1/JP-2 names on all hosts, with strict state handling, native pair mappings,
+G2 shifts and conversion-buffer behavior. Its 15,651,328 native byte observations,
+13,650 stream cases and 2,100 operations extend the existing strict harness.
 The [ISO-2022-JP profile](docs/removal-iso2022-jp-plists.md) adds six names with
 native state transitions, mapping tables and conversion-buffer EOF behavior.
 

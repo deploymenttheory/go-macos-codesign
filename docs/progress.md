@@ -1,43 +1,36 @@
 # Project progress
 
-Updated 2026-10-03. This page describes the implementation in this branch and
+Updated 2026-10-04. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [roadmap](implementation.md) lists the remaining work.
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
-## Current ISO-2022-JP encoding phase
+## Current ISO-2022 extension phase
 
-PR92 is merged at `69ef71fc485a4df761cf8177f788f085299912f3` after
-[all required CI gates passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37144314366).
+PR93 merged at `759a00cd6a80809cb92722da2edcd17f6fcee21b` after
+[all required CI passed](https://github.com/deploymenttheory/go-macos-codesign/actions/runs/37151404299).
 Audited codesign coverage was 95.09% Linux, 95.46% macOS and 95.03% Windows;
-`pkg/plist` was 99.17% on each host. All 802 committed source hashes matched the
-actual OS checkouts and all 8,808 plist foreign results matched native operations.
+plist was 99.23% on each host. All 812 committed source hashes matched their OS
+checkouts and all 12,480 plist foreign results matched native operations.
 
-This branch starts from that main and implements
-[ISO-2022-JP decoding](removal-iso2022-jp-plists.md), retaining APFS v0.17.0.
-Six names share five native mapping states, qualified by 23,623,680 body/EOF
-observations and 17,580 plutil comparisons. Another 3,240 native cases establish
-conversion-buffer boundaries and the precise terminal-reset exception.
+This branch starts from that main and adds
+[ISO-2022-JP-1 and ISO-2022-JP-2](removal-iso2022-extensions.md), retaining APFS
+v0.17.0. Seven names in two families are qualified by 15,651,328 native byte
+observations, 28,511 direct plutil comparisons and 13,650 complete stream cases.
+Their strict escape, newline, G2 and buffer behavior is separate from the base
+family. All 2,100 new operation cases are required on all three hosts.
 
-The increment adds 1,836 operation cases and 3,672 mandatory foreign results,
-for 12,480 across ten plist profiles. Complete native values total 944;
-Clang evidence retains 27 complete Apple bodies on both targets. All earlier
-case arrays, thirteen fuzz targets and every coverage/acceptance gate remain.
-Native capture now has its own required macOS job alongside the full test
-matrix; foreign verification requires both. This branch requires its own final
-CI; PR92's run is only the baseline.
+Eleven plist profiles now require 16,680 foreign results. Complete native values
+total 1,294; Clang evidence retains 31 complete Apple bodies for both targets.
+All previous cases, thirteen one-minute fuzz targets, full race checks, strict
+coverage gates and six release builds remain. Native capture and foreign
+verification remain mandatory. This branch needs its own final CI; the linked
+PR93 run is the baseline only.
 
-Race and all thirteen one-minute fuzz runs execute in separate required jobs;
-the combined `race-and-fuzz` gate fails if either fails or is cancelled. Each
-worker retains a 20-minute job limit. The exhaustive race suite has an explicit
-18-minute test deadline inside that bound; the former implicit ten-minute Go
-deadline cannot accommodate the larger instrumented native replay. No cases,
-race instrumentation, assertions or fuzz durations are removed.
-
-ISO-2022-JP-1, ISO-2022-JP-2, GB18030, further aliases, Unicode normalization and
-filesystem alias matching, OpenStep NUL contexts and wider XML/binary grammar
-remain outstanding.
+GB18030, other stateful codecs and aliases, Unicode normalization, filesystem
+alias matching, remaining OpenStep NUL contexts and wider XML/binary grammar
+remain outstanding. Full equivalence remains unclaimed.
 
 ### Merged unmarked encoding profile
 

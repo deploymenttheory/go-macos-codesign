@@ -115,13 +115,24 @@ macOS recaptures them, with 17,580 direct plutil cross-checks. Input immutabilit
 whole-stream validation and both conversion budgets remain required. See
 [ISO-2022-JP behavior and evidence](../../docs/removal-iso2022-jp-plists.md).
 
+## Declared ISO-2022 extensions
+
+`Decode` supports JP-1 (`iso-2022-jp-1`, `iso_2022_jp_1`, `iso2022jp1`) and JP-2
+(`iso-2022-jp-2`, `iso_2022_jp_2`, `iso2022jp2`, `csiso2022jp2`). These families
+use strict seven-bit streams, distinct pair tables and newline state resets.
+JP-2 additionally supports Chinese, Korean and Latin/Greek G2 single shifts.
+Their full-buffer trailing escapes fail without the base family's reset exception.
+All 15,651,328 captured byte observations and 13,650 complete stream cases replay
+on each host. See [behavior and evidence](../../docs/removal-iso2022-extensions.md).
+
+
 ## Evidence and tests
 
-The package is tested directly against 944 retained complete native values and
+The package is tested directly against 1,294 retained complete native values and
 through all existing codesign unit, CLI and mutation comparisons. Corpus and
 capture-driver hashes link the tests to native evidence. CI recaptures the native
 values on macOS and compares Linux/Windows operation exports with native codesign.
-The twenty-seven complete Apple C bodies and Clang evidence remain in
+The thirty-one complete Apple C bodies and Clang evidence remain in
 [`spec/apple-removal-discovery.json`](../../spec/apple-removal-discovery.json).
 
 All 14,080 native byte observations are replayed through `Decode`. The

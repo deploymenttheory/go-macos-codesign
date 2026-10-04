@@ -234,6 +234,26 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 #define HAS_ICU_BUG_6024743 (1)
 #define HAS_ICU_BUG_6025527 (1)
 `
+	databaseSource := read(".research/apple/CFStringEncodingDatabase.c")
+	databaseTables := map[string]string{}
+	unit += "#define ISO8859CODEPAGE_BASE (28590)\n"
+	for _, name := range []string{"__CFKnownEncodingList", "__CFWindowsCPList", "__CFCanonicalNameList"} {
+		table := regexp.MustCompile(`(?ms)^static const [^\n]+` + name + `\[\] = \{.*?^};`).Find(databaseSource)
+		if len(table) == 0 {
+			panic(name)
+		}
+		unit += string(table) + "\n"
+		databaseTables[name] = hash(table)
+	}
+	for _, name := range []string{"__CFGetEncodingIndex", "__CFStringEncodingGetWindowsCodePage", "__CFStringEncodingGetCanonicalName"} {
+		body := regexp.MustCompile(`(?ms)^(?:static inline CFIndex |CF_PRIVATE (?:uint16_t |bool ))` + name + `\(.*?^}`).Find(databaseSource)
+		if len(body) == 0 {
+			panic(name)
+		}
+		unit += string(body) + "\n"
+		hashes[name] = hash(body)
+		names = append(names, name)
+	}
 	enums := regexp.MustCompile(`(?ms)^enum \{\n    kCFStringEncoding(?:AllowLossyConversion|ConversionSuccess).*?^};`).FindAll(converterHeader, -1)
 	if len(enums) != 2 {
 		panic("conversion constants")
@@ -241,7 +261,7 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 	for _, e := range enums {
 		unit += string(e) + "\n"
 	}
-	for _, name := range []string{"__CFStringEncodingGetICUName", "__CFStringEncodingGetFromICUName", "__CFStringEncodingICUToUnicode"} {
+	for _, name := range []string{"__CFStringEncodingGetICUName", "__CFStringEncodingGetFromICUName", "__CFStringEncodingICUToUnicode", "__CFStringEncodingICUCharLength"} {
 		body := regexp.MustCompile(`(?ms)^CF_PRIVATE (?:const char \*|CFIndex |CFStringEncoding )` + name + `\(.*?^}`).Find(icuSource)
 		if len(body) == 0 {
 			panic(name)
@@ -343,8 +363,12 @@ CFIndex __CFStringEncodingConverterReleaseICUConverter(UConverter *,uint32_t,CFI
 	result["foundation_header_sha256"] = hash(foundationHeader)
 	result["buffer_definition_sha256"] = hash(bufferDefinition)
 	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-six", "Twenty-seven", 1) + " The complete decoded-length function and verbatim 1008-byte buffer definition retain native sizing interfaces. The source-reviewed bulk caller supplies max(504, guessed UTF-16 length) output units; the complete dispatcher stops at capacity before trailing non-emitting escapes. The larger bulk caller remains source-reviewed, not counted as compiled. Live 503/504/505-unit property-list observations qualify the current boundary independently."
+	result["database_source_url"] = "https://github.com/apple-oss-distributions/CF/blob/dc54c6bb1c1e5e0b9486c1d26dd5bef110b20bf3/CFStringEncodingDatabase.c"
+	result["database_source_sha256"] = hash(databaseSource)
+	result["database_tables_sha256"] = databaseTables
+	result["scope"] = strings.Replace(result["scope"].(string), "Twenty-seven", "Thirty-one", 1) + " Complete encoding-index, Windows-codepage and canonical-name lookup bodies retain all three verbatim database tables. The complete ICU character-length wrapper delegates full conversion and preserves conversion failure. These historical bodies explain converter selection and sizing; current JP-1/JP-2 states, mappings and buffer behavior are independently qualified by native captures."
 	b, e := json.MarshalIndent(result, "", "  ")
 	must(e)
 	must(os.WriteFile("spec/apple-removal-discovery.json", append(b, '\n'), 0644))
-	fmt.Println("extracted twenty-seven discovery bodies for two targets")
+	fmt.Println("extracted thirty-one discovery bodies for two targets")
 }

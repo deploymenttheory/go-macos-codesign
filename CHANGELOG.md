@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Interpret seven native-qualified ISO-2022-JP-1/JP-2 declarations on every host,
+  including strict escapes, Chinese/Korean mappings, G2 shifts and newline/buffer
+  behavior. Add 15,651,328 byte observations, 13,650 complete native streams,
+  2,100 operation cases and 4,200 required foreign results. Retain every gate.
+
 - Interpret six native-qualified ISO-2022-JP plist declarations on every host,
   including state transitions, native pair mappings and conversion-buffer EOF
   behavior. Retain 23,623,680 stream observations, 3,240 boundary cases, 1,836

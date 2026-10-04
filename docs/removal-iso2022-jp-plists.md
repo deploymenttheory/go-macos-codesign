@@ -9,8 +9,8 @@ the existing removal, fallback and resource-limit contracts.
 
 The ASCII case-insensitive names `iso-2022-jp`, `iso_2022_jp`, `iso2022jp`,
 `csiso2022jp`, `cp50221` and `windows-50221` share one captured mapping family.
-ISO-2022-JP-1 and ISO-2022-JP-2 are different native families and remain
-unqualified. A generic standards converter cannot substitute for these captures.
+ISO-2022-JP-1 and ISO-2022-JP-2 are different native families, qualified
+separately in the [extension profile](removal-iso2022-extensions.md). A generic standards converter cannot substitute for these captures.
 
 The decoder starts in ASCII state. Recognized escapes change state at character
 boundaries:
@@ -101,8 +101,8 @@ race instrumentation, assertions or fuzz durations are removed.
 
 ## Remaining work
 
-ISO-2022-JP-1, ISO-2022-JP-2, GB18030 and further aliases require independent
-qualification. Unicode normalization and filesystem aliases, remaining OpenStep
+GB18030 and further stateful codecs and aliases require independent
+qualification. JP-1/JP-2 are covered by the separate extension profile. Unicode normalization and filesystem aliases, remaining OpenStep
 NUL contexts, wider XML/binary grammar and metadata normalization remain in the
 [implementation plan](implementation_plan.md). This phase does not establish
 complete plist or codesign parity. Final validation belongs to the draft PR;
