@@ -5926,12 +5926,12 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.1",
-    "sum": "h1:Ssfv3Se8jzikQaMb2Kc+u68ZyH+rGIjcFAcrECZ9eZ8=",
+    "version": "v0.17.2",
+    "sum": "h1:C3zpG1n8Y5+FUay5NVhGHvoHYlwLGI8BEZfJZxEVZxI=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
-        "sha256": "be9a96012519e7810b281fce1c8e21df15cd5a1d3da62993788bc066f68f26c1",
+        "sha256": "cdfd470f837f5e805694a0d31e51922974dc1d66b9d4bbeb6940813a98eadd37",
         "symbols": [
           "PrepareReplacementAt",
           "RestoreMetadata",
@@ -5984,6 +5984,24 @@
           "copyReplacementMetadata"
         ],
         "decision": "Released non-cloning fallback; reuse bounded xattr copying and streamed resource forks. Native codesign metadata policy remains consumer work."
+      },
+      {
+        "path": "pkg/hostdata/replacement_root_windows.go",
+        "sha256": "7b6614fa450770e13b43aa5e9f77dfd1b6a345de045b8006fd4670b6a15f5067",
+        "symbols": [
+          "prepareReplacementAt",
+          "restoreReplacementMetadataAt",
+          "copyReplacementStreams"
+        ],
+        "decision": "Released sparse rooted staging and metadata restoration; keep NTFS sparse cases mandatory and reuse SDK ownership."
+      },
+      {
+        "path": "pkg/hostdata/replacement_backup.go",
+        "sha256": "23f0e1f548a44e0cd3279f5a7eead27d05b3db62fc6a78dc4b43b2daa2ae02a3",
+        "symbols": [
+          "filterReplacementStreams"
+        ],
+        "decision": "Released bounded backup stream filter preserves sparse named data and excludes original main-data extents from replacement."
       }
     ],
     "prerequisite_findings": [

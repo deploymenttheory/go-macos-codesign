@@ -6,8 +6,8 @@ and Windows. It replaces the former incremental work-package plan. Completed
 implementation and validation evidence belong in the [focused guides](README.md),
 [progress record](progress.md), source/fixture manifests and Git history.
 
-Planning baseline: 2026-10-04, main at
-`8c7b47abf5e695c9521957fa4830f2cceb5342f4`, consuming published go-apfs-v2 v0.17.1.
+Planning baseline: 2026-10-05, main through PR103; the current streaming-bundle
+branch consumes published go-apfs-v2 v0.17.2.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -312,7 +312,7 @@ the following pipeline.
 
 **Qualification still required:** extend the [shared transfer checkpoints](operation-io.md)
 to all remaining planning, metadata, cleanup and commit paths, preserving the
-qualified APFS v0.17.1 integration. Keep source-preserving SDK transport distinct
+released APFS v0.17.2 integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,

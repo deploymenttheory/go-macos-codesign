@@ -122,6 +122,11 @@ retains prior/fresh hashes and confirms all 8,340 complete native observations
 are unchanged. The dependent 1,294-value `plutil` corpus is recaptured separately;
 expected values and case membership are not regenerated from Go output.
 
+The v0.17.2 integration repeats these dependency-pinned captures, including all
+8,340 plist operations, 1,294 native values, six filesystem controls and nine
+large-DMG controls. The [release recapture audit](../testdata/research/apfs-v0.17.2-recapture.json)
+records the unchanged observations and updated provenance.
+
 The generic SDK replacement contract preserves source creation time, ACL and raw
 quarantine bytes. Raw native `copyfile` can instead retain destination creation
 time, merge inherited ACLs and normalize quarantine agent/timestamp fields. APFS
@@ -133,13 +138,16 @@ operation-specific metadata policy; changing the SDK transport does not settle i
 Merged PR99 integrates [bounded operation I/O and cancellation](operation-io.md)
 across existing writers. Merged PR100 extends incremental hashing and its evidence. Standalone
 inspection/verification now use [source ranges](source-range-io.md), as does
-[DMG signing](dmg-streaming.md). Mach-O signing/removal and bundle processing
-still require whole-file builders and retain their size limits.
+[DMG signing](dmg-streaming.md). [Mach-O mutation](macho-streaming.md) and [bundle processing](bundle-streaming.md)
+now use held sources and streamed output plans; metadata builders remain bounded
+and materialized.
 
 Complete the agreed pipeline above and the rest of Phase 02:
 metadata/compression profiles, cancellation, partial failures, source identity,
 asynchronous siblings and `--single-threaded-signing`.
 
-Codesign depends on released APFS v0.17.1 without a local module replacement.
+Codesign depends on released APFS v0.17.2 without a local module replacement.
+This release also supplies sparse rooted replacement on Windows; every large
+bundle control remains mandatory in the downstream matrix.
 These filesystem controls do not complete any whole Phase 02 family or settle
 operation-specific metadata policy.

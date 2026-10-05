@@ -28,7 +28,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Detailed implementation plan](implementation_plan.md) | Outstanding-only roadmap: eleven remaining larger phases, 88 feature owners, prerequisites and acceptance gates |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
-| [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.1 integration, mounted HFS+ acceptance and remaining work |
+| [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.2 integration, mounted HFS+ acceptance and remaining work |
 | [Held-file inspection](source-range-io.md) | Range parsing, native large-file verification, memory evidence and remaining size limits |
 | [Streaming DMG signing](dmg-streaming.md) | Held-file signing, 64-bit limits, native tail writes and large-file qualification |
 | [Streaming Mach-O mutation](macho-streaming.md) | Held-file signing/removal, universal assembly, native allocation limits and staged replacement |

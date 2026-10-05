@@ -25,7 +25,10 @@ executables. Existing permission-failure handling, independent sibling commits,
 ancestor suppression, stale-signature cleanup and in-place envelope writes retain
 their order and their existing acceptance cases.
 
-Released APFS v0.17.1 supplies rooted replacement staging and metadata restoration.
+Released APFS v0.17.2 supplies rooted replacement staging and metadata restoration,
+including NTFS sparse sources and sparse named streams. The SDK preserves the
+sparse attribute and excludes old main-data extents from replacement metadata.
+Codesign still transfers every logical payload byte.
 Codesign checks a borrowed executable before and after transfer, releases its
 read handle before rename, and retains the SDK metadata source until restoration.
 The prepared source is checked again before commit. Failure and cancellation

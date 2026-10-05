@@ -8,11 +8,11 @@ remove a private temporary file to check directory creation permission. They
 preserve all names and contents and skip metadata restoration and commit.
 
 The filesystem implementation belongs to
-[`go-apfs-v2/pkg/hostdata` in v0.17.1](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.17.1/pkg/hostdata).
+[`go-apfs-v2/pkg/hostdata` in v0.17.2](https://github.com/deploymenttheory/go-apfs-v2/tree/v0.17.2/pkg/hostdata).
 Standalone writes call its `PrepareReplacement` and `RestoreMetadata` APIs.
 Bundle writes use the root-relative `PrepareReplacementAt` API delivered in
 [APFS PR #102](https://github.com/deploymenttheory/go-apfs-v2/pull/102) and released
-in v0.5.0; this module now pins v0.17.1. Codesign owns the signing-specific decision
+in v0.5.0; this module now pins v0.17.2. Codesign owns the signing-specific decision
 to rename. It has no copied platform metadata writer.
 Access-time recording and copying use the shared `hostdata/accesstime` package.
 The package migration retains the existing call order, cancellation, error and
@@ -30,7 +30,7 @@ On macOS the new replacement path uses the supported x/sys libSystem wrappers
 directory has inherited ACLs cleared before cloning so destination inheritance
 cannot add permissions to the source ACL. Ownership, mode, xattrs, ACLs, birth
 time and supported BSD flags are preserved. If cloning returns `ENOTSUP`, `EXDEV`
-or `ENOSYS`, v0.17.1 uses a writable stage, bounded ordinary-attribute copying and
+or `ENOSYS`, v0.17.2 uses a writable stage, bounded ordinary-attribute copying and
 streamed resource forks. Source permissions and ACLs are restored after writing.
 Other clone errors remain failures. The [Phase 02 native controls](portable-io-lifecycle.md)
 exercise this fallback on HFS+ for both writers. Protected and compressed sources

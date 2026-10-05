@@ -1,6 +1,6 @@
 # Project progress
 
-Updated 2026-10-04. This page describes the implementation in this branch and
+Updated 2026-10-05. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [remaining roadmap](implementation_plan.md) assigns
@@ -14,7 +14,7 @@ confirmed a shared prerequisite: HFS+ sign, dry-run and remove succeed with Appl
 but fail during replacement preparation with released APFS v0.17.0.
 [Merged APFS PR194](https://github.com/deploymenttheory/go-apfs-v2/pull/194) supplies
 the non-cloning fallback with its own portable and native qualification. This
-project now consumes published v0.17.1 and retains the released API hash audit.
+project adopted published v0.17.1 and retains the released API hash audit.
 All 63 applicable upstream CI checks passed, with 100% coverage of the new
 fallback files on each applicable host and audited native/source evidence.
 All six recaptured controls succeed and match native bytes. Another 108 local
@@ -68,7 +68,11 @@ executables, populated resources around 4 GiB, nested code, an aggregate tree ab
 effects pass local replay. Three complete Apple hashing bodies have two-target
 Clang evidence. The harness adds 35 unit outcomes, 12 acceptance outcomes and ten
 complete signed bundle exports per OS. Full branch CI and per-OS coverage remain
-required before qualification.
+required before qualification. The initial Windows large-bundle run exposed
+APFS's rejection of sparse rooted replacement sources. Merged APFS PR196 fixes
+that prerequisite, published in v0.17.2 and consumed here. Its sparse replacement
+controls pass on Windows with 98.4% coverage of the backup filter. The ten codesign
+controls remain unchanged and require a fresh complete downstream CI run.
 
 Phase 02 now explicitly includes the agreed [file-processing architecture](portable-io-lifecycle.md#agreed-file-processing-architecture):
 held-source range parsing, incremental hashing, streamed write plans and temporary
@@ -295,7 +299,7 @@ are still open; this does not declare full codesign parity.
 
 ## Current published APFS dependency
 
-Codesign pins [APFS v0.17.1](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.1)
+Codesign pins [APFS v0.17.2](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.2)
 and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes

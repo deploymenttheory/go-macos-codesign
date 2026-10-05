@@ -23,7 +23,7 @@ longer inherit that payload ceiling. These are not constant-memory operations:
 signature size grows with page and special-slot counts.
 
 The writer borrows the preflight descriptor through transfer and metadata
-restoration. Released APFS v0.17.1 owns replacement allocation, ACLs, ownership,
+restoration. Released APFS v0.17.2 owns replacement allocation, ACLs, ownership,
 attributes, creation times and cleanup. Its existing held-source API suffices;
 there is no new filesystem implementation or dependency in codesign. Linux uses
 its metadata restoration path, Darwin its clone/fallback path, and Windows its
