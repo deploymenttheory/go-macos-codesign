@@ -81,6 +81,15 @@ func main() {
 	out := flag.String("out", "testdata/research/compressed-signing.json", "capture output")
 	check := flag.Bool("check", false, "compare all cases with committed native observations")
 	flag.Parse()
+	if *check {
+		destination, err := filepath.Abs(*out)
+		must(err)
+		baseline, err := filepath.Abs("testdata/research/compressed-signing.json")
+		must(err)
+		if destination == baseline {
+			panic("-check requires a separate -out path; retained evidence must not be overwritten")
+		}
+	}
 	dir, err := os.MkdirTemp("", "codesign-compressed-")
 	must(err)
 	defer os.RemoveAll(dir)
@@ -193,6 +202,10 @@ func main() {
 	capture := map[string]any{"schema": 1, "source_sha256": sources, "sdk": module.Version, "sdk_sum": module.Sum, "native_producer_sha256": hash(read(cSource)), "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c", "host": string(checked("sw_vers")), "cases": cases}
 	b, err := json.MarshalIndent(capture, "", "  ")
 	must(err)
+	// Retain the complete fresh observation even when comparison fails, so CI
+	// can diagnose a changed field without rerunning or relaxing the oracle.
+	must(os.MkdirAll(filepath.Dir(*out), 0755))
+	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	if *check {
 		var baseline struct {
 			Cases    []result          `json:"cases"`
@@ -205,10 +218,17 @@ func main() {
 		if !reflect.DeepEqual(sources, baseline.Sources) || module.Version != baseline.SDK || module.Sum != baseline.SDKSum || hash(read(cSource)) != baseline.Producer {
 			panic("stale compressed lifecycle provenance; recapture with the pinned dependency")
 		}
-		if len(cases) != 16 || !reflect.DeepEqual(cases, baseline.Cases) {
-			panic("native compressed lifecycle or SDK eligibility changed")
+		if len(cases) != 16 || len(baseline.Cases) != len(cases) {
+			panic("native compressed lifecycle case count changed")
+		}
+		for i, got := range cases {
+			if !reflect.DeepEqual(got, baseline.Cases[i]) {
+				actual, e := json.Marshal(got)
+				must(e)
+				expected, e := json.Marshal(baseline.Cases[i])
+				must(e)
+				panic(fmt.Sprintf("native compressed lifecycle changed at %s/%s/preserve=%t\nactual: %s\nexpected: %s\nfull capture: %s", got.Shape, got.Operation, got.Preserve, actual, expected, *out))
+			}
 		}
 	}
-	must(os.MkdirAll(filepath.Dir(*out), 0755))
-	must(os.WriteFile(*out, append(b, '\n'), 0644))
 }
