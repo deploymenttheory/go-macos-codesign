@@ -143,6 +143,10 @@ func directoryHashes(directories [][]byte) (cdHashPlist, [][]byte, error) {
 // The first certificate is the signer; the remaining certificates are embedded
 // but are not trusted or path-validated. A zero signingTime uses the current time.
 func SignCMS(ctx context.Context, id *Identity, directories [][]byte, signingTime time.Time) ([]byte, error) {
+	return signCMSBound(ctx, id, signingTime, func() (cmsDirectoryBinding, error) { return bindCMSDirectories(directories) })
+}
+
+func signCMSBound(ctx context.Context, id *Identity, signingTime time.Time, binding func() (cmsDirectoryBinding, error)) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -157,22 +161,21 @@ func SignCMS(ctx context.Context, id *Identity, directories [][]byte, signingTim
 	if err := checkCertificatePurpose(leaf, signingTime); err != nil {
 		return nil, err
 	}
-	pl, agility, err := directoryHashes(directories)
+	bound, err := binding()
 	if err != nil {
 		return nil, err
 	}
-	plistBytes := appleHashAgilityPlist(pl)
+	plistBytes := appleHashAgilityPlist(bound.pl)
 	date, err := asn1.Marshal(signingTime)
 	if err != nil {
 		return nil, err
 	}
-	digest := sha256.Sum256(directories[0])
 	attrs := derSet(
 		derAttribute(oidContentType, derOID(oidData)),
-		derAttribute(oidMessageDigest, derWrap(4, digest[:])),
+		derAttribute(oidMessageDigest, derWrap(4, bound.primary)),
 		derAttribute(oidSigningTime, date),
 		derAttribute(oidHashAgility, derWrap(4, plistBytes)),
-		derAttribute(oidHashAgilityV2, agility...),
+		derAttribute(oidHashAgilityV2, bound.agility...),
 	)
 	toSign := sha256.Sum256(attrs)
 	if err := ctx.Err(); err != nil {
@@ -347,10 +350,14 @@ func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, er
 // revocation, or timestamp policy. VerifyBytes adds explicit leaf pins or CA
 // paths and current-time purpose/validity checks before reporting Valid.
 func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
-	pl, agility, err := directoryHashes(directories)
+	bound, err := bindCMSDirectories(directories)
 	if err != nil {
 		return nil, err
 	}
+	return verifyCMSBound(der, bound)
+}
+
+func verifyCMSBound(der []byte, bound cmsDirectoryBinding) (*CMSInfo, error) {
 	sd, certs, err := decodeCMS(der)
 	if err != nil {
 		if errors.Is(err, ErrUnsupported) {
@@ -388,8 +395,7 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	if err := decodeDER(attrs[oidMessageDigest.String()].Bytes, &gotDigest); err != nil {
 		return nil, err
 	}
-	wantDigest := sha256.Sum256(directories[0])
-	if !bytes.Equal(gotDigest, wantDigest[:]) {
+	if !bytes.Equal(gotDigest, bound.primary) {
 		return nil, invalid("CMS message digest")
 	}
 	var plistData []byte
@@ -400,15 +406,15 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 	if _, err := plist.Unmarshal(plistData, &gotPlist); err != nil {
 		return nil, malformed("CMS hash-agility plist")
 	}
-	if len(pl.CDHashes) != len(gotPlist.CDHashes) {
+	if len(bound.pl.CDHashes) != len(gotPlist.CDHashes) {
 		return nil, invalid("CMS hash-agility count")
 	}
-	for i, want := range pl.CDHashes {
+	for i, want := range bound.pl.CDHashes {
 		if !bytes.Equal(want, gotPlist.CDHashes[i]) {
 			return nil, invalid("CMS hash-agility digest")
 		}
 	}
-	if !bytes.Equal(attrs[oidHashAgilityV2.String()].FullBytes, derSet(agility...)) {
+	if !bytes.Equal(attrs[oidHashAgilityV2.String()].FullBytes, derSet(bound.agility...)) {
 		return nil, invalid("CMS hash-agility-v2 digests")
 	}
 	if date, ok := attrs[oidSigningTime.String()]; ok {

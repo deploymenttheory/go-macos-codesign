@@ -168,20 +168,28 @@ func signDMG(ctx context.Context, data []byte, opts SignOptions, dryRun bool) ([
 // signDMGTail shares byte and held-source signing policy. Only signature metadata
 // is materialized; the immutable payload is supplied through bounded range hashes.
 func signDMGTail(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool, pageDigest func(uint8, uint64, uint64) ([]byte, error)) ([]byte, error) {
+	tail, err := signDMGTailSource(ctx, m, opts, dryRun, pageDigest)
+	if err != nil {
+		return nil, err
+	}
+	return materializeOutput(ctx, tail)
+}
+
+func signDMGTailSource(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool, pageDigest func(uint8, uint64, uint64) ([]byte, error)) (outputSource, error) {
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
-		return nil, unsupported("external special-slot overrides for disk images")
+		return outputSource{}, unsupported("external special-slot overrides for disk images")
 	}
 	if m.signature != nil && !opts.Force {
-		return nil, ErrSigned
+		return outputSource{}, ErrSigned
 	}
 	if dryRun && opts.Identity != nil {
 		// The reference crashes before writing when it attempts CMS over the absent
 		// dry-run CodeDirectory. Keep a bounded error instead of emulating that bug.
-		return nil, unsupported("certificate-signed DMG dry run")
+		return outputSource{}, unsupported("certificate-signed DMG dry run")
 	}
 	page := uint64(opts.PageSize)
 	if page != 0 && (page < 2 || page&(page-1) != 0 || page > maxFileSize) {
-		return nil, fmt.Errorf("disk image page size must be zero or a power of two from 2 to 1 GiB")
+		return outputSource{}, fmt.Errorf("disk image page size must be zero or a power of two from 2 to 1 GiB")
 	}
 	length := m.footer.CodeSignatureOffset
 	nPages := uint64(1)
@@ -191,7 +199,7 @@ func signDMGTail(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool
 		page = length
 	}
 	if nPages > math.MaxUint32 {
-		return nil, unsupported("disk image code slot count")
+		return outputSource{}, unsupported("disk image code slot count")
 	}
 	reqs := opts.Requirements
 	if len(reqs) == 0 {
@@ -203,7 +211,7 @@ func signDMGTail(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool
 	if len(opts.Entitlements) > 0 && opts.ForceLibraryEntitlements {
 		xml, der, err := EncodeEntitlements(opts.Entitlements)
 		if err != nil {
-			return nil, err
+			return outputSource{}, err
 		}
 		blobs = append(blobs, Blob{Slot: SlotEntitlements, Data: blob(MagicEntitlements, xml)}, Blob{Slot: SlotDEREntitlements, Data: blob(MagicDEREntitlements, der)})
 		special = 7
@@ -222,10 +230,14 @@ func signDMGTail(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool
 	}
 	hashOff := header + len(opts.Identifier) + 1 + teamSize + special*32
 	cdSize := uint64(hashOff) + nPages*32
-	if cdSize > maxFileSize {
-		return nil, unsupported("disk image signature exceeds memory limit")
+	if cdSize > math.MaxUint32 {
+		return outputSource{}, unsupported("disk image CodeDirectory exceeds 32-bit length")
 	}
-	cd := make([]byte, cdSize)
+	cd := make([]byte, header)
+	section, err := newWorkingSection(ctx, int64(cdSize))
+	if err != nil {
+		return outputSource{}, err
+	}
 	be.PutUint32(cd, MagicDirectory)
 	be.PutUint32(cd[4:], uint32(cdSize))
 	be.PutUint32(cd[8:], version)
@@ -250,51 +262,60 @@ func signDMGTail(ctx context.Context, m *dmgImage, opts SignOptions, dryRun bool
 		be.PutUint64(cd[80:], execFlags)
 		be.PutUint32(cd[88:], opts.RuntimeVersion)
 	}
-	copy(cd[header:], opts.Identifier)
 	if teamSize > 0 {
 		offset := header + len(opts.Identifier) + 1
 		be.PutUint32(cd[48:], uint32(offset))
-		copy(cd[offset:], opts.teamID)
+	}
+	if err := writeDirectoryPrefix(ctx, section, cd, opts.Identifier, opts.teamID); err != nil {
+		return outputSource{}, err
 	}
 	for _, b := range append(blobs, Blob{Slot: SlotRepSpecific, Data: m.trailer()}) {
 		h, err := digestContext(ctx, 2, b.Data)
 		if err != nil {
-			return nil, err
+			return outputSource{}, err
 		}
-		copy(cd[hashOff-int(b.Slot)*32:], h)
+		if _, err := section.WriteAt(h, int64(hashOff)-int64(b.Slot)*32); err != nil {
+			return outputSource{}, err
+		}
 	}
 	for i := uint64(0); i < nPages; i++ {
 		h, err := pageDigest(2, i*page, min(page, length-i*page))
 		if err != nil {
-			return nil, err
+			return outputSource{}, err
 		}
-		copy(cd[uint64(hashOff)+i*32:], h)
+		if _, err := section.WriteAt(h, int64(hashOff)+int64(i)*32); err != nil {
+			return outputSource{}, err
+		}
 	}
 	var cms []byte
-	var err error
 	if opts.Identity != nil {
-		cms, err = SignCMS(ctx, opts.Identity, [][]byte{cd}, opts.SigningTime)
+		cms, err = signGeneratedCMS(ctx, opts.Identity, section.output(), opts.SigningTime, opts.Timestamp)
 		if err != nil {
-			return nil, err
-		}
-		if opts.Timestamp != nil {
-			cms, err = TimestampCMS(ctx, cms, [][]byte{cd}, *opts.Timestamp)
-			if err != nil {
-				return nil, err
-			}
+			return outputSource{}, err
 		}
 	}
+	var sections []signatureSection
 	if !dryRun {
-		blobs = append(blobs, Blob{Slot: SlotDirectory, Data: cd})
+		sections = append(sections, signatureSection{SlotDirectory, section.output()})
 	}
 	blobs = append(blobs, Blob{Slot: SlotCMS, Data: blob(MagicCMS, cms)})
-	sig := superblob(MagicSignature, blobs)
-	if len(sig)+dmgFooterSize > maxFileSize {
-		return nil, unsupported("signed disk image exceeds memory limit")
+	for _, b := range blobs {
+		sections = append(sections, signatureSection{b.Slot, byteOutput(b.Data)})
+	}
+	sig, err := superblobOutput(MagicSignature, sections)
+	if err != nil {
+		return outputSource{}, err
 	}
 	if err := ctx.Err(); err != nil {
-		return nil, err
+		return outputSource{}, err
 	}
-	m.footer.CodeSignatureLength = uint64(len(sig))
-	return append(sig, m.trailer()...), nil
+	m.footer.CodeSignatureLength = uint64(sig.size)
+	plan := new(outputPlan)
+	if err := plan.append(sig); err != nil {
+		return outputSource{}, err
+	}
+	if err := plan.append(byteOutput(m.trailer())); err != nil {
+		return outputSource{}, err
+	}
+	return plan.output(), nil
 }

@@ -75,7 +75,11 @@ func recordMachORead(f *os.File) error {
 // disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
 // matching codesign; see SignOptions.DryRun.
 func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
-	defer func() { err = signingIOError(err) }()
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { err = signingIOError(errors.Join(err, storage.Close())) }()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -127,7 +131,12 @@ func notifyInspectedReplacement(r *Report, err error, opts SignOptions) {
 
 // SignBytes returns a new signed Mach-O or UDIF image; input bytes are never mutated.
 // DryRun is a path-operation option and does not suppress the returned signature.
-func SignBytes(ctx context.Context, data []byte, opts SignOptions) ([]byte, error) {
+func SignBytes(ctx context.Context, data []byte, opts SignOptions) (output []byte, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = errors.Join(err, storage.Close()) }()
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -276,8 +285,8 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 		sigLen += defaultCMSSize - 8
 	}
 	sigSize := (sigLen + int64(max(96-header, 0)) + 15) &^ 15
-	if cdSize > maxFileSize || sigSize > maxFileSize {
-		return outputSource{}, unsupported("signature metadata exceeds memory limit")
+	if cdSize > math.MaxUint32 || sigSize > math.MaxUint32 {
+		return outputSource{}, allocationError("signature metadata exceeds 32-bit representation")
 	}
 	end := codeEnd + sigSize
 	if end > math.MaxUint32 {
@@ -313,7 +322,12 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	if err != nil {
 		return outputSource{}, err
 	}
-	cd := make([]byte, cdSize)
+	hashOff := header + len(opts.Identifier) + 1 + teamSize + int(special)*32
+	cd := make([]byte, header)
+	section, err := newWorkingSection(ctx, cdSize)
+	if err != nil {
+		return outputSource{}, err
+	}
 	be.PutUint32(cd, MagicDirectory)
 	be.PutUint32(cd[4:], uint32(cdSize))
 	be.PutUint32(cd[8:], version)
@@ -322,7 +336,6 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 		flags |= FlagAdhoc
 	}
 	be.PutUint32(cd[12:], flags)
-	hashOff := header + len(opts.Identifier) + 1 + teamSize + int(special)*32
 	be.PutUint32(cd[16:], uint32(hashOff))
 	be.PutUint32(cd[20:], uint32(header))
 	be.PutUint32(cd[24:], special)
@@ -337,11 +350,12 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	if header >= 96 {
 		be.PutUint32(cd[88:], opts.RuntimeVersion)
 	}
-	copy(cd[header:], opts.Identifier)
 	if teamSize > 0 {
 		offset := header + len(opts.Identifier) + 1
 		be.PutUint32(cd[48:], uint32(offset))
-		copy(cd[offset:], opts.teamID)
+	}
+	if err := writeDirectoryPrefix(ctx, section, cd, opts.Identifier, opts.teamID); err != nil {
+		return outputSource{}, err
 	}
 	for _, b := range blobs {
 		if b.Slot < 0x1000 {
@@ -349,7 +363,9 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 			if err != nil {
 				return outputSource{}, err
 			}
-			copy(cd[hashOff-int(b.Slot)*32:], h)
+			if _, err := section.WriteAt(h, int64(hashOff)-int64(b.Slot)*32); err != nil {
+				return outputSource{}, err
+			}
 		}
 	}
 	for slot, data := range map[uint32][]byte{SlotInfo: opts.InfoPlist, SlotResources: opts.Resources} {
@@ -358,22 +374,18 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 			if err != nil {
 				return outputSource{}, err
 			}
-			copy(cd[hashOff-int(slot)*32:], h)
+			if _, err := section.WriteAt(h, int64(hashOff)-int64(slot)*32); err != nil {
+				return outputSource{}, err
+			}
 		}
 	}
-	if err := hashCodePages(ctx, outputSource{patched.reader, 0, codeEnd}, page, cd[hashOff:]); err != nil {
+	if err := hashCodePagesTo(ctx, outputSource{patched.reader, 0, codeEnd}, page, section, int64(hashOff)); err != nil {
 		return outputSource{}, err
 	}
 	if opts.Identity != nil {
-		cms, err := SignCMS(ctx, opts.Identity, [][]byte{cd}, opts.SigningTime)
+		cms, err := signGeneratedCMS(ctx, opts.Identity, section.output(), opts.SigningTime, opts.Timestamp)
 		if err != nil {
 			return outputSource{}, err
-		}
-		if opts.Timestamp != nil {
-			cms, err = TimestampCMS(ctx, cms, [][]byte{cd}, *opts.Timestamp)
-			if err != nil {
-				return outputSource{}, err
-			}
 		}
 		for i := range blobs {
 			if blobs[i].Slot == SlotCMS {
@@ -381,11 +393,18 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 			}
 		}
 	}
-	sig := superblob(MagicSignature, append(blobs, Blob{Slot: SlotDirectory, Data: cd}))
-	if int64(len(sig)) > sigSize {
+	sections := []signatureSection{{SlotDirectory, section.output()}}
+	for _, b := range blobs {
+		sections = append(sections, signatureSection{b.Slot, byteOutput(b.Data)})
+	}
+	sig, err := superblobOutput(MagicSignature, sections)
+	if err != nil {
+		return outputSource{}, err
+	}
+	if sig.size > sigSize {
 		return outputSource{}, invalid("CMS exceeds reserved signature space")
 	}
-	return patchedOutput(source, end, outputSpan{0, byteOutput(out)}, outputSpan{codeEnd, byteOutput(sig)})
+	return patchedOutput(source, end, outputSpan{0, byteOutput(out)}, outputSpan{codeEnd, sig})
 }
 
 func updateLinkedit(out []byte, im *image, end int64) {
@@ -418,7 +437,11 @@ func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptio
 // removal preserves the data fork and hard links; completed attribute removals
 // survive later failures. Only explicit AppleDouble inputs are considered.
 func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
-	defer func() { err = signingIOError(err) }()
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { err = signingIOError(errors.Join(err, storage.Close())) }()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -459,7 +482,12 @@ func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	return mutateMachOFile(ctx, f, &fileCloser, path, source, nil)
 }
 
-func RemoveSignatureBytes(ctx context.Context, data []byte) ([]byte, error) {
+func RemoveSignatureBytes(ctx context.Context, data []byte) (output []byte, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = errors.Join(err, storage.Close()) }()
 	if isDMG(data) {
 		return nil, unsupported("signature removal for disk images")
 	}

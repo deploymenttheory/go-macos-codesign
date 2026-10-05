@@ -64,6 +64,9 @@ type codePageOutput struct {
 	hash            hash.Hash
 	page, remaining int64
 	sums            []byte
+	writer          io.WriterAt
+	offset          int64
+	sum             [sha256.Size]byte
 }
 
 func (p *codePageOutput) WriteAt(data []byte, _ int64) (int, error) {
@@ -74,17 +77,32 @@ func (p *codePageOutput) WriteAt(data []byte, _ int64) (int, error) {
 		data = data[chunk:]
 		p.remaining -= chunk
 		if p.remaining == 0 {
-			p.finish()
+			if err := p.finish(); err != nil {
+				return n - len(data), err
+			}
 		}
 	}
 	return n, nil
 }
 
-func (p *codePageOutput) finish() {
-	p.hash.Sum(p.sums[:0])
-	p.sums = p.sums[sha256.Size:]
+func (p *codePageOutput) finish() error {
+	if p.writer == nil {
+		p.hash.Sum(p.sums[:0])
+		p.sums = p.sums[sha256.Size:]
+	} else {
+		sum := p.hash.Sum(p.sum[:0])
+		n, err := p.writer.WriteAt(sum, p.offset)
+		if err != nil {
+			return err
+		}
+		if n != len(sum) {
+			return io.ErrShortWrite
+		}
+		p.offset += int64(n)
+	}
 	p.hash.Reset()
 	p.remaining = p.page
+	return nil
 }
 
 func hashCodePages(ctx context.Context, src outputSource, page uint32, sums []byte) error {
@@ -93,7 +111,18 @@ func hashCodePages(ctx context.Context, src outputSource, page uint32, sums []by
 		return err
 	}
 	if p.remaining != p.page {
-		p.finish()
+		return p.finish()
+	}
+	return nil
+}
+
+func hashCodePagesTo(ctx context.Context, src outputSource, page uint32, dst io.WriterAt, offset int64) error {
+	p := codePageOutput{hash: sha256.New(), page: int64(page), remaining: int64(page), writer: dst, offset: offset}
+	if err := transferOutput(ctx, &p, src); err != nil {
+		return err
+	}
+	if p.remaining != p.page {
+		return p.finish()
 	}
 	return nil
 }
@@ -105,7 +134,12 @@ func resourceDigests(ctx context.Context, r io.Reader, limit int64) ([]byte, []b
 		return nil, nil, 0, unsupported("resource size cannot be bounded")
 	}
 	h1, h2 := sha1.New(), sha256.New()
-	n, err := io.Copy(io.MultiWriter(h1, h2), io.LimitReader(operationReader{ctx, r}, limit+1))
+	buf, release, err := transferBuffer(ctx, limit+1)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	defer release()
+	n, err := io.CopyBuffer(io.MultiWriter(h1, h2), io.LimitReader(operationReader{ctx, r}, limit+1), buf)
 	if err != nil {
 		return nil, nil, n, err
 	}

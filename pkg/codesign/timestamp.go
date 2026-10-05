@@ -390,13 +390,17 @@ func VerifyTimestampToken(token, signature []byte, roots [][]byte, now time.Time
 // is rejected rather than silently replaced. The returned envelope uses Apple's
 // outer BER form. Provider/network errors never return partial output.
 func TimestampCMS(ctx context.Context, cms []byte, directories [][]byte, opts TimestampOptions) ([]byte, error) {
+	return timestampCMSBound(ctx, cms, opts, func() (*CMSInfo, error) { return VerifyCMS(cms, directories) })
+}
+
+func timestampCMSBound(ctx context.Context, cms []byte, opts TimestampOptions, verify func() (*CMSInfo, error)) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 	if opts.Provider == nil || len(opts.TrustedRoots) == 0 {
 		return nil, invalid("timestamp provider and explicit TSA roots required")
 	}
-	original, err := VerifyCMS(cms, directories)
+	original, err := verify()
 	if err != nil {
 		return nil, err
 	}

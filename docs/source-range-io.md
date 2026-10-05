@@ -102,11 +102,32 @@ containment/permissions contract applies. Replacement, metadata restoration,
 resource forks and image codecs remain upstream responsibilities; audit released
 APIs again before extending those operations.
 
-Signature blobs and load-command metadata are still materialized, and public
+Input signature blobs and load-command metadata are still materialized, and public
 `Report`/`Signature` objects retain byte fields. Memory can therefore grow with
-metadata and architecture count. There is no aggregate 128 MiB enforcement or
-spill store yet. The next integration must address that ownership explicitly,
-retain byte API compatibility and measure total process memory separately.
+metadata and architecture count. The operation storage manager now shares a
+128 MiB starting reservation pool for transfer buffers and generated
+CodeDirectories. Sections that cannot fit spill into disjoint ranges of one
+private temporary file, removed when the owning operation finishes. Generated
+CMS binding hashes and SuperBlob output plans consume these ranges directly.
+Nested operations reuse the same pool. `WithWorkingStorage` selects the budget,
+temporary directory and final reservation observer for an API operation.
+
+This is not yet comprehensive memory enforcement. Input metadata, parser objects,
+queued work and handle accounting remain to be integrated and measured. Caller
+input and returned byte/report ownership remain unchanged; those allocations and
+runtime overhead must be measured independently of managed reservations. The
+phase still requires isolated heap/RSS/working-set and temporary-storage controls
+before the default can be described as qualified at scale.
+
+Compressed-source replacement additionally requires the released result of
+[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198). The
+research-only `scripts/probe-compressed-signing.go` records native standalone
+and bundle sign/re-sign/dry-run/removal outcomes, with and without
+`--preserve-afsc`, in `testdata/research/compressed-signing.json`. Its sixteen
+cases expose the v0.17.2 staging rejection. The probe is initial evidence;
+expanded codec profiles, repeat-capture validation and codesign acceptance
+integration remain required. Recompression is a separate prerequisite from
+writing an uncompressed replacement correctly.
 
 Standalone [Mach-O mutation](macho-streaming.md) now reuses the released held-source
 replacement API through metadata restore and a Windows-compatible close/rename handoff.

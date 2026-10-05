@@ -1954,6 +1954,14 @@
           "cases": 1,
           "sha256": "3305e5ce386f2b156f26bc32ab48a01b467cae9cc0ede63096794f08ed5990c8"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedCMSRangeParity": {
+          "cases": 1,
+          "sha256": "a4ad7a24be8a57335b110c7d585258b4beed940755b162680e9f81f9a11f417f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedSignatureSpillParity": {
+          "cases": 4,
+          "sha256": "29d42078988d59a6263e6c105131ea6e198dc78ce95ace9f60c6209831882592"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGenericRemovalAppleEvidence": {
           "cases": 9,
           "sha256": "6141a5165d2e0f633a508621a77320d2974305a25927f5b1cee9817e3e35c745"
@@ -2414,6 +2422,10 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
+          "cases": 1,
+          "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
@@ -2589,6 +2601,22 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationLinkTextAndBudget": {
           "cases": 8,
           "sha256": "fb75ee53055339dad8fec97db7e89c5bdc39bc05481f26531b7934c825aec857"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageFailures": {
+          "cases": 1,
+          "sha256": "ce06c3665de3bd22f596c616cb52ef9d2070134981bb7c5d7cbce829ac6fe230"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageOptionsAndByteHelpers": {
+          "cases": 1,
+          "sha256": "ee5f78afeeede2fbbf01e78c20c606e99b4910eb049c9315392ff97de1600eb8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageSections": {
+          "cases": 4,
+          "sha256": "5fd5775adc786fd2d34415536026c30111b2e9718880657ac405e03852606a6d"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageWaitAndCancel": {
+          "cases": 1,
+          "sha256": "072371ae606a9880f4c4427a5a6033e00c460e7f56ed65a24d6db277fe7617bb"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWriterAST": {
           "cases": 1,
@@ -4243,6 +4271,14 @@
           "cases": 1,
           "sha256": "3305e5ce386f2b156f26bc32ab48a01b467cae9cc0ede63096794f08ed5990c8"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedCMSRangeParity": {
+          "cases": 1,
+          "sha256": "a4ad7a24be8a57335b110c7d585258b4beed940755b162680e9f81f9a11f417f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedSignatureSpillParity": {
+          "cases": 4,
+          "sha256": "29d42078988d59a6263e6c105131ea6e198dc78ce95ace9f60c6209831882592"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGenericRemovalAppleEvidence": {
           "cases": 9,
           "sha256": "6141a5165d2e0f633a508621a77320d2974305a25927f5b1cee9817e3e35c745"
@@ -4703,6 +4739,10 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
+          "cases": 1,
+          "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
@@ -4874,6 +4914,22 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationLinkTextAndBudget": {
           "cases": 8,
           "sha256": "fb75ee53055339dad8fec97db7e89c5bdc39bc05481f26531b7934c825aec857"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageFailures": {
+          "cases": 1,
+          "sha256": "ce06c3665de3bd22f596c616cb52ef9d2070134981bb7c5d7cbce829ac6fe230"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageOptionsAndByteHelpers": {
+          "cases": 1,
+          "sha256": "ee5f78afeeede2fbbf01e78c20c606e99b4910eb049c9315392ff97de1600eb8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageSections": {
+          "cases": 4,
+          "sha256": "5fd5775adc786fd2d34415536026c30111b2e9718880657ac405e03852606a6d"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageWaitAndCancel": {
+          "cases": 1,
+          "sha256": "072371ae606a9880f4c4427a5a6033e00c460e7f56ed65a24d6db277fe7617bb"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWriterAST": {
           "cases": 1,
@@ -6532,6 +6588,14 @@
           "cases": 1,
           "sha256": "3305e5ce386f2b156f26bc32ab48a01b467cae9cc0ede63096794f08ed5990c8"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedCMSRangeParity": {
+          "cases": 1,
+          "sha256": "a4ad7a24be8a57335b110c7d585258b4beed940755b162680e9f81f9a11f417f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGeneratedSignatureSpillParity": {
+          "cases": 4,
+          "sha256": "29d42078988d59a6263e6c105131ea6e198dc78ce95ace9f60c6209831882592"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestGenericRemovalAppleEvidence": {
           "cases": 9,
           "sha256": "6141a5165d2e0f633a508621a77320d2974305a25927f5b1cee9817e3e35c745"
@@ -6996,6 +7060,10 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
+          "cases": 1,
+          "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
@@ -7167,6 +7235,22 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationLinkTextAndBudget": {
           "cases": 8,
           "sha256": "fb75ee53055339dad8fec97db7e89c5bdc39bc05481f26531b7934c825aec857"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageFailures": {
+          "cases": 1,
+          "sha256": "ce06c3665de3bd22f596c616cb52ef9d2070134981bb7c5d7cbce829ac6fe230"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageOptionsAndByteHelpers": {
+          "cases": 1,
+          "sha256": "ee5f78afeeede2fbbf01e78c20c606e99b4910eb049c9315392ff97de1600eb8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageSections": {
+          "cases": 4,
+          "sha256": "5fd5775adc786fd2d34415536026c30111b2e9718880657ac405e03852606a6d"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWorkingStorageWaitAndCancel": {
+          "cases": 1,
+          "sha256": "072371ae606a9880f4c4427a5a6033e00c460e7f56ed65a24d6db277fe7617bb"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestWriterAST": {
           "cases": 1,

@@ -315,6 +315,19 @@ to all remaining planning, metadata, cleanup and commit paths, preserving the
 released APFS v0.17.2 integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
+**Active prerequisite:** [APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198)
+adds safe replacement staging for compressed Darwin sources. Consume a published
+release after it merges; do not use a local module replacement to qualify this
+phase. This prerequisite excludes stale compressed storage when writing new
+logical contents. It does not provide the recompression policy or full encoding
+integration required for `--preserve-afsc`. Those remain outstanding, including
+portable foreign-metadata handling and native post-rename failure semantics.
+
+The operation storage manager and generated CodeDirectory/SuperBlob ranges are
+under implementation on the phase branch. They are not closure evidence for
+the budget checklist: remaining input metadata, parsed objects, queues, handles,
+large-file measurements and the complete acceptance matrix still need integration.
+
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
 `codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/
 removal AST drivers. Retain independent native permission controls and metadata

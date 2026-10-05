@@ -51,7 +51,11 @@ func transferOutput(ctx context.Context, dst io.WriterAt, src outputSource) erro
 	if src.size == 0 {
 		return nil
 	}
-	buf := make([]byte, int(min(src.size, transferBufferSize)))
+	buf, release, err := transferBuffer(ctx, src.size)
+	if err != nil {
+		return err
+	}
+	defer release()
 	for offset := int64(0); offset < src.size; {
 		if err := ctx.Err(); err != nil {
 			return err

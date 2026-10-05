@@ -31,6 +31,17 @@ func openCodeSource(ctx context.Context, f *os.File) (codeSource, error) {
 
 type rangeBuffer []byte
 
+func (b rangeBuffer) ReadAt(p []byte, offset int64) (int, error) {
+	if offset < 0 || offset > int64(len(b)) {
+		return 0, io.EOF
+	}
+	n := copy(p, b[int(offset):])
+	if n != len(p) {
+		return n, io.EOF
+	}
+	return n, nil
+}
+
 func (b rangeBuffer) WriteAt(p []byte, offset int64) (int, error) {
 	return copy(b[int(offset):], p), nil
 }

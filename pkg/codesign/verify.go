@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -13,7 +14,12 @@ func Inspect(ctx context.Context, path string) (*Report, error) {
 }
 
 // InspectWithOptions inspects a selected framework version without verifying it.
-func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Report, error) {
+func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = errors.Join(err, storage.Close()) }()
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -106,7 +112,17 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	return &CertificateMetadata{Authorities: chain.Authorities, Certificates: chain.Certificates, SigningTime: info.SigningTime, Timestamp: info.Timestamp}, nil
 }
 
-func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
+func Verify(ctx context.Context, path string, opts VerifyOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, storage.Close())
+		if err != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	if err := sidebandOptions(ctx, opts, false); err != nil {
 		return nil, err
 	}
@@ -134,7 +150,17 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 	return r, err
 }
 
-func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report, error) {
+func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, storage.Close())
+		if err != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	return verifyInput(ctx, opts, isDMG(data), func() (*Report, error) { return InspectBytes(data) },
 		func(kind uint8, offset, length uint64) ([]byte, error) {
 			return digestContext(ctx, kind, data[offset:offset+length])
