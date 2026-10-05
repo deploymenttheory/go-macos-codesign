@@ -41,7 +41,7 @@ func parseDMG(data []byte) (*dmgImage, error) {
 	if len(data) < dmgFooterSize+8 || len(data) > maxFileSize || !isDMG(data) {
 		return nil, malformed("UDIF image size or trailer")
 	}
-	m, err := parseDMGRange(uint64(len(data)), data[len(data)-dmgFooterSize:], memoryRange(data))
+	m, err := parseDMGRange(uint64(len(data)), data[len(data)-dmgFooterSize:], ownedMemoryRange(data))
 	if err == nil {
 		m.content = data[:m.footer.CodeSignatureOffset]
 	}
@@ -67,11 +67,10 @@ func parseDMGRange(length uint64, trailer []byte, read rangeReader) (*dmgImage, 
 		if h.CodeSignatureOffset < 8 || !rangeOK(h.CodeSignatureOffset, h.CodeSignatureLength, end) || h.CodeSignatureLength == 0 || h.CodeSignatureOffset+h.CodeSignatureLength != end {
 			return nil, malformed("UDIF signature bounds")
 		}
-		signature, err := read(h.CodeSignatureOffset, end-h.CodeSignatureOffset)
-		if err != nil {
-			return nil, err
-		}
-		m.signature, err = parseSignature(signature, true)
+		var err error
+		m.signature, err = parseSignatureRange(end-h.CodeSignatureOffset, func(offset, length uint64) ([]byte, error) {
+			return read(h.CodeSignatureOffset+offset, length)
+		}, true)
 		if err != nil {
 			return nil, err
 		}

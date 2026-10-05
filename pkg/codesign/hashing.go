@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+	"errors"
 	"fmt"
 	"hash"
 	"io"
@@ -117,13 +118,77 @@ func hashCodePages(ctx context.Context, src outputSource, page uint32, sums []by
 }
 
 func hashCodePagesTo(ctx context.Context, src outputSource, page uint32, dst io.WriterAt, offset int64) error {
-	p := codePageOutput{hash: sha256.New(), page: int64(page), remaining: int64(page), writer: dst, offset: offset}
-	if err := transferOutput(ctx, &p, src); err != nil {
+	if page == 0 || src.size < 0 || src.offset < 0 || src.offset > math.MaxInt64-src.size || offset < 0 {
+		return malformed("code page hash range")
+	}
+	pages := src.size / int64(page)
+	if src.size%int64(page) != 0 {
+		pages++
+	}
+	if pages > (math.MaxInt64-offset)/sha256.Size {
+		return malformed("code page hash output overflow")
+	}
+	if src.size == 0 {
+		return ctx.Err()
+	}
+	buf, release, err := transferBuffer(ctx, max(src.size, 2*sha256.Size))
+	if err != nil {
+		return err
+	}
+	defer release()
+	// Both partitions share one reservation, even under the minimum budget.
+	// Round the output partition down to complete SHA-256 slots.
+	split := (len(buf) / 2) &^ (sha256.Size - 1)
+	batch := pageHashBatch{ctx: ctx, dst: dst, buf: buf[:split], offset: offset}
+	p := codePageOutput{hash: sha256.New(), page: int64(page), remaining: int64(page), writer: &batch, offset: offset}
+	if err := transferOutputBuffer(ctx, &p, src, buf[split:]); err != nil {
 		return err
 	}
 	if p.remaining != p.page {
-		return p.finish()
+		if err := p.finish(); err != nil {
+			return err
+		}
 	}
+	return batch.flush()
+}
+
+// Sequential digest slots are staged until a bounded batch is ready. On error
+// the caller discards the generated section; no failed batch is retried.
+type pageHashBatch struct {
+	ctx    context.Context
+	dst    io.WriterAt
+	buf    []byte
+	used   int
+	offset int64
+}
+
+func (b *pageHashBatch) WriteAt(p []byte, at int64) (int, error) {
+	if at != b.offset+int64(b.used) || len(p) > len(b.buf)-b.used {
+		return 0, malformed("noncontiguous page hash batch")
+	}
+	b.used += copy(b.buf[b.used:], p)
+	if b.used == len(b.buf) {
+		return len(p), b.flush()
+	}
+	return len(p), nil
+}
+
+func (b *pageHashBatch) flush() error {
+	if err := b.ctx.Err(); err != nil {
+		return err
+	}
+	if b.used == 0 {
+		return nil
+	}
+	n, err := b.dst.WriteAt(b.buf[:b.used], b.offset)
+	if n != b.used {
+		err = errors.Join(io.ErrShortWrite, err)
+	}
+	if err != nil || b.ctx.Err() != nil {
+		return errors.Join(err, b.ctx.Err())
+	}
+	b.offset += int64(b.used)
+	b.used = 0
 	return nil
 }
 

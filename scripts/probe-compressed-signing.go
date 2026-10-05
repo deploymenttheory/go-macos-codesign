@@ -1,6 +1,6 @@
 //go:build ignore
 
-// Research only: native compressed Mach-O lifecycle and released SDK eligibility.
+// Research only: native compressed Mach-O lifecycle and pinned SDK eligibility.
 package main
 
 import (
@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -78,6 +79,7 @@ type result struct {
 
 func main() {
 	out := flag.String("out", "testdata/research/compressed-signing.json", "capture output")
+	check := flag.Bool("check", false, "compare all cases with committed native observations")
 	flag.Parse()
 	dir, err := os.MkdirTemp("", "codesign-compressed-")
 	must(err)
@@ -86,7 +88,7 @@ func main() {
 	must(json.Unmarshal(checked("go", "list", "-m", "-json", "github.com/deploymenttheory/go-apfs-v2"), &module))
 	// This is the SDK's existing independent C producer, compiled against the
 	// host headers. It invokes AppleFSCompression only in research, never in Go
-	// production. Pin its released bytes alongside the observed SDK version.
+	// production. Pin its downloaded bytes alongside the observed SDK version.
 	cSource := filepath.Join(module.Dir, "testdata/appledouble/native/decmpfs-formats.c")
 	helper := filepath.Join(dir, "compression-native")
 	checked("clang", "-Wall", "-Wextra", "-framework", "CoreFoundation", cSource, "-o", helper)
@@ -191,5 +193,22 @@ func main() {
 	capture := map[string]any{"schema": 1, "source_sha256": sources, "sdk": module.Version, "sdk_sum": module.Sum, "native_producer_sha256": hash(read(cSource)), "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c", "host": string(checked("sw_vers")), "cases": cases}
 	b, err := json.MarshalIndent(capture, "", "  ")
 	must(err)
+	if *check {
+		var baseline struct {
+			Cases    []result          `json:"cases"`
+			Sources  map[string]string `json:"source_sha256"`
+			SDK      string            `json:"sdk"`
+			SDKSum   string            `json:"sdk_sum"`
+			Producer string            `json:"native_producer_sha256"`
+		}
+		must(json.Unmarshal(read("testdata/research/compressed-signing.json"), &baseline))
+		if !reflect.DeepEqual(sources, baseline.Sources) || module.Version != baseline.SDK || module.Sum != baseline.SDKSum || hash(read(cSource)) != baseline.Producer {
+			panic("stale compressed lifecycle provenance; recapture with the pinned dependency")
+		}
+		if len(cases) != 16 || !reflect.DeepEqual(cases, baseline.Cases) {
+			panic("native compressed lifecycle or SDK eligibility changed")
+		}
+	}
+	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 }

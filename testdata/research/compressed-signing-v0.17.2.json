@@ -19,7 +19,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -42,7 +42,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -63,7 +63,7 @@
       "exit": 0,
       "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -86,7 +86,7 @@
       "exit": 0,
       "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -109,7 +109,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": true,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -132,7 +132,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": true,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -153,7 +153,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "standalone",
@@ -174,7 +174,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -195,7 +195,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -218,7 +218,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -239,7 +239,7 @@
       "exit": 0,
       "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -262,7 +262,7 @@
       "exit": 0,
       "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -285,7 +285,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": true,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -308,7 +308,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": true,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -329,7 +329,7 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     },
     {
       "shape": "bundle",
@@ -350,20 +350,20 @@
       "exit": 0,
       "diagnostic": "",
       "same_identity": false,
-      "sdk_error": ""
+      "sdk_error": "prepare replacement: unsupported replacement metadata: protected or compressed source"
     }
   ],
   "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c",
   "native_producer_sha256": "6e49c855d738664284fc51a064822db1603e7bdd870dfbc3130d2fd99317159c",
   "schema": 1,
-  "sdk": "v0.17.3-0.20261005072906-8821862a12de",
-  "sdk_sum": "h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=",
+  "sdk": "v0.17.2",
+  "sdk_sum": "h1:C3zpG1n8Y5+FUay5NVhGHvoHYlwLGI8BEZfJZxEVZxI=",
   "source_sha256": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "d36b0adcb8a81ad39ee96a94f58ffa4a5f405b9af1429d09bc05200189216a4a",
-    "go.sum": "2511719effd750247f9f210f87f1b92cbaebc0dd72642aff8794f739abca1f12",
-    "scripts/probe-compressed-signing.go": "815210d39bab5a9e3265410910fdb97fe3983b2c988210d21163f6b8b30297c3",
+    "go.mod": "4a3b8cd4db2b49188ff3eeed0d6fab35960387703a69606b55771dd9f82faf6c",
+    "go.sum": "1708f46b1d6fae7505587ad7f5803db544edab9c3964abb5456b679b397f33d4",
+    "scripts/probe-compressed-signing.go": "18e8b9dee197aab22251ba3918c43bc624c471329a4c7d5ceab42df5c9ae7121",
     "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
     "testdata/research/compressed-signing.c": "f4f2dfbaab6e652283876bc62783a8fb3875c918347951b802fb75bc099d8fbb"
   }

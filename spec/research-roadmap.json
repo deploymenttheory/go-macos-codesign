@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.2",
-    "sum": "h1:C3zpG1n8Y5+FUay5NVhGHvoHYlwLGI8BEZfJZxEVZxI=",
+    "version": "v0.17.3-0.20261005072906-8821862a12de",
+    "sum": "h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
@@ -5941,7 +5941,7 @@
       },
       {
         "path": "pkg/hostdata/replacement.go",
-        "sha256": "cdee3ad9fe59d5ef43cf947b7da2ce14596a616a0d801b27381e5577b10e0870",
+        "sha256": "2430d754cb2006c94fd7ce2574171615b814cd289cfec09c7732e26e0af9608b",
         "symbols": [
           "PrepareReplacement",
           "RestoreMetadata",
@@ -5968,7 +5968,7 @@
       },
       {
         "path": "pkg/hostdata/replacement_copy.go",
-        "sha256": "26ef7ccfb8b63377dd8a8e642d5fa3066a395fa60410288cdd12500e833b2bb6",
+        "sha256": "0c2ac6f407d72fffb7e55c9156ade3fafaa1eaf9b570e130abcf0a17541ddfeb",
         "symbols": [
           "prepareReplacementUsing",
           "copyReplacementMetadataUsing",
@@ -5978,12 +5978,12 @@
       },
       {
         "path": "pkg/hostdata/replacement_copy_darwin.go",
-        "sha256": "fd0d84f511263af2bba7cd635ded3559cbd22886feda486fdebd9311863d08f9",
+        "sha256": "5339cafdbe9d409fe9eabedbca683c09e7aeb6eea130cb3a647c22893cd5c664",
         "symbols": [
           "replacementCloneUnavailable",
           "copyReplacementMetadata"
         ],
-        "decision": "Released non-cloning fallback; reuse bounded xattr copying and streamed resource forks. Native codesign metadata policy remains consumer work."
+        "decision": "Merged PR198 main pin uses fresh staging for compressed sources, preserving independent resource forks and target compression flags. Recompression remains a separate prerequisite."
       },
       {
         "path": "pkg/hostdata/replacement_root_windows.go",
@@ -6002,6 +6002,24 @@
           "filterReplacementStreams"
         ],
         "decision": "Released bounded backup stream filter preserves sparse named data and excludes original main-data extents from replacement."
+      },
+      {
+        "path": "pkg/hostdata/replacement_darwin.go",
+        "sha256": "6fef22fcf036192c675bdbc3bd45793deb9c34a0304ffc0c05bc300b61e805cd",
+        "symbols": [
+          "prepareReplacement",
+          "restoreReplacementMetadata"
+        ],
+        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+      },
+      {
+        "path": "pkg/hostdata/replacement_root_darwin.go",
+        "sha256": "fabdb2629e46fee38124716ad1be0e2c189d60f70df5586d30b75b044c5dab51",
+        "symbols": [
+          "prepareReplacementAt",
+          "restoreReplacementMetadataAt"
+        ],
+        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
       }
     ],
     "prerequisite_findings": [

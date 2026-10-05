@@ -10,7 +10,60 @@ import (
 	"path/filepath"
 	"sync"
 	"testing"
+	"testing/synctest"
 )
+
+func TestWorkingStorageBlockedWaiters(t *testing.T) {
+	for _, action := range []string{"release", "cancel", "close"} {
+		t.Run(action, func(t *testing.T) {
+			synctest.Test(t, func(t *testing.T) {
+				ctx, s, err := beginWorkingStorage(WithWorkingStorage(t.Context(), WorkingStorageOptions{MemoryBytes: transferBufferSize}))
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer s.Close()
+				_, release, err := transferBuffer(ctx, transferBufferSize)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer release()
+				ctx, cancel := context.WithCancel(ctx)
+				defer cancel()
+				done := make(chan error, 1)
+				go func() {
+					_, free, err := transferBuffer(ctx, 1)
+					if err == nil {
+						free()
+					}
+					done <- err
+				}()
+				synctest.Wait()
+				select {
+				case err := <-done:
+					t.Fatal("waiter bypassed exhausted budget", err)
+				default:
+				}
+				var want error
+				switch action {
+				case "release":
+					release()
+				case "cancel":
+					cancel()
+					want = context.Canceled
+				case "close":
+					if err := s.Close(); err != nil {
+						t.Fatal(err)
+					}
+					want = os.ErrClosed
+				}
+				synctest.Wait()
+				if err := <-done; !errors.Is(err, want) {
+					t.Fatal(err)
+				}
+			})
+		})
+	}
+}
 
 func TestWorkingStorageSections(t *testing.T) {
 	for _, budget := range []int64{transferBufferSize, 2 * transferBufferSize, defaultWorkingMemory} {

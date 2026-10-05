@@ -3,8 +3,10 @@
 Standalone `Inspect`/`InspectWithOptions` and `Verify`, including the CLI display
 and verification operations, read supported Mach-O and UDIF representations through
 held file descriptors. They no longer read the entire payload into a byte slice
-or reject the file solely because it exceeds 1 GiB. [DMG signing](dmg-streaming.md) also uses held ranges. Bundle paths and Mach-O
-signing/removal output construction still use their bounded byte plans.
+or reject the file solely because it exceeds 1 GiB. [DMG signing](dmg-streaming.md),
+[Mach-O mutation](macho-streaming.md) and [bundle payloads](bundle-streaming.md)
+also use held ranges. Legacy byte APIs and individual metadata components retain
+the limits documented below.
 
 The range and byte paths share Mach-O/FAT parsing, UDIF structure validation,
 report construction, certificate/requirement policy and strict-layout validation.
@@ -112,6 +114,18 @@ CMS binding hashes and SuperBlob output plans consume these ranges directly.
 Nested operations reuse the same pool. `WithWorkingStorage` selects the budget,
 temporary directory and final reservation observer for an API operation.
 
+Page hashes use one reservation split between source reads and batched digest
+writes. A spill receives up to 32 KiB of digests per write instead of one write
+per page. Waiting for capacity is cancellable; tests exercise blocked waiters
+through release, cancellation and closure.
+
+Mach-O and DMG inspection read SuperBlob headers, index records and referenced
+components separately, retaining owned bytes for public reports. Unused reserved
+signature space is no longer materialized. Virtual 1/2/4 GiB boundary tests check
+offset arithmetic and reads only; they do not establish native acceptance of a
+gapped or oversized signature. Individual components and index objects still
+need the remaining metadata-budget work.
+
 This is not yet comprehensive memory enforcement. Input metadata, parser objects,
 queued work and handle accounting remain to be integrated and measured. Caller
 input and returned byte/report ownership remain unchanged; those allocations and
@@ -119,15 +133,22 @@ runtime overhead must be measured independently of managed reservations. The
 phase still requires isolated heap/RSS/working-set and temporary-storage controls
 before the default can be described as qualified at scale.
 
-Compressed-source replacement additionally requires the released result of
-[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198). The
+Compressed-source replacement uses the merged result of
+[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198), pinned
+to an exact `main` commit during Phase 02. The next upstream release is batched
+under the [phase dependency policy](implementation_plan.md). The
 research-only `scripts/probe-compressed-signing.go` records native standalone
 and bundle sign/re-sign/dry-run/removal outcomes, with and without
 `--preserve-afsc`, in `testdata/research/compressed-signing.json`. Its sixteen
-cases expose the v0.17.2 staging rejection. The probe is initial evidence;
-expanded codec profiles, repeat-capture validation and codesign acceptance
-integration remain required. Recompression is a separate prerequisite from
-writing an uncompressed replacement correctly.
+cases originally exposed the v0.17.2 staging rejection, retained in
+`compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK
+eligibility checks. `TestCompressedReplacementNative` also compares 24 live
+zlib/LZVN/LZFSE standalone and bundle operations with Apple: complete logical
+bytes, hidden compression header, resource fork, flags, identity changes and
+bundle envelope. Apple strictly verifies the signed results. This qualifies
+ordinary replacement and dry runs on those profiles; recompression, larger
+fork-backed profiles and portable foreign-metadata integration remain separate
+obligations.
 
 Standalone [Mach-O mutation](macho-streaming.md) now reuses the released held-source
 replacement API through metadata restore and a Windows-compatible close/rename handoff.

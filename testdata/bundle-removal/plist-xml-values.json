@@ -10072,14 +10072,14 @@
     }
   ],
   "corpus_sha256": {
-    "plist-euc-jp.json": "cf12a94f8a5e95cdb6359a858afe59009e262cf5bfe4d55653bbfc162aff5a81",
-    "plist-iso2022-extensions.json": "b6ee71fa396aef92e38d2b8fe5fcb6f5bb000d3ee937102027107fa402411b9f",
-    "plist-iso2022-jp.json": "e31b7676fac826f861a3a5deb4041cbee20da3ab83932bc77b023c6c9818dff1",
-    "plist-legacy.json": "600022336db0bbcfa2205fc04ceb1f9329dfb96efbcb2bb1e967d71544012b28",
-    "plist-shift-jis.json": "16e1e0f8caa7b929e31931d8e2e5e33b05cde744a5a2d1d22b9515b60d410490",
-    "plist-unmarked.json": "b29e327e5a2f054734f8512f1699d65b51f64eafe7be4528447a7c3a405eb1b4",
-    "plist-utf32-grammar.json": "87863e8053c538a882860065ab3f1dfd47751951adeb7beb0c4bc2ecb7ddda93",
-    "plist-xml-characters.json": "ecadb82565a1ad2de82a2ddb57b408e883ad41c15928713c143678bb947ba36e"
+    "plist-euc-jp.json": "06fdb629422e32ccc330d9fcf8c70ebf3855e5366d95848477d501bfa2bcdc0b",
+    "plist-iso2022-extensions.json": "ce631cb0a3ddce2f524438e60ee4c104388a6b64f5f08065bc81a626304eca2b",
+    "plist-iso2022-jp.json": "f26c2072ee29fb34971264552e93ad041363bbb47a59746899b88dab7e3a339f",
+    "plist-legacy.json": "893ea5637d9fc001e840ea00b314743512252178f3d4951a372b550ed47d376a",
+    "plist-shift-jis.json": "b1bc342d62d67bfe2a73f07b67f8e541c5829895a84f4f108f564d68faad90f4",
+    "plist-unmarked.json": "5fafc652523cdf555c651801735199f0768a0b898efad8d85b04da0b8f20e7a8",
+    "plist-utf32-grammar.json": "812cdaac9d1bb983fdf2d2ac951d312c3eb324196663dda34c89e7a476c2e666",
+    "plist-xml-characters.json": "881d7c61abbaa6aead0bf8b373a8185a9a812ae588c674b5fdfa5ecf77831412"
   },
   "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",

@@ -79,6 +79,8 @@ func TestSignatureOutputFailures(t *testing.T) {
 	for _, sections := range [][]signatureSection{
 		{{1, byteOutput(make([]byte, 7))}},
 		{{1, outputSource{size: math.MaxUint32}}},
+		{{1, outputSource{offset: -1, size: 8}}},
+		{{1, outputSource{offset: math.MaxInt64 - 7, size: 8}}},
 		{{1, byteOutput(make([]byte, 8))}, {1, byteOutput(make([]byte, 8))}},
 	} {
 		if _, err := superblobOutput(MagicSignature, sections); err == nil {

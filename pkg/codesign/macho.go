@@ -41,6 +41,12 @@ func memoryRange(data []byte) rangeReader {
 	return func(offset, length uint64) ([]byte, error) { return data[offset : offset+length], nil }
 }
 
+func ownedMemoryRange(data []byte) rangeReader {
+	return func(offset, length uint64) ([]byte, error) {
+		return bytes.Clone(data[offset : offset+length]), nil
+	}
+}
+
 func parseImage(data []byte) (*image, error) {
 	im, err := parseImageRange(uint64(len(data)), memoryRange(data))
 	if err == nil {

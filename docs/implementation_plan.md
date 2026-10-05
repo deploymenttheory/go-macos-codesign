@@ -6,8 +6,9 @@ and Windows. It replaces the former incremental work-package plan. Completed
 implementation and validation evidence belong in the [focused guides](README.md),
 [progress record](progress.md), source/fixture manifests and Git history.
 
-Planning baseline: 2026-10-05, main through PR103; the current streaming-bundle
-branch consumes published go-apfs-v2 v0.17.2.
+Planning baseline: 2026-10-05, main through PR104. During Phase 02, consume
+merged APFS `main` fixes through exact Go pseudo-versions, without local module
+replacements. The dependency and upstream batch are recorded below.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -51,8 +52,13 @@ CLI options immediately; phase 11 is not a backlog for unfinished earlier wiring
 
 Research and independently testable prerequisite preparation can overlap. Each
 implementation phase starts on a fresh branch from the latest merged main.
-Avoid building a stack of large unmerged implementation branches. Complete and
-release shared APFS prerequisites before updating this project's dependency.
+Avoid building a stack of large unmerged implementation branches. For Phase 02,
+qualify shared APFS prerequisites upstream, then integrate their merged `main`
+commits using reproducible Go pseudo-versions. The user will cut the next APFS
+release only after this phase's work is complete and at least eight substantive
+upstream changes have accumulated. Do not request a release for each fix. Before
+the codesign phase is ready to merge, replace its development pin with that
+release and rerun dependency-sensitive qualification.
 
 ## Implementation boundaries
 
@@ -206,7 +212,8 @@ the following pipeline.
    - [ ] Audit released APFS APIs for held-file access, bounded replacement,
      temporary storage, metadata restoration and DMG range access. Record any
      missing shared primitive, implement and qualify it upstream, then consume
-     its published release before dependent codesign integration.
+     its merged commit under the Phase 02 batching policy before dependent
+     codesign integration; consume the batch release for final qualification.
 2. **Held sources and range-based parsing.**
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
      large metadata/index tables and every remaining representation. Path payloads
@@ -312,16 +319,25 @@ the following pipeline.
 
 **Qualification still required:** extend the [shared transfer checkpoints](operation-io.md)
 to all remaining planning, metadata, cleanup and commit paths, preserving the
-released APFS v0.17.2 integration. Keep source-preserving SDK transport distinct
+APFS integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
-**Active prerequisite:** [APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198)
-adds safe replacement staging for compressed Darwin sources. Consume a published
-release after it merges; do not use a local module replacement to qualify this
-phase. This prerequisite excludes stale compressed storage when writing new
+**Upstream batch since v0.17.2: one substantive change.**
+[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198) is merged
+at `8821862a12deeb1b7976e00c5edcc548cdef120e` and adds safe replacement staging
+for compressed Darwin sources. Pin that commit for development and CI; do not
+use a local module replacement to qualify this phase. Track further substantive
+fixes here as they merge, with their acceptance evidence. Count behavior changes,
+not cosmetic commits or release automation. This prerequisite excludes stale compressed storage when writing new
 logical contents. It does not provide the recompression policy or full encoding
 integration required for `--preserve-afsc`. Those remain outstanding, including
 portable foreign-metadata handling and native post-rename failure semantics.
+
+The main pin passes 24 live compressed standalone/bundle lifecycle comparisons
+and the retained sixteen-case native recapture. These are ordinary replacement
+controls, not completion of the compression family. Further upstream changes
+must address evidenced missing behavior; the eight-change release threshold is
+not a reason to split or invent fixes.
 
 The operation storage manager and generated CodeDirectory/SuperBlob ranges are
 under implementation on the phase branch. They are not closure evidence for

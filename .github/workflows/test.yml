@@ -145,6 +145,8 @@ jobs:
         run: go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
       - name: Recapture native large Mach-O signing and removal boundaries
         run: go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
+      - name: Recapture native compressed signing lifecycle and APFS staging
+        run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Check complete Apple bundle hashing bodies with both Clang targets
         run: go run scripts/extract-bundle-streaming.go -check -out artifacts/apple-bundle-streaming.json
       - name: Recapture native large bundle operations and complete member hashes

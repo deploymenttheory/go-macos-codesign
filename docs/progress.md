@@ -297,10 +297,14 @@ and 95.54% on macOS. Its native and portable tests remain unchanged.
 Broader permission/concurrency profiles and the remaining compatibility inventory
 are still open; this does not declare full codesign parity.
 
-## Current published APFS dependency
+## Current APFS dependency
 
-Codesign pins [APFS v0.17.2](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.17.2)
-and uses its `hostdata` and `hostdata/accesstime` packages for existing replacement,
+The Phase 02 branch pins merged APFS main commit `8821862a12de` through
+`v0.17.3-0.20261005072906-8821862a12de`, adding PR198's compressed replacement
+fix to the previous v0.17.2 baseline. The next release waits for phase completion
+and at least eight substantive upstream changes, as specified in the
+[implementation plan](implementation_plan.md). Codesign uses the SDK's
+`hostdata` and `hostdata/accesstime` packages for existing replacement,
 directory metadata, metadata-only discovery and read/access-time operations. No local APFS replacement or
 copied metadata codec is used. The earlier v0.15.0 correction removes
 purego through the approved finite typed Darwin wrappers and preserves portable

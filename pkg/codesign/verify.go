@@ -45,7 +45,7 @@ func InspectBytes(data []byte) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	return inspectContainer(c, memoryRange(data))
+	return inspectContainer(c, ownedMemoryRange(data))
 }
 
 func inspectContainer(c *container, read rangeReader) (*Report, error) {
@@ -64,11 +64,10 @@ func inspectContainer(c *container, read rangeReader) (*Report, error) {
 			}
 		}
 		if im.sigCommand >= 0 {
-			data, err := read(s.offset+uint64(im.sigOffset), uint64(im.sigSize))
-			if err != nil {
-				return nil, err
-			}
-			a.Signature, err = ParseSignature(data)
+			var err error
+			a.Signature, err = parseSignatureRange(uint64(im.sigSize), func(offset, length uint64) ([]byte, error) {
+				return read(s.offset+uint64(im.sigOffset)+offset, length)
+			}, false)
 			if err != nil {
 				return nil, err
 			}
