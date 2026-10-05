@@ -78,16 +78,18 @@ type result struct {
 }
 
 func main() {
-	out := flag.String("out", "testdata/research/compressed-signing.json", "capture output")
+	out := flag.String("out", "artifacts/compressed-signing.json", "capture output")
 	check := flag.Bool("check", false, "compare all cases with committed native observations")
 	flag.Parse()
 	if *check {
 		destination, err := filepath.Abs(*out)
 		must(err)
-		baseline, err := filepath.Abs("testdata/research/compressed-signing.json")
-		must(err)
-		if destination == baseline {
-			panic("-check requires a separate -out path; retained evidence must not be overwritten")
+		for _, name := range []string{"compressed-signing.json", "compressed-signing-26A434.json"} {
+			baseline, err := filepath.Abs(filepath.Join("testdata/research", name))
+			must(err)
+			if destination == baseline {
+				panic("-check requires a separate -out path; retained evidence must not be overwritten")
+			}
 		}
 	}
 	dir, err := os.MkdirTemp("", "codesign-compressed-")
@@ -207,6 +209,12 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	if *check {
+		build := strings.TrimSpace(string(checked("sw_vers", "-buildVersion")))
+		profiles := map[string]string{"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}
+		profile, ok := profiles[build]
+		if !ok {
+			panic("unqualified native compression build: " + build)
+		}
 		var baseline struct {
 			Cases    []result          `json:"cases"`
 			Sources  map[string]string `json:"source_sha256"`
@@ -214,7 +222,7 @@ func main() {
 			SDKSum   string            `json:"sdk_sum"`
 			Producer string            `json:"native_producer_sha256"`
 		}
-		must(json.Unmarshal(read("testdata/research/compressed-signing.json"), &baseline))
+		must(json.Unmarshal(read(filepath.Join("testdata/research", profile)), &baseline))
 		if !reflect.DeepEqual(sources, baseline.Sources) || module.Version != baseline.SDK || module.Sum != baseline.SDKSum || hash(read(cSource)) != baseline.Producer {
 			panic("stale compressed lifecycle provenance; recapture with the pinned dependency")
 		}

@@ -1,0 +1,370 @@
+{
+  "cases": [
+    {
+      "shape": "standalone",
+      "operation": "sign",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "sign",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "resign",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3"
+      },
+      "exit": 0,
+      "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "resign",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "exit": 0,
+      "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "dryrun",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": true,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "dryrun",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": true,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "remove",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "standalone",
+      "operation": "remove",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16816,
+        "sha256": "8196703b737185f52d9bc9c39a5b2aef0cf9cb8b4df56e64e5aebcec522a76c3",
+        "attribute": "ZnBtYwQAAACwQQAAAAAAAA==",
+        "fork_sha256": "caf8a67997225b81ec13546e14b47fc26c513ec0f5bc31cf436e4975f267d859"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "sign",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "sign",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "resign",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386"
+      },
+      "exit": 0,
+      "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "resign",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "exit": 0,
+      "diagnostic": "\u003ccode\u003e: replacing existing signature\n",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "dryrun",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": true,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "dryrun",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "after": {
+        "flags": 32,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+        "attribute": "ZnBtYwQAAAB4QAAAAAAAAA==",
+        "fork_sha256": "0a7a6ee658c40739819082e07af7b3a8b70518ab8e1ba2cfc531c7c6d5fed08c"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": true,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "remove",
+      "preserve": false,
+      "before": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    },
+    {
+      "shape": "bundle",
+      "operation": "remove",
+      "preserve": true,
+      "before": {
+        "flags": 32,
+        "size": 16848,
+        "sha256": "bc1c0e0fb9739820a8e50899f9ba07a7f5153b0828768834d3f5074f88261386",
+        "attribute": "ZnBtYwQAAADQQQAAAAAAAA==",
+        "fork_sha256": "2be0ad3be99245728911ed12cbbc06501f36d6b80baff2378ca00f7801595b1c"
+      },
+      "after": {
+        "flags": 0,
+        "size": 16504,
+        "sha256": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"
+      },
+      "exit": 0,
+      "diagnostic": "",
+      "same_identity": false,
+      "sdk_error": ""
+    }
+  ],
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c",
+  "native_producer_sha256": "6e49c855d738664284fc51a064822db1603e7bdd870dfbc3130d2fd99317159c",
+  "schema": 1,
+  "sdk": "v0.17.3-0.20261005072906-8821862a12de",
+  "sdk_sum": "h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=",
+  "source_sha256": {
+    "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+    "go.mod": "d36b0adcb8a81ad39ee96a94f58ffa4a5f405b9af1429d09bc05200189216a4a",
+    "go.sum": "2511719effd750247f9f210f87f1b92cbaebc0dd72642aff8794f739abca1f12",
+    "scripts/probe-compressed-signing.go": "e99dc9c6144cd9724e6fe11e0797117c59f381e335c24a2e7d28d051975da672",
+    "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
+    "testdata/research/compressed-signing.c": "f4f2dfbaab6e652283876bc62783a8fb3875c918347951b802fb75bc099d8fbb"
+  }
+}

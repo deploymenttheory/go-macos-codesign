@@ -135,6 +135,8 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Recapture native compressed signing lifecycle and APFS staging
+        run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Check held-file Apple readers with both Clang targets
         run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
       - name: Check pinned Apple CodeDirectory sizing and builder bodies
@@ -145,8 +147,6 @@ jobs:
         run: go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
       - name: Recapture native large Mach-O signing and removal boundaries
         run: go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
-      - name: Recapture native compressed signing lifecycle and APFS staging
-        run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Check complete Apple bundle hashing bodies with both Clang targets
         run: go run scripts/extract-bundle-streaming.go -check -out artifacts/apple-bundle-streaming.json
       - name: Recapture native large bundle operations and complete member hashes
