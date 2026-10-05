@@ -238,7 +238,9 @@ Standalone display/inspection and verification use file ranges, with native UDIF
 acceptance above 4 GiB. [DMG signing](docs/dmg-streaming.md) also hashes held ranges
 and writes only its signature/trailer. [Mach-O signing/removal](docs/macho-streaming.md)
 streams standalone thin/universal output into an SDK replacement, including native-accepted
-inputs above 1 and 2 GiB. Bundle operations retain their 1 GiB bounds. Metadata is still materialized; see [streaming limits](docs/source-range-io.md).
+inputs above 1 and 2 GiB. [Bundle operations](docs/bundle-streaming.md) also use held
+executable plans and incremental resource hashes, with controls above 4 GiB in
+resource and aggregate size. Metadata is still materialized; see [streaming limits](docs/source-range-io.md).
 The path APIs also accept supported app bundles; byte APIs accept Mach-O and UDIF.
 See [bundle layouts and limits](docs/bundles.md).
 

@@ -200,9 +200,8 @@ func (b *appBundle) resourceLink(name, rel string, scope *bundleScan) (string, e
 			return "", err
 		}
 	}
-	scope.bytes += int64(len(target))
-	if scope.bytes > maxFileSize {
-		return "", unsupported("bundle input exceeds 1 GiB")
+	if err := scope.addBytes(int64(len(target))); err != nil {
+		return "", err
 	}
 	return target, nil
 }

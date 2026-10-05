@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -149,6 +150,11 @@ func TestFrameworkVersionBudgetsAndHardlinks(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer opened.close()
+	large := newBundleScan()
+	large.bytes = maxFileSize
+	if err := opened.inventoryOtherVersions(ctx, large, ""); err != nil || large.bytes <= maxFileSize {
+		t.Fatal("unselected version rejected legacy aggregate boundary", large.bytes, err)
+	}
 	for _, exhausted := range []string{"entries", "bytes", "children", "canceled"} {
 		scope := newBundleScan()
 		callCtx := ctx
@@ -156,7 +162,7 @@ func TestFrameworkVersionBudgetsAndHardlinks(t *testing.T) {
 		case "entries":
 			scope.entries = maxBundleEntries
 		case "bytes":
-			scope.bytes = maxFileSize
+			scope.bytes = math.MaxInt64
 		case "children":
 			scope.nested = maxNestedFiles
 		case "canceled":

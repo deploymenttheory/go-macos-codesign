@@ -1,0 +1,97 @@
+{
+  "base_commit": "5a5167ff638a5853c6a70b7f0fde24973e8267f4",
+  "dependency": "github.com/deploymenttheory/go-apfs-v2@v0.17.2",
+  "comparison": "Fresh native execution; all complete observations unchanged. Only dependency and dependent corpus provenance changes.",
+  "profiles": [
+    {
+      "file": "plist-interpretation.json",
+      "cases": 180,
+      "previous_sha256": "5406d526beeae0fbfd18734a0a7ac40dbb4e8833109fe1147abad21ea477f499",
+      "fresh_sha256": "4ef79ae8336c1acf86242b8c3cb395343fcfa1e73e17a9b93a5a86b5a8c90e30"
+    },
+    {
+      "file": "plist-encodings.json",
+      "cases": 120,
+      "previous_sha256": "aa45a1f20b2fd5bebf9fdbb54b84862dc71c4fab680bd4e190123333fe4e6ccc",
+      "fresh_sha256": "bcce52951bd37dca5dbd36313c4291cb6fed31191f92a10beb257d0ae1f44d34"
+    },
+    {
+      "file": "plist-utf32.json",
+      "cases": 276,
+      "previous_sha256": "1c547f8e8bc0577e9da328ef2c98f296207b8bfea88b6db21099a81774495a81",
+      "fresh_sha256": "dcde9b9459d7bcac842440649e0d49726a3d9410f780b224f1f3bbd6f9f6513c"
+    },
+    {
+      "file": "plist-utf32-grammar.json",
+      "cases": 36,
+      "previous_sha256": "30fba87ed860527975b01593d4f1a231c7e24150c58556535fae6a179e459540",
+      "fresh_sha256": "87863e8053c538a882860065ab3f1dfd47751951adeb7beb0c4bc2ecb7ddda93"
+    },
+    {
+      "file": "plist-xml-characters.json",
+      "cases": 192,
+      "previous_sha256": "14941180cec3d4a36e8b5002516a813af8b333009b4e9d5b7f3f4f952cd8bb04",
+      "fresh_sha256": "ecadb82565a1ad2de82a2ddb57b408e883ad41c15928713c143678bb947ba36e"
+    },
+    {
+      "file": "plist-unmarked.json",
+      "cases": 408,
+      "previous_sha256": "c230af95d1d8aeaa64f716887fb47d918da0a630ec21ad287cef759cd55a2312",
+      "fresh_sha256": "b29e327e5a2f054734f8512f1699d65b51f64eafe7be4528447a7c3a405eb1b4"
+    },
+    {
+      "file": "plist-legacy.json",
+      "cases": 792,
+      "previous_sha256": "928d73164faaa5ae68cf176cdc5c13237ffed985c6a80e8fe1ae4daf1f0443b3",
+      "fresh_sha256": "600022336db0bbcfa2205fc04ceb1f9329dfb96efbcb2bb1e967d71544012b28"
+    },
+    {
+      "file": "plist-shift-jis.json",
+      "cases": 912,
+      "previous_sha256": "1400448f5827e6a4713b2db9903ad290aa183644ec4fd42de63f3e16aedd1973",
+      "fresh_sha256": "16e1e0f8caa7b929e31931d8e2e5e33b05cde744a5a2d1d22b9515b60d410490"
+    },
+    {
+      "file": "plist-euc-jp.json",
+      "cases": 1488,
+      "previous_sha256": "178d9d18632620fee76fbb77ee41ba4a0b6cd59ed68aa535f2e9cd89cce9d414",
+      "fresh_sha256": "cf12a94f8a5e95cdb6359a858afe59009e262cf5bfe4d55653bbfc162aff5a81"
+    },
+    {
+      "file": "plist-iso2022-jp.json",
+      "cases": 1836,
+      "previous_sha256": "fada5977b15e436b55d1e8a022abf8092fd0843ae479375a91d82eda996e71d8",
+      "fresh_sha256": "e31b7676fac826f861a3a5deb4041cbee20da3ab83932bc77b023c6c9818dff1"
+    },
+    {
+      "file": "plist-iso2022-extensions.json",
+      "cases": 2100,
+      "previous_sha256": "0d7dba698d50c861e5e0606610d5b2b1d3b9c6348e4bbf6f90bb67c8f0e9ad91",
+      "fresh_sha256": "b6ee71fa396aef92e38d2b8fe5fcb6f5bb000d3ee937102027107fa402411b9f"
+    }
+  ],
+  "native_cases": 8340,
+  "complete_value_replay": {
+    "file": "plist-xml-values.json",
+    "cases": 1294,
+    "previous_sha256": "b683b5a0734a482676d14d83a38a1e72caa7688e7da2af3ac49d0dafcc20516d",
+    "fresh_sha256": "a7435e6e225126c2b56635050e929d35d49b9884a2e20001ed9239de67b4c21e",
+    "comparison": "Complete native values, inputs and statuses unchanged after fresh execution."
+  },
+  "other_controls": [
+    {
+      "file": "filesystem-prerequisite.json",
+      "cases": 6,
+      "previous_sha256": "a53f00832b3fee59f4d9dff710398bd02155575e29858a744f17f319edbe174b",
+      "fresh_sha256": "db86aece3dc813191f798b0bb0105cc49651f196d30d4ff91c92b56c3c056d94",
+      "comparison": "Native operation outcomes and full output hashes unchanged after fresh execution."
+    },
+    {
+      "file": "large-source.json",
+      "cases": 9,
+      "previous_sha256": "f04428725a86a34561048ebe19eeab5c45edcec8a96aab889bf8a06cbca6713c",
+      "fresh_sha256": "316701ab16cd99a5fb1db1944492f8864e910eeb41c439252bf59c8621a5ea7e",
+      "comparison": "Native operation outcomes and full output hashes unchanged after fresh execution."
+    }
+  ]
+}

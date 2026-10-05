@@ -6,8 +6,8 @@ and Windows. It replaces the former incremental work-package plan. Completed
 implementation and validation evidence belong in the [focused guides](README.md),
 [progress record](progress.md), source/fixture manifests and Git history.
 
-Planning baseline: 2026-10-04, main at
-`8c7b47abf5e695c9521957fa4830f2cceb5342f4`, consuming published go-apfs-v2 v0.17.1.
+Planning baseline: 2026-10-05, main through PR103; the current streaming-bundle
+branch consumes published go-apfs-v2 v0.17.2.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
 entries: 32 partial, 48 not implemented and eight blocked; zero fully verified**.
 These are obligations of different sizes, not a percentage-complete calculation.
@@ -208,13 +208,10 @@ the following pipeline.
      missing shared primitive, implement and qualify it upstream, then consume
      its published release before dependent codesign integration.
 2. **Held sources and range-based parsing.**
-   - [ ] Extend standalone held-source inspection/verification, DMG signing and
-     [Mach-O mutation](macho-streaming.md) into bundle operations with known size, `ReaderAt`, checked
-     64-bit ranges and explicit close ownership. Read headers, load commands,
-     trailers and required signature structures without materializing payloads.
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
-     bundle executable/resource and supported DMG paths. Bound or spill large
-     metadata/index tables too; moving only payload bytes is insufficient.
+     large metadata/index tables and every remaining representation. Path payloads
+     now use ranges, including [bundles](bundle-streaming.md); bound or spill large
+     metadata/index tables too, since moving only payload bytes is insufficient.
    - [ ] Track source identity and relevant content stability from discovery to
      hashing and commit. Define descriptor handoff for Windows share/rename
      rules, revalidation and remaining races without promising a filesystem
@@ -237,8 +234,8 @@ the following pipeline.
      explicit offsets, lengths, alignment and reservation. Stream unchanged
      bytes and produce modified sections without assembling a whole-file output.
      The [DMG tail writer](dmg-streaming.md) and standalone [Mach-O plans](macho-streaming.md)
-     are integrated; bundle plans, large metadata and their overlap-sensitive
-     assembly remain.
+     and [bundle plans](bundle-streaming.md) are integrated; large metadata and
+     its overlap-sensitive assembly remain.
    - [ ] Spill intermediate sections and metadata when needed. Define temporary
      file location, permissions, storage accounting, sync/close ownership and
      cleanup for success, read/write failures, disk exhaustion and cancellation.
@@ -251,11 +248,11 @@ the following pipeline.
      path operations through the new pipeline for their supported representations.
      Apply the same capabilities on Linux, macOS and Windows; preserve existing
      CLI options, diagnostics, trust policy and operation ordering.
-   - [ ] Replace legacy per-file, aggregate bundle and staged-output 1 GiB checks
-     only after their streaming paths are qualified. Keep structural validation
-     and arithmetic checks; distinguish a real resource failure from unsupported
-     format. An input just below the old limit must also support signature growth
-     across it. Do not silently weaken separate plist/parser safety contracts.
+   - [ ] Finish auditing legacy metadata allocation checks after path payload and
+     aggregate bundle ceiling removal. Keep structural validation and arithmetic
+     checks; distinguish real resource failures from unsupported format. Qualify
+     large metadata growth across old limits without weakening separate
+     plist/parser safety contracts or byte API ownership guarantees.
 6. **Scale and failure qualification.**
    - [ ] Add versioned, reproducible real-file fixtures at one byte below, at and
      above 1 GiB, 2 GiB and 4 GiB where the format permits; include sparse and
@@ -315,7 +312,7 @@ the following pipeline.
 
 **Qualification still required:** extend the [shared transfer checkpoints](operation-io.md)
 to all remaining planning, metadata, cleanup and commit paths, preserving the
-qualified APFS v0.17.1 integration. Keep source-preserving SDK transport distinct
+released APFS v0.17.2 integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
 **Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,

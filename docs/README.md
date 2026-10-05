@@ -20,6 +20,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Certificate signing](certificates.md) | PEM/PKCS#12, CMS, certificate chains, Team IDs and explicit trust |
 | [Timestamps](timestamps.md) | Online HTTP signing, RFC 3161 verification, TSA roots and live testing |
 | [App bundles](bundles.md) | XML/binary metadata, resource sealing, native evidence and filesystem limits |
+| [Streaming bundles](bundle-streaming.md) | Held executables, nested plans, large resources, native captures and foreign bundle verification |
 | [DMG signing](dmg-integration.md) | Direct go-apfs-v2 dependency, native signatures, evidence and limits |
 | [File writes](file-writes.md) | Shared APFS metadata API, hard-link behavior, staging and limits |
 | [Native inventory](native-inventory.md) | Expanded parser/operation evidence, source gaps and live-state access constraints |
@@ -27,7 +28,7 @@ work packages, dependencies, native acceptance criteria and proposed PR slices.
 | [Detailed implementation plan](implementation_plan.md) | Outstanding-only roadmap: eleven remaining larger phases, 88 feature owners, prerequisites and acceptance gates |
 | [Testing](testing.md) | Local commands, native acceptance, CI artifacts and full-parity audit |
 | [Releases](releases.md) | Release Please, GoReleaser, App/PAT setup, SBOMs and signed checksums |
-| [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.1 integration, mounted HFS+ acceptance and remaining work |
+| [Portable I/O and lifecycle](portable-io-lifecycle.md) | Phase 02 scope, APFS v0.17.2 integration, mounted HFS+ acceptance and remaining work |
 | [Held-file inspection](source-range-io.md) | Range parsing, native large-file verification, memory evidence and remaining size limits |
 | [Streaming DMG signing](dmg-streaming.md) | Held-file signing, 64-bit limits, native tail writes and large-file qualification |
 | [Streaming Mach-O mutation](macho-streaming.md) | Held-file signing/removal, universal assembly, native allocation limits and staged replacement |

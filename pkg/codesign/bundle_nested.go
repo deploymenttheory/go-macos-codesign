@@ -29,7 +29,7 @@ func nestedCodePath(name string) (inside, container bool) {
 	return false, false
 }
 
-type nestedResource struct{ data []byte }
+type nestedResource struct{ data codeSource }
 
 type bundleWriteKind uint8
 
@@ -49,13 +49,14 @@ const (
 type bundleWrite struct {
 	name    string
 	data    []byte
+	output  outputSource
 	bundle  *appBundle
 	kind    bundleWriteKind
 	cleanup bundleCleanup
 }
 
-func nestedSignature(data []byte) (*Report, int, error) {
-	r, err := InspectBytes(data)
+func nestedSignature(data codeSource) (*Report, int, error) {
+	r, err := data.inspect()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -79,7 +80,7 @@ func nestedSignature(data []byte) (*Report, int, error) {
 	return r, selected, nil
 }
 
-func nestedSeal(data []byte) (map[string]any, error) {
+func nestedSeal(data codeSource) (map[string]any, error) {
 	r, selected, err := nestedSignature(data)
 	if err != nil {
 		return nil, err
@@ -137,7 +138,6 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 	}
 	sort.Strings(names)
 	var writes []bundleWrite
-	var total int64
 	var metadataFailure error
 	for _, name := range names {
 		if err := ctx.Err(); err != nil {
@@ -149,7 +149,7 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 			}
 			continue
 		}
-		var original []byte
+		var original codeSource
 		var app *nestedAppResource
 		switch v := files[name].(type) {
 		case nestedResource:
@@ -160,7 +160,7 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 		data := original
 		var staged []bundleWrite
 		if opts.Deep {
-			r, err := InspectBytes(data)
+			r, err := data.inspect()
 			if err != nil {
 				return nil, err
 			}
@@ -173,23 +173,23 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 				} else {
 					child.Force = true
 					if child.Identifier == "" {
-						child.Identifier, err = machoIdentifier(name, data, child.Identity == nil)
+						var c *container
+						c, err = data.container()
+						if err == nil {
+							child.Identifier, err = c.identifier(name, child.Identity == nil)
+						}
 						if err != nil {
 							return nil, err
 						}
 					}
-					data, err = signBytes(ctx, data, child, false)
+					var output outputSource
+					output, err = signCodeSource(data, child)
+					data = codeSource{ctx, output}
 					if err == nil {
-						staged = []bundleWrite{{name: base + name, data: data}}
+						staged = []bundleWrite{{name: base + name, output: data.source}}
 					}
 				}
 				if metadataSigningFailure(err) {
-					for _, w := range staged {
-						total += int64(len(w.data))
-					}
-					if total > maxFileSize {
-						return nil, unsupported("nested signature output exceeds 1 GiB")
-					}
 					writes = append(writes, staged...)
 					if metadataFailure == nil {
 						metadataFailure = signingNestedError(app.bundle.sidebandBase, err)
@@ -198,12 +198,6 @@ func prepareNestedForBundle(ctx context.Context, files map[string]any, opts Sign
 				}
 				if err != nil && (!opts.DryRun || len(staged) == 0) {
 					return nil, fmt.Errorf("nested %s: %w", name, err)
-				}
-				for _, w := range staged {
-					total += int64(len(w.data))
-				}
-				if total > maxFileSize {
-					return nil, unsupported("nested signature output exceeds 1 GiB")
 				}
 				writes = append(writes, staged...)
 				if err != nil {
@@ -249,6 +243,7 @@ func nestedRequirement(name string, value any) (string, error) {
 }
 
 func verifyNestedResource(ctx context.Context, name string, value any, resource nestedResource, opts VerifyOptions) error {
+	resource.data.ctx = ctx
 	requirement, err := nestedRequirement(name, value)
 	if err != nil {
 		return err
@@ -266,7 +261,7 @@ func verifyNestedResource(ctx context.Context, name string, value any, resource 
 	opts.Requirement = requirement
 	opts.Architecture = "" // every child architecture must satisfy the parent seal
 	opts.directoryOnly = !opts.Deep
-	if _, err := VerifyBytes(ctx, resource.data, opts); err != nil {
+	if _, err := verifyCodeSource(resource.data, opts); err != nil {
 		return nestedVerificationError(filepath.Join(opts.resourceBase, name), err)
 	}
 	return nil

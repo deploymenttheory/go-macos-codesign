@@ -68,7 +68,7 @@ multi-gigabyte images and further native failure qualification also remain open.
 Mach-O and bundle mutation still use whole-file plans. This integration does not
 complete Phase 02 or qualify every DMG profile.
 
-APFS v0.17.1 supplies the UDIF model. The released SDK needs no new filesystem
+APFS v0.17.2 supplies the UDIF model. The released SDK needs no new filesystem
 primitive for this in-place tail write; codesign owns signature construction and
 operation ordering. Image codecs, resource forks and replacement metadata remain
 upstream responsibilities.

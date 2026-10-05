@@ -387,10 +387,12 @@ The library equivalents are `SignOptions.Deep` and `VerifyOptions.Deep`.
   Signing/deep traversal permits at most eight nested bundle levels, 10,000 total
   tree entries and 64 nested code objects (bundles, alternate framework versions
   and plain files combined). A framework may contain at most 64 physical versions.
-  Budgets do not reset at app boundaries. Combined resource/child input data is
-  limited to 1 GiB, including child metadata, executables and envelopes. Staged
-  outputs together are limited to 1 GiB; the outer executable retains its separate
-  1 GiB input bound. Shallow verification applies limits to the portion it visits.
+  Structural limits do not reset at app boundaries. [Streaming bundle paths](bundle-streaming.md)
+  no longer impose a 1 GiB executable or aggregate payload/output ceiling.
+  Native Mach-O representation limits remain separate from resource size.
+  Plists, envelopes and signature metadata remain bounded in-memory values;
+  shared budgets and spilling are still outstanding. Shallow verification applies
+  traversal limits to the portion it visits.
 - Nested signatures require one SHA-256 CodeDirectory per architecture. Child
   requirements must use the implemented predicate/text subset; native quoted
   literal control whitespace is rejected before writing. Additional directory

@@ -23,7 +23,7 @@ longer inherit that payload ceiling. These are not constant-memory operations:
 signature size grows with page and special-slot counts.
 
 The writer borrows the preflight descriptor through transfer and metadata
-restoration. Released APFS v0.17.1 owns replacement allocation, ACLs, ownership,
+restoration. Released APFS v0.17.2 owns replacement allocation, ACLs, ownership,
 attributes, creation times and cleanup. Its existing held-source API suffices;
 there is no new filesystem implementation or dependency in codesign. Linux uses
 its metadata restoration path, Darwin its clone/fallback path, and Windows its
@@ -99,7 +99,7 @@ file acceptance substitute; the native corpus supplies the latter separately.
 
 ## Remaining Phase 02 work
 
-Bundle executables/resources still need streaming integration. Shared 128 MiB
+[Bundle executables/resources](bundle-streaming.md) now use the same ranged pipeline. Shared 128 MiB
 reservation accounting, metadata spilling, nested/concurrent operation budgets,
 dense multi-gigabyte qualification and process-memory/storage measurements remain
 outstanding. Complete operation policy and lifecycle qualification also remain.

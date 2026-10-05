@@ -98,11 +98,11 @@ func hashCodePages(ctx context.Context, src outputSource, page uint32, sums []by
 	return nil
 }
 
-// Read to EOF rather than the initial stat size: a growing resource must still
-// consume the operation budget. Both resource seals cover the same byte stream.
+// Read at most the known size plus one byte, detecting growth without following
+// an indefinitely growing resource. Both seals cover the same byte stream.
 func resourceDigests(ctx context.Context, r io.Reader, limit int64) ([]byte, []byte, int64, error) {
 	if limit < 0 || limit == math.MaxInt64 {
-		return nil, nil, 0, unsupported("bundle resource data exceeds 1 GiB")
+		return nil, nil, 0, unsupported("resource size cannot be bounded")
 	}
 	h1, h2 := sha1.New(), sha256.New()
 	n, err := io.Copy(io.MultiWriter(h1, h2), io.LimitReader(operationReader{ctx, r}, limit+1))
@@ -113,7 +113,7 @@ func resourceDigests(ctx context.Context, r io.Reader, limit int64) ([]byte, []b
 		return nil, nil, n, err
 	}
 	if n > limit {
-		return nil, nil, n, unsupported("bundle resource data exceeds 1 GiB")
+		return nil, nil, n, invalid("resource grew during hashing")
 	}
 	return h1.Sum(nil), h2.Sum(nil), n, nil
 }

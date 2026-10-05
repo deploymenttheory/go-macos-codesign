@@ -55,14 +55,15 @@ between file-format support and access to a real device. Relic's CMS separation 
 useful design input; its certificate dependencies still require this project's
 guard review. These references were inspected, not executed or copied.
 
-The APFS audit uses the downloaded **released v0.17.1 module**, not the neighboring
+The APFS audit uses the downloaded **released v0.17.2 module**, not the neighboring
 working tree. It records module sum, API file hashes and concrete reuse decisions:
 rooted replacement/restore/close, existing ACL staging, the DMG footer and streaming
 image reconstruction. Codesign still needs lifecycle integration and broader native
 image/name matrices. A source inventory does not justify a speculative SDK rewrite;
 open an upstream prerequisite only when a captured case needs a missing public API.
 Phase 02 updates the original v0.17.0 audit to the published v0.17.1 prerequisite
-and includes both fallback implementation files. No local module replacement is used.
+and includes both fallback implementation files. The v0.17.2 update also audits
+the Windows rooted replacement and sparse backup filter. No local module replacement is used.
 
 ## Native probe refactor
 

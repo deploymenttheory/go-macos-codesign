@@ -164,7 +164,11 @@ func TestResourceHashStreams(t *testing.T) {
 	for _, limit := range []int64{-1, 0, 1, math.MaxInt64} {
 		t.Run(fmt.Sprintf("budget-%d", limit), func(t *testing.T) {
 			h1, h2, _, err := resourceDigests(context.Background(), bytes.NewReader([]byte{1, 2}), limit)
-			if h1 != nil || h2 != nil || !errors.Is(err, ErrUnsupported) {
+			want := ErrUnsupported
+			if limit == 0 || limit == 1 {
+				want = ErrInvalid // Growth is a changed source, not a payload-size ceiling.
+			}
+			if h1 != nil || h2 != nil || !errors.Is(err, want) {
 				t.Fatal(h1, h2, err)
 			}
 		})

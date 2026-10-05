@@ -59,7 +59,7 @@ func TestCanonicalRequirementText(t *testing.T) {
 		t.Fatal(err)
 	}
 	data := signedNested(t, "arm64", SignOptions{Requirements: reqs})
-	if _, err := nestedSeal(data); err == nil {
+	if _, err := nestedSeal(testBundleCode(data)); err == nil {
 		t.Fatal("unsupported canonical text accepted")
 	}
 	for _, data := range [][]byte{nil, superblob(MagicRequirements, nil), []byte("bad")} {

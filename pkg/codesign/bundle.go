@@ -30,6 +30,7 @@ type appBundle struct {
 	info                         []byte
 	entries                      int
 	children                     []*appBundle
+	sources                      map[string]*bundleSource
 	base, infoPath, format       string
 	framework                    bool
 	version, current, selection  string
@@ -137,7 +138,10 @@ func loadAppBundleVersion(root *os.Root, path, version string) (*appBundle, erro
 		return fail(malformed("CFBundleIdentifier must be a nonempty string"))
 	}
 	if b.framework {
-		if values["CFBundlePackageType"] != "FMWK" || executable != frameworkName(path) {
+		// Flat frameworks select the Info.plist executable even when it differs
+		// from the directory name. Versioned layouts still require their existing
+		// canonical root-alias profile until that discovery contract is extended.
+		if values["CFBundlePackageType"] != "FMWK" || b.version != "" && executable != frameworkName(path) {
 			return fail(unsupported("framework metadata must name its FMWK executable"))
 		}
 	} else {
@@ -161,11 +165,16 @@ func loadAppBundleVersion(root *os.Root, path, version string) (*appBundle, erro
 	return b, nil
 }
 
-func (b *appBundle) close() {
+func (b *appBundle) close() (result error) {
 	for _, child := range b.children {
-		child.close()
+		result = errors.Join(result, child.close())
 	}
-	_ = b.root.Close()
+	for name, source := range b.sources {
+		if !source.released {
+			result = errors.Join(result, b.checkCode(name, source), source.closer.Close())
+		}
+	}
+	return errors.Join(result, b.root.Close())
 }
 
 // Ordinary reads build the bounded plan without recording allocation access.
@@ -379,16 +388,18 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			if err := scope.addChild(); err != nil {
 				return err
 			}
-			data, err := b.read(name, maxFileSize-scope.bytes)
+			data, err := b.holdCode(ctx, name)
 			if err != nil {
 				return err
 			}
 			// Format validation applies even during inspection; unsigned
 			// Mach-O files are permitted until a seal is actually requested.
-			if _, err := parseContainer(data); err != nil {
+			if _, err := data.container(); err != nil {
 				return err
 			}
-			scope.bytes += int64(len(data))
+			if err := scope.addBytes(data.source.size); err != nil {
+				return err
+			}
 			files2[rel] = nestedResource{data}
 			if b.signing != nil && b.signing.Deep && signingNeedsNested(data, b.signing.Force) {
 				diagnostic := filepath.Join(b.sidebandBase, filepath.FromSlash(name))
@@ -421,14 +432,19 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 				}
 			}
 		}
-		if current.Size() > maxFileSize-scope.bytes {
-			return unsupported("bundle resource data exceeds 1 GiB")
-		}
-		h1, h2, n, err := resourceDigests(ctx, f, maxFileSize-scope.bytes)
+		h1, h2, n, err := resourceDigests(ctx, f, current.Size())
 		if err != nil {
 			return err
 		}
-		scope.bytes += n
+		if n != current.Size() {
+			return invalid("resource changed: %s", rel)
+		}
+		if err := resourceUnchanged(b.root, name, f, current); err != nil {
+			return err
+		}
+		if err := scope.addBytes(n); err != nil {
+			return err
+		}
 		if include1 {
 			files[rel] = resourceSeal(h1, optional1, true)
 		}
@@ -469,26 +485,31 @@ func (b *appBundle) annotate(r *Report, resources []byte) {
 	}
 }
 
-func inspectBundle(ctx context.Context, path string, opts PathOptions) (*Report, error) {
+func inspectBundle(ctx context.Context, path string, opts PathOptions) (report *Report, failure error) {
 	b, err := openAppBundleVersion(path, opts.BundleVersion)
 	if err != nil {
 		return nil, err
 	}
-	defer b.close()
+	defer func() {
+		failure = errors.Join(failure, b.close())
+		if failure != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	if _, _, err = b.scan(ctx); err != nil {
 		return nil, err
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.holdCode(ctx, b.executable)
 	if err != nil {
 		return nil, err
 	}
-	r, err := InspectBytes(data)
+	r, err := data.inspect()
 	resources, _ := b.read(b.resourcesPath(), maxBundlePlist)
 	b.annotate(r, resources)
 	return r, err
 }
 
-func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
+func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (report *Report, failure error) {
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return nil, unsupported("external special-slot overrides for bundles")
 	}
@@ -496,7 +517,12 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	if err != nil {
 		return nil, err
 	}
-	defer b.close()
+	defer func() {
+		failure = errors.Join(failure, b.close())
+		if failure != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	var actual map[string]any
 	inputs, err := prepareBundleSideband(ctx, b.path, opts)
 	if err != nil {
@@ -515,7 +541,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 			return nil, err
 		}
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.holdCode(ctx, b.executable)
 	if err != nil {
 		return nil, err
 	}
@@ -529,7 +555,8 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (*Report
 	return verifyBundleSnapshot(ctx, b, data, resources, actual, opts)
 }
 
-func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []byte, actual map[string]any, opts VerifyOptions) (*Report, error) {
+func verifyBundleSnapshot(ctx context.Context, b *appBundle, data codeSource, resources []byte, actual map[string]any, opts VerifyOptions) (*Report, error) {
+	data.ctx = ctx
 	base, err := filepath.Abs(filepath.Join(b.path, b.base))
 	if err != nil {
 		return nil, err
@@ -537,7 +564,7 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 	opts.linkScope = &verificationLinkScope{bundle: b, base: base, outer: opts.linkScope}
 	opts.sidebandObject = b.sideband[b.executable]
 	opts.InfoPlist, opts.Resources = b.info, resources
-	r, err := VerifyBytes(ctx, data, opts)
+	r, err := verifyCodeSource(data, opts)
 	b.annotate(r, resources)
 	if err != nil {
 		return r, err
@@ -579,14 +606,14 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data, resources []b
 	if err := verifySideband(ctx, opts); err != nil {
 		return r, err
 	}
-	if err := verifyStrictLayout(data, opts.Architecture, opts.NoStrict); err != nil {
+	if err := data.strict(opts.Architecture, opts.NoStrict); err != nil {
 		return r, err
 	}
 	r.Valid = true
 	return r, nil
 }
 
-func signBundle(ctx context.Context, path string, opts SignOptions) error {
+func signBundle(ctx context.Context, path string, opts SignOptions) (failure error) {
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return unsupported("external special-slot overrides for bundles")
 	}
@@ -594,7 +621,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	defer b.close()
+	defer func() { failure = errors.Join(failure, b.close()) }()
 	data, err := b.signingExecutable(ctx)
 	if err != nil {
 		return err
@@ -606,7 +633,8 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 		// The CLI notice precedes resource traversal, including failures there.
 		// Executable representation construction has already succeeded. No
 		// resources or mapped-source accesses have been performed at this point.
-		notifyReplacement(data, opts)
+		r, inspectErr := data.inspect()
+		notifyInspectedReplacement(r, inspectErr, opts)
 	}
 	inputs, err := prepareBundleSideband(ctx, b.path, VerifyOptions{StrictSideband: true, AppleDouble: opts.AppleDouble, AppleDoubleFiles: opts.AppleDoubleFiles})
 	if err != nil {
@@ -621,7 +649,7 @@ func signBundle(ctx context.Context, path string, opts SignOptions) error {
 	if err != nil {
 		return err
 	}
-	data, err = b.read(b.executable, maxFileSize)
+	data, err = b.holdCode(ctx, b.executable)
 	if err != nil {
 		return err
 	}
@@ -676,12 +704,12 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	return populateOutput(ctx, f, byteOutput(data), nil)
 }
 
-func removeBundle(ctx context.Context, path string, opts RemoveOptions) error {
+func removeBundle(ctx context.Context, path string, opts RemoveOptions) (failure error) {
 	b, err := openBundleVersion(path, opts.BundleVersion, true)
 	if err != nil {
 		return err
 	}
-	defer b.close()
+	defer func() { failure = errors.Join(failure, b.close()) }()
 	// Removal does not build a resource envelope or operate on nested code.
 	// Validate the selected layout, then touch only its executable and signature
 	// directory. Unrelated resource permissions must not prevent removal.
@@ -722,16 +750,20 @@ func removeBundle(ctx context.Context, path string, opts RemoveOptions) error {
 	if err := f.Close(); err != nil {
 		return err
 	}
-	data, err := b.read(b.executable, maxFileSize)
+	data, err := b.holdCode(ctx, b.executable)
 	if err != nil {
 		return err
 	}
 	if err := b.checkExecutablePlatformAttribute(ctx); err != nil {
 		return err
 	}
-	out, err := RemoveSignatureBytes(ctx, data)
+	c, err := data.container()
 	if err != nil {
 		return err
 	}
-	return commitBundleWrites(ctx, []bundleWrite{{name: b.executable, data: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupRemoveAll}})
+	out, err := c.mutateSource(ctx, data.source, nil)
+	if err != nil {
+		return err
+	}
+	return commitBundleWrites(ctx, []bundleWrite{{name: b.executable, output: out, bundle: b, kind: bundleMachOWrite, cleanup: bundleCleanupRemoveAll}})
 }

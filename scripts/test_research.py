@@ -52,6 +52,37 @@ class ResearchTests(unittest.TestCase):
     def test_large_macho_capture(self):
         research.validate_large_macho(research.read("testdata/research/large-macho.json"), self.inventory)
 
+    def test_large_bundle_capture(self):
+        research.validate_large_bundles(research.read("testdata/research/large-bundles.json"), self.inventory)
+
+    def test_large_bundle_rejects_incomplete_evidence(self):
+        for mutation in ("case", "provenance", "operation", "hash", "diagnostic", "identity", "populated", "boundary", "aggregate", "stability"):
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                capture = research.read("testdata/research/large-bundles.json")
+                case = capture["cases"][0]
+                if mutation == "case":
+                    capture["cases"].pop()
+                elif mutation == "provenance":
+                    capture["source_sha256"].pop("spec/apple-writer.json")
+                elif mutation == "operation":
+                    case["operations"].pop("remove")
+                elif mutation == "hash":
+                    next(iter(case["operations"]["sign"]["files"].values()))["sha256"] = "bad"
+                elif mutation == "diagnostic":
+                    case["operations"]["sign"]["diagnostic"] = "/private/host-path"
+                elif mutation == "identity":
+                    case["operations"]["sign"]["executable_same"] = True
+                elif mutation == "populated":
+                    capture["cases"][3]["members"][2]["populated"] = False
+                elif mutation == "boundary":
+                    case["members"][1]["size"] = 1
+                elif mutation == "aggregate":
+                    for member in capture["cases"][8]["members"]:
+                        member["size"] = 1
+                else:
+                    next(iter(case["operations"]["dryrun"]["files"].values()))["sha256"] = "0" * 64
+                research.validate_large_bundles(capture, self.inventory)
+
     def test_large_macho_rejects_missing_or_changed_evidence(self):
         for mutation in ("case", "provenance", "populated", "hash", "diagnostic", "verify", "boundary", "stability"):
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):

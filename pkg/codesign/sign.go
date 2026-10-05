@@ -113,11 +113,7 @@ func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
 // inspection without verifying pages, certificate trust, or resource seals.
 // A malformed or unsupported signature supplies no notification; the signer
 // retains responsibility for the operation's error and supported input profile.
-func notifyReplacement(data []byte, opts SignOptions) {
-	if !opts.Force || opts.OnReplace == nil {
-		return
-	}
-	r, err := InspectBytes(data)
+func notifyInspectedReplacement(r *Report, err error, opts SignOptions) {
 	if err != nil {
 		return
 	}

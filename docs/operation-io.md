@@ -111,8 +111,9 @@ oracle establishes native large-file signing acceptance.
 Standalone inspection and verification now use [held-file range reads](source-range-io.md),
 including real UDIF verification above 4 GiB. [DMG signing](dmg-streaming.md) now hashes those ranges and updates only the tail.
 [Standalone Mach-O signing/removal](macho-streaming.md) now hashes and assembles
-held ranges, then transfers into an SDK replacement. Bundle paths still materialize
-whole byte slices and retain their 1 GiB limits. Operation-wide budgets remain
+held ranges, then transfers into an SDK replacement. [Bundle paths](bundle-streaming.md)
+now use held executable plans and stream resources without a 1 GiB payload ceiling.
+Operation-wide budgets remain
 outstanding. Metadata/CodeDirectory materialization, CDHash calculation and other
 metadata/CMS hashing still include one-shot paths. Bundle planning reads,
 metadata/close checkpoints outside the shared transfer, source-content races,
