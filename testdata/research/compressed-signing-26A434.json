@@ -357,12 +357,12 @@
   "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c",
   "native_producer_sha256": "6e49c855d738664284fc51a064822db1603e7bdd870dfbc3130d2fd99317159c",
   "schema": 1,
-  "sdk": "v0.17.3-0.20261005072906-8821862a12de",
-  "sdk_sum": "h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=",
+  "sdk": "v0.17.3-0.20261006032702-9764869bf139",
+  "sdk_sum": "h1:edrZV77xYNCY4VWh4OEU98/U6GD/+xKkUa6NV9doiPE=",
   "source_sha256": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "d36b0adcb8a81ad39ee96a94f58ffa4a5f405b9af1429d09bc05200189216a4a",
-    "go.sum": "2511719effd750247f9f210f87f1b92cbaebc0dd72642aff8794f739abca1f12",
+    "go.mod": "0dd9871354a0f06c56591cc553472523bc271cf7a231c14c30f5b83600e96f80",
+    "go.sum": "ae7531cf1135d4361aa0ef7759a5cf0f0e7cbd46d35abd4b2221ab99e6bfb2e1",
     "scripts/probe-compressed-signing.go": "e99dc9c6144cd9724e6fe11e0797117c59f381e335c24a2e7d28d051975da672",
     "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
     "testdata/research/compressed-signing.c": "f4f2dfbaab6e652283876bc62783a8fb3875c918347951b802fb75bc099d8fbb"

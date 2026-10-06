@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.3-0.20261005072906-8821862a12de",
-    "sum": "h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=",
+    "version": "v0.17.3-0.20261006032702-9764869bf139",
+    "sum": "h1:edrZV77xYNCY4VWh4OEU98/U6GD/+xKkUa6NV9doiPE=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
