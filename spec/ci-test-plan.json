@@ -1823,6 +1823,10 @@
           "cases": 1,
           "sha256": "1ee99351e029a9c7ff0d6b470a11ac35207a59484e8976973ce8e8db67d6d3fa"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSigningSignatureViewParity": {
+          "cases": 1,
+          "sha256": "0a1f05620e27394df73f9cd61046b9785c94ab2424a6dc164492395f7b0f53a1"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSourceFailurePreservation": {
           "cases": 9,
           "sha256": "24b91448696bd4cec81f16b10470a2eef8a5de603c796d0a7978a014902151d5"
@@ -2014,6 +2018,38 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
           "cases": 157,
           "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountOverrun": {
+          "cases": 1,
+          "sha256": "50ab77363a0ac3580d40f119469e6cd170f4891b6b010a059d25f6cc96569644"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountStreaming": {
+          "cases": 4,
+          "sha256": "cacabf9bd8c1e69b6ba15ac3930bcb1a00ccd758a67f07884365b8c4a4213a48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandOffsetWrap": {
+          "cases": 1,
+          "sha256": "09995524f7c14cdc3e38b26525143f4641f0afd786a73a186d3ee7895fb532dd"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPatchFailures": {
+          "cases": 1,
+          "sha256": "ac591a4d09eda7c259fb6860084e706532e8ba7b0b4281859e3e94d052bb9c0c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "91c9bd293488249f7eeee3f0c121651763adbe0e3bafe32a95e8267b762ce484"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandReadFailures": {
+          "cases": 1,
+          "sha256": "99790ee3e83b117dc02e48a3ca23cbac0a87419d7e672e2b17ce8b2cbabf2c6c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandSummaryPrecedence": {
+          "cases": 1,
+          "sha256": "0a3a507fca3334f5dc895b5dc09142756aef907ac89464c017c6a2679eae12ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOExecutableSegmentPlatform": {
+          "cases": 11,
+          "sha256": "09adc025013df7949eff1be111882fd1e3ac000fc59ab9736b5301ed26a5ec6a"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -2439,6 +2475,18 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexFailures": {
+          "cases": 9,
+          "sha256": "07048e72c890104b90e7cb881d3441a0ecafce9ef919ac221b22a8bcfcfeda25"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexLateFailures": {
+          "cases": 1,
+          "sha256": "15ee9929d7b46b2f2c2a2f33dea2bc110f947f38f5f63018ab005aa7192d2781"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexMembershipAndNeighbors": {
+          "cases": 3,
+          "sha256": "6f81f51566458feab24d1a7ccc079d8c80835a8cb85e64c604bfd793095aa9cc"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
           "cases": 1,
           "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
@@ -2454,6 +2502,34 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewDirectoryVersionsAndStrings": {
+          "cases": 1,
+          "sha256": "8e37895ea9a51b3ed337cf0af445a90416f5adc3e6107ee9f2e519b906fe8ff2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewFixtureParity": {
+          "cases": 13,
+          "sha256": "52ae2e8a00f003b68b9e000011cbc2faa34cdba13d0e52219d180530c3f30945"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewMalformedParity": {
+          "cases": 257,
+          "sha256": "abda6a3c65d4ae381552b543a05591f28f6beafa00dfd77524272a618e51b5cc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "d5ee6b079b9009b3f34d2e24b0d3d73227d2ae13ae324abf7a5d88fc831a879f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewReadFailureAndCancellation": {
+          "cases": 1,
+          "sha256": "11822ace3ad7bc61c9fcc945323bdeab71905af99431e03ff879ebfd5960a53b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewStorageFailures": {
+          "cases": 1,
+          "sha256": "64b9477b668d5c6f2d1fe4c7292c1434dd567ccfa4a9ca921793c778fd683c6f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewUntrustedCountDoesNotPreallocate": {
+          "cases": 1,
+          "sha256": "55346a3e79817b14baa8a86ea73073efd222b2ae978e10e5402003d6504eff3e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningBundleMetadataInputs": {
           "cases": 5,
@@ -2478,6 +2554,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSignatureViewParity": {
+          "cases": 6,
+          "sha256": "08e063d6e2c271ee027ec4aaf585b6ce27b282232c9ed8a66a8469053aebfdc1"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
           "cases": 6,
@@ -4172,6 +4252,10 @@
           "cases": 1,
           "sha256": "1ee99351e029a9c7ff0d6b470a11ac35207a59484e8976973ce8e8db67d6d3fa"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSigningSignatureViewParity": {
+          "cases": 1,
+          "sha256": "0a1f05620e27394df73f9cd61046b9785c94ab2424a6dc164492395f7b0f53a1"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSourceFailurePreservation": {
           "cases": 9,
           "sha256": "24b91448696bd4cec81f16b10470a2eef8a5de603c796d0a7978a014902151d5"
@@ -4359,6 +4443,38 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
           "cases": 157,
           "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountOverrun": {
+          "cases": 1,
+          "sha256": "50ab77363a0ac3580d40f119469e6cd170f4891b6b010a059d25f6cc96569644"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountStreaming": {
+          "cases": 4,
+          "sha256": "cacabf9bd8c1e69b6ba15ac3930bcb1a00ccd758a67f07884365b8c4a4213a48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandOffsetWrap": {
+          "cases": 1,
+          "sha256": "09995524f7c14cdc3e38b26525143f4641f0afd786a73a186d3ee7895fb532dd"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPatchFailures": {
+          "cases": 1,
+          "sha256": "ac591a4d09eda7c259fb6860084e706532e8ba7b0b4281859e3e94d052bb9c0c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "91c9bd293488249f7eeee3f0c121651763adbe0e3bafe32a95e8267b762ce484"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandReadFailures": {
+          "cases": 1,
+          "sha256": "99790ee3e83b117dc02e48a3ca23cbac0a87419d7e672e2b17ce8b2cbabf2c6c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandSummaryPrecedence": {
+          "cases": 1,
+          "sha256": "0a3a507fca3334f5dc895b5dc09142756aef907ac89464c017c6a2679eae12ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOExecutableSegmentPlatform": {
+          "cases": 11,
+          "sha256": "09adc025013df7949eff1be111882fd1e3ac000fc59ab9736b5301ed26a5ec6a"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -4784,6 +4900,18 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexFailures": {
+          "cases": 9,
+          "sha256": "07048e72c890104b90e7cb881d3441a0ecafce9ef919ac221b22a8bcfcfeda25"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexLateFailures": {
+          "cases": 1,
+          "sha256": "15ee9929d7b46b2f2c2a2f33dea2bc110f947f38f5f63018ab005aa7192d2781"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexMembershipAndNeighbors": {
+          "cases": 3,
+          "sha256": "6f81f51566458feab24d1a7ccc079d8c80835a8cb85e64c604bfd793095aa9cc"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
           "cases": 1,
           "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
@@ -4799,6 +4927,34 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewDirectoryVersionsAndStrings": {
+          "cases": 1,
+          "sha256": "8e37895ea9a51b3ed337cf0af445a90416f5adc3e6107ee9f2e519b906fe8ff2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewFixtureParity": {
+          "cases": 13,
+          "sha256": "52ae2e8a00f003b68b9e000011cbc2faa34cdba13d0e52219d180530c3f30945"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewMalformedParity": {
+          "cases": 257,
+          "sha256": "abda6a3c65d4ae381552b543a05591f28f6beafa00dfd77524272a618e51b5cc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "d5ee6b079b9009b3f34d2e24b0d3d73227d2ae13ae324abf7a5d88fc831a879f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewReadFailureAndCancellation": {
+          "cases": 1,
+          "sha256": "11822ace3ad7bc61c9fcc945323bdeab71905af99431e03ff879ebfd5960a53b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewStorageFailures": {
+          "cases": 1,
+          "sha256": "64b9477b668d5c6f2d1fe4c7292c1434dd567ccfa4a9ca921793c778fd683c6f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewUntrustedCountDoesNotPreallocate": {
+          "cases": 1,
+          "sha256": "55346a3e79817b14baa8a86ea73073efd222b2ae978e10e5402003d6504eff3e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningBundleMetadataInputs": {
           "cases": 5,
@@ -4823,6 +4979,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSignatureViewParity": {
+          "cases": 6,
+          "sha256": "08e063d6e2c271ee027ec4aaf585b6ce27b282232c9ed8a66a8469053aebfdc1"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
           "cases": 6,
@@ -6517,6 +6677,10 @@
           "cases": 1,
           "sha256": "1ee99351e029a9c7ff0d6b470a11ac35207a59484e8976973ce8e8db67d6d3fa"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSigningSignatureViewParity": {
+          "cases": 1,
+          "sha256": "0a1f05620e27394df73f9cd61046b9785c94ab2424a6dc164492395f7b0f53a1"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestDMGSourceFailurePreservation": {
           "cases": 9,
           "sha256": "24b91448696bd4cec81f16b10470a2eef8a5de603c796d0a7978a014902151d5"
@@ -6704,6 +6868,38 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestIncrementalHashNativeCorpus": {
           "cases": 157,
           "sha256": "0f3cdaea8f582a4bd9f2d24221afbf827dc94d227f5dc751123fb7aa3a94ea96"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountOverrun": {
+          "cases": 1,
+          "sha256": "50ab77363a0ac3580d40f119469e6cd170f4891b6b010a059d25f6cc96569644"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandCountStreaming": {
+          "cases": 4,
+          "sha256": "cacabf9bd8c1e69b6ba15ac3930bcb1a00ccd758a67f07884365b8c4a4213a48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandOffsetWrap": {
+          "cases": 1,
+          "sha256": "09995524f7c14cdc3e38b26525143f4641f0afd786a73a186d3ee7895fb532dd"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPatchFailures": {
+          "cases": 1,
+          "sha256": "ac591a4d09eda7c259fb6860084e706532e8ba7b0b4281859e3e94d052bb9c0c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "91c9bd293488249f7eeee3f0c121651763adbe0e3bafe32a95e8267b762ce484"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandReadFailures": {
+          "cases": 1,
+          "sha256": "99790ee3e83b117dc02e48a3ca23cbac0a87419d7e672e2b17ce8b2cbabf2c6c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOCommandSummaryPrecedence": {
+          "cases": 1,
+          "sha256": "0a3a507fca3334f5dc895b5dc09142756aef907ac89464c017c6a2679eae12ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOExecutableSegmentPlatform": {
+          "cases": 11,
+          "sha256": "09adc025013df7949eff1be111882fd1e3ac000fc59ab9736b5301ed26a5ec6a"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestMachOIdentifiers": {
           "cases": 1,
@@ -7133,6 +7329,18 @@
           "cases": 1,
           "sha256": "c43fd58e76922ccbcb5fe9231634aef12dbfbcb76027abf62ea406262a9c996e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexFailures": {
+          "cases": 9,
+          "sha256": "07048e72c890104b90e7cb881d3441a0ecafce9ef919ac221b22a8bcfcfeda25"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexLateFailures": {
+          "cases": 1,
+          "sha256": "15ee9929d7b46b2f2c2a2f33dea2bc110f947f38f5f63018ab005aa7192d2781"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureIndexMembershipAndNeighbors": {
+          "cases": 3,
+          "sha256": "6f81f51566458feab24d1a7ccc079d8c80835a8cb85e64c604bfd793095aa9cc"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureOutputFailures": {
           "cases": 1,
           "sha256": "06f9754c5ae8384f482759054c1e019b4012d89ca9fe82f496b8fbae65245c43"
@@ -7148,6 +7356,34 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureRejectsMalformed": {
           "cases": 25,
           "sha256": "383239e900581c6ae5038af55bf623d72e65d651a13e567728491a700d979f76"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewDirectoryVersionsAndStrings": {
+          "cases": 1,
+          "sha256": "8e37895ea9a51b3ed337cf0af445a90416f5adc3e6107ee9f2e519b906fe8ff2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewFixtureParity": {
+          "cases": 13,
+          "sha256": "52ae2e8a00f003b68b9e000011cbc2faa34cdba13d0e52219d180530c3f30945"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewMalformedParity": {
+          "cases": 257,
+          "sha256": "abda6a3c65d4ae381552b543a05591f28f6beafa00dfd77524272a618e51b5cc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewPhysicalOldLimit": {
+          "cases": 1,
+          "sha256": "d5ee6b079b9009b3f34d2e24b0d3d73227d2ae13ae324abf7a5d88fc831a879f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewReadFailureAndCancellation": {
+          "cases": 1,
+          "sha256": "11822ace3ad7bc61c9fcc945323bdeab71905af99431e03ff879ebfd5960a53b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewStorageFailures": {
+          "cases": 1,
+          "sha256": "64b9477b668d5c6f2d1fe4c7292c1434dd567ccfa4a9ca921793c778fd683c6f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSignatureViewUntrustedCountDoesNotPreallocate": {
+          "cases": 1,
+          "sha256": "55346a3e79817b14baa8a86ea73073efd222b2ae978e10e5402003d6504eff3e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningBundleMetadataInputs": {
           "cases": 5,
@@ -7172,6 +7408,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSidebandPreflight": {
           "cases": 10,
           "sha256": "8fd24437436367c7cc0e662f815367d9dd897d53063af93063b8fdbc566e864f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningSignatureViewParity": {
+          "cases": 6,
+          "sha256": "08e063d6e2c271ee027ec4aaf585b6ce27b282232c9ed8a66a8469053aebfdc1"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSourceBoundsAndCancellation": {
           "cases": 6,
