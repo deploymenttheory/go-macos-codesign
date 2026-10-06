@@ -91,7 +91,7 @@ working set, a general peak-memory result or implementation of the planned share
 | --- | --- | --- |
 | `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
 | `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Shared metadata budgets and remaining lifecycle policy |
-| `macho.go` / `macho_source.go` | Range parsing and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Wider allocation profiles, metadata spilling and dense multi-gigabyte scaling |
+| `macho.go` / `macho_commands.go` / `macho_source.go` | Fixed-size load-command summaries, source-range patches and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Large command-region native acceptance, input signature views and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
 | `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable reads use held ranges; resources stream; plists/envelopes retain parser bounds | Shared metadata budgets and complete discovery/lifecycle qualification |
 | `bundle_tree.go`, `bundle_nested.go` | Nested signatures use shared output plans without an aggregate payload ceiling | Shared budgets, metadata spilling and temporary storage accounting |
@@ -104,9 +104,17 @@ containment/permissions contract applies. Replacement, metadata restoration,
 resource forks and image codecs remain upstream responsibilities; audit released
 APIs again before extending those operations.
 
-Input signature blobs and load-command metadata are still materialized, and public
-`Report`/`Signature` objects retain byte fields. Memory can therefore grow with
-metadata and architecture count. The operation storage manager now shares a
+Public `Report`/`Signature` objects retain owned component bytes. Signing
+preflight now uses borrowed signature views instead: it scans every component
+through bounded reads, keeps at most six directory summaries and stores slot and
+overlap indexes in shared working sections that can spill. Duplicate-slot errors
+remain immediate; overlap errors remain deferred until component parsing finishes.
+Index growth follows entries actually read, not an untrusted declared count.
+
+Load-command parsing keeps fixed-size summaries
+and mutates source ranges through bounded patches, including removal relocation
+and identifier hashing. Memory can still grow with signature metadata and
+architecture count. The operation storage manager now shares a
 128 MiB starting reservation pool for transfer buffers and generated
 CodeDirectories. Sections that cannot fit spill into disjoint ranges of one
 private temporary file, removed when the owning operation finishes. Generated
@@ -120,11 +128,13 @@ per page. Waiting for capacity is cancellable; tests exercise blocked waiters
 through release, cancellation and closure.
 
 Mach-O and DMG inspection read SuperBlob headers, index records and referenced
-components separately, retaining owned bytes for public reports. Unused reserved
+components separately, retaining owned bytes for public reports. Signing uses
+the borrowed views for admission and replacement notices. Unused reserved
 signature space is no longer materialized. Virtual 1/2/4 GiB boundary tests check
 offset arithmetic and reads only; they do not establish native acceptance of a
-gapped or oversized signature. Individual components and index objects still
-need the remaining metadata-budget work.
+gapped or oversized signature. Path verification, CLI display/extraction and
+their parser objects still need the remaining metadata-budget work; returning
+owned public reports remains a separate allocation contract.
 
 This is not yet comprehensive memory enforcement. Input metadata, parser objects,
 queued work and handle accounting remain to be integrated and measured. Caller
@@ -139,7 +149,18 @@ to an exact `main` commit during Phase 02. The next upstream release is batched
 under the [phase dependency policy](implementation_plan.md). The
 research-only `scripts/probe-compressed-signing.go` records native standalone
 and bundle sign/re-sign/dry-run/removal outcomes, with and without
-`--preserve-afsc`, in `testdata/research/compressed-signing.json`. Its sixteen
+`--preserve-afsc`, in versioned native captures. The macOS 27.0 build 26A428
+profile is `testdata/research/compressed-signing.json`; the macOS 27.0.1 build
+26A434 profile is `compressed-signing-26A434.json`. The former capture stores
+these inputs inline, while the latter uses resource forks. This difference must
+not be attributed to the OS build alone: the host framework checks the held
+file's `fstatfs` flags and suppresses inline storage on `MNT_CPROTECT` volumes.
+The local host volume has that flag; independently created test images can
+permit inline storage on the same OS build. Extend the signing capture with
+explicit volume-policy observations before selecting recompression behavior.
+Each existing profile retains
+its exact native storage bytes and provenance; the recapture selects the host
+build explicitly and rejects an unqualified build. Its sixteen
 cases originally exposed the v0.17.2 staging rejection, retained in
 `compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK
 eligibility checks. `TestCompressedReplacementNative` also compares 24 live

@@ -19,9 +19,11 @@ import (
 var dmgFooterSize = binary.Size(disk.DMGFooter{})
 
 type dmgImage struct {
-	footer    disk.DMGFooter
-	content   []byte
-	signature *Signature
+	footer     disk.DMGFooter
+	content    []byte
+	signature  *Signature
+	signed     bool
+	priorFlags uint32
 }
 
 func isDMG(data []byte) bool {
@@ -48,7 +50,33 @@ func parseDMG(data []byte) (*dmgImage, error) {
 	return m, err
 }
 
+type dmgSignatureState struct {
+	length uint32
+	signed bool
+	flags  uint32
+}
+
 func parseDMGRange(length uint64, trailer []byte, read rangeReader) (*dmgImage, error) {
+	var signature *Signature
+	m, err := parseDMGStructure(length, trailer, func(offset, length uint64) (dmgSignatureState, error) {
+		var err error
+		signature, err = parseSignatureRange(length, func(at, n uint64) ([]byte, error) { return read(offset+at, n) }, true)
+		if err != nil {
+			return dmgSignatureState{}, err
+		}
+		state := dmgSignatureState{length: signature.Length, signed: len(signature.Directories) != 0}
+		if state.signed {
+			state.flags = signature.Directories[0].Flags
+		}
+		return state, nil
+	})
+	if err == nil && m.signed {
+		m.signature = signature
+	}
+	return m, err
+}
+
+func parseDMGStructure(length uint64, trailer []byte, parse func(uint64, uint64) (dmgSignatureState, error)) (*dmgImage, error) {
 	if length < uint64(dmgFooterSize+8) {
 		return nil, malformed("UDIF image size or trailer")
 	}
@@ -67,19 +95,15 @@ func parseDMGRange(length uint64, trailer []byte, read rangeReader) (*dmgImage, 
 		if h.CodeSignatureOffset < 8 || !rangeOK(h.CodeSignatureOffset, h.CodeSignatureLength, end) || h.CodeSignatureLength == 0 || h.CodeSignatureOffset+h.CodeSignatureLength != end {
 			return nil, malformed("UDIF signature bounds")
 		}
-		var err error
-		m.signature, err = parseSignatureRange(end-h.CodeSignatureOffset, func(offset, length uint64) ([]byte, error) {
-			return read(h.CodeSignatureOffset+offset, length)
-		}, true)
+		state, err := parse(h.CodeSignatureOffset, end-h.CodeSignatureOffset)
 		if err != nil {
 			return nil, err
 		}
-		if uint64(m.signature.Length) != h.CodeSignatureLength {
+		if uint64(state.length) != h.CodeSignatureLength {
 			return nil, malformed("UDIF signature padding")
 		}
-		if len(m.signature.Directories) == 0 {
-			m.signature = nil // Native dry-run components do not make the image signed.
-		}
+		// Native dry-run components without a directory remain unsigned.
+		m.signed, m.priorFlags = state.signed, state.flags
 		end = h.CodeSignatureOffset
 	}
 	regions := [][2]uint64{{h.DataForkOffset, h.DataForkLength}, {h.RsrcForkOffset, h.RsrcForkLength}, {h.PlistOffset, h.PlistLength}}
@@ -178,7 +202,7 @@ func signDMGTailSource(ctx context.Context, m *dmgImage, opts SignOptions, dryRu
 	if len(opts.InfoPlist) > 0 || len(opts.Resources) > 0 {
 		return outputSource{}, unsupported("external special-slot overrides for disk images")
 	}
-	if m.signature != nil && !opts.Force {
+	if (m.signature != nil || m.signed) && !opts.Force {
 		return outputSource{}, ErrSigned
 	}
 	if dryRun && opts.Identity != nil {

@@ -50,18 +50,19 @@ func (c *container) identifier(path string, adhoc bool) (string, error) {
 			im = s.image
 		}
 	}
-	for _, cmd := range im.commands {
-		if cmd.kind == 0x1b { // LC_UUID
-			if cmd.size != 24 {
-				return "", malformed("UUID command size")
-			}
-			return name + "-55554944" + hex.EncodeToString(im.data[cmd.offset+8:cmd.offset+24]), nil
+	if im.uuidOffset >= 0 {
+		if im.uuidSize != 24 {
+			return "", malformed("UUID command size")
 		}
+		return name + "-55554944" + hex.EncodeToString(im.uuid[:]), nil
 	}
 	// Native fallback hashes mach_header (28 bytes, even for 64-bit images)
 	// followed by the load commands. This is identification, not trust.
 	h := sha1.New()
-	_, _ = h.Write(im.data[:28])
-	_, _ = h.Write(im.data[im.header : im.header+int(im.order.Uint32(im.data[20:]))])
+	_, _ = h.Write(im.headerBytes[:28])
+	commands := outputSource{im.source.source.reader, im.source.source.offset + int64(im.header), int64(im.commandBytes)}
+	if err := transferOutput(im.source.ctx, hashOutput{h}, commands); err != nil {
+		return "", err
+	}
 	return name + "-" + hex.EncodeToString(h.Sum(nil)), nil
 }

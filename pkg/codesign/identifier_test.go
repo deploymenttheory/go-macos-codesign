@@ -38,27 +38,27 @@ func TestMachOIdentifiers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, cmd := range im.commands {
-		if cmd.kind != 0x1b {
-			continue
-		}
-		// Preserve framing but make the UUID command an unknown command.
-		im.order.PutUint32(data[cmd.offset:], 0x1234)
-		h := sha1.New()
-		_, _ = h.Write(data[:28])
-		_, _ = h.Write(data[im.header : im.header+int(im.order.Uint32(data[20:]))])
-		got, err := machoIdentifier("hello", data, true)
-		if err != nil || got != "hello-"+hex.EncodeToString(h.Sum(nil)) {
-			t.Fatal(got, err)
-		}
-		im.order.PutUint32(data[cmd.offset:], 0x1b)
-		// A larger command reclassed as UUID provides valid framing with an invalid UUID size.
+	if im.uuidOffset < 0 {
+		t.Fatal("fixture UUID absent")
 	}
-	for _, cmd := range im.commands {
-		if cmd.size != 24 {
-			im.order.PutUint32(data[cmd.offset:], 0x1b)
+	// Preserve framing but make the UUID command an unknown command.
+	im.order.PutUint32(data[im.uuidOffset:], 0x1234)
+	h := sha1.New()
+	_, _ = h.Write(data[:28])
+	_, _ = h.Write(data[im.header : im.header+int(im.commandBytes)])
+	got, err := machoIdentifier("hello", data, true)
+	if err != nil || got != "hello-"+hex.EncodeToString(h.Sum(nil)) {
+		t.Fatal(got, err)
+	}
+	im.order.PutUint32(data[im.uuidOffset:], 0x1b)
+	// A larger command reclassed as UUID has valid framing but invalid UUID size.
+	for p := im.header; p < im.header+int(im.commandBytes); {
+		size := int(im.order.Uint32(data[p+4:]))
+		if size != 24 {
+			im.order.PutUint32(data[p:], 0x1b)
 			break
 		}
+		p += size
 	}
 	if _, err := machoIdentifier("hello", data, true); err == nil {
 		t.Fatal("malformed UUID accepted")

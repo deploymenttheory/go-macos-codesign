@@ -2,25 +2,40 @@ package codesign
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 )
 
-type loadCommand struct {
-	kind         uint32
-	offset, size int
+// The summaries retain only the command fields consumed by signing and
+// verification. Their size does not depend on ncmds, sizeofcmds or section count.
+// Diagnostic-only details stay deferred until the corresponding operation.
+type symbolSummary struct {
+	present, duplicate                  bool
+	size                                uint32
+	symbols, count, strings, stringSize uint64
 }
 type image struct {
-	data                   []byte
-	order                  binary.ByteOrder
-	header                 int
-	cpu, subtype, filetype uint32
-	commands               []loadCommand
-	sigOffset, sigSize     uint32
-	sigCommand             int
-	linkedit               int
-	textBase, textSize     uint64
-	firstSection           uint64
+	data                                    []byte     // borrowed only by the byte API; never populated for path readers
+	source                                  codeSource // borrows the operation's reader and shared scratch budget
+	order                                   binary.ByteOrder
+	header                                  int
+	headerBytes                             [32]byte
+	cpu, subtype, filetype                  uint32
+	commandCount, commandBytes              uint32
+	sigOffset, sigSize                      uint32
+	sigCommand, linkedit                    int
+	linkeditKind                            uint32
+	linkStart                               uint64
+	textBase, textSize, firstSection        uint64
+	uuidOffset                              int
+	uuidSize                                uint32
+	uuid                                    [16]byte
+	versionPlatform, versionMin, versionSDK uint32
+	buildVersionSeen, minVersionSeen        bool
+	execPlatform, legacyPlatform            uint32
+	strictCandidate, strictValid            bool
+	symbols                                 symbolSummary
 }
 type slice struct {
 	offset, size            uint64
@@ -51,6 +66,7 @@ func parseImage(data []byte) (*image, error) {
 	im, err := parseImageRange(uint64(len(data)), memoryRange(data))
 	if err == nil {
 		im.data = data
+		im.source = codeSource{context.Background(), byteOutput(data)}
 	}
 	return im, err
 }
@@ -63,7 +79,7 @@ func parseImageRange(length uint64, read rangeReader) (*image, error) {
 	if err != nil {
 		return nil, err
 	}
-	im := &image{header: 28, sigCommand: -1, linkedit: -1, firstSection: length}
+	im := &image{header: 28, sigCommand: -1, linkedit: -1, uuidOffset: -1, firstSection: length}
 	switch be.Uint32(data) {
 	case 0xfeedface:
 		im.order = be
@@ -81,90 +97,147 @@ func parseImageRange(length uint64, read rangeReader) (*image, error) {
 	if length < uint64(im.header) {
 		return nil, malformed("64-bit Mach-O header")
 	}
+	copy(im.headerBytes[:], data)
 	o := im.order
-	im.cpu = o.Uint32(data[4:])
-	im.subtype = o.Uint32(data[8:])
-	im.filetype = o.Uint32(data[12:])
-	n, sz := o.Uint32(data[16:]), o.Uint32(data[20:])
-	if !rangeOK(uint64(im.header), uint64(sz), length) || uint64(n)*8 > uint64(sz) {
+	im.cpu, im.subtype, im.filetype = o.Uint32(data[4:]), o.Uint32(data[8:]), o.Uint32(data[12:])
+	im.commandCount, im.commandBytes = o.Uint32(data[16:]), o.Uint32(data[20:])
+	if !rangeOK(uint64(im.header), uint64(im.commandBytes), length) || uint64(im.commandCount)*8 > uint64(im.commandBytes) {
 		return nil, malformed("load command bounds")
 	}
-	data, err = read(0, uint64(im.header)+uint64(sz))
-	if err != nil {
-		return nil, err
-	}
-	im.data = data
-	end := im.header + int(sz)
-	p := im.header
-	for i := uint32(0); i < n; i++ {
+	end := uint64(im.header) + uint64(im.commandBytes)
+	p := uint64(im.header)
+	for i := uint32(0); i < im.commandCount; i++ {
 		if p+8 > end {
 			return nil, malformed("truncated load command")
 		}
-		kind, size := o.Uint32(data[p:]), o.Uint32(data[p+4:])
-		if size < 8 || size%4 != 0 || uint64(size) > uint64(end-p) {
+		command, e := read(p, 8)
+		if e != nil {
+			return nil, e
+		}
+		kind, size := o.Uint32(command), o.Uint32(command[4:])
+		if size < 8 || size%4 != 0 || uint64(size) > end-p {
 			return nil, malformed("load command size")
 		}
-		im.commands = append(im.commands, loadCommand{kind, p, int(size)})
-		if kind == 0x1d {
+		switch kind {
+		case 0x1d:
 			if size != 16 || im.sigCommand >= 0 {
 				return nil, malformed("code signature command")
 			}
-			im.sigCommand = p
-			im.sigOffset = o.Uint32(data[p+8:])
-			im.sigSize = o.Uint32(data[p+12:])
-			if im.sigOffset < uint32(end) || !rangeOK(uint64(im.sigOffset), uint64(im.sigSize), length) {
+			b, e := read(p+8, 8)
+			if e != nil {
+				return nil, e
+			}
+			im.sigCommand, im.sigOffset, im.sigSize = int(p), o.Uint32(b), o.Uint32(b[4:])
+			if uint64(im.sigOffset) < end || !rangeOK(uint64(im.sigOffset), uint64(im.sigSize), length) {
 				return nil, malformed("code signature range")
 			}
-		}
-		if kind == 0x19 || kind == 1 {
-			base, sectionSize := 56, 68
+		case 1, 0x19:
+			base, sectionSize, field := uint64(56), uint64(68), uint64(40)
 			if kind == 0x19 {
-				base, sectionSize = 72, 80
+				base, sectionSize, field = 72, 80, 48
 			}
-			if int(size) < base {
+			if uint64(size) < base {
 				return nil, malformed("segment header")
 			}
-			name := string(bytes.TrimRight(data[p+8:p+24], "\x00"))
+			b, e := read(p, base)
+			if e != nil {
+				return nil, e
+			}
+			name := string(bytes.TrimRight(b[8:24], "\x00"))
 			var offset, segmentLength uint64
 			var count uint32
 			if kind == 0x19 {
-				offset = o.Uint64(data[p+40:])
-				segmentLength = o.Uint64(data[p+48:])
-				count = o.Uint32(data[p+64:])
+				offset, segmentLength, count = o.Uint64(b[40:]), o.Uint64(b[48:]), o.Uint32(b[64:])
 			} else {
-				offset = uint64(o.Uint32(data[p+32:]))
-				segmentLength = uint64(o.Uint32(data[p+36:]))
-				count = o.Uint32(data[p+48:])
+				offset, segmentLength, count = uint64(o.Uint32(b[32:])), uint64(o.Uint32(b[36:])), o.Uint32(b[48:])
 			}
-			if !rangeOK(offset, segmentLength, length) || uint64(count)*uint64(sectionSize) > uint64(size)-uint64(base) {
+			if !rangeOK(offset, segmentLength, length) || uint64(count)*sectionSize > uint64(size)-base {
 				return nil, malformed("segment bounds")
 			}
 			if name == "__LINKEDIT" {
 				if im.linkedit >= 0 {
 					return nil, malformed("duplicate LINKEDIT")
 				}
-				im.linkedit = p
+				im.linkedit, im.linkeditKind, im.linkStart = int(p), kind, offset
+				if !im.strictCandidate {
+					im.strictCandidate, im.strictValid = true, segmentLength == length-offset
+				}
 			}
 			if name == "__TEXT" {
-				im.textBase = offset
-				im.textSize = segmentLength
+				im.textBase, im.textSize = offset, segmentLength
 			}
 			for j := uint32(0); j < count; j++ {
-				pos := p + base + int(j)*sectionSize
-				idx := 40
-				if kind == 0x19 {
-					idx = 48
+				b, e := read(p+base+uint64(j)*sectionSize+field, 4)
+				if e != nil {
+					return nil, e
 				}
-				off := uint64(o.Uint32(data[pos+idx:]))
+				off := uint64(o.Uint32(b))
 				if off != 0 && off < im.firstSection {
 					im.firstSection = off
 				}
 			}
+		case 0x1b:
+			if im.uuidOffset < 0 {
+				im.uuidOffset, im.uuidSize = int(p), size
+				if size == 24 {
+					b, e := read(p+8, 16)
+					if e != nil {
+						return nil, e
+					}
+					copy(im.uuid[:], b)
+				}
+			}
+		case 0x32:
+			if size >= 24 {
+				b, e := read(p+8, 12)
+				if e != nil {
+					return nil, e
+				}
+				im.versionPlatform, im.versionMin, im.versionSDK = o.Uint32(b), o.Uint32(b[4:]), o.Uint32(b[8:])
+				if !im.buildVersionSeen {
+					im.execPlatform = o.Uint32(b)
+				}
+			}
+			im.buildVersionSeen = true
+		case 0x24, 0x25, 0x2f, 0x30:
+			if !im.minVersionSeen && size >= 16 {
+				switch kind {
+				case 0x24:
+					im.legacyPlatform = 1
+				case 0x25:
+					im.legacyPlatform = 2
+				case 0x2f:
+					im.legacyPlatform = 3
+				case 0x30:
+					im.legacyPlatform = 4
+				}
+			}
+			im.minVersionSeen = true
+		case 2:
+			var symbols, count, strings, stringSize uint64
+			if size >= 24 {
+				b, e := read(p+8, 16)
+				if e != nil {
+					return nil, e
+				}
+				symbols, count, strings, stringSize = uint64(o.Uint32(b)), uint64(o.Uint32(b[4:])), uint64(o.Uint32(b[8:])), uint64(o.Uint32(b[12:]))
+			}
+			if !im.symbols.present {
+				im.symbols = symbolSummary{present: true, size: size, symbols: symbols, count: count, strings: strings, stringSize: stringSize}
+			} else {
+				im.symbols.duplicate = true
+			}
+			if !im.strictCandidate {
+				im.strictCandidate, im.strictValid = true, size >= 24 && strings+stringSize == length
+			}
 		}
-		p += int(size)
+		p += uint64(size)
 	}
-	if p != end || im.firstSection < uint64(end) {
+	if p != end || im.firstSection < end {
 		return nil, malformed("load commands overlap content")
+	}
+	if !im.buildVersionSeen {
+		im.execPlatform = im.legacyPlatform
 	}
 	return im, nil
 }

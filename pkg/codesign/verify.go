@@ -56,13 +56,7 @@ func inspectContainer(c *container, read rangeReader) (*Report, error) {
 	for _, s := range c.slices {
 		im := s.image
 		a := Architecture{Name: archName(s.cpu, s.subtype), CPU: s.cpu, Subtype: s.subtype, Offset: s.offset, Size: s.size, SignatureOffset: uint64(im.sigOffset), SignatureSize: im.sigSize}
-		for _, cmd := range im.commands {
-			if cmd.kind == 0x32 && cmd.size >= 24 {
-				a.VersionPlatform = im.order.Uint32(im.data[cmd.offset+8:])
-				a.VersionMin = im.order.Uint32(im.data[cmd.offset+12:])
-				a.VersionSDK = im.order.Uint32(im.data[cmd.offset+16:])
-			}
-		}
+		a.VersionPlatform, a.VersionMin, a.VersionSDK = im.versionPlatform, im.versionMin, im.versionSDK
 		if im.sigCommand >= 0 {
 			var err error
 			a.Signature, err = parseSignatureRange(uint64(im.sigSize), func(offset, length uint64) ([]byte, error) {

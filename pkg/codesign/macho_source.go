@@ -100,17 +100,17 @@ func mutateMachOFile(ctx context.Context, file *os.File, closer *operationCloser
 	if opts != nil {
 		// Match byte-path notice/already-signed precedence using only signature
 		// ranges. An unreadable signature supplies no replacement notice.
-		r, inspectErr := source.inspect()
+		states, inspectErr := source.signingSignatures(c)
 		if inspectErr == nil {
-			for _, arch := range r.Architectures {
-				if arch.Signature == nil {
+			for _, state := range states {
+				if !state.present {
 					continue
 				}
 				if opts.Force && opts.OnReplace != nil {
 					opts.OnReplace()
 					break
 				}
-				if !opts.Force && arch.Signature.Directories[0].Flags&0x20000 == 0 {
+				if !opts.Force && state.flags&0x20000 == 0 {
 					return ErrSigned
 				}
 			}

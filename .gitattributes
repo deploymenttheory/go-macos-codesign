@@ -58,3 +58,4 @@ third_party/** -whitespace
 go.mod text eol=lf
 go.sum text eol=lf
 scripts/oracles/*.c text eol=lf
+testdata/research/macho-command-ranges.c text eol=lf

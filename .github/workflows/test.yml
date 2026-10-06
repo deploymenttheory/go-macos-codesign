@@ -13,6 +13,8 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  command-ranges:
+    uses: ./.github/workflows/macho-command-ranges.yml
   test-shards:
     strategy:
       fail-fast: false

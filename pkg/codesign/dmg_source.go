@@ -17,15 +17,15 @@ func signDMGFile(ctx context.Context, file *os.File, path string, source codeSou
 	if err != nil {
 		return err
 	}
-	m, err := parseDMGRange(uint64(source.source.size), trailer, source.read)
+	m, err := parseDMGSigningSource(source, trailer)
 	if err != nil {
 		return err
 	}
-	if m.signature != nil {
+	if m.signed {
 		if opts.Force && opts.OnReplace != nil {
 			opts.OnReplace()
 		}
-		if !opts.Force && m.signature.Directories[0].Flags&0x20000 == 0 {
+		if !opts.Force && m.priorFlags&0x20000 == 0 {
 			return ErrSigned
 		}
 	}

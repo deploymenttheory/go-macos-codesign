@@ -1,0 +1,68 @@
+name: Mach-O command range acceptance
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: macho-command-ranges-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-capture:
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check complete Apple command policy bodies with both Clang targets
+        run: go run scripts/extract-macho-command-policy.go -check -out artifacts/apple-macho-command-policy.json
+      - name: Recapture every native command-size boundary and platform control
+        run: go run scripts/probe-macho-command-ranges.go -mode capture -check -out artifacts/macho-command-ranges.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: native-macho-command-ranges
+          path: artifacts/
+          if-no-files-found: error
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, xcode-27]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Replay every complete native case with a 64 KiB working budget
+        run: go run scripts/probe-macho-command-ranges.go -mode replay -export-dir artifacts/commands
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: command-ranges-${{ matrix.os }}
+          path: artifacts/commands/
+          if-no-files-found: error
+  native-foreign-readback:
+    needs: [native-capture, portable]
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: command-ranges-*
+          path: artifacts/import
+      - name: Verify exact producer inventories, complete bytes and native signatures
+        run: go run scripts/probe-macho-command-ranges.go -mode verify-import -import-dir artifacts/import -required-hosts linux,windows,darwin

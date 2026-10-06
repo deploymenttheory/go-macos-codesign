@@ -253,15 +253,19 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 		execFlags |= entitlementExecFlags(xml)
 		special = 7
 	}
-	header, version := 88, uint32(0x20400)
+	// MachORep::needsExecSeg requires a platform command. The directory
+	// builder selects the shortest version that represents the populated fields.
+	header, version := 48, uint32(0x20100)
+	if opts.teamID != "" {
+		header, version = 52, 0x20200
+	}
+	if im.execPlatform != 0 && im.textSize > 0 {
+		header, version = 88, 0x20400
+	}
 	if opts.Flags&FlagRuntime != 0 {
 		header, version = 96, 0x20500
 		if opts.RuntimeVersion == 0 {
-			for _, cmd := range im.commands {
-				if cmd.kind == 0x32 && cmd.size >= 24 {
-					opts.RuntimeVersion = im.order.Uint32(im.data[cmd.offset+16:])
-				}
-			}
+			opts.RuntimeVersion = im.versionSDK
 			if opts.RuntimeVersion == 0 {
 				opts.RuntimeVersion = 27 << 16
 			}
@@ -277,7 +281,7 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 		sigLen += int64(len(b.Data))
 	}
 	// Apple's first pass reserves a current-version CodeDirectory, even when
-	// the emitted directory needs the shorter 0x20400 header. The 8-byte delta
+	// the emitted directory needs a shorter header. The size delta
 	// affects page hashes through LC_CODE_SIGNATURE and must be reproduced.
 	if opts.Identity != nil {
 		// SuperBlob::Maker::size counts the estimate as the entire CMS blob.
@@ -292,33 +296,7 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	if end > math.MaxUint32 {
 		return outputSource{}, allocationError("Mach-O output exceeds 32-bit allocation size")
 	}
-	headSize := im.header + int(im.order.Uint32(im.data[20:]))
-	if im.sigCommand < 0 {
-		headSize += 16
-	}
-	if int64(headSize) > source.size {
-		return outputSource{}, unsupported("no room for LC_CODE_SIGNATURE")
-	}
-	out, err := (codeSource{ctx, source}).read(0, uint64(headSize))
-	if err != nil {
-		return outputSource{}, err
-	}
-	pos := im.sigCommand
-	if pos < 0 {
-		pos = im.header + int(im.order.Uint32(out[20:]))
-		if uint64(pos+16) > im.firstSection || !bytes.Equal(out[pos:pos+16], make([]byte, 16)) {
-			return outputSource{}, unsupported("no room for LC_CODE_SIGNATURE")
-		}
-		im.order.PutUint32(out[16:], im.order.Uint32(out[16:])+1)
-		im.order.PutUint32(out[20:], im.order.Uint32(out[20:])+16)
-	}
-	o := im.order
-	o.PutUint32(out[pos:], 0x1d)
-	o.PutUint32(out[pos+4:], 16)
-	o.PutUint32(out[pos+8:], uint32(codeEnd))
-	o.PutUint32(out[pos+12:], uint32(sigSize))
-	updateLinkedit(out, im, end)
-	patched, err := patchedOutput(source, end, outputSpan{0, byteOutput(out)})
+	patched, err := signingCommandOutput(ctx, im, source, codeEnd, sigSize, end)
 	if err != nil {
 		return outputSource{}, err
 	}
@@ -344,9 +322,13 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	cd[36] = 32
 	cd[37] = 2
 	cd[39] = byte(bits.TrailingZeros32(page))
-	be.PutUint64(cd[64:], im.textBase)
-	be.PutUint64(cd[72:], im.textSize)
-	be.PutUint64(cd[80:], execFlags)
+	if header >= 88 {
+		if im.execPlatform != 0 {
+			be.PutUint64(cd[64:], im.textBase)
+			be.PutUint64(cd[72:], im.textSize)
+		}
+		be.PutUint64(cd[80:], execFlags)
+	}
 	if header >= 96 {
 		be.PutUint32(cd[88:], opts.RuntimeVersion)
 	}
@@ -404,21 +386,7 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	if sig.size > sigSize {
 		return outputSource{}, invalid("CMS exceeds reserved signature space")
 	}
-	return patchedOutput(source, end, outputSpan{0, byteOutput(out)}, outputSpan{codeEnd, sig})
-}
-
-func updateLinkedit(out []byte, im *image, end int64) {
-	p := im.linkedit
-	o := im.order
-	if o.Uint32(out[p:]) == 0x19 {
-		size := uint64(end) - o.Uint64(out[p+40:])
-		o.PutUint64(out[p+48:], size)
-		o.PutUint64(out[p+32:], (size+16383)&^uint64(16383))
-	} else {
-		size := uint32(end) - o.Uint32(out[p+32:])
-		o.PutUint32(out[p+36:], size)
-		o.PutUint32(out[p+28:], (size+16383)&^uint32(16383))
-	}
+	return patchedOutput(patched, end, outputSpan{codeEnd, sig})
 }
 
 // RemoveSignature removes embedded Mach-O, generic attached and supported

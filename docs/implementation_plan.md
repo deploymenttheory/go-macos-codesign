@@ -218,7 +218,10 @@ the following pipeline.
    - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
      large metadata/index tables and every remaining representation. Path payloads
      now use ranges, including [bundles](bundle-streaming.md); bound or spill large
-     metadata/index tables too, since moving only payload bytes is insufficient.
+     signature metadata/index tables too, since moving only payload bytes is
+     insufficient. Load-command parsing now retains fixed-size summaries and
+     mutation patches original ranges; complete its cross-host native acceptance
+     before treating command-region scaling as qualified.
    - [ ] Track source identity and relevant content stability from discovery to
      hashing and commit. Define descriptor handoff for Windows share/rename
      rules, revalidation and remaining races without promising a filesystem
@@ -322,16 +325,92 @@ to all remaining planning, metadata, cleanup and commit paths, preserving the
 APFS integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
-**Upstream batch since v0.17.2: one substantive change.**
-[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198) is merged
-at `8821862a12deeb1b7976e00c5edcc548cdef120e` and adds safe replacement staging
-for compressed Darwin sources. Pin that commit for development and CI; do not
-use a local module replacement to qualify this phase. Track further substantive
-fixes here as they merge, with their acceptance evidence. Count behavior changes,
-not cosmetic commits or release automation. This prerequisite excludes stale compressed storage when writing new
-logical contents. It does not provide the recompression policy or full encoding
-integration required for `--preserve-afsc`. Those remain outstanding, including
-portable foreign-metadata handling and native post-rename failure semantics.
+**Upstream integration and batch release remain open.** Consume only merged
+APFS main commits for development and CI, with no local module replacement.
+Re-pin and recapture codesign provenance after the remaining prerequisites merge;
+qualify the final batch release before closing Phase 02. The user controls the
+release PR and requires at least eight substantive changes, rather than cosmetic
+commits or test-only follow-ups.
+
+The merged installation APIs from [APFS PR #204](https://github.com/deploymenttheory/go-apfs-v2/pull/204)
+are available for integration, but do not provide complete path-based
+recompression. Preserve its 591 native lifecycle observations, 66 portable
+real-file controls, 396 mounted native readbacks and strict coverage gates while
+adding acquisition, eligibility, private staging and foreign publication.
+
+[APFS PR #205](https://github.com/deploymenttheory/go-apfs-v2/pull/205)
+merged after all 77 applicable final-head checks passed. Consume its main commit
+`dba8f588d77debb9876e56ccd0a25f517b164c0d` with the remaining batch prerequisites.
+It corrects inactive-storage interpretation and extent-backed compression
+attributes, with 160 retained native APFS/HFS+ cases and 480 reader/writer/carrier
+comparisons, including independent native readback of Linux and Windows outputs
+on both macOS runners. Final codesign integration and provenance recapture remain
+outstanding.
+
+The remaining recompression prerequisite must cover these concrete boundaries:
+
+- Keep the package boundary explicit: APFS `pkg/recompression` owns foreign
+  operation policy, authorization, private staging and resulting inode state;
+  `pkg/metatransport` owns immutable blobs, held payload association and
+  generation-checked publication. Shared codecs remain in
+  `pkg/compression/decmpfs`, held native operations in `pkg/hostdata`, and version
+  selection in `pkg/osversion`. The separation must preserve all native replay,
+  cancellation, partial-publication and cross-host image-readback gates. It is
+  an upstream prerequisite for codesign integration, not an additional product
+  roadmap or evidence that Phase 02 is complete.
+
+- Integrate shared APFS `pkg/osversion` and carry an explicit macOS product
+  version through behavior-sensitive operations on Linux, macOS and Windows.
+  Qualify macOS 15, 26 and 27 separately; retain minor/patch versions when native
+  evidence establishes a difference. Native host detection must not choose a
+  foreign target from Linux/Windows host characteristics. Unknown versions must
+  not silently inherit the newest profile, and recognizing a version must not
+  be presented as complete feature support.
+- Complete the per-release C/Clang capture and replay matrix. The macOS 26
+  compression framework uses `open` for resource-fork acquisition where macOS 27
+  uses `openat`; keep the full distinct traces and queue outcomes. Add macOS 15
+  acquisition, storage, metadata and partial-failure evidence, then implement
+  every observed divergence. Keep filesystem flags such as `MNT_CPROTECT`
+  independent of the product-version profile. Require current-source provenance,
+  all-platform replay above 95% coverage and mounted APFS/HFS+ acceptance before
+  closing a release-specific behavior route. Audit quarantine and other shared
+  version-sensitive prerequisites rather than aliasing macOS 15 to 26 or 27.
+- Capture the complete acquisition/preflight sequence before encoding, including
+  read/write open and the native zero-byte write. A direct exploratory C probe
+  separates their effects: read/write open decompresses the tested compressed
+  file, removes its compression attribute/fork and changes modification time;
+  the following zero-byte write leaves that observed state unchanged. Qualify
+  this sequence across mounted profiles and capture restoration metadata after
+  acquisition rather than assuming the pre-open timestamp remains the target.
+- Preserve the distinction between successful queue admission and later failure.
+  Native open/stat failure can reject admission; storage or compression failure
+  after admission need not make `codesign` fail. Retain both outcomes in the SDK
+  result and map them at the representation-specific codesign commit boundary.
+- Qualify content-policy declines, including incompressible data: native can
+  synchronize/close the fork and restore data-handle timestamps without installing
+  an attribute. Keep size/name declines distinct from declines after acquisition.
+- Carry observed volume flags explicitly into foreign recompression. AppleDouble
+  attributes, the receiving OS and an APFS filesystem label do not establish
+  `MNT_CPROTECT`. Do not infer an unprotected volume from missing context.
+- Consume the qualified reader/writer/carrier correction in APFS PR #205 before
+  publishing partial recompression outcomes. Native
+  partial failures can retain valid or malformed compression metadata while
+  `UF_COMPRESSED` is clear. Preserve actual ordinary data, empty data, flags and
+  retained storage; never reactivate it from attribute presence alone.
+- Update the materialized payload baseline and compressed blobs together with
+  the explicit foreign operation state. Verify unchanged input before reusing
+  old storage; after edits, encode new storage. Exercise generation conflicts,
+  partial publication, disk exhaustion, cancellation and cleanup on every host.
+
+Remaining shared prerequisites include held-file volume policy, compression
+installation and failure/cleanup semantics, and complete foreign-metadata
+integration. In particular, `MNT_CPROTECT` suppresses inline compression even
+when requested; the same OS build can choose different storage on different
+volumes. Capture and consume actual mount policy rather than selecting storage
+from OS version alone. AppleDouble attributes alone do not establish BSD flags
+or mount policy; preserve that distinction when binding explicit foreign inputs.
+`--preserve-afsc` must also retain native post-rename failure behavior. None of
+these dependency changes closes the codesign compression integration by itself.
 
 The main pin passes 24 live compressed standalone/bundle lifecycle comparisons
 and the retained sixteen-case native recapture. These are ordinary replacement

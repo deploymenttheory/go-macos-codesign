@@ -16,16 +16,25 @@ including native-retained old signature padding, remain source-backed. Universal
 assembly emits the rewritten FAT index, alignment gaps and each slice plan.
 
 One 64 KiB transfer buffer feeds all CodeDirectory pages, including page sizes
-larger than that buffer. Load commands, signatures and FAT indexes are still
-materialized. `SignBytes` and `RemoveSignatureBytes` retain independent returned
-buffers and the existing 1 GiB output allocation ceiling; path operations no
-longer inherit that payload ceiling. These are not constant-memory operations:
-signature size grows with page and special-slot counts.
+larger than that buffer. The load-command parser keeps fixed-size summaries and
+reads the fields it consumes. Signing patches the original command ranges;
+removal shifts the surviving ranges and clears the vacated tail. Neither path
+retains a command-count-sized table or the complete `sizeofcmds` region. UUID
+fallback identification also hashes those ranges incrementally.
+
+Generated CodeDirectories use the operation's shared working-storage budget and
+spill when necessary. Signing preflight scans input signatures through borrowed
+views with spillable indexes; verification and display still require further
+range integration. The FAT index retains its existing architecture-count bound. `SignBytes` and
+`RemoveSignatureBytes` retain independent returned buffers and the existing
+1 GiB output allocation ceiling; path operations no longer inherit that payload
+ceiling. Public inspection reports retain owned signature bytes, so their memory
+use can still grow with metadata.
 
 The writer borrows the preflight descriptor through transfer and metadata
-restoration. Released APFS v0.17.2 owns replacement allocation, ACLs, ownership,
-attributes, creation times and cleanup. Its existing held-source API suffices;
-there is no new filesystem implementation or dependency in codesign. Linux uses
+restoration. APFS owns replacement allocation, ACLs, ownership, attributes,
+creation times and cleanup. Phase 02 consumes a merged-main pin containing the
+compressed-source corrections while the upstream release is batched. Linux uses
 its metadata restoration path, Darwin its clone/fallback path, and Windows its
 copy/security path. The source handle closes before rename on Windows.
 
@@ -63,12 +72,40 @@ than treating the former 1 GiB memory ceiling as a format limit. General FAT64
 range arithmetic is unit-tested independently; it does not establish native
 support for whole-file mutation above the allocator's 32-bit limit.
 
+## Large command regions
+
+The [command-range corpus](../testdata/research/macho-command-ranges.md) adds
+eleven C/SDK-generated dylib layouts. Six small controls distinguish platform
+selection, command count and padding; five large controls cross both the former
+`header + sizeofcmds` allocation ceiling and the 1 GiB command-region boundary.
+Apple accepts signing, re-signing, dry runs and removal for these layouts, and
+strictly verifies the signed results. This establishes signing behavior, not
+that a fixture is a loadable application.
+
+The complete-file hashes cover every native operation. Portable replay uses the
+public APIs with a 64 KiB working budget and exports both signed and re-signed
+files. CI requires independent verification of the complete bytes and Apple signatures of all
+22 outputs from each Linux, Windows and macOS producer. This additive workflow
+also recaptures all eleven native cases and compiles the pinned Apple command
+policy bodies for both Clang targets; the existing size-boundary matrix remains
+mandatory.
+
+The controls exposed a CodeDirectory-selection difference: without a platform
+version command, native signing omits executable-segment fields. Signing now
+selects the header from the actual populated fields instead of always emitting
+version `0x20400`. A platform-bearing control and two no-platform controls retain
+the independent native evidence. Broader CodeDirectory profiles remain Phase 04
+work.
+
 ## Reproduction and tests
 
 ```sh
 go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
 go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
 go test -count=1 -run '^TestLargeMachOMutation$' ./acceptance
+go run scripts/extract-macho-command-policy.go -check -out artifacts/apple-macho-command-policy.json
+go run scripts/probe-macho-command-ranges.go -mode capture -check -out artifacts/macho-command-ranges.json
+go run scripts/probe-macho-command-ranges.go -export-dir artifacts/command-ranges
 ```
 
 The native CI job recaptures every case. Each OS runs the CLI against real files,
@@ -99,8 +136,9 @@ file acceptance substitute; the native corpus supplies the latter separately.
 
 ## Remaining Phase 02 work
 
-[Bundle executables/resources](bundle-streaming.md) now use the same ranged pipeline. Shared 128 MiB
-reservation accounting, metadata spilling, nested/concurrent operation budgets,
-dense multi-gigabyte qualification and process-memory/storage measurements remain
-outstanding. Complete operation policy and lifecycle qualification also remain.
+[Bundle executables/resources](bundle-streaming.md) use the same ranged pipeline.
+The shared storage manager accounts for transfer buffers and generated sections;
+remaining input signature metadata, parsed objects, queues and handles still need
+integration. Dense multi-gigabyte qualification, process-memory/storage
+measurements, and complete operation policy and lifecycle qualification remain.
 See the [outstanding implementation plan](implementation_plan.md#phase-02).

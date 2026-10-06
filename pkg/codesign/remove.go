@@ -23,37 +23,24 @@ func removeImageSource(ctx context.Context, im *image, source outputSource) (out
 		return outputSource{}, unsupported("signature is not at end of slice")
 	}
 	o, p := im.order, im.linkedit
-	linkStart := uint64(o.Uint32(im.data[p+32:]))
-	is64 := o.Uint32(im.data[p:]) == 0x19
-	if is64 {
-		linkStart = o.Uint64(im.data[p+40:])
-	}
+	linkStart := im.linkStart
+	is64 := im.linkeditKind == 0x19
 	end := uint64(im.sigOffset)
 	if linkStart > end {
 		return outputSource{}, malformed("signature precedes LINKEDIT")
 	}
-	seenSymbols := false
-	for _, cmd := range im.commands {
-		if cmd.kind != 2 { // LC_SYMTAB
-			continue
-		}
-		if cmd.size != 24 || seenSymbols {
+	if sym := im.symbols; sym.present {
+		if sym.size != 24 {
 			return outputSource{}, malformed("symbol table command")
 		}
-		seenSymbols = true
-		b := im.data[cmd.offset:]
-		stringsStart, stringsSize := uint64(o.Uint32(b[16:])), uint64(o.Uint32(b[20:]))
-		symbolsStart, symbolCount := uint64(o.Uint32(b[8:])), uint64(o.Uint32(b[12:]))
+		stringsStart, stringsSize, symbolsStart, symbolCount := sym.strings, sym.stringSize, sym.symbols, sym.count
 		entrySize := uint64(12)
 		if im.header == 32 {
 			entrySize = 16
 		}
-		// Validate before using untrusted offsets to choose a truncation point.
-		// Empty, absent tables may use a zero offset.
 		if !rangeOK(stringsStart, stringsSize, end) ||
-			(stringsSize != 0 && stringsStart < max(linkStart, uint64(im.header)+uint64(o.Uint32(im.data[20:])))) ||
-			!rangeOK(symbolsStart, symbolCount*entrySize, end) ||
-			(symbolCount != 0 && symbolsStart < linkStart) {
+			(stringsSize != 0 && stringsStart < max(linkStart, uint64(im.header)+uint64(im.commandBytes))) ||
+			!rangeOK(symbolsStart, symbolCount*entrySize, end) || (symbolCount != 0 && symbolsStart < linkStart) {
 			return outputSource{}, malformed("symbol table range during removal")
 		}
 		stringsEnd := stringsStart + stringsSize
@@ -63,28 +50,40 @@ func removeImageSource(ctx context.Context, im *image, source outputSource) (out
 			}
 			end = stringsEnd
 		}
+		if sym.duplicate {
+			return outputSource{}, malformed("symbol table command")
+		}
 	}
-	commandsEnd := im.header + int(o.Uint32(im.data[20:]))
+	commandsEnd := int64(im.header) + int64(im.commandBytes)
 	if end < uint64(commandsEnd) {
 		return outputSource{}, malformed("removal overlaps load commands")
 	}
-	out, err := (codeSource{ctx, source}).read(0, uint64(commandsEnd))
+	header, err := (codeSource{ctx, source}).read(0, uint64(im.header))
 	if err != nil {
 		return outputSource{}, err
 	}
-	copy(out[im.sigCommand:], out[im.sigCommand+16:commandsEnd])
-	clear(out[commandsEnd-16 : commandsEnd])
-	o.PutUint32(out[16:], o.Uint32(out[16:])-1)
-	o.PutUint32(out[20:], o.Uint32(out[20:])-16)
+	o.PutUint32(header[16:], im.commandCount-1)
+	o.PutUint32(header[20:], im.commandBytes-16)
+	// Shift commands as a borrowed range rather than copying sizeofcmds bytes.
+	shifted, err := patchedOutput(source, int64(end),
+		outputSpan{0, byteOutput(header)},
+		outputSpan{int64(im.sigCommand), outputSource{reader: source.reader, offset: source.offset + int64(im.sigCommand) + 16, size: commandsEnd - int64(im.sigCommand) - 16}},
+		outputSpan{commandsEnd - 16, outputSource{reader: zeroSource{}, size: 16}})
+	if err != nil {
+		return outputSource{}, err
+	}
 	if p > im.sigCommand {
 		p -= 16
 	}
-	// Deallocation changes only filesize. The signing helper also rounds
-	// vmsize, which would incorrectly shrink a large signed LINKEDIT mapping.
+	// Deallocation changes only filesize; it does not shrink LINKEDIT vmsize.
+	field := make([]byte, 4)
+	at := p + 36
 	if is64 {
-		o.PutUint64(out[p+48:], end-linkStart)
+		field = make([]byte, 8)
+		at = p + 48
+		o.PutUint64(field, end-linkStart)
 	} else {
-		o.PutUint32(out[p+36:], uint32(end-linkStart))
+		o.PutUint32(field, uint32(end-linkStart))
 	}
-	return patchedOutput(source, int64(end), outputSpan{0, byteOutput(out)})
+	return patchedOutput(shifted, int64(end), outputSpan{int64(at), byteOutput(field)})
 }
