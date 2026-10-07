@@ -78,7 +78,9 @@ jobs:
           if-no-files-found: error
   test:
     needs: test-shards
-    if: always()
+    # Aggregate failed shards, but stop when the entire run is cancelled so a
+    # superseded workflow cannot retain a queued macOS aggregation job.
+    if: ${{ always() && !cancelled() }}
     strategy:
       fail-fast: false
       matrix:
@@ -387,7 +389,7 @@ jobs:
           CGO_ENABLED: '0'
   race-and-fuzz:
     needs: [race, fuzz]
-    if: always()
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
