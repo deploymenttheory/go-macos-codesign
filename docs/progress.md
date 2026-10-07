@@ -1,6 +1,6 @@
 # Project progress
 
-Updated 2026-10-05. This page describes the implementation in this branch and
+Updated 2026-10-07. This page describes the implementation in this branch and
 links its validation evidence. It does not declare a release or full `codesign`
 parity. The [compatibility inventory](../spec/compatibility.json) remains the
 full-equivalence audit; the [remaining roadmap](implementation_plan.md) assigns
@@ -8,6 +8,16 @@ the outstanding work to eleven remaining larger implementation phases (02–12).
 Versioned releases of the supported subset use [Release Please and GoReleaser](releases.md).
 
 ## Current portable I/O and lifecycle phase
+
+PR105 is merged. The Phase 02 completion branch adds scoped inspection and
+verification without complete CodeDirectory allocations, and routes non-JSON
+CLI display/verification through those APIs. Existing owned reports and JSON
+remain compatible. Twelve retained native CLI/C SDK metadata controls reach
+1 GiB + 1 byte; their dense portable replay adds 49 acceptance outcomes per host,
+alongside 129 new unit outcomes. Local native parity, failure injection, lint and
+the existing 60-second inspection fuzzer pass. Final three-host CI and the other
+[Phase 02 exit requirements](implementation_plan.md#phase-02) remain open.
+See [held-file reports](source-range-io.md) for the lifetime and allocation contracts.
 
 [Phase 02](portable-io-lifecycle.md) starts from merged PR97 main. Native controls
 confirmed a shared prerequisite: HFS+ sign, dry-run and remove succeed with Apple

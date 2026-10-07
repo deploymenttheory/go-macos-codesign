@@ -609,27 +609,37 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				err = codesign.Remove(ctx, path, opts)
 			}
 		case "verify":
-			var report *codesign.Report
-			report, err = verifyWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, StrictSideband: o.strictMask&0x200 != 0, IgnoreResources: o.ignoreResources})
-			if err == nil {
-				var passed bool
-				passed, err = checkVerificationRequirements(stderr, report, path, o)
-				if !passed {
-					report.Valid = false
-					if err == nil && status == 0 {
-						status = 3
+			opts := codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, StrictSideband: o.strictMask&0x200 != 0, IgnoreResources: o.ignoreResources}
+			consume := func(report *codesign.Report, operationErr error) error {
+				var outputErr error
+				if operationErr == nil {
+					var passed bool
+					passed, outputErr = checkVerificationRequirements(stderr, report, path, o)
+					if !passed {
+						report.Valid = false
+						if outputErr == nil && status == 0 {
+							status = 3
+						}
 					}
 				}
-			}
-			if o.json && report != nil {
-				if e := json.NewEncoder(stdout).Encode(report); e != nil {
-					err = e
+				if o.json && report != nil {
+					outputErr = errors.Join(outputErr, json.NewEncoder(stdout).Encode(report))
 				}
+				return outputErr
+			}
+			if o.json {
+				var report *codesign.Report
+				report, err = verifyWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, opts)
+				err = errors.Join(err, consume(report, err))
+			} else {
+				err = visitVerificationWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, opts, consume)
 			}
 		case "display":
-			var report *codesign.Report
-			report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
-			if err == nil {
+			consume := func(report *codesign.Report, operationErr error) error {
+				if operationErr != nil {
+					return nil
+				}
+				var err error
 				if o.json && !o.entitlementsSet && o.entitlements == "" && !o.requirementsSet {
 					err = json.NewEncoder(stdout).Encode(report)
 				} else {
@@ -650,6 +660,15 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 				if err == nil && o.fileList {
 					err = outputFileList(stdout, report, o)
 				}
+				return err
+			}
+			opts := codesign.PathOptions{BundleVersion: o.bundleVersion}
+			if o.json && !o.entitlementsSet && o.entitlements == "" && !o.requirementsSet {
+				var report *codesign.Report
+				report, err = codesign.InspectWithOptions(ctx, path, opts)
+				err = errors.Join(err, consume(report, err))
+			} else {
+				err = codesign.VisitInspection(ctx, path, opts, consume)
 			}
 		}
 		if err != nil {
@@ -755,7 +774,7 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 	if r.Format != "disk image" {
 		format += " (" + strings.Join(names, " ") + ")"
 	}
-	fmt.Fprintf(w, "Identifier=%s\nFormat=%s\nCodeDirectory v=%x size=%d flags=0x%x(%s) hashes=%d+%d location=embedded\n", d.Identifier, format, d.Version, len(d.Raw), d.Flags, flagNames(d.Flags), d.CodeSlots, d.SpecialSlots)
+	fmt.Fprintf(w, "Identifier=%s\nFormat=%s\nCodeDirectory v=%x size=%d flags=0x%x(%s) hashes=%d+%d location=embedded\n", d.Identifier, format, d.Version, d.Size(), d.Flags, flagNames(d.Flags), d.CodeSlots, d.SpecialSlots)
 	if o.verbose >= 4 && selected.VersionPlatform != 0 {
 		fmt.Fprintf(w, "VersionPlatform=%d\nVersionMin=%d\nVersionSDK=%d\n", selected.VersionPlatform, selected.VersionMin, selected.VersionSDK)
 	}
@@ -784,10 +803,12 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 	if d.Flags&codesign.FlagAdhoc != 0 {
 		fmt.Fprintln(w, "Signature=adhoc")
 	} else {
-		for _, b := range selected.Signature.Blobs {
-			if b.Slot == codesign.SlotCMS {
-				fmt.Fprintf(w, "Signature size=%d\n", len(b.Data)-8)
-			}
+		size, err := selected.Signature.BlobSize(codesign.SlotCMS)
+		if err != nil {
+			return err
+		}
+		if size != 0 {
+			fmt.Fprintf(w, "Signature size=%d\n", size-8)
 		}
 		metadata := selected.Signature.CertificateMetadata
 		if metadata == nil {
@@ -821,9 +842,17 @@ func renderDisplay(w io.Writer, r *codesign.Report, o options) error {
 	} else {
 		fmt.Fprintf(w, "Sealed Resources version=%d rules=%d files=%d\n", r.Bundle.ResourceVersion, r.Bundle.ResourceRules, r.Bundle.ResourceFiles)
 	}
-	for _, b := range selected.Signature.Blobs {
-		if b.Slot == codesign.SlotRequirements && len(b.Data) >= 12 && !o.requirementsSet {
-			fmt.Fprintf(w, "Internal requirements count=%d size=%d\n", binary.BigEndian.Uint32(b.Data[8:]), len(b.Data))
+	if !o.requirementsSet {
+		reader, err := selected.Signature.BlobReader(codesign.SlotRequirements)
+		if err != nil {
+			return err
+		}
+		if reader != nil && reader.Size() >= 12 {
+			var header [12]byte
+			if _, err := io.ReadFull(reader, header[:]); err != nil {
+				return err
+			}
+			fmt.Fprintf(w, "Internal requirements count=%d size=%d\n", binary.BigEndian.Uint32(header[8:]), reader.Size())
 		}
 	}
 	if o.verbose >= 2 && !o.entitlementsSet && o.entitlements == "" && !o.requirementsSet {

@@ -159,6 +159,10 @@ func withCodeSource(ctx context.Context, path string, operation func(codeSource,
 	if err != nil && report != nil {
 		report.Valid = false
 	}
+	if report != nil {
+		report.Path = path
+	}
+	err = consumeReport(ctx, report, err)
 	return report, err
 }
 
@@ -166,6 +170,9 @@ func withCodeSource(ctx context.Context, path string, operation func(codeSource,
 var _ io.WriterAt = rangeBuffer(nil)
 
 func (s codeSource) inspect() (*Report, error) {
+	if _, borrowed := s.ctx.Value(reportVisitKey{}).(*reportVisit); borrowed {
+		return s.inspectView()
+	}
 	dmg, err := s.isDMG()
 	if err != nil {
 		return nil, err

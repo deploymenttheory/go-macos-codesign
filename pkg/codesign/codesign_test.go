@@ -143,6 +143,16 @@ func FuzzInspect(f *testing.F) {
 		if fmt.Sprint(wantErr) != fmt.Sprint(gotErr) || !reflect.DeepEqual(want, got) {
 			t.Fatal("byte/range inspection drift", wantErr, gotErr)
 		}
+		ctx, storage, err := beginWorkingStorage(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer storage.Close()
+		borrowed, borrowedErr := (codeSource{ctx, byteOutput(b)}).inspectView()
+		if fmt.Sprint(wantErr) != fmt.Sprint(borrowedErr) {
+			t.Fatal("owned/borrowed inspection drift", wantErr, borrowedErr)
+		}
+		assertBorrowedReport(t, borrowed, want)
 		before := bytes.Clone(b)
 		if report, err := VerifyBytes(context.Background(), b, VerifyOptions{}); err == nil {
 			_ = report.CheckDesignatedRequirement("")

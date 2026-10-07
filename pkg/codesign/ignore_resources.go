@@ -1,7 +1,6 @@
 package codesign
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -50,11 +49,11 @@ func (b *appBundle) verifyIgnoredResourceStructure(report *Report) error {
 		return err
 	}
 	d := selected.Signature.Directories[0]
-	resourceSlot := false
-	if d.SpecialSlots >= SlotResources {
-		offset := d.HashOffset - SlotResources*uint32(d.HashSize)
-		resourceSlot = !bytes.Equal(d.Raw[offset:offset+uint32(d.HashSize)], make([]byte, d.HashSize))
+	resourceHash, err := d.specialSlotHash(SlotResources)
+	if err != nil {
+		return err
 	}
+	resourceSlot := resourceHash != nil
 	for _, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {

@@ -1,5 +1,45 @@
 # Held-file inspection and verification
 
+`VisitInspection` and `VisitVerification` consume signature components through
+held ranges while a callback runs. Non-JSON CLI display and verification use
+these scoped APIs. CodeDirectory hash tables and opaque components remain ranges;
+the existing spillable indexes check duplicate slots and overlapping blobs.
+Page and special-slot validation read the required ranges, and certificate
+binding hashes directory ranges directly. The cryptographic and trust policies
+are shared with the owned-byte APIs.
+
+The callback receives the operation error even when no report could be produced,
+and runs exactly once. Its error is joined with operation and subsequent cleanup
+errors. Borrowed reports have no `Signature.Blobs` or `Directory.Raw` arrays;
+use `BlobReader`, `BlobSize`, `ReadBlob` and `Directory.Size` instead. Report
+methods for requirements, entitlements, certificates and file lists work inside
+the callback. Do not retain the borrowed report or its readers after returning.
+An explicit `ReadBlob` requests an owned component allocation; streamed callers
+should prefer `BlobReader`. The existing `Inspect`, `Verify`, byte APIs and JSON
+CLI output continue to return/serialize complete owned component bytes.
+
+[Native metadata evidence](../testdata/research/signature-metadata.json) covers
+twelve dense files with CodeDirectory lengths immediately below, at and above
+64 KiB, 16 MiB, 128 MiB and 1 GiB. Apple's CLI and an independently compiled
+C/SDK probe accept every control. Both Clang targets compile the real SDK calls;
+this records the public API contract, not the private framework implementation.
+The capture retains compiler, SDK-header, oracle-binary, source and complete-file
+hashes. The deterministic recipe extends a native ad-hoc directory with zeros,
+adjusts its container lengths and retains its original page/special-slot bindings.
+
+Every host reconstructs all twelve dense files and compares complete CLI output
+with the capture. Library verification runs each at 64 KiB, 128 MiB and 256 MiB
+working budgets, checks the SDK-observed CDHash, enforces an 8 MiB total Go
+allocation regression bound, and requires scratch cleanup. The local 1 GiB
+directory control used about 164 KiB of total Go allocations with the 64 KiB
+budget. This is one metadata shape, not RSS/working-set qualification or a measured
+optimum for the default budget. The wider Phase 02 scale matrix remains open.
+
+```sh
+go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json
+go test -count=1 -run '^TestSignatureMetadataBoundaries$' ./acceptance
+```
+
 Standalone `Inspect`/`InspectWithOptions` and `Verify`, including the CLI display
 and verification operations, read supported Mach-O and UDIF representations through
 held file descriptors. They no longer read the entire payload into a byte slice
@@ -89,7 +129,7 @@ working set, a general peak-memory result or implementation of the planned share
 
 | Location | Current contract | Remaining Phase 02 work |
 | --- | --- | --- |
-| `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
+| `source.go` / `source_report.go` | Scoped inspection and verification borrow signature ranges and spill their indexes; owned report/component reads retain the legacy 1 GiB allocation ceiling | Remaining materialized metadata/CMS limits, full accounting and ownership qualification |
 | `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Shared metadata budgets and remaining lifecycle policy |
 | `macho.go` / `macho_commands.go` / `macho_source.go` | Fixed-size load-command summaries, source-range patches and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Large command-region native acceptance, input signature views and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |

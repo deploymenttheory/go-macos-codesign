@@ -225,6 +225,7 @@ type Directory struct {
 	Raw          []byte `json:"-"`
 	certificate  []byte
 	chain        []*certificate
+	view         *directoryView
 }
 
 type Signature struct {
@@ -233,6 +234,7 @@ type Signature struct {
 	Directories []Directory
 	// CertificateMetadata is descriptive; inspection never sets Report.Valid.
 	CertificateMetadata *CertificateMetadata `json:",omitempty"`
+	view                *signatureView
 }
 
 // CertificateMetadata describes CMS data whose cryptographic binding has been

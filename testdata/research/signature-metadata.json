@@ -1,0 +1,559 @@
+{
+  "Schema": 1,
+  "Scope": "Dense native-ad-hoc UDIF seed with a zero-extended CodeDirectory; the SuperBlob lengths and UDIF signature length change. Code pages, special slots and the blinded trailer binding are unchanged. Native CLI observations and independent SDK validation establish acceptance; AST records only the real SDK calls and declarations, not Apple's private implementation.",
+  "Host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "SDK": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "Compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "OracleSHA256": "1b1e2e89d625c063107c6f7cbe6b5a6521e3dcf345ad52bcf025346c5bc01453",
+  "SDKHeaders": {
+    "SecCode.h": "293ccef2de6c872a4f5a4862a74bf96a9ade0f897f898813cd33e8e1d00459c4",
+    "SecStaticCode.h": "4647531b672952064d7d014057c5147722babb29aa0ab6d11b8fbd45b3fde532"
+  },
+  "SeedPrefixBytes": 9115,
+  "Sources": {
+    "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+    "go.mod": "356254d19a34ee04d7c78c30074ca47478e470cc8e55f83fa1ac8b2b04cae029",
+    "go.sum": "dc2288897d56c793e0d3064fa1059a457d67f700eca4c16029095a1eb70c97fa",
+    "scripts/probe-signature-metadata.go": "d8fa997d32180805c25e6c0c6d64df4623dff58f5e99d0114459471a8f0a554e",
+    "testdata/dmg/native-adhoc-raw.dmg": "7f1984ce2d52aff1d69bcfcb30246d9ae612a91d0a963af47536550bf315b6f2",
+    "testdata/research/signature-metadata.c": "0b2d98351f54ec2f31dfba09fe6f4da633cd497649c26718aa989a92914eee4c"
+  },
+  "AST": {
+    "arm64-apple-macos27": {
+      "": 1,
+      "ArraySubscriptExpr": 1,
+      "BinaryOperator": 7,
+      "CStyleCastExpr": 12,
+      "CallExpr": 16,
+      "CompoundStmt": 3,
+      "DeclRefExpr": 46,
+      "DeclStmt": 9,
+      "ForStmt": 1,
+      "FunctionDecl": 1,
+      "IfStmt": 4,
+      "ImplicitCastExpr": 64,
+      "IntegerLiteral": 12,
+      "ParenExpr": 7,
+      "ParmVarDecl": 1,
+      "ReturnStmt": 3,
+      "StringLiteral": 3,
+      "UnaryOperator": 3,
+      "VarDecl": 9
+    },
+    "x86_64-apple-macos27": {
+      "": 1,
+      "ArraySubscriptExpr": 1,
+      "BinaryOperator": 7,
+      "CStyleCastExpr": 12,
+      "CallExpr": 16,
+      "CompoundStmt": 3,
+      "DeclRefExpr": 46,
+      "DeclStmt": 9,
+      "ForStmt": 1,
+      "FunctionDecl": 1,
+      "IfStmt": 4,
+      "ImplicitCastExpr": 64,
+      "IntegerLiteral": 12,
+      "ParenExpr": 7,
+      "ParmVarDecl": 1,
+      "ReturnStmt": 3,
+      "StringLiteral": 3,
+      "UnaryOperator": 3,
+      "VarDecl": 9
+    }
+  },
+  "Cases": [
+    {
+      "DirectorySize": 65535,
+      "FileSize": 75218,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgAA//8AAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 74686,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 74698,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAABADcAAAADAAAAAAAAACQAAAACAAEAIwABAAAAAQAv"
+        },
+        {
+          "Offset": 74706,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAAAQA3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "b7efa7483e8818175615a4e7bedc0016e1c7ce4a0b75b27949bcec39b1f83b32",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=65535 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=c7977a2d17946529aafeb705b9412d55a853cf68\nCandidateCDHashFull sha256=c7977a2d17946529aafeb705b9412d55a853cf68e6cfc240944882a46ecdbc15\nHash choices=sha256\nCMSDigest=c7977a2d17946529aafeb705b9412d55a853cf68e6cfc240944882a46ecdbc15\nCMSDigestType=2\nPage size=none\nCDHash=c7977a2d17946529aafeb705b9412d55a853cf68\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "c7977a2d17946529aafeb705b9412d55a853cf68",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 65536,
+      "FileSize": 75219,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgABAAAAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 74687,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 74699,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAABADgAAAADAAAAAAAAACQAAAACAAEAJAABAAAAAQAw"
+        },
+        {
+          "Offset": 74707,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAAAQA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "34d75da9d0dbf18434ff3d2cc461b4dae633f7e6f34b746a6b1292dc20d4428b",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=65536 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=aec6e27140e54149221b35c420056cdfee596fef\nCandidateCDHashFull sha256=aec6e27140e54149221b35c420056cdfee596fef238f262e2743b35cfe44f8d7\nHash choices=sha256\nCMSDigest=aec6e27140e54149221b35c420056cdfee596fef238f262e2743b35cfe44f8d7\nCMSDigestType=2\nPage size=none\nCDHash=aec6e27140e54149221b35c420056cdfee596fef\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "aec6e27140e54149221b35c420056cdfee596fef",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 65537,
+      "FileSize": 75220,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgABAAEAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 74688,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 74700,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAABADkAAAADAAAAAAAAACQAAAACAAEAJQABAAAAAQAx"
+        },
+        {
+          "Offset": 74708,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAAAQA5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "5af62375200160bb1b590839ab2627f112e2be82809ac24b9c0ac5a71fe6ead7",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=65537 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=f38e62a86ef5afa096a49f5011505f7008cd9263\nCandidateCDHashFull sha256=f38e62a86ef5afa096a49f5011505f7008cd92633b1312d8eb1cf82481d9c52d\nHash choices=sha256\nCMSDigest=f38e62a86ef5afa096a49f5011505f7008cd92633b1312d8eb1cf82481d9c52d\nCMSDigestType=2\nPage size=none\nCDHash=f38e62a86ef5afa096a49f5011505f7008cd9263\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "f38e62a86ef5afa096a49f5011505f7008cd9263",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 16777215,
+      "FileSize": 16786898,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgD///8AAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 16786366,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 16786378,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAEAADcAAAADAAAAAAAAACQAAAACAQAAIwABAAABAAAv"
+        },
+        {
+          "Offset": 16786386,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAABAAA3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "6411a8215356c560cf572ba1b68eb1c4c34e657546b15b8f0e103b17e40427a7",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=16777215 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=f09ff0df3a11fcbb5884d6b11b2dc5787ae23cd2\nCandidateCDHashFull sha256=f09ff0df3a11fcbb5884d6b11b2dc5787ae23cd2d733119102b037c70845e4f9\nHash choices=sha256\nCMSDigest=f09ff0df3a11fcbb5884d6b11b2dc5787ae23cd2d733119102b037c70845e4f9\nCMSDigestType=2\nPage size=none\nCDHash=f09ff0df3a11fcbb5884d6b11b2dc5787ae23cd2\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "f09ff0df3a11fcbb5884d6b11b2dc5787ae23cd2",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 16777216,
+      "FileSize": 16786899,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgEAAAAAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 16786367,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 16786379,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAEAADgAAAADAAAAAAAAACQAAAACAQAAJAABAAABAAAw"
+        },
+        {
+          "Offset": 16786387,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAABAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "8b443b86060001739e35b719d0d7401d1ad746e9b52777911327589007e63aa9",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=16777216 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=352c48e06b7e706adc7f7b02d31779ca6b6fea99\nCandidateCDHashFull sha256=352c48e06b7e706adc7f7b02d31779ca6b6fea99bfa8afac9e452fcfb7a49389\nHash choices=sha256\nCMSDigest=352c48e06b7e706adc7f7b02d31779ca6b6fea99bfa8afac9e452fcfb7a49389\nCMSDigestType=2\nPage size=none\nCDHash=352c48e06b7e706adc7f7b02d31779ca6b6fea99\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "352c48e06b7e706adc7f7b02d31779ca6b6fea99",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 16777217,
+      "FileSize": 16786900,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgEAAAEAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 16786368,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 16786380,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAEAADkAAAADAAAAAAAAACQAAAACAQAAJQABAAABAAAx"
+        },
+        {
+          "Offset": 16786388,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAABAAA5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "ab2d61d1352079b66041a456d7ed2ae156720d7b2b2e569d4268eedd2264a9ab",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=16777217 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=bb3ed44f560067dd4036e762c35d6e4a74e040f9\nCandidateCDHashFull sha256=bb3ed44f560067dd4036e762c35d6e4a74e040f926e8321d97cec429a95d5b60\nHash choices=sha256\nCMSDigest=bb3ed44f560067dd4036e762c35d6e4a74e040f926e8321d97cec429a95d5b60\nCMSDigestType=2\nPage size=none\nCDHash=bb3ed44f560067dd4036e762c35d6e4a74e040f9\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "bb3ed44f560067dd4036e762c35d6e4a74e040f9",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 134217727,
+      "FileSize": 134227410,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAgf///8AAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 134226878,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 134226890,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAgAADcAAAADAAAAAAAAACQAAAACCAAAIwABAAAIAAAv"
+        },
+        {
+          "Offset": 134226898,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAIAAA3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "541e22aaa05186e793a167e1e28dfb2117b3d39344b1e642ba38290e2513013e",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=134217727 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=3562b4fe3df76bae765f780347750c3440f6a75a\nCandidateCDHashFull sha256=3562b4fe3df76bae765f780347750c3440f6a75a8d210878480a128eecbbd236\nHash choices=sha256\nCMSDigest=3562b4fe3df76bae765f780347750c3440f6a75a8d210878480a128eecbbd236\nCMSDigestType=2\nPage size=none\nCDHash=3562b4fe3df76bae765f780347750c3440f6a75a\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "3562b4fe3df76bae765f780347750c3440f6a75a",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 134217728,
+      "FileSize": 134227411,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAggAAAAAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 134226879,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 134226891,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAgAADgAAAADAAAAAAAAACQAAAACCAAAJAABAAAIAAAw"
+        },
+        {
+          "Offset": 134226899,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAIAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "5169d8a68b75683b12fb00774a303704902968b4e905b25beb66470a1ec70741",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=134217728 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=586245046395996808c39cca653498fa9709fa99\nCandidateCDHashFull sha256=586245046395996808c39cca653498fa9709fa990d44ab1498860a7da1518672\nHash choices=sha256\nCMSDigest=586245046395996808c39cca653498fa9709fa990d44ab1498860a7da1518672\nCMSDigestType=2\nPage size=none\nCDHash=586245046395996808c39cca653498fa9709fa99\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "586245046395996808c39cca653498fa9709fa99",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 134217729,
+      "FileSize": 134227412,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAggAAAEAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 134226880,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 134226892,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwAgAADkAAAADAAAAAAAAACQAAAACCAAAJQABAAAIAAAx"
+        },
+        {
+          "Offset": 134226900,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAAAIAAA5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "12795ed670552b6a98412e5a66e33217e274390f752545bf0eaf1077a5688e4a",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=134217729 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=2c73e252d9ccf880749e0c3f4140365e623b78ce\nCandidateCDHashFull sha256=2c73e252d9ccf880749e0c3f4140365e623b78ce6c690bbd914f1401e74fbaf4\nHash choices=sha256\nCMSDigest=2c73e252d9ccf880749e0c3f4140365e623b78ce6c690bbd914f1401e74fbaf4\nCMSDigestType=2\nPage size=none\nCDHash=2c73e252d9ccf880749e0c3f4140365e623b78ce\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "2c73e252d9ccf880749e0c3f4140365e623b78ce",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 1073741823,
+      "FileSize": 1073751506,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAj////8AAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 1073750974,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 1073750986,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwEAAADcAAAADAAAAAAAAACQAAAACQAAAIwABAABAAAAv"
+        },
+        {
+          "Offset": 1073750994,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAABAAAA3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "fee04f8ea6e855b19086ded2310989493efbe10b2cb1ddd9a42441ef222a86d9",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=1073741823 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=5b8b0f5f7d79938424a54e135541c84aa53e236d\nCandidateCDHashFull sha256=5b8b0f5f7d79938424a54e135541c84aa53e236d2278a5cc9dde173261c69f61\nHash choices=sha256\nCMSDigest=5b8b0f5f7d79938424a54e135541c84aa53e236d2278a5cc9dde173261c69f61\nCMSDigestType=2\nPage size=none\nCDHash=5b8b0f5f7d79938424a54e135541c84aa53e236d\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "5b8b0f5f7d79938424a54e135541c84aa53e236d",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 1073741824,
+      "FileSize": 1073751507,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAkAAAAAAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 1073750975,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 1073750987,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwEAAADgAAAADAAAAAAAAACQAAAACQAAAJAABAABAAAAw"
+        },
+        {
+          "Offset": 1073750995,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAABAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "4c952cf280c3fd764d57c48ff022a7bf0f572105a9e10ed063ca979459c35bbc",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=1073741824 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=b846b9275c8f1fb7e1aa2e3c8323521c65a8126b\nCandidateCDHashFull sha256=b846b9275c8f1fb7e1aa2e3c8323521c65a8126ba7b67a9a2d61f1de6c55b57e\nHash choices=sha256\nCMSDigest=b846b9275c8f1fb7e1aa2e3c8323521c65a8126ba7b67a9a2d61f1de6c55b57e\nCMSDigestType=2\nPage size=none\nCDHash=b846b9275c8f1fb7e1aa2e3c8323521c65a8126b\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "b846b9275c8f1fb7e1aa2e3c8323521c65a8126b",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    },
+    {
+      "DirectorySize": 1073741825,
+      "FileSize": 1073751508,
+      "Parts": [
+        {
+          "Offset": 9151,
+          "Data": "+t4MAkAAAAEAAgEAAAAAAgAAAQAAAAAwAAAABgAAAAEAACObIAIAAAAAAAAAAAAAb3JnLmV4YW1wbGUuZG1nAMHUWfUtM8+Lwd6bsnUTwIA2It3jgSxcpsGMVUiuKr8sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmHkgkE6rZQ51eIwFSqCwUk5qgL/HGqMt+NI3phdD+YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPRGTnbmITcp7I4ziDn01iG48Qaov/1NhaqUbbFkeKiB"
+        },
+        {
+          "Offset": 1073750976,
+          "Data": "+t4MAQAAAAwAAAAA"
+        },
+        {
+          "Offset": 1073750988,
+          "Data": "+t4LAQAAAAg="
+        },
+        {
+          "Offset": 9115,
+          "Data": "+t4MwEAAADkAAAADAAAAAAAAACQAAAACQAAAJQABAABAAAAx"
+        },
+        {
+          "Offset": 1073750996,
+          "Data": "a29seQAAAAQAAAIAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIDZCGTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAADmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjmwAAAABAAAA5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAgTcSI7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAAAAAAAAAA="
+        }
+      ],
+      "SHA256": "5411921f2c010059e45d167e1f961154d3317da375bfbd855a27b527cab7e503",
+      "Display": {
+        "Exit": 0,
+        "Text": "Executable=\u003cimage\u003e\nIdentifier=org.example.dmg\nFormat=disk image\nCodeDirectory v=20100 size=1073741825 flags=0x2(adhoc) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=c6fed02738aef05efa4cee6c730bd3cabb206b97\nCandidateCDHashFull sha256=c6fed02738aef05efa4cee6c730bd3cabb206b978ca7249331e59fbb9ccc4091\nHash choices=sha256\nCMSDigest=c6fed02738aef05efa4cee6c730bd3cabb206b978ca7249331e59fbb9ccc4091\nCMSDigestType=2\nPage size=none\nCDHash=c6fed02738aef05efa4cee6c730bd3cabb206b97\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+      },
+      "Verify": {
+        "Exit": 0,
+        "Text": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n"
+      },
+      "Framework": {
+        "cdhash": "c6fed02738aef05efa4cee6c730bd3cabb206b97",
+        "create": 0,
+        "inspect": 0,
+        "verify": 0
+      }
+    }
+  ]
+}

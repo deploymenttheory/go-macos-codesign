@@ -48,7 +48,7 @@ func TestRequirementMetadata(t *testing.T) {
 	if _, e = r.RequirementText("missing"); e == nil {
 		t.Fatal("missing architecture")
 	}
-	if (Directory{}).specialSlotHash(0) != nil {
+	if hash, err := (Directory{}).specialSlotHash(0); hash != nil || err != nil {
 		t.Fatal("slot zero")
 	}
 	child, _ := CompileRequirement("always")

@@ -196,6 +196,19 @@ file-size constant as a substitute for this architecture.
 
 ### Pipeline implementation sequence
 
+The completion branch starts from merged PR #105. Its working acceptance ledger
+below is deliberately narrower than phase closure; all unchecked requirements
+in this phase still apply.
+
+| Deliverable | Current completion work | Remaining exit evidence |
+| --- | --- | --- |
+| Borrowed inspection and verification | Scoped reports, range-backed directory hashes/CMS binding, non-JSON CLI integration, callback lifetime/error tests | Final three-host CI; remaining materialized CMS, string and owned-report allocation audit |
+| Large signature metadata | Twelve native CLI/C SDK controls around 64 KiB/16 MiB/128 MiB/1 GiB; dense reconstruction and three-budget replay | Final three-host CI; additional metadata shapes, isolated heap/RSS/working-set and concurrent/nested measurements |
+| Shared resource accounting | Existing memory reservation pool and spill file | Complete handles, parsed values, queued work, temporary-storage accounting and failure qualification |
+| Lifecycle and scheduling | Existing cancellable transfer and APFS preparation/restoration | Remaining discovery/planning/cleanup/commit checkpoints, asynchronous sibling and single-threaded behavior |
+| Compression and release profiles | Merged APFS prerequisites remain pinned | Complete codesign consumer integration and macOS 15/26/27 qualification |
+| Phase closure | No family or whole phase is declared complete by this branch | Every delivery gate below, final dependency policy, evidence and documentation reconciliation |
+
 These are coordinated workstreams within Phase 02, not separate per-feature PR
 requirements. Preserve the existing byte APIs while moving path operations onto
 the following pipeline.
@@ -220,8 +233,9 @@ the following pipeline.
      now use ranges, including [bundles](bundle-streaming.md); bound or spill large
      signature metadata/index tables too, since moving only payload bytes is
      insufficient. Load-command parsing now retains fixed-size summaries and
-     mutation patches original ranges; complete its cross-host native acceptance
-     before treating command-region scaling as qualified.
+     mutation patches original ranges; PR #105 completed its cross-host native
+     command-region acceptance. Finish the remaining metadata families without
+     treating that result as complete representation coverage.
    - [ ] Track source identity and relevant content stability from discovery to
      hashing and commit. Define descriptor handoff for Windows share/rename
      rules, revalidation and remaining races without promising a filesystem
@@ -329,8 +343,9 @@ from native operation metadata profiles. No complete Phase 02 family is closed.
 and its final-head CI passed. Codesign consumes APFS #209 merge commit
 `674c2a3a815b05fc6ce34d9931291ff6a86bd62f` through its exact module pseudo-version,
 with no local replacement. Its cancellable preparation and restoration APIs now
-receive the codesign operation context. Qualify these consumer changes on all
-three hosts and the final batch release before closing Phase 02. The user controls the
+receive the codesign operation context. PR #105 passed its consumer gates on all
+three hosts; remaining integration and final batch-release qualification are
+still required before closing Phase 02. The user controls the
 release PR and requires at least eight substantive changes, rather than cosmetic
 commits or test-only follow-ups.
 

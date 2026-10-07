@@ -491,6 +491,7 @@ func inspectBundle(ctx context.Context, path string, opts PathOptions) (report *
 		return nil, err
 	}
 	defer func() {
+		failure = consumeReport(ctx, report, failure)
 		failure = errors.Join(failure, b.close())
 		if failure != nil && report != nil {
 			report.Valid = false
@@ -518,6 +519,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (report 
 		return nil, err
 	}
 	defer func() {
+		failure = consumeReport(ctx, report, failure)
 		failure = errors.Join(failure, b.close())
 		if failure != nil && report != nil {
 			report.Valid = false

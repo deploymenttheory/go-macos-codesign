@@ -81,7 +81,10 @@ func (n *requirementNode) text(level int) string {
 }
 
 func designatedRequirement(sig *Signature) (*requirementNode, error) {
-	data := sig.find(SlotRequirements)
+	data, err := sig.componentBytes(SlotRequirements)
+	if err != nil {
+		return nil, err
+	}
 	if len(data) == 0 {
 		return nil, nil
 	}

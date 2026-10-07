@@ -209,6 +209,7 @@
     "TestResourceVerificationDangling": 1,
     "TestResourceVerificationFrameworkSelection": 0,
     "TestShallowNestedMetadataParity": 3,
+    "TestSignatureMetadataBoundaries": 1,
     "TestSigningNativePermissions": 0,
     "TestSigningNativeSecurity": 1,
     "TestSigningNoticeAliasesAndTargets": 1,
@@ -1095,6 +1096,10 @@
           "cases": 4,
           "sha256": "62ce293b5270a1db338c0096de6108befebc0092e11d66b858183c0b56919acb"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSignatureMetadataBoundaries": {
+          "cases": 49,
+          "sha256": "43005ae976fd783ca2792030ea1859686b823af916a7424dd64f84f800a95c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSigningNativePermissions": {
           "cases": 401,
           "sha256": "2609c7e9cd454f617eaacb95eebbf49d7ba6d0ee149a0a0d87df4a85a3f6b533"
@@ -1531,6 +1536,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBinaryMetadataSigningFailureAndRemovalFallback": {
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedBundleReport": {
+          "cases": 5,
+          "sha256": "c4e3bc4145de628d1eeb9ba9786119b73da1cf1603c260d891e2387bb03cc454"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedCMSBinding": {
+          "cases": 8,
+          "sha256": "8472cce2126d41c7cff34841c494e58b2952966aeba1a31b6ffb857327d3fa12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedComponentChanges": {
+          "cases": 6,
+          "sha256": "5ea38dc06e9d3d1f01ac7e0cfd3c860b047a04e582493635a4fc671dba956c0f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportFixtureParity": {
+          "cases": 91,
+          "sha256": "9ba320783ed57cb03d33cd9800afd35a960981f65d299d782578ecd95c63b582"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportLifecycle": {
+          "cases": 9,
+          "sha256": "baade688ca7f1f941e235df4c6cb7630342802501860afbcd935389d3b521dc2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportReadFailures": {
+          "cases": 9,
+          "sha256": "5993dd589abfc190943e1a055631cb36a61e88296e1e65a94129e9842173935b"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
           "cases": 7,
@@ -2143,6 +2172,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
           "cases": 1,
           "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOwnedReportAccessors": {
+          "cases": 1,
+          "sha256": "d8989c9ed712e360cc822a3a5e1ca4304dd98a6f5e8fe6a1926a2e91651414ab"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,
@@ -3584,6 +3617,10 @@
           "cases": 4,
           "sha256": "62ce293b5270a1db338c0096de6108befebc0092e11d66b858183c0b56919acb"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSignatureMetadataBoundaries": {
+          "cases": 49,
+          "sha256": "43005ae976fd783ca2792030ea1859686b823af916a7424dd64f84f800a95c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSigningNoticeAliasesAndTargets": {
           "cases": 6,
           "sha256": "8fcb0c1cf4ba0de43b0682a44de94edf4e73d7e3cf0d08ae80e0b30248251098"
@@ -3996,6 +4033,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBinaryMetadataSigningFailureAndRemovalFallback": {
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedBundleReport": {
+          "cases": 5,
+          "sha256": "c4e3bc4145de628d1eeb9ba9786119b73da1cf1603c260d891e2387bb03cc454"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedCMSBinding": {
+          "cases": 8,
+          "sha256": "8472cce2126d41c7cff34841c494e58b2952966aeba1a31b6ffb857327d3fa12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedComponentChanges": {
+          "cases": 6,
+          "sha256": "5ea38dc06e9d3d1f01ac7e0cfd3c860b047a04e582493635a4fc671dba956c0f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportFixtureParity": {
+          "cases": 91,
+          "sha256": "9ba320783ed57cb03d33cd9800afd35a960981f65d299d782578ecd95c63b582"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportLifecycle": {
+          "cases": 9,
+          "sha256": "baade688ca7f1f941e235df4c6cb7630342802501860afbcd935389d3b521dc2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportReadFailures": {
+          "cases": 9,
+          "sha256": "5993dd589abfc190943e1a055631cb36a61e88296e1e65a94129e9842173935b"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
           "cases": 7,
@@ -4576,6 +4637,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
           "cases": 1,
           "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOwnedReportAccessors": {
+          "cases": 1,
+          "sha256": "d8989c9ed712e360cc822a3a5e1ca4304dd98a6f5e8fe6a1926a2e91651414ab"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,
@@ -6013,6 +6078,10 @@
           "cases": 4,
           "sha256": "62ce293b5270a1db338c0096de6108befebc0092e11d66b858183c0b56919acb"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSignatureMetadataBoundaries": {
+          "cases": 49,
+          "sha256": "43005ae976fd783ca2792030ea1859686b823af916a7424dd64f84f800a95c43"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestSigningNoticeAliasesAndTargets": {
           "cases": 6,
           "sha256": "8fcb0c1cf4ba0de43b0682a44de94edf4e73d7e3cf0d08ae80e0b30248251098"
@@ -6425,6 +6494,30 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBinaryMetadataSigningFailureAndRemovalFallback": {
           "cases": 1,
           "sha256": "c2af18d5a4e1e5965fedee7d12d04381aed92aaee58fa73fdaf085f415ec6bc6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedBundleReport": {
+          "cases": 5,
+          "sha256": "c4e3bc4145de628d1eeb9ba9786119b73da1cf1603c260d891e2387bb03cc454"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedCMSBinding": {
+          "cases": 8,
+          "sha256": "8472cce2126d41c7cff34841c494e58b2952966aeba1a31b6ffb857327d3fa12"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedComponentChanges": {
+          "cases": 6,
+          "sha256": "5ea38dc06e9d3d1f01ac7e0cfd3c860b047a04e582493635a4fc671dba956c0f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportFixtureParity": {
+          "cases": 91,
+          "sha256": "9ba320783ed57cb03d33cd9800afd35a960981f65d299d782578ecd95c63b582"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportLifecycle": {
+          "cases": 9,
+          "sha256": "baade688ca7f1f941e235df4c6cb7630342802501860afbcd935389d3b521dc2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBorrowedReportReadFailures": {
+          "cases": 9,
+          "sha256": "5993dd589abfc190943e1a055631cb36a61e88296e1e65a94129e9842173935b"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestBoundedOperationReads": {
           "cases": 7,
@@ -7009,6 +7102,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOutputTransferLargeLength": {
           "cases": 1,
           "sha256": "53ef2083462a399c2e9d1a4862aa5e9721133dbbebeda53f439b8c549c048586"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestOwnedReportAccessors": {
+          "cases": 1,
+          "sha256": "d8989c9ed712e360cc822a3a5e1ca4304dd98a6f5e8fe6a1926a2e91651414ab"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestPKCS12AuthenticatedBoundaries": {
           "cases": 18,

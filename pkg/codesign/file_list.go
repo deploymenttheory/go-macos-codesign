@@ -94,7 +94,11 @@ func (r *Report) SignatureFiles(architecture string) ([]string, error) {
 		{0x1000, "CodeRequirements-1"}, {0x1001, "CodeRequirements-2"},
 		{0x1002, "CodeRequirements-3"}, {0x1003, "CodeRequirements-4"}, {0x1004, "CodeRequirements-5"},
 	} {
-		if a.Signature.find(component.slot) != nil {
+		size, err := a.Signature.BlobSize(component.slot)
+		if err != nil {
+			return nil, err
+		}
+		if size != 0 {
 			continue
 		}
 		name := base + component.name
