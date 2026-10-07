@@ -32,8 +32,15 @@ with the capture. Library verification runs each at 64 KiB, 128 MiB and 256 MiB
 working budgets, checks the SDK-observed CDHash, enforces an 8 MiB total Go
 allocation regression bound, and requires scratch cleanup. The local 1 GiB
 directory control used about 164 KiB of total Go allocations with the 64 KiB
-budget. This is one metadata shape, not RSS/working-set qualification or a measured
-optimum for the default budget. The wider Phase 02 scale matrix remains open.
+budget. Each budget/case also runs in a fresh test process, recording total Go
+allocations, a sampled heap peak, the OS-reported process peak, elapsed time and
+storage reservations. Unix uses `getrusage`; Windows observes the Go worker's
+`PeakWorkingSet64` through the test harness. The 1 ms heap sampler can miss short
+peaks and is reported separately from the OS measurement. Local macOS process
+peaks were approximately 15–16 MiB for the largest control. Cross-host results
+must establish regression bounds before closure; these measurements cover one
+metadata shape, not concurrent/nested workloads or a measured optimum for the
+default budget. The wider Phase 02 scale matrix remains open.
 
 ```sh
 go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json
@@ -181,7 +188,9 @@ queued work and handle accounting remain to be integrated and measured. Caller
 input and returned byte/report ownership remain unchanged; those allocations and
 runtime overhead must be measured independently of managed reservations. The
 phase still requires isolated heap/RSS/working-set and temporary-storage controls
-before the default can be described as qualified at scale.
+across payload, nested and concurrent workloads before the default can be
+described as qualified at scale. The dense signature-metadata controls now
+collect isolated process measurements as described above.
 
 Compressed-source replacement uses the merged result of
 [APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198), pinned

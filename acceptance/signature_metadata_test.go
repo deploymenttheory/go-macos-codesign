@@ -17,6 +17,10 @@ import (
 )
 
 func TestSignatureMetadataBoundaries(t *testing.T) {
+	if request := os.Getenv(metadataMeasurementEnv); request != "" {
+		metadataMeasurementWorker(t, request)
+		return
+	}
 	raw, err := os.ReadFile(filepath.Join(root, "testdata/research/signature-metadata.json"))
 	if err != nil {
 		t.Fatal(err)
@@ -155,6 +159,15 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 					entries, err := os.ReadDir(temp)
 					if err != nil || len(entries) != 0 {
 						t.Fatal("metadata scratch leak", entries, err)
+					}
+					measured := measureMetadataProcess(t, path, temp, budget)
+					t.Logf("isolated metadata measurement: %+v", measured)
+					if measured.CDHash != tc.Framework.CDHash || measured.DirectorySize != tc.DirectorySize || measured.AllocatedBytes > 8<<20 || measured.Storage.MemoryBytes != 0 || measured.Storage.PeakMemoryBytes > budget {
+						t.Fatal("isolated metadata regression", measured)
+					}
+					entries, err = os.ReadDir(temp)
+					if err != nil || len(entries) != 0 {
+						t.Fatal("isolated metadata scratch leak", entries, err)
 					}
 				})
 			}

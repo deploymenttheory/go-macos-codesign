@@ -203,7 +203,7 @@ in this phase still apply.
 | Deliverable | Current completion work | Remaining exit evidence |
 | --- | --- | --- |
 | Borrowed inspection and verification | Scoped reports, range-backed directory hashes/CMS binding, non-JSON CLI integration, callback lifetime/error tests | Final three-host CI; remaining materialized CMS, string and owned-report allocation audit |
-| Large signature metadata | Twelve native CLI/C SDK controls around 64 KiB/16 MiB/128 MiB/1 GiB; dense reconstruction and three-budget replay | Final three-host CI; additional metadata shapes, isolated heap/RSS/working-set and concurrent/nested measurements |
+| Large signature metadata | Twelve native CLI/C SDK controls around 64 KiB/16 MiB/128 MiB/1 GiB; dense reconstruction, three-budget replay and fresh-process memory observations | Final three-host CI; measured cross-host regression bounds, additional metadata shapes and concurrent/nested measurements |
 | Shared resource accounting | Existing memory reservation pool and spill file | Complete handles, parsed values, queued work, temporary-storage accounting and failure qualification |
 | Lifecycle and scheduling | Existing cancellable transfer and APFS preparation/restoration | Remaining discovery/planning/cleanup/commit checkpoints, asynchronous sibling and single-threaded behavior |
 | Compression and release profiles | Merged APFS prerequisites remain pinned | Complete codesign consumer integration and macOS 15/26/27 qualification |
