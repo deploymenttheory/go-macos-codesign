@@ -2,6 +2,11 @@ name: Mach-O command range acceptance
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      sdk_revision:
+        description: Optional full APFS commit to capture before updating the consumer pin
+        required: false
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -18,6 +23,25 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
+      - name: Capture native compression with a proposed SDK dependency
+        if: github.event_name == 'workflow_dispatch' && inputs.sdk_revision != ''
+        shell: bash
+        env:
+          SDK_REVISION: ${{ inputs.sdk_revision }}
+          GOWORK: 'off'
+        run: |
+          set -euo pipefail
+          [[ "$SDK_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          trap 'git restore -- go.mod go.sum' EXIT
+          mkdir -p artifacts/dependency-compression
+          go get "github.com/deploymenttheory/go-apfs-v2@$SDK_REVISION"
+          go mod tidy
+          cp go.mod go.sum artifacts/dependency-compression/
+          go list -m -json github.com/deploymenttheory/go-apfs-v2 > artifacts/dependency-compression/module.json
+          sw_vers
+          go run scripts/probe-compressed-signing.go -out artifacts/dependency-compression/capture.json
+          # The trap restores the committed dependency before every existing
+          # command-range control below. This capture never updates baselines.
       - name: Check complete Apple command policy bodies with both Clang targets
         run: go run scripts/extract-macho-command-policy.go -check -out artifacts/apple-macho-command-policy.json
       - name: Recapture every native command-size boundary and platform control
