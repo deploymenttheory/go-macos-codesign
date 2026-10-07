@@ -55,8 +55,10 @@ between file-format support and access to a real device. Relic's CMS separation 
 useful design input; its certificate dependencies still require this project's
 guard review. These references were inspected, not executed or copied.
 
-The APFS audit uses the downloaded **released v0.17.2 module**, not the neighboring
-working tree. It records module sum, API file hashes and concrete reuse decisions:
+The APFS audit uses the downloaded module pinned in `go.mod`, not the neighboring
+working tree. Phase 02 currently pins merged main commit `8821862a12de` through
+`v0.17.3-0.20261005072906-8821862a12de` under the upstream release batching policy.
+It records module sum, API file hashes and concrete reuse decisions:
 rooted replacement/restore/close, existing ACL staging, the DMG footer and streaming
 image reconstruction. Codesign still needs lifecycle integration and broader native
 image/name matrices. A source inventory does not justify a speculative SDK rewrite;

@@ -51,7 +51,18 @@ func transferOutput(ctx context.Context, dst io.WriterAt, src outputSource) erro
 	if src.size == 0 {
 		return nil
 	}
-	buf := make([]byte, int(min(src.size, transferBufferSize)))
+	buf, release, err := transferBuffer(ctx, src.size)
+	if err != nil {
+		return err
+	}
+	defer release()
+	return transferOutputBuffer(ctx, dst, src, buf)
+}
+
+// The caller owns a nonempty reservation and has checked the source range.
+// Sharing a reservation lets hashing batch output without acquiring a second
+// buffer while holding the only buffer allowed by a small operation budget.
+func transferOutputBuffer(ctx context.Context, dst io.WriterAt, src outputSource, buf []byte) error {
 	for offset := int64(0); offset < src.size; {
 		if err := ctx.Err(); err != nil {
 			return err

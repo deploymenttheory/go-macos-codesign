@@ -1,7 +1,11 @@
-# APFS v0.16.0 integration
+# APFS integration
 
-Codesign pins the published
-[APFS v0.16.0 module](https://github.com/deploymenttheory/go-apfs-v2/releases/tag/v0.16.0).
+During Phase 02, codesign pins merged APFS main commit
+[`8821862a12de`](https://github.com/deploymenttheory/go-apfs-v2/commit/8821862a12deeb1b7976e00c5edcc548cdef120e)
+as `v0.17.3-0.20261005072906-8821862a12de`. This includes PR198's compressed-source
+replacement fix. Upstream releases are batched under the
+[phase dependency policy](implementation_plan.md); development and CI use the
+same reproducible module version until the batch release is available.
 There is no local APFS replacement or workspace override. Existing replacement,
 directory metadata and timestamp operations use `pkg/hostdata`; read/access-time
 operations use `pkg/hostdata/accesstime`.

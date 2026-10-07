@@ -62,11 +62,25 @@ func ParseSignature(data []byte) (*Signature, error) {
 // UDIF dry runs can leave a structurally valid container without any directory.
 // Only the DMG reader permits that unsigned state; other callers stay strict.
 func parseSignature(data []byte, allowUnsigned bool) (*Signature, error) {
-	if len(data) < 12 || be.Uint32(data) != MagicSignature {
+	return parseSignatureRange(uint64(len(data)), ownedMemoryRange(data), allowUnsigned)
+}
+
+// read returns owned bytes. Reading index records and component ranges avoids
+// materializing the entire reserved signature region and cloning every blob a
+// second time. Public Signature/Directory byte ownership remains unchanged.
+func parseSignatureRange(size uint64, read rangeReader, allowUnsigned bool) (*Signature, error) {
+	if size < 12 {
 		return nil, malformed("signature SuperBlob")
 	}
-	length, count := be.Uint32(data[4:]), be.Uint32(data[8:])
-	if length < 12 || uint64(length) > uint64(len(data)) || uint64(count)*8 > uint64(length)-12 {
+	header, err := read(0, 12)
+	if err != nil {
+		return nil, err
+	}
+	if be.Uint32(header) != MagicSignature {
+		return nil, malformed("signature SuperBlob")
+	}
+	length, count := be.Uint32(header[4:]), be.Uint32(header[8:])
+	if length < 12 || uint64(length) > size || uint64(count)*8 > uint64(length)-12 {
 		return nil, malformed("signature index bounds")
 	}
 	s := &Signature{Length: length}
@@ -74,7 +88,10 @@ func parseSignature(data []byte, allowUnsigned bool) (*Signature, error) {
 	type interval struct{ start, end uint32 }
 	var spans []interval
 	for i := uint32(0); i < count; i++ {
-		entry := data[12+i*8:]
+		entry, err := read(12+uint64(i)*8, 8)
+		if err != nil {
+			return nil, err
+		}
 		slot, off := be.Uint32(entry), be.Uint32(entry[4:])
 		if seen[slot] {
 			return nil, malformed("duplicate signature slot %d", slot)
@@ -83,12 +100,25 @@ func parseSignature(data []byte, allowUnsigned bool) (*Signature, error) {
 		if off < 12+count*8 || !rangeOK(uint64(off), 8, uint64(length)) {
 			return nil, malformed("blob header bounds")
 		}
-		n := be.Uint32(data[off+4:])
+		blobHeader, err := read(uint64(off), 8)
+		if err != nil {
+			return nil, err
+		}
+		n := be.Uint32(blobHeader[4:])
 		if n < 8 || !rangeOK(uint64(off), uint64(n), uint64(length)) {
 			return nil, malformed("blob length")
 		}
 		spans = append(spans, interval{off, off + n})
-		blob := Blob{Slot: slot, Magic: be.Uint32(data[off:]), Data: bytes.Clone(data[off : off+n])}
+		data, err := read(uint64(off), uint64(n))
+		if err != nil {
+			return nil, err
+		}
+		// A held descriptor prevents substitution, not concurrent byte edits.
+		// Do not accept a component whose header changed after sizing it.
+		if !bytes.Equal(data[:8], blobHeader) {
+			return nil, malformed("signature component changed while reading")
+		}
+		blob := Blob{Slot: slot, Magic: be.Uint32(blobHeader), Data: data}
 		if expected := map[uint32]uint32{SlotRequirements: MagicRequirements, SlotEntitlements: MagicEntitlements, SlotDEREntitlements: MagicDEREntitlements, SlotCMS: MagicCMS}[slot]; expected != 0 && blob.Magic != expected {
 			return nil, malformed("magic for signature slot %d", slot)
 		}

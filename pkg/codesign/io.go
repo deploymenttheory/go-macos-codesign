@@ -81,7 +81,7 @@ func replaceSource(ctx context.Context, path string, source *os.File, sourceClos
 	if err := sourceUnchanged(source, st); err != nil {
 		return err
 	}
-	replacement, err := hostdata.PrepareReplacement(source, filepath.Dir(path))
+	replacement, err := hostdata.PrepareReplacementContext(ctx, source, filepath.Dir(path))
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func replaceSource(ctx context.Context, path string, source *os.File, sourceClos
 		if err := sourceUnchanged(source, st); err != nil {
 			return err
 		}
-		if err := replacement.RestoreMetadata(); err != nil {
+		if err := replacement.RestoreMetadataContext(ctx); err != nil {
 			return err
 		}
 		if err := ctx.Err(); err != nil {

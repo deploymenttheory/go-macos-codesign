@@ -3,8 +3,10 @@
 Standalone `Inspect`/`InspectWithOptions` and `Verify`, including the CLI display
 and verification operations, read supported Mach-O and UDIF representations through
 held file descriptors. They no longer read the entire payload into a byte slice
-or reject the file solely because it exceeds 1 GiB. [DMG signing](dmg-streaming.md) also uses held ranges. Bundle paths and Mach-O
-signing/removal output construction still use their bounded byte plans.
+or reject the file solely because it exceeds 1 GiB. [DMG signing](dmg-streaming.md),
+[Mach-O mutation](macho-streaming.md) and [bundle payloads](bundle-streaming.md)
+also use held ranges. Legacy byte APIs and individual metadata components retain
+the limits documented below.
 
 The range and byte paths share Mach-O/FAT parsing, UDIF structure validation,
 report construction, certificate/requirement policy and strict-layout validation.
@@ -89,7 +91,7 @@ working set, a general peak-memory result or implementation of the planned share
 | --- | --- | --- |
 | `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
 | `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Shared metadata budgets and remaining lifecycle policy |
-| `macho.go` / `macho_source.go` | Range parsing and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Wider allocation profiles, metadata spilling and dense multi-gigabyte scaling |
+| `macho.go` / `macho_commands.go` / `macho_source.go` | Fixed-size load-command summaries, source-range patches and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Large command-region native acceptance, input signature views and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
 | `bundle.go`, `bundle_tree.go`, `bundle_layout.go`, `bundle_versions.go` | Executable reads use held ranges; resources stream; plists/envelopes retain parser bounds | Shared metadata budgets and complete discovery/lifecycle qualification |
 | `bundle_tree.go`, `bundle_nested.go` | Nested signatures use shared output plans without an aggregate payload ceiling | Shared budgets, metadata spilling and temporary storage accounting |
@@ -102,11 +104,79 @@ containment/permissions contract applies. Replacement, metadata restoration,
 resource forks and image codecs remain upstream responsibilities; audit released
 APIs again before extending those operations.
 
-Signature blobs and load-command metadata are still materialized, and public
-`Report`/`Signature` objects retain byte fields. Memory can therefore grow with
-metadata and architecture count. There is no aggregate 128 MiB enforcement or
-spill store yet. The next integration must address that ownership explicitly,
-retain byte API compatibility and measure total process memory separately.
+Public `Report`/`Signature` objects retain owned component bytes. Signing
+preflight now uses borrowed signature views instead: it scans every component
+through bounded reads, keeps at most six directory summaries and stores slot and
+overlap indexes in shared working sections that can spill. Duplicate-slot errors
+remain immediate; overlap errors remain deferred until component parsing finishes.
+Index growth follows entries actually read, not an untrusted declared count.
+
+Load-command parsing keeps fixed-size summaries
+and mutates source ranges through bounded patches, including removal relocation
+and identifier hashing. Memory can still grow with signature metadata and
+architecture count. The operation storage manager now shares a
+128 MiB starting reservation pool for transfer buffers and generated
+CodeDirectories. Sections that cannot fit spill into disjoint ranges of one
+private temporary file, removed when the owning operation finishes. Generated
+CMS binding hashes and SuperBlob output plans consume these ranges directly.
+Nested operations reuse the same pool. `WithWorkingStorage` selects the budget,
+temporary directory and final reservation observer for an API operation.
+
+Page hashes use one reservation split between source reads and batched digest
+writes. A spill receives up to 32 KiB of digests per write instead of one write
+per page. Waiting for capacity is cancellable; tests exercise blocked waiters
+through release, cancellation and closure.
+
+Mach-O and DMG inspection read SuperBlob headers, index records and referenced
+components separately, retaining owned bytes for public reports. Signing uses
+the borrowed views for admission and replacement notices. Unused reserved
+signature space is no longer materialized. Virtual 1/2/4 GiB boundary tests check
+offset arithmetic and reads only; they do not establish native acceptance of a
+gapped or oversized signature. Path verification, CLI display/extraction and
+their parser objects still need the remaining metadata-budget work; returning
+owned public reports remains a separate allocation contract.
+
+This is not yet comprehensive memory enforcement. Input metadata, parser objects,
+queued work and handle accounting remain to be integrated and measured. Caller
+input and returned byte/report ownership remain unchanged; those allocations and
+runtime overhead must be measured independently of managed reservations. The
+phase still requires isolated heap/RSS/working-set and temporary-storage controls
+before the default can be described as qualified at scale.
+
+Compressed-source replacement uses the merged result of
+[APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198), pinned
+to an exact `main` commit during Phase 02. The next upstream release is batched
+under the [phase dependency policy](implementation_plan.md). The
+research-only `scripts/probe-compressed-signing.go` records native standalone
+and bundle sign/re-sign/dry-run/removal outcomes, with and without
+`--preserve-afsc`, in versioned native captures. The macOS 27.0 build 26A428
+profile is `testdata/research/compressed-signing.json`; the macOS 27.0.1 build
+26A434 profile is `compressed-signing-26A434.json`. The former capture stores
+these inputs inline, while the latter uses resource forks. This difference must
+not be attributed to the OS build alone: the host framework checks the held
+file's `fstatfs` flags and suppresses inline storage on `MNT_CPROTECT` volumes.
+The local host volume has that flag; independently created test images can
+permit inline storage on the same OS build. Extend the signing capture with
+explicit volume-policy observations before selecting recompression behavior.
+Each existing profile retains
+its exact native storage bytes and provenance; the recapture selects the host
+build explicitly and rejects an unqualified build. Its sixteen
+cases have dependency/source provenance checked for both retained builds before
+test shards run. When the dependency changes, each build needs a genuine fresh
+capture; updating the local host's profile alone is insufficient. The 26A428
+profile for APFS #209 was recovered from native-capture artifact `11467997498`
+in codesign CI run `37587472210`: its driver/input/module hashes match the
+checkout and all sixteen behavior records match the previous capture.
+The sixteen
+cases originally exposed the v0.17.2 staging rejection, retained in
+`compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK
+eligibility checks. `TestCompressedReplacementNative` also compares 24 live
+zlib/LZVN/LZFSE standalone and bundle operations with Apple: complete logical
+bytes, hidden compression header, resource fork, flags, identity changes and
+bundle envelope. Apple strictly verifies the signed results. This qualifies
+ordinary replacement and dry runs on those profiles; recompression, larger
+fork-backed profiles and portable foreign-metadata integration remain separate
+obligations.
 
 Standalone [Mach-O mutation](macho-streaming.md) now reuses the released held-source
 replacement API through metadata restore and a Windows-compatible close/rename handoff.

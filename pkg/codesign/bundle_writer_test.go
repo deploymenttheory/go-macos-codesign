@@ -238,10 +238,16 @@ func TestBundleSourceAccessRejectsChangedStaging(t *testing.T) {
 			if !os.SameFile(p.original, after) || !bytes.Equal(readTestFile(t, filepath.Join(app, b.executable)), before) {
 				t.Fatal("changed staging replaced source")
 			}
-			if change == "symlink" {
+			// Repair the deliberately substituted private name before cleanup.
+			// The SDK's retained Windows cleanup capability must never be used
+			// to change permissions on a different object.
+			if change != "remove" {
 				if err := b.root.Remove(p.replacement.Path); err != nil {
 					t.Fatal(err)
 				}
+			}
+			if err := b.root.Link("staged-inode", p.replacement.Path); err != nil {
+				t.Fatal(err)
 			}
 			if err := p.replacement.Close(); err != nil {
 				t.Fatal(err)

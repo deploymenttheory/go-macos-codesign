@@ -13,6 +13,8 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  command-ranges:
+    uses: ./.github/workflows/macho-command-ranges.yml
   test-shards:
     strategy:
       fail-fast: false
@@ -135,6 +137,8 @@ jobs:
           go-version-file: go.mod
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
+      - name: Recapture native compressed signing lifecycle and APFS staging
+        run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Check held-file Apple readers with both Clang targets
         run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
       - name: Check pinned Apple CodeDirectory sizing and builder bodies

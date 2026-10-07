@@ -53,6 +53,15 @@ class EvidenceTests(unittest.TestCase):
     def test_complete_manifest(self):
         self.assertEqual(set(self.inspect()), set(e.PARTS))
 
+    def test_archive_reports_missing_input_and_rejects_nested_output(self):
+        output = self.root / "evidence.tar"
+        with self.assertRaisesRegex(ValueError, "Evidence input directory does not exist"):
+            e.pack(self.root / "missing", output)
+        self.assertFalse(output.exists())
+        with self.assertRaisesRegex(ValueError, "Archive must be outside"):
+            e.pack(self.inputs, self.inputs / "evidence.tar")
+        self.assertFalse((self.inputs / "evidence.tar").exists())
+
     def test_archive_round_trip_preserves_every_byte_and_receipt(self):
         packages = self.root / "packages"
         for part in e.PARTS:

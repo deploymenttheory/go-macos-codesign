@@ -1,0 +1,669 @@
+{
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "driver_sha256": "e0bb6cefe79d32d4f105b3ac83b95f23ef9b720946662c01eb3726be53d030a7",
+  "excerpt_sha256": {
+    "execSegBase": "0411516dcc210f852b620e78a05b3304b63ba00bae26726b2feb800ffce818be",
+    "execSegLimit": "727e80dc72adadd2cba299032ab72862703c4ccf964308fcab4769659c7d442e",
+    "findBuildVersion": "30733a2e0a6ed96749018a9fcd3898a0555e4bf48405ee72914c8e4511349281",
+    "findMinVersion": "2406a5727196a25ee0c79fac2b225788a98146aaeb89a8e733136e63edda62c2",
+    "needsExecSeg": "dbcca837916b87dea83d191b1775905bf8f37b3f2fd90cd246ea12dc1c1d9d98",
+    "platform": "0f03406e2f1aadea7887eead2b3114c9412ec6b5da08cc3a96263bf59f26b1af",
+    "version": "2ec261d2262ed5978434bfc9da42d7b4077480749ab585e52723651410171530"
+  },
+  "license": "Original Apple source notices apply; Apple Public Source License 2.0, https://www.opensource.apple.com/apsl/",
+  "schema": 1,
+  "scope": "Seven complete verbatim Apple methods: MachORep needsExecSeg/execSegBase/execSegLimit and MachOBase findMinVersion/findBuildVersion/version/platform. SDK Mach-O structures, platform constants and standard unique_ptr are real. Private executable lookup, integer cast, endian conversion, command iteration and error interfaces are declaration-only shims; this extracts all selected method bodies but neither links nor executes Apple code. AST establishes first-build-command precedence, fallback first legacy version, size checks and platform-conditioned executable-segment metadata. Native C-generated corpus independently validates signing behavior.",
+  "sdk": "MacOSX.sdk",
+  "sdk_headers": {
+    "mach-o/loader.h": "5862aeb7fbf183453080bc887c0d502fe25a86ff5bd81291bbcc408bd7fe6e74"
+  },
+  "sources": {
+    "macho++.cpp": {
+      "sha256": "86392252644a1627df61545932f061376c67d90ef5501acd1b14bebbdf7145bf",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/macho++.cpp"
+    },
+    "macho++.h": {
+      "sha256": "68a8ddf756751dea7c59b39927f23c47a784871713caf28c1c95bbc16e828f8b",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_utilities/lib/macho++.h"
+    },
+    "machorep.cpp": {
+      "sha256": "a4bad9b5376334efef9f87e00e740a6c336b0ca70dee4263a123995ef51ba9d6",
+      "url": "https://raw.githubusercontent.com/apple-oss-distributions/Security/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/machorep.cpp"
+    }
+  },
+  "targets": {
+    "arm64-apple-macos27": {
+      "execSegBase": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 27,
+          "IntegerLiteral": 3,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 3
+        },
+        "members": {
+          "architecture": 2,
+          "fileoff": 2,
+          "findSegment": 1,
+          "is64": 1,
+          "mExecutable": 2,
+          "needsExecSeg": 1
+        },
+        "operators": {
+          "!": 1,
+          "*": 1,
+          "=": 2,
+          "==": 1
+        },
+        "references": {
+          "arch": 2,
+          "int_cast": 1,
+          "macho": 3,
+          "off": 3,
+          "operator*": 1,
+          "operator-\u003e": 2,
+          "text_cmd": 3
+        }
+      },
+      "execSegLimit": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 27,
+          "IntegerLiteral": 3,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 3
+        },
+        "members": {
+          "architecture": 2,
+          "filesize": 2,
+          "findSegment": 1,
+          "is64": 1,
+          "mExecutable": 2,
+          "needsExecSeg": 1
+        },
+        "operators": {
+          "!": 1,
+          "*": 1,
+          "=": 2,
+          "==": 1
+        },
+        "references": {
+          "arch": 2,
+          "int_cast": 1,
+          "macho": 3,
+          "operator*": 1,
+          "operator-\u003e": 2,
+          "size": 3,
+          "text_cmd": 3
+        }
+      },
+      "findBuildVersion": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 3,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 4,
+          "CallExpr": 1,
+          "CompoundStmt": 4,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 12,
+          "IntegerLiteral": 2,
+          "MemberExpr": 6,
+          "ReturnStmt": 2,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "50": 1,
+          "8": 1
+        },
+        "members": {
+          "cmd": 1,
+          "cmdsize": 1,
+          "flip": 2,
+          "loadCommands": 1,
+          "nextCommand": 1
+        },
+        "operators": {
+          "\u003c": 1,
+          "=": 1,
+          "==": 1
+        },
+        "references": {
+          "command": 6,
+          "throwMe": 1
+        }
+      },
+      "findMinVersion": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 2,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 4,
+          "CallExpr": 1,
+          "CaseStmt": 4,
+          "CompoundStmt": 3,
+          "ConstantExpr": 4,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 5,
+          "MemberExpr": 6,
+          "ReturnStmt": 2,
+          "SwitchStmt": 1,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "36": 1,
+          "37": 1,
+          "47": 1,
+          "48": 1,
+          "8": 1
+        },
+        "members": {
+          "cmd": 1,
+          "cmdsize": 1,
+          "flip": 2,
+          "loadCommands": 1,
+          "nextCommand": 1
+        },
+        "operators": {
+          "\u003c": 1,
+          "=": 1
+        },
+        "references": {
+          "command": 6,
+          "throwMe": 1
+        }
+      },
+      "needsExecSeg": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 3,
+          "IntegerLiteral": 1,
+          "MemberExpr": 1,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "0": 1
+        },
+        "members": {
+          "platform": 1
+        },
+        "operators": {
+          "!=": 1
+        },
+        "references": {
+          "macho": 1,
+          "platform": 1
+        }
+      },
+      "platform": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "DeclStmt": 1,
+          "GNUNullExpr": 2,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "MemberExpr": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "0": 1
+        },
+        "members": {
+          "version": 1
+        },
+        "operators": {
+          "\u0026": 1
+        },
+        "references": {
+          "ret": 2
+        }
+      },
+      "version": {
+        "ast_kinds": {
+          "BinaryOperator": 19,
+          "BreakStmt": 4,
+          "CXXBoolLiteralExpr": 3,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CaseStmt": 4,
+          "CompoundStmt": 10,
+          "ConstantExpr": 4,
+          "DeclRefExpr": 26,
+          "DeclStmt": 3,
+          "DefaultStmt": 1,
+          "GNUNullExpr": 8,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 44,
+          "IntegerLiteral": 9,
+          "MemberExpr": 14,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 3,
+          "SwitchStmt": 1,
+          "UnaryOperator": 6,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "36": 1,
+          "37": 1,
+          "4": 1,
+          "47": 1,
+          "48": 1
+        },
+        "members": {
+          "cmd": 1,
+          "findBuildVersion": 1,
+          "findMinVersion": 1,
+          "flip": 6,
+          "minos": 1,
+          "platform": 1,
+          "sdk": 2,
+          "version": 1
+        },
+        "operators": {
+          "!=": 8,
+          "*": 6,
+          "=": 11
+        },
+        "references": {
+          "bc": 4,
+          "minVersion": 4,
+          "pf": 6,
+          "platform": 4,
+          "sdkVersion": 4,
+          "vc": 4
+        }
+      }
+    },
+    "x86_64-apple-macos27": {
+      "execSegBase": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 27,
+          "IntegerLiteral": 3,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 3
+        },
+        "members": {
+          "architecture": 2,
+          "fileoff": 2,
+          "findSegment": 1,
+          "is64": 1,
+          "mExecutable": 2,
+          "needsExecSeg": 1
+        },
+        "operators": {
+          "!": 1,
+          "*": 1,
+          "=": 2,
+          "==": 1
+        },
+        "references": {
+          "arch": 2,
+          "int_cast": 1,
+          "macho": 3,
+          "off": 3,
+          "operator*": 1,
+          "operator-\u003e": 2,
+          "text_cmd": 3
+        }
+      },
+      "execSegLimit": {
+        "ast_kinds": {
+          "BinaryOperator": 3,
+          "CXXConstructExpr": 1,
+          "CXXMemberCallExpr": 5,
+          "CXXMethodDecl": 1,
+          "CXXOperatorCallExpr": 3,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 3,
+          "CallExpr": 1,
+          "CompoundStmt": 5,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 15,
+          "DeclStmt": 3,
+          "GNUNullExpr": 1,
+          "IfStmt": 3,
+          "ImplicitCastExpr": 27,
+          "IntegerLiteral": 3,
+          "MemberExpr": 9,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 3,
+          "StringLiteral": 1,
+          "UnaryOperator": 2,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 3
+        },
+        "members": {
+          "architecture": 2,
+          "filesize": 2,
+          "findSegment": 1,
+          "is64": 1,
+          "mExecutable": 2,
+          "needsExecSeg": 1
+        },
+        "operators": {
+          "!": 1,
+          "*": 1,
+          "=": 2,
+          "==": 1
+        },
+        "references": {
+          "arch": 2,
+          "int_cast": 1,
+          "macho": 3,
+          "operator*": 1,
+          "operator-\u003e": 2,
+          "size": 3,
+          "text_cmd": 3
+        }
+      },
+      "findBuildVersion": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 3,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 4,
+          "CallExpr": 1,
+          "CompoundStmt": 4,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 2,
+          "ImplicitCastExpr": 12,
+          "IntegerLiteral": 2,
+          "MemberExpr": 6,
+          "ReturnStmt": 2,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "50": 1,
+          "8": 1
+        },
+        "members": {
+          "cmd": 1,
+          "cmdsize": 1,
+          "flip": 2,
+          "loadCommands": 1,
+          "nextCommand": 1
+        },
+        "operators": {
+          "\u003c": 1,
+          "=": 1,
+          "==": 1
+        },
+        "references": {
+          "command": 6,
+          "throwMe": 1
+        }
+      },
+      "findMinVersion": {
+        "ast_kinds": {
+          "": 1,
+          "BinaryOperator": 2,
+          "CXXMemberCallExpr": 4,
+          "CXXMethodDecl": 1,
+          "CXXReinterpretCastExpr": 1,
+          "CXXThisExpr": 4,
+          "CallExpr": 1,
+          "CaseStmt": 4,
+          "CompoundStmt": 3,
+          "ConstantExpr": 4,
+          "DeclRefExpr": 7,
+          "DeclStmt": 1,
+          "ForStmt": 1,
+          "GNUNullExpr": 1,
+          "IfStmt": 1,
+          "ImplicitCastExpr": 15,
+          "IntegerLiteral": 5,
+          "MemberExpr": 6,
+          "ReturnStmt": 2,
+          "SwitchStmt": 1,
+          "UnaryExprOrTypeTraitExpr": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "36": 1,
+          "37": 1,
+          "47": 1,
+          "48": 1,
+          "8": 1
+        },
+        "members": {
+          "cmd": 1,
+          "cmdsize": 1,
+          "flip": 2,
+          "loadCommands": 1,
+          "nextCommand": 1
+        },
+        "operators": {
+          "\u003c": 1,
+          "=": 1
+        },
+        "references": {
+          "command": 6,
+          "throwMe": 1
+        }
+      },
+      "needsExecSeg": {
+        "ast_kinds": {
+          "BinaryOperator": 1,
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CompoundStmt": 1,
+          "DeclRefExpr": 2,
+          "DeclStmt": 1,
+          "ImplicitCastExpr": 3,
+          "IntegerLiteral": 1,
+          "MemberExpr": 1,
+          "ParmVarDecl": 1,
+          "ReturnStmt": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "0": 1
+        },
+        "members": {
+          "platform": 1
+        },
+        "operators": {
+          "!=": 1
+        },
+        "references": {
+          "macho": 1,
+          "platform": 1
+        }
+      },
+      "platform": {
+        "ast_kinds": {
+          "CXXMemberCallExpr": 1,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 1,
+          "CompoundStmt": 1,
+          "ConditionalOperator": 1,
+          "DeclRefExpr": 2,
+          "DeclStmt": 1,
+          "GNUNullExpr": 2,
+          "ImplicitCastExpr": 4,
+          "IntegerLiteral": 1,
+          "MemberExpr": 1,
+          "ReturnStmt": 1,
+          "UnaryOperator": 1,
+          "VarDecl": 1
+        },
+        "integers": {
+          "0": 1
+        },
+        "members": {
+          "version": 1
+        },
+        "operators": {
+          "\u0026": 1
+        },
+        "references": {
+          "ret": 2
+        }
+      },
+      "version": {
+        "ast_kinds": {
+          "BinaryOperator": 19,
+          "BreakStmt": 4,
+          "CXXBoolLiteralExpr": 3,
+          "CXXMemberCallExpr": 8,
+          "CXXMethodDecl": 1,
+          "CXXThisExpr": 8,
+          "CaseStmt": 4,
+          "CompoundStmt": 10,
+          "ConstantExpr": 4,
+          "DeclRefExpr": 26,
+          "DeclStmt": 3,
+          "DefaultStmt": 1,
+          "GNUNullExpr": 8,
+          "IfStmt": 8,
+          "ImplicitCastExpr": 44,
+          "IntegerLiteral": 9,
+          "MemberExpr": 14,
+          "ParmVarDecl": 3,
+          "ReturnStmt": 3,
+          "SwitchStmt": 1,
+          "UnaryOperator": 6,
+          "VarDecl": 3
+        },
+        "integers": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "36": 1,
+          "37": 1,
+          "4": 1,
+          "47": 1,
+          "48": 1
+        },
+        "members": {
+          "cmd": 1,
+          "findBuildVersion": 1,
+          "findMinVersion": 1,
+          "flip": 6,
+          "minos": 1,
+          "platform": 1,
+          "sdk": 2,
+          "version": 1
+        },
+        "operators": {
+          "!=": 8,
+          "*": 6,
+          "=": 11
+        },
+        "references": {
+          "bc": 4,
+          "minVersion": 4,
+          "pf": 6,
+          "platform": 4,
+          "sdkVersion": 4,
+          "vc": 4
+        }
+      }
+    }
+  },
+  "translation_unit_sha256": "acb1ca412689cde31ba0624cd0bcd540e25017e6bf93eadfc802e594158f5830"
+}

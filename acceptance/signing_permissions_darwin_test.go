@@ -91,6 +91,11 @@ func TestSigningNativePermissions(t *testing.T) {
 						}
 						n, g := results[0], results[1]
 						record := map[string]any{"native": evidence[0], "go": evidence[1]}
+						if strings.Contains(shape, "-") {
+							record["initial_manifest"] = executableDirectoryManifest(t, n.before)
+							record["native_manifest"] = executableDirectoryManifest(t, n.data)
+							record["go_manifest"] = executableDirectoryManifest(t, g.data)
+						}
 						defer attest(t, record)
 						nativeEqual(t, "permission initial bytes", g.before, n.before)
 						if n.status != g.status || n.out != g.out || n.stderr != g.stderr {
@@ -114,15 +119,23 @@ func TestSigningNativePermissions(t *testing.T) {
 							record["go_manifest"] = executableDirectoryManifest(t, g.data)
 							signingSidebandPartial(t, n.before, completed, n.data, independent, true)
 							signingSidebandPartial(t, g.before, completed, g.data, independent, false)
-						} else if n.status != 0 && shape == "recursive-child-main" && deny == "readattr" && policy != "dryrun" {
+						} else if n.status != 0 && (shape == "app-main" || shape == "framework-main" || shape == "recursive-child-main") && deny == "readattr" && policy != "dryrun" {
 							// Native asynchronous resource work can finish the entire grandchild
-							// before the nested main's attribute failure is reported. Compare
-							// that one worker with an independent native completion control;
-							// the failed child, ancestors and all other members remain exact.
-							operand, _ := sidebandBundleFixture(t, dir, "recursive")
+							// or independent helper before the main's attribute failure is
+							// reported. Compare each entire worker with an independent native
+							// completion control; failed code, ancestors, envelopes and every
+							// unrelated member must retain their exact original manifest.
+							kind, _, _ := strings.Cut(shape, "-")
+							operand, _ := sidebandBundleFixture(t, dir, kind)
 							mustRun(t, apple(t), "-fs", "-", "-i", "org.example.permissions", "--deep", "--no-strict", operand)
 							completed := signingSidebandBytes(t, operand, true)
 							independent := "Contents/Library/LoginItems/Login.app/Contents/Helpers/Worker.app"
+							switch kind {
+							case "app":
+								independent = "Contents/Helpers/tool"
+							case "framework":
+								independent = "Versions/A/Helpers/tool;Versions/A/helper"
+							}
 							record["independent_children"] = independent
 							record["initial_manifest"] = executableDirectoryManifest(t, n.before)
 							record["native_completion_control"] = executableDirectoryManifest(t, completed)

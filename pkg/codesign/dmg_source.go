@@ -17,15 +17,15 @@ func signDMGFile(ctx context.Context, file *os.File, path string, source codeSou
 	if err != nil {
 		return err
 	}
-	m, err := parseDMGRange(uint64(source.source.size), trailer, source.read)
+	m, err := parseDMGSigningSource(source, trailer)
 	if err != nil {
 		return err
 	}
-	if m.signature != nil {
+	if m.signed {
 		if opts.Force && opts.OnReplace != nil {
 			opts.OnReplace()
 		}
-		if !opts.Force && m.signature.Directories[0].Flags&0x20000 == 0 {
+		if !opts.Force && m.priorFlags&0x20000 == 0 {
 			return ErrSigned
 		}
 	}
@@ -35,20 +35,24 @@ func signDMGFile(ctx context.Context, file *os.File, path string, source codeSou
 	if err := prepareSigningOptions(&opts); err != nil {
 		return err
 	}
-	tail, err := signDMGTail(ctx, m, opts, opts.DryRun, source.digest)
+	tail, err := signDMGTailSource(ctx, m, opts, opts.DryRun, source.digest)
 	if err != nil {
 		return err
 	}
 	if err := sourceUnchanged(file, before); err != nil {
 		return err
 	}
-	return writeDMGTail(ctx, path, file, before, m.footer.CodeSignatureOffset, tail)
+	return writeDMGTailSource(ctx, path, file, before, m.footer.CodeSignatureOffset, tail)
 }
 
 // The payload has already been hashed. Apple's Writer::flush writes only the
 // signature and trailer, then truncates; the source and destination never overlap
 // bytes still needed for hashing. Existing hard links retain the same object.
 func writeDMGTail(ctx context.Context, path string, source *os.File, before os.FileInfo, offset uint64, tail []byte) (result error) {
+	return writeDMGTailSource(ctx, path, source, before, offset, byteOutput(tail))
+}
+
+func writeDMGTailSource(ctx context.Context, path string, source *os.File, before os.FileInfo, offset uint64, tail outputSource) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -77,7 +81,7 @@ func writeDMGTail(ctx context.Context, path string, source *os.File, before os.F
 	if err := sourceUnchanged(source, before); err != nil {
 		return err
 	}
-	return populateDMGTail(ctx, f, offset, tail)
+	return populateDMGTailSource(ctx, f, offset, tail)
 }
 
 type tailOutput struct {
@@ -92,8 +96,12 @@ func (w tailOutput) WriteAt(p []byte, offset int64) (int, error) {
 func (w tailOutput) Truncate(size int64) error { return w.outputFile.Truncate(w.offset + size) }
 
 func populateDMGTail(ctx context.Context, dst outputFile, offset uint64, tail []byte) error {
-	if offset > math.MaxInt64-uint64(len(tail)) {
+	return populateDMGTailSource(ctx, dst, offset, byteOutput(tail))
+}
+
+func populateDMGTailSource(ctx context.Context, dst outputFile, offset uint64, tail outputSource) error {
+	if tail.size < 0 || uint64(tail.size) > math.MaxInt64 || offset > math.MaxInt64-uint64(tail.size) {
 		return malformed("disk image output range")
 	}
-	return populateOutput(ctx, tailOutput{dst, int64(offset)}, byteOutput(tail), nil)
+	return populateOutput(ctx, tailOutput{dst, int64(offset)}, tail, nil)
 }

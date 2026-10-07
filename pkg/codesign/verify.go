@@ -3,6 +3,7 @@ package codesign
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -13,7 +14,12 @@ func Inspect(ctx context.Context, path string) (*Report, error) {
 }
 
 // InspectWithOptions inspects a selected framework version without verifying it.
-func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (*Report, error) {
+func InspectWithOptions(ctx context.Context, path string, opts PathOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = errors.Join(err, storage.Close()) }()
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -39,7 +45,7 @@ func InspectBytes(data []byte) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	return inspectContainer(c, memoryRange(data))
+	return inspectContainer(c, ownedMemoryRange(data))
 }
 
 func inspectContainer(c *container, read rangeReader) (*Report, error) {
@@ -50,19 +56,12 @@ func inspectContainer(c *container, read rangeReader) (*Report, error) {
 	for _, s := range c.slices {
 		im := s.image
 		a := Architecture{Name: archName(s.cpu, s.subtype), CPU: s.cpu, Subtype: s.subtype, Offset: s.offset, Size: s.size, SignatureOffset: uint64(im.sigOffset), SignatureSize: im.sigSize}
-		for _, cmd := range im.commands {
-			if cmd.kind == 0x32 && cmd.size >= 24 {
-				a.VersionPlatform = im.order.Uint32(im.data[cmd.offset+8:])
-				a.VersionMin = im.order.Uint32(im.data[cmd.offset+12:])
-				a.VersionSDK = im.order.Uint32(im.data[cmd.offset+16:])
-			}
-		}
+		a.VersionPlatform, a.VersionMin, a.VersionSDK = im.versionPlatform, im.versionMin, im.versionSDK
 		if im.sigCommand >= 0 {
-			data, err := read(s.offset+uint64(im.sigOffset), uint64(im.sigSize))
-			if err != nil {
-				return nil, err
-			}
-			a.Signature, err = ParseSignature(data)
+			var err error
+			a.Signature, err = parseSignatureRange(uint64(im.sigSize), func(offset, length uint64) ([]byte, error) {
+				return read(s.offset+uint64(im.sigOffset)+offset, length)
+			}, false)
 			if err != nil {
 				return nil, err
 			}
@@ -106,7 +105,17 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	return &CertificateMetadata{Authorities: chain.Authorities, Certificates: chain.Certificates, SigningTime: info.SigningTime, Timestamp: info.Timestamp}, nil
 }
 
-func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, error) {
+func Verify(ctx context.Context, path string, opts VerifyOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, storage.Close())
+		if err != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	if err := sidebandOptions(ctx, opts, false); err != nil {
 		return nil, err
 	}
@@ -134,7 +143,17 @@ func Verify(ctx context.Context, path string, opts VerifyOptions) (*Report, erro
 	return r, err
 }
 
-func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (*Report, error) {
+func VerifyBytes(ctx context.Context, data []byte, opts VerifyOptions) (report *Report, err error) {
+	ctx, storage, err := beginWorkingStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, storage.Close())
+		if err != nil && report != nil {
+			report.Valid = false
+		}
+	}()
 	return verifyInput(ctx, opts, isDMG(data), func() (*Report, error) { return InspectBytes(data) },
 		func(kind uint8, offset, length uint64) ([]byte, error) {
 			return digestContext(ctx, kind, data[offset:offset+length])

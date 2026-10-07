@@ -5926,28 +5926,32 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.2",
-    "sum": "h1:C3zpG1n8Y5+FUay5NVhGHvoHYlwLGI8BEZfJZxEVZxI=",
+    "version": "v0.17.3-0.20261007070340-674c2a3a815b",
+    "sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
-        "sha256": "cdfd470f837f5e805694a0d31e51922974dc1d66b9d4bbeb6940813a98eadd37",
+        "sha256": "61767be6a02c27f7990ba6b2db9ba4fb7cd0810a24b0a9cabebf8f13ff30ffab",
         "symbols": [
           "PrepareReplacementAt",
+          "PrepareReplacementAtContext",
           "RestoreMetadata",
+          "RestoreMetadataContext",
           "Close"
         ],
-        "decision": "Reuse rooted staging/restore/cleanup; complete codesign checkpoint behavior before proposing an upstream extension."
+        "decision": "Merged PR208 supplies cancellable rooted staging and restoration. Codesign threads its operation context into both APIs; retain unconditional cleanup and qualify consumer commit boundaries."
       },
       {
         "path": "pkg/hostdata/replacement.go",
-        "sha256": "cdee3ad9fe59d5ef43cf947b7da2ce14596a616a0d801b27381e5577b10e0870",
+        "sha256": "57ef257d84793941400c66920c7123beb348ae4a3d87df67f94dee8c37325653",
         "symbols": [
           "PrepareReplacement",
+          "PrepareReplacementContext",
           "RestoreMetadata",
+          "RestoreMetadataContext",
           "Close"
         ],
-        "decision": "Reuse existing platform metadata restoration; do not duplicate the fixed deny-write ACL staging implementation."
+        "decision": "Merged PR208 supplies cancellable standalone preparation/restoration and complete cleanup errors. Codesign consumes these directly; metadata policy and final rename remain consumer responsibilities."
       },
       {
         "path": "pkg/disk/dmg_reconstruct.go",
@@ -5968,7 +5972,7 @@
       },
       {
         "path": "pkg/hostdata/replacement_copy.go",
-        "sha256": "26ef7ccfb8b63377dd8a8e642d5fa3066a395fa60410288cdd12500e833b2bb6",
+        "sha256": "15f855fcb5bdc75dae249f350b009f6f4fdcf636866fdb3a0ca7404aba3b758d",
         "symbols": [
           "prepareReplacementUsing",
           "copyReplacementMetadataUsing",
@@ -5978,30 +5982,56 @@
       },
       {
         "path": "pkg/hostdata/replacement_copy_darwin.go",
-        "sha256": "fd0d84f511263af2bba7cd635ded3559cbd22886feda486fdebd9311863d08f9",
+        "sha256": "46d7c00601a39e2a3007043f94dfa3bbdcfda28642d4fdf06edc2355cdc6b242",
         "symbols": [
           "replacementCloneUnavailable",
           "copyReplacementMetadata"
         ],
-        "decision": "Released non-cloning fallback; reuse bounded xattr copying and streamed resource forks. Native codesign metadata policy remains consumer work."
+        "decision": "Merged PR198 main pin uses fresh staging for compressed sources, preserving independent resource forks and target compression flags. Recompression remains a separate prerequisite."
       },
       {
         "path": "pkg/hostdata/replacement_root_windows.go",
-        "sha256": "7b6614fa450770e13b43aa5e9f77dfd1b6a345de045b8006fd4670b6a15f5067",
+        "sha256": "5426b211edd6b00e88ec9305ed97e660ccb3da61507f62529019a601a94c652d",
         "symbols": [
-          "prepareReplacementAt",
-          "restoreReplacementMetadataAt",
-          "copyReplacementStreams"
+          "prepareReplacementAtContext",
+          "restoreReplacementMetadataAtContext",
+          "copyReplacementStreamsContext"
         ],
-        "decision": "Released sparse rooted staging and metadata restoration; keep NTFS sparse cases mandatory and reuse SDK ownership."
+        "decision": "Merged PR208 supplies held BackupRead/BackupWrite for unencrypted files and contained identity-checked CopyFileEx for EFS. Preserve sparse alternate streams, EAs, compression, encryption keys and security through the SDK; qualify consumer cancellation and close/rename handoff on Windows."
       },
       {
         "path": "pkg/hostdata/replacement_backup.go",
-        "sha256": "23f0e1f548a44e0cd3279f5a7eead27d05b3db62fc6a78dc4b43b2daa2ae02a3",
+        "sha256": "5d3dc721f043565ea3348cbec0bb8374242a3e8ea7e33db95774733c637aa93d",
         "symbols": [
           "filterReplacementStreams"
         ],
         "decision": "Released bounded backup stream filter preserves sparse named data and excludes original main-data extents from replacement."
+      },
+      {
+        "path": "pkg/hostdata/replacement_darwin.go",
+        "sha256": "478b97f4bd9d59c98fc31927b1fbfdba73e442cee99ccfdd430a739d5061c6d6",
+        "symbols": [
+          "prepareReplacementContext",
+          "restoreReplacementMetadataContext"
+        ],
+        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+      },
+      {
+        "path": "pkg/hostdata/replacement_root_darwin.go",
+        "sha256": "e90f17dc5d7b51a7f5cf70b5211921652c9fd1ab9eebda50673ba7b1ac7c03c6",
+        "symbols": [
+          "prepareReplacementAtContext",
+          "restoreReplacementMetadataAtContext"
+        ],
+        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+      },
+      {
+        "path": "pkg/hostdata/replacement_stage_windows.go",
+        "sha256": "bcc77cbae6a5a81d7b788809d7e5421e9925e04d45e2dfb0cb66f3a05594dd26",
+        "symbols": [
+          "makeReplacementDirectoryAt"
+        ],
+        "decision": "Merged PR209 normalizes private-directory NTSTATUS errors to Win32 errors. Preserve errors.Is(err, os.ErrPermission) for allocation-failure handling and qualify denied creation through rooted and standalone consumer operations."
       }
     ],
     "prerequisite_findings": [

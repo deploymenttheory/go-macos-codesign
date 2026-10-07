@@ -1,0 +1,913 @@
+{
+  "Schema": 1,
+  "Scope": "SDK-structured signing-layout dylibs, not executable/loadable-code claims. C-generated files grow a zero-padded LC_ID_DYLIB, or repeat LC_RPATH commands; command ranges and segment offsets remain aligned. Full-file hashes cover every native operation. Two-target Clang AST enum values prove SDK structure layout/constants, not execution of Apple private implementation. Pinned complete Apple allocation/removal AST evidence is recorded separately by source hash. All accepted signed outputs must pass native strict verification. Portable replay constructs identical sparse recipes and uses only the public Go APIs, comparing native success/failure and all complete output hashes; display success additionally checks architecture, identifier, and signature presence.",
+  "Host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+  "Compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "SDK": "MacOSX.sdk",
+  "Sources": {
+    "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+    "scripts/extract-macho-command-policy.go": "e0bb6cefe79d32d4f105b3ac83b95f23ef9b720946662c01eb3726be53d030a7",
+    "scripts/probe-macho-command-ranges.go": "88b56a357c20cda6976f686d06f4537944071d4a56c6199e1b8feabc2f41f53f",
+    "sdk:mach-o/loader.h": "5862aeb7fbf183453080bc887c0d502fe25a86ff5bd81291bbcc408bd7fe6e74",
+    "spec/apple-macho-allocation.json": "71ab94110ae244075ce328dd7fb21db92cb4727ea060848eef53e5ddc45c1f73",
+    "spec/apple-macho-command-policy.json": "eb764dd69ae10a864ad0224a8edd78f854c7145b6e3e0b0e2e8559e7090c6a8e",
+    "spec/apple-removal.json": "af1070d3ba6c2082e449169cadffca30270e3022926357e52ce278358f73942c",
+    "spec/apple-writer.json": "31b6d331f8f85105269cda98cbf575ab1f7ea0df004adfb13103ca0988043fdd",
+    "testdata/research/macho-command-ranges.c": "ab7443899a8c99ddcfaaa59222ac6226bb3714bc7ab08bd9a1a30c01cd45d57f"
+  },
+  "Layouts": {
+    "arm64-apple-macos27": {
+      "CR_BUILD_MINOS": "12",
+      "CR_BUILD_PLATFORM": "8",
+      "CR_BUILD_SDK": "16",
+      "CR_BUILD_SIZE": "24",
+      "CR_DYLIB": "13",
+      "CR_DYLIB_NAME": "8",
+      "CR_DYLIB_SIZE": "24",
+      "CR_FILETYPE": "6",
+      "CR_HEADER_NCMDS": "16",
+      "CR_HEADER_SIZE": "32",
+      "CR_HEADER_SIZEOFCMDS": "20",
+      "CR_MAGIC": "4277009103",
+      "CR_RPATH": "2147483676",
+      "CR_RPATH_PATH": "8",
+      "CR_RPATH_SIZE": "12",
+      "CR_SECTION_ADDR": "32",
+      "CR_SECTION_FLAGS": "64",
+      "CR_SECTION_LENGTH": "40",
+      "CR_SECTION_OFFSET": "48",
+      "CR_SECTION_SIZE": "80",
+      "CR_SEGMENT": "25",
+      "CR_SEGMENT_FILEOFF": "40",
+      "CR_SEGMENT_FILESIZE": "48",
+      "CR_SEGMENT_INITPROT": "60",
+      "CR_SEGMENT_MAXPROT": "56",
+      "CR_SEGMENT_SIZE": "72",
+      "CR_SEGMENT_VMADDR": "24",
+      "CR_SEGMENT_VMSIZE": "32",
+      "CR_UUID": "27",
+      "CR_UUID_BYTES": "8",
+      "CR_UUID_SIZE": "24"
+    },
+    "x86_64-apple-macos27": {
+      "CR_BUILD_MINOS": "12",
+      "CR_BUILD_PLATFORM": "8",
+      "CR_BUILD_SDK": "16",
+      "CR_BUILD_SIZE": "24",
+      "CR_DYLIB": "13",
+      "CR_DYLIB_NAME": "8",
+      "CR_DYLIB_SIZE": "24",
+      "CR_FILETYPE": "6",
+      "CR_HEADER_NCMDS": "16",
+      "CR_HEADER_SIZE": "32",
+      "CR_HEADER_SIZEOFCMDS": "20",
+      "CR_MAGIC": "4277009103",
+      "CR_RPATH": "2147483676",
+      "CR_RPATH_PATH": "8",
+      "CR_RPATH_SIZE": "12",
+      "CR_SECTION_ADDR": "32",
+      "CR_SECTION_FLAGS": "64",
+      "CR_SECTION_LENGTH": "40",
+      "CR_SECTION_OFFSET": "48",
+      "CR_SECTION_SIZE": "80",
+      "CR_SEGMENT": "25",
+      "CR_SEGMENT_FILEOFF": "40",
+      "CR_SEGMENT_FILESIZE": "48",
+      "CR_SEGMENT_INITPROT": "60",
+      "CR_SEGMENT_MAXPROT": "56",
+      "CR_SEGMENT_SIZE": "72",
+      "CR_SEGMENT_VMADDR": "24",
+      "CR_SEGMENT_VMSIZE": "32",
+      "CR_UUID": "27",
+      "CR_UUID_BYTES": "8",
+      "CR_UUID_SIZE": "24"
+    }
+  },
+  "Cases": [
+    {
+      "Recipe": {
+        "Name": "small-arm64",
+        "DylibSize": 40,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 16448,
+        "SHA256": "51e686c6965862db13e84373505fc86a5cba1034de6e436656bfd662302b03aa"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "51e686c6965862db13e84373505fc86a5cba1034de6e436656bfd662302b03aa"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16768,
+          "SHA256": "ee1afc8b610419813c9372eeeb6c520a0deed5da116daafbd5413201146fda29"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=243 flags=0x2(adhoc) hashes=2+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=0d117ba495284d1a3d7e844cbefc406319417398\nCandidateCDHashFull sha256=0d117ba495284d1a3d7e844cbefc4063194173988e83b2e98478d544023cd6fb\nHash choices=sha256\nCMSDigest=0d117ba495284d1a3d7e844cbefc4063194173988e83b2e98478d544023cd6fb\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=16384\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=0d117ba495284d1a3d7e844cbefc406319417398\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 16768,
+          "SHA256": "ee1afc8b610419813c9372eeeb6c520a0deed5da116daafbd5413201146fda29"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 16768,
+          "SHA256": "ee1afc8b610419813c9372eeeb6c520a0deed5da116daafbd5413201146fda29"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "ee1afc8b610419813c9372eeeb6c520a0deed5da116daafbd5413201146fda29"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "ee1afc8b610419813c9372eeeb6c520a0deed5da116daafbd5413201146fda29"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16448,
+          "SHA256": "51e686c6965862db13e84373505fc86a5cba1034de6e436656bfd662302b03aa"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "51e686c6965862db13e84373505fc86a5cba1034de6e436656bfd662302b03aa"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "small-x86_64",
+        "DylibSize": 40,
+        "Rpaths": 0,
+        "CPU": 16777223,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 16448,
+        "SHA256": "b4470f4cae374200b0d196824af082eb528d66b8550215bb01e082cdfe1065ea"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "b4470f4cae374200b0d196824af082eb528d66b8550215bb01e082cdfe1065ea"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16864,
+          "SHA256": "406cf2fedb6b8889016cfeae9ad8cb9f1931d3bc4052bb866aa40a86e87b02a9"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin ((16777223:0))\nCodeDirectory v=20400 size=339 flags=0x2(adhoc) hashes=5+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=0346e0ac90c571b6cf443820ea928f4487b7e5df\nCandidateCDHashFull sha256=0346e0ac90c571b6cf443820ea928f4487b7e5df052c41e17182ff0684fca3ae\nHash choices=sha256\nCMSDigest=0346e0ac90c571b6cf443820ea928f4487b7e5df052c41e17182ff0684fca3ae\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=16384\nExecutable Segment flags=0x0\nPage size=4096\nCDHash=0346e0ac90c571b6cf443820ea928f4487b7e5df\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 16864,
+          "SHA256": "406cf2fedb6b8889016cfeae9ad8cb9f1931d3bc4052bb866aa40a86e87b02a9"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 16864,
+          "SHA256": "406cf2fedb6b8889016cfeae9ad8cb9f1931d3bc4052bb866aa40a86e87b02a9"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16864,
+          "SHA256": "406cf2fedb6b8889016cfeae9ad8cb9f1931d3bc4052bb866aa40a86e87b02a9"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16864,
+          "SHA256": "406cf2fedb6b8889016cfeae9ad8cb9f1931d3bc4052bb866aa40a86e87b02a9"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16448,
+          "SHA256": "b4470f4cae374200b0d196824af082eb528d66b8550215bb01e082cdfe1065ea"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "b4470f4cae374200b0d196824af082eb528d66b8550215bb01e082cdfe1065ea"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "many-commands-arm64",
+        "DylibSize": 40,
+        "Rpaths": 8192,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 213056,
+        "SHA256": "544121737c5ac4c70f9b69eb8dc940775c2dbb7938c165876862065062e3a0ba"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 213056,
+          "SHA256": "544121737c5ac4c70f9b69eb8dc940775c2dbb7938c165876862065062e3a0ba"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 213760,
+          "SHA256": "8d09eb6225c705a2660a0bf4f730815234da3ece098f0b5001f84905aa77333b"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=627 flags=0x2(adhoc) hashes=14+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=eea57c208371ddf458ee5482fd6e94a10a82c729\nCandidateCDHashFull sha256=eea57c208371ddf458ee5482fd6e94a10a82c729ab32eb812147f24c98f1623c\nHash choices=sha256\nCMSDigest=eea57c208371ddf458ee5482fd6e94a10a82c729ab32eb812147f24c98f1623c\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=212992\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=eea57c208371ddf458ee5482fd6e94a10a82c729\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 213760,
+          "SHA256": "8d09eb6225c705a2660a0bf4f730815234da3ece098f0b5001f84905aa77333b"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 213760,
+          "SHA256": "8d09eb6225c705a2660a0bf4f730815234da3ece098f0b5001f84905aa77333b"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 213760,
+          "SHA256": "8d09eb6225c705a2660a0bf4f730815234da3ece098f0b5001f84905aa77333b"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 213760,
+          "SHA256": "8d09eb6225c705a2660a0bf4f730815234da3ece098f0b5001f84905aa77333b"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 213056,
+          "SHA256": "544121737c5ac4c70f9b69eb8dc940775c2dbb7938c165876862065062e3a0ba"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 213056,
+          "SHA256": "544121737c5ac4c70f9b69eb8dc940775c2dbb7938c165876862065062e3a0ba"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "padded-command-arm64",
+        "DylibSize": 65536,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 81984,
+        "SHA256": "8c6ce1e4df7326530d2e9fa27f902c37121fd8e032a5b44eba4c00236c54fe3b"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 81984,
+          "SHA256": "8c6ce1e4df7326530d2e9fa27f902c37121fd8e032a5b44eba4c00236c54fe3b"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 82432,
+          "SHA256": "2b434f97f8fde9bf80f3153d21e846886f9e336632d3da048b52b153efb31cb5"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=371 flags=0x2(adhoc) hashes=6+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=f1cd7aac7e34f04739491346fe62552349a4baa8\nCandidateCDHashFull sha256=f1cd7aac7e34f04739491346fe62552349a4baa8c30698b6524696afab9152b9\nHash choices=sha256\nCMSDigest=f1cd7aac7e34f04739491346fe62552349a4baa8c30698b6524696afab9152b9\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=81920\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=f1cd7aac7e34f04739491346fe62552349a4baa8\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 82432,
+          "SHA256": "2b434f97f8fde9bf80f3153d21e846886f9e336632d3da048b52b153efb31cb5"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 82432,
+          "SHA256": "2b434f97f8fde9bf80f3153d21e846886f9e336632d3da048b52b153efb31cb5"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 82432,
+          "SHA256": "2b434f97f8fde9bf80f3153d21e846886f9e336632d3da048b52b153efb31cb5"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 82432,
+          "SHA256": "2b434f97f8fde9bf80f3153d21e846886f9e336632d3da048b52b153efb31cb5"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 81984,
+          "SHA256": "8c6ce1e4df7326530d2e9fa27f902c37121fd8e032a5b44eba4c00236c54fe3b"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 81984,
+          "SHA256": "8c6ce1e4df7326530d2e9fa27f902c37121fd8e032a5b44eba4c00236c54fe3b"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sectionless-control-arm64",
+        "DylibSize": 40,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": false,
+        "Platform": 0
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 16448,
+        "SHA256": "301600ebdda824307dbdfdb02ed4a68415233392576f2fb06a67baf6814e4b96"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "301600ebdda824307dbdfdb02ed4a68415233392576f2fb06a67baf6814e4b96"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16768,
+          "SHA256": "85d8c886683d910d978a79165130a66f453adfa8ab3943570e6679a3ebc01ab2"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20100 size=203 flags=0x2(adhoc) hashes=2+2 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=183694da5fe084a0b7ad7a6199197e9fe3732f52\nCandidateCDHashFull sha256=183694da5fe084a0b7ad7a6199197e9fe3732f52c0f92f0f88b56d29ea65c218\nHash choices=sha256\nCMSDigest=183694da5fe084a0b7ad7a6199197e9fe3732f52c0f92f0f88b56d29ea65c218\nCMSDigestType=2\nPage size=16384\nCDHash=183694da5fe084a0b7ad7a6199197e9fe3732f52\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 16768,
+          "SHA256": "85d8c886683d910d978a79165130a66f453adfa8ab3943570e6679a3ebc01ab2"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 16768,
+          "SHA256": "85d8c886683d910d978a79165130a66f453adfa8ab3943570e6679a3ebc01ab2"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "85d8c886683d910d978a79165130a66f453adfa8ab3943570e6679a3ebc01ab2"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "85d8c886683d910d978a79165130a66f453adfa8ab3943570e6679a3ebc01ab2"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16448,
+          "SHA256": "301600ebdda824307dbdfdb02ed4a68415233392576f2fb06a67baf6814e4b96"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "301600ebdda824307dbdfdb02ed4a68415233392576f2fb06a67baf6814e4b96"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "no-platform-control-arm64",
+        "DylibSize": 40,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 0
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 16448,
+        "SHA256": "cdda92a62d3672c3380538a782731e3c484175f23c1d84c6e88a6379cd8548df"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "cdda92a62d3672c3380538a782731e3c484175f23c1d84c6e88a6379cd8548df"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16768,
+          "SHA256": "830889b356491010c467e5e13b54a16c02d0200eb83eb6a4a6cb04d889b25472"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20100 size=203 flags=0x2(adhoc) hashes=2+2 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=bcc33393b70c0d35141f825c9fbc4a9627e10023\nCandidateCDHashFull sha256=bcc33393b70c0d35141f825c9fbc4a9627e10023ddc62c68c35a7188ca0e1859\nHash choices=sha256\nCMSDigest=bcc33393b70c0d35141f825c9fbc4a9627e10023ddc62c68c35a7188ca0e1859\nCMSDigestType=2\nPage size=16384\nCDHash=bcc33393b70c0d35141f825c9fbc4a9627e10023\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 16768,
+          "SHA256": "830889b356491010c467e5e13b54a16c02d0200eb83eb6a4a6cb04d889b25472"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 16768,
+          "SHA256": "830889b356491010c467e5e13b54a16c02d0200eb83eb6a4a6cb04d889b25472"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "830889b356491010c467e5e13b54a16c02d0200eb83eb6a4a6cb04d889b25472"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 16768,
+          "SHA256": "830889b356491010c467e5e13b54a16c02d0200eb83eb6a4a6cb04d889b25472"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 16448,
+          "SHA256": "cdda92a62d3672c3380538a782731e3c484175f23c1d84c6e88a6379cd8548df"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 16448,
+          "SHA256": "cdda92a62d3672c3380538a782731e3c484175f23c1d84c6e88a6379cd8548df"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sizeofcmds-1073741816",
+        "DylibSize": 1073741544,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 1073758272,
+        "SHA256": "657b2c6dc3ef170ae4962eb4b4c1a6dd741718c85fb583f8663387c7c47383f3"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "657b2c6dc3ef170ae4962eb4b4c1a6dd741718c85fb583f8663387c7c47383f3"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1075855744,
+          "SHA256": "89dc86e3c2c3e2f88d25738368c54178d39ac5c2f7b604df16d471e26ecfb15d"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2097395 flags=0x2(adhoc) hashes=65538+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=313a0662ee0a5309c0d076165c20a605862aaa41\nCandidateCDHashFull sha256=313a0662ee0a5309c0d076165c20a605862aaa419512ec4f1b48a6c534143415\nHash choices=sha256\nCMSDigest=313a0662ee0a5309c0d076165c20a605862aaa419512ec4f1b48a6c534143415\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=1073758208\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=313a0662ee0a5309c0d076165c20a605862aaa41\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 1075855744,
+          "SHA256": "89dc86e3c2c3e2f88d25738368c54178d39ac5c2f7b604df16d471e26ecfb15d"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 1075855744,
+          "SHA256": "89dc86e3c2c3e2f88d25738368c54178d39ac5c2f7b604df16d471e26ecfb15d"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "89dc86e3c2c3e2f88d25738368c54178d39ac5c2f7b604df16d471e26ecfb15d"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "89dc86e3c2c3e2f88d25738368c54178d39ac5c2f7b604df16d471e26ecfb15d"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1073758272,
+          "SHA256": "6727bdad1471421d47cc415bd93394e52868be364e9b39ebffc19f926a124926"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "6727bdad1471421d47cc415bd93394e52868be364e9b39ebffc19f926a124926"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sizeofcmds-1073741824",
+        "DylibSize": 1073741552,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 1073758272,
+        "SHA256": "29a904789a7adec30abbf3a2204869dfc7b2f52bc01456339527815134a5df26"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "29a904789a7adec30abbf3a2204869dfc7b2f52bc01456339527815134a5df26"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1075855744,
+          "SHA256": "14c930946c8257e338d1d7920a25177105172aada5754b51fc01e566c11d88ef"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2097395 flags=0x2(adhoc) hashes=65538+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=1f8e39d7dde67cb3d725fb98b8bce1eaa681c92b\nCandidateCDHashFull sha256=1f8e39d7dde67cb3d725fb98b8bce1eaa681c92be1e4e769f60919c44abed8de\nHash choices=sha256\nCMSDigest=1f8e39d7dde67cb3d725fb98b8bce1eaa681c92be1e4e769f60919c44abed8de\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=1073758208\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=1f8e39d7dde67cb3d725fb98b8bce1eaa681c92b\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 1075855744,
+          "SHA256": "14c930946c8257e338d1d7920a25177105172aada5754b51fc01e566c11d88ef"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 1075855744,
+          "SHA256": "14c930946c8257e338d1d7920a25177105172aada5754b51fc01e566c11d88ef"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "14c930946c8257e338d1d7920a25177105172aada5754b51fc01e566c11d88ef"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "14c930946c8257e338d1d7920a25177105172aada5754b51fc01e566c11d88ef"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1073758272,
+          "SHA256": "bf550d24748f0de9b69a0b842824c3f32f7c14d52da2d59c7fac13d212e70165"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "bf550d24748f0de9b69a0b842824c3f32f7c14d52da2d59c7fac13d212e70165"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sizeofcmds-1073741832",
+        "DylibSize": 1073741560,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 1073758272,
+        "SHA256": "5c81cfdc8a544689d04748f0f4b6ada6f8eb263ff670568d8014a87de48f2f64"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "5c81cfdc8a544689d04748f0f4b6ada6f8eb263ff670568d8014a87de48f2f64"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1075855744,
+          "SHA256": "b5c3842026ccff9f9b290fc88fe9db867b82a43182aa03be3a0277c49a1e4538"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2097395 flags=0x2(adhoc) hashes=65538+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=fda1057ebdf47a50e98056530d8746b984a89003\nCandidateCDHashFull sha256=fda1057ebdf47a50e98056530d8746b984a89003b223d9287864ebb7ab5f2ad7\nHash choices=sha256\nCMSDigest=fda1057ebdf47a50e98056530d8746b984a89003b223d9287864ebb7ab5f2ad7\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=1073758208\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=fda1057ebdf47a50e98056530d8746b984a89003\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 1075855744,
+          "SHA256": "b5c3842026ccff9f9b290fc88fe9db867b82a43182aa03be3a0277c49a1e4538"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 1075855744,
+          "SHA256": "b5c3842026ccff9f9b290fc88fe9db867b82a43182aa03be3a0277c49a1e4538"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "b5c3842026ccff9f9b290fc88fe9db867b82a43182aa03be3a0277c49a1e4538"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "b5c3842026ccff9f9b290fc88fe9db867b82a43182aa03be3a0277c49a1e4538"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1073758272,
+          "SHA256": "2d81773e6ca9c7b68f9c282ffefee8bfbc24ef4f66f595e684532a64c9c70993"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "2d81773e6ca9c7b68f9c282ffefee8bfbc24ef4f66f595e684532a64c9c70993"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sizeofcmds-1073741784",
+        "DylibSize": 1073741512,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 1073758272,
+        "SHA256": "77092fff44aa5358a77d270dee519e40bb2e75e35f1f5e18aa3b323e5a709a6e"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "77092fff44aa5358a77d270dee519e40bb2e75e35f1f5e18aa3b323e5a709a6e"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1075855744,
+          "SHA256": "6e7d0b157b36a77f51ec6db748e0111cce2e998034dab6aa0cad15d0d79f3fff"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2097395 flags=0x2(adhoc) hashes=65538+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=ea227574920b86b6c9c68e8b4a50be92d8b6d7c3\nCandidateCDHashFull sha256=ea227574920b86b6c9c68e8b4a50be92d8b6d7c3b75e7bfe599710a07ed140b6\nHash choices=sha256\nCMSDigest=ea227574920b86b6c9c68e8b4a50be92d8b6d7c3b75e7bfe599710a07ed140b6\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=1073758208\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=ea227574920b86b6c9c68e8b4a50be92d8b6d7c3\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 1075855744,
+          "SHA256": "6e7d0b157b36a77f51ec6db748e0111cce2e998034dab6aa0cad15d0d79f3fff"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 1075855744,
+          "SHA256": "6e7d0b157b36a77f51ec6db748e0111cce2e998034dab6aa0cad15d0d79f3fff"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "6e7d0b157b36a77f51ec6db748e0111cce2e998034dab6aa0cad15d0d79f3fff"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "6e7d0b157b36a77f51ec6db748e0111cce2e998034dab6aa0cad15d0d79f3fff"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1073758272,
+          "SHA256": "951b5bac2c5089e82b4cf756134ed58c188c5fc29c4b39de9de2aac3c8798403"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "951b5bac2c5089e82b4cf756134ed58c188c5fc29c4b39de9de2aac3c8798403"
+        }
+      ]
+    },
+    {
+      "Recipe": {
+        "Name": "sizeofcmds-1073741792",
+        "DylibSize": 1073741520,
+        "Rpaths": 0,
+        "CPU": 16777228,
+        "Text": true,
+        "Platform": 1
+      },
+      "Initial": {
+        "Operation": "initial",
+        "Exit": 0,
+        "Diagnostic": "",
+        "Size": 1073758272,
+        "SHA256": "2457bb6ffd3fca5c05392b7e4a0339ac711c39ff242adbc33e8f1071d81e8d72"
+      },
+      "Operations": [
+        {
+          "Operation": "inspect-unsigned",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "2457bb6ffd3fca5c05392b7e4a0339ac711c39ff242adbc33e8f1071d81e8d72"
+        },
+        {
+          "Operation": "sign",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1075855744,
+          "SHA256": "64b21aa77e0b8934db875d4141f371ff420cafaf8ef17c48ebe046f560bc557a"
+        },
+        {
+          "Operation": "inspect-signed",
+          "Exit": 0,
+          "Diagnostic": "Executable=\u003cimage\u003e\nIdentifier=org.example.command-ranges\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2097395 flags=0x2(adhoc) hashes=65538+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=508a2b76a646a5feb192358734645de53f32c5a0\nCandidateCDHashFull sha256=508a2b76a646a5feb192358734645de53f32c5a028f9ffa2def9f055c901cbd7\nHash choices=sha256\nCMSDigest=508a2b76a646a5feb192358734645de53f32c5a028f9ffa2def9f055c901cbd7\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=1073758208\nExecutable Segment flags=0x0\nPage size=16384\nCDHash=508a2b76a646a5feb192358734645de53f32c5a0\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n",
+          "Size": 1075855744,
+          "SHA256": "64b21aa77e0b8934db875d4141f371ff420cafaf8ef17c48ebe046f560bc557a"
+        },
+        {
+          "Operation": "verify",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: valid on disk\n\u003cimage\u003e: satisfies its Designated Requirement\n",
+          "Size": 1075855744,
+          "SHA256": "64b21aa77e0b8934db875d4141f371ff420cafaf8ef17c48ebe046f560bc557a"
+        },
+        {
+          "Operation": "resign",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "64b21aa77e0b8934db875d4141f371ff420cafaf8ef17c48ebe046f560bc557a"
+        },
+        {
+          "Operation": "dryrun",
+          "Exit": 0,
+          "Diagnostic": "\u003cimage\u003e: replacing existing signature\n",
+          "Size": 1075855744,
+          "SHA256": "64b21aa77e0b8934db875d4141f371ff420cafaf8ef17c48ebe046f560bc557a"
+        },
+        {
+          "Operation": "remove",
+          "Exit": 0,
+          "Diagnostic": "",
+          "Size": 1073758272,
+          "SHA256": "fe65f713796d86b74bd97c3755e86f8b9e61df97e643a53dff7d23fb1efb7fb5"
+        },
+        {
+          "Operation": "inspect-removed",
+          "Exit": 1,
+          "Diagnostic": "\u003cimage\u003e: code object is not signed at all\n",
+          "Size": 1073758272,
+          "SHA256": "fe65f713796d86b74bd97c3755e86f8b9e61df97e643a53dff7d23fb1efb7fb5"
+        }
+      ]
+    }
+  ]
+}

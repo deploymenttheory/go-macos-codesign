@@ -56,7 +56,7 @@ func TestBundleAccessTimeWindowsHeldWriter(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := p.copySourceAccess(); err != nil {
+			if err := p.copySourceAccess(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 			if err := p.replacement.File.Close(); !errors.Is(err, os.ErrClosed) {

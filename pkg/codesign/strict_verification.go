@@ -1,7 +1,6 @@
 package codesign
 
 import (
-	"bytes"
 	"cmp"
 	"errors"
 	"os"
@@ -79,31 +78,7 @@ func verifyStrictContainer(c *container, length uint64, architecture string, dis
 		if architecture != "" && archName(s.cpu, s.subtype) != architecture {
 			continue
 		}
-		im := s.image
-		valid := false
-		for _, cmd := range im.commands {
-			p := cmd.offset
-			switch cmd.kind {
-			case 1, 0x19:
-				if !bytes.Equal(bytes.TrimRight(im.data[p+8:p+24], "\x00"), []byte("__LINKEDIT")) {
-					continue
-				}
-				var offset, size uint64
-				if cmd.kind == 1 {
-					offset, size = uint64(im.order.Uint32(im.data[p+32:])), uint64(im.order.Uint32(im.data[p+36:]))
-				} else {
-					offset, size = im.order.Uint64(im.data[p+40:]), im.order.Uint64(im.data[p+48:])
-				}
-				valid = offset <= s.size && size == s.size-offset
-			case 2: // LC_SYMTAB, the legacy PPC fallback precedes later commands
-				if cmd.size >= 24 {
-					valid = uint64(im.order.Uint32(im.data[p+16:]))+uint64(im.order.Uint32(im.data[p+20:])) == s.size
-				}
-			default:
-				continue
-			}
-			break
-		}
+		valid := s.image.strictValid
 		if !valid {
 			return failure("link-edit data does not end at the image boundary")
 		}

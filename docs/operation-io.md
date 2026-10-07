@@ -12,6 +12,16 @@ calls and lifecycle steps. Short reads, short writes, invalid counts and failing
 I/O stop the operation. When cancellation and a transfer I/O error occur together, callers
 can inspect both with `errors.Is`. Cleanup still runs after failure or cancellation.
 
+Standalone and rooted bundle replacement pass the operation context into APFS's
+`PrepareReplacementContext` / `PrepareReplacementAtContext` and
+`RestoreMetadataContext`. Cancellation therefore also reaches the SDK's metadata
+copies, streamed forks, alternate streams and restoration checkpoints. Bundle
+access-time copying and the final metadata sync check the same context. A canceled
+allocation does not enter the permission-failure path that permits independent
+bundle work to continue. Private staging cleanup remains unconditional and its
+errors are joined with the operation error. Signature-directory creation and
+cleanup also retain descriptor-close errors.
+
 | Writer | Cancellation or failure before commit |
 | --- | --- |
 | Standalone Mach-O | Discard the private replacement; preserve the original name, bytes, inode and hard links |
@@ -72,6 +82,36 @@ Existing native tests retain their exact case membership and expectations for
 mounted APFS/HFS+ writers, permissions, ACLs, hard links, timestamps, resource
 envelopes, cleanup and DMG dry runs. Existing foreign-producer verification, race,
 full-duration fuzz, pure-Go guards and GoReleaser builds remain mandatory.
+
+[Replacement lifecycle tests](../pkg/codesign/replacement_lifecycle_test.go) first
+observe a successful real-file operation, then cancel each reached checkpoint on
+a fresh fixture. They cover standalone and bundle writes, both dry runs and the
+separately prepared bundle commit. Each canceled operation must retain source
+bytes, mode, inode and hard-link contents, release owned descriptors and remove
+staging. The checkpoint count follows each host's actual SDK route; no platform
+is omitted. These are cancellation-contract tests, not a substitute for the
+existing native metadata and permission comparisons.
+
+Mounted writer acceptance retains the backing device from `hdiutil attach
+-plist`. An ordinary detach can unmount the volume and still return resource
+busy while ejecting the device; the vanished mount path cannot identify a
+subsequent attempt reliably. Cleanup retries only busy status 16, at most ten
+times within a one-minute context, recording every command result. It never
+forces ejection. Other errors, cancellation and exhausted retries fail the test.
+Portable harness tests require these failure boundaries on all three hosts;
+all existing mounted APFS/HFS+ writer cases remain mandatory.
+
+The native permission matrix also records complete per-member manifests for
+bundle failures. Denying `readattr` on an app or framework main executable can
+leave an independent helper fully signed before Apple reports the failure.
+The retained `signer.cpp` resource dispatcher and `dispatch.cpp` exception-aware
+queue explain why an independent worker can finish or remain unstarted. Native
+comparisons require each allowed worker to match either its complete original
+state or a separate successful native signing control. Failed code, parent
+envelopes and unrelated members must remain exact; partial or corrupt workers
+are rejected by the existing oracle boundary tests. Go's current early planning
+failure must preserve the entire input. This does not qualify the outstanding
+broader scheduling or `--single-threaded-signing` implementation.
 The local native run passed 1,899 terminal outcomes in 16 existing groups with
 their pinned outcome hashes unchanged. The new lifecycle cases also passed with
 the race detector; all six GoReleaser targets built successfully.

@@ -31,6 +31,17 @@ func openCodeSource(ctx context.Context, f *os.File) (codeSource, error) {
 
 type rangeBuffer []byte
 
+func (b rangeBuffer) ReadAt(p []byte, offset int64) (int, error) {
+	if offset < 0 || offset > int64(len(b)) {
+		return 0, io.EOF
+	}
+	n := copy(p, b[int(offset):])
+	if n != len(p) {
+		return n, io.EOF
+	}
+	return n, nil
+}
+
 func (b rangeBuffer) WriteAt(p []byte, offset int64) (int, error) {
 	return copy(b[int(offset):], p), nil
 }
@@ -57,9 +68,13 @@ func (s codeSource) read(offset, length uint64) ([]byte, error) {
 
 func (s codeSource) container() (*container, error) {
 	return parseContainerRange(uint64(s.source.size), s.read, func(offset, length uint64) (*image, error) {
-		return parseImageRange(length, func(at, n uint64) ([]byte, error) {
+		im, err := parseImageRange(length, func(at, n uint64) ([]byte, error) {
 			return s.read(offset+at, n)
 		})
+		if err == nil {
+			im.source = codeSource{s.ctx, outputSource{s.source.reader, s.source.offset + int64(offset), int64(length)}}
+		}
+		return im, err
 	})
 }
 
