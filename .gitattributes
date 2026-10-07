@@ -7,6 +7,8 @@
 *.json text eol=lf
 *.go text eol=lf
 *.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
 *.yml text eol=lf
 # This XML is embedded verbatim in the Apple reference signatures.
 testdata/entitlements.plist text eol=lf

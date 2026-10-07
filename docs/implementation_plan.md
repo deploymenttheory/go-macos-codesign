@@ -326,8 +326,8 @@ APFS integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
 **Consumer integration and batch release remain open.** APFS PR #208 is merged
-and its final-head CI passed. Codesign consumes merge commit
-`2369b7c390ae9a9e88d8356db6f07ff683580c1d` through its exact module pseudo-version,
+and its final-head CI passed. Codesign consumes APFS #209 merge commit
+`674c2a3a815b05fc6ce34d9931291ff6a86bd62f` through its exact module pseudo-version,
 with no local replacement. Its cancellable preparation and restoration APIs now
 receive the codesign operation context. Qualify these consumer changes on all
 three hosts and the final batch release before closing Phase 02. The user controls the
@@ -337,10 +337,9 @@ commits or test-only follow-ups.
 Windows consumer qualification exposed an error-classification prerequisite in
 the new private-directory creation route. [APFS PR #209](https://github.com/deploymenttheory/go-apfs-v2/pull/209)
 normalizes its native NTSTATUS result so `errors.Is(err, os.ErrPermission)` can
-select codesign's allocation-failure behavior. Consume its merged revision after
-upstream CI and user merge, recapture both compression profiles and rerun the
-unchanged cross-host gates; codesign cannot become green using the current
-dependency while this denial classification is wrong.
+select codesign's allocation-failure behavior. The merged fix is pinned; retain
+both genuine compression profiles and qualify allocation failure through the
+unchanged cross-host consumer gates before closing this prerequisite.
 
 The merged installation APIs from [APFS PR #204](https://github.com/deploymenttheory/go-apfs-v2/pull/204)
 are available for integration, but do not provide complete path-based

@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.3-0.20261007044008-2369b7c390ae",
-    "sum": "h1:2SBi0an8tl/Dm/AckhFtJzmtl9hZyiRDSFxZNbGURcw=",
+    "version": "v0.17.3-0.20261007070340-674c2a3a815b",
+    "sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
@@ -6024,6 +6024,14 @@
           "restoreReplacementMetadataAtContext"
         ],
         "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+      },
+      {
+        "path": "pkg/hostdata/replacement_stage_windows.go",
+        "sha256": "bcc77cbae6a5a81d7b788809d7e5421e9925e04d45e2dfb0cb66f3a05594dd26",
+        "symbols": [
+          "makeReplacementDirectoryAt"
+        ],
+        "decision": "Merged PR209 normalizes private-directory NTSTATUS errors to Win32 errors. Preserve errors.Is(err, os.ErrPermission) for allocation-failure handling and qualify denied creation through rooted and standalone consumer operations."
       }
     ],
     "prerequisite_findings": [

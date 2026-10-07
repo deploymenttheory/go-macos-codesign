@@ -198,7 +198,8 @@ def copy_unique(source, destination, seen):
 def pack(inputs, output):
     """Preserve native evidence names inside an archive accepted by artifact storage."""
     require(not output.exists(), f"Refuse stale archive: {output}")
-    require(inputs.is_dir() and inputs not in output.parents, "Archive must be outside its input directory")
+    require(inputs.is_dir(), f"Evidence input directory does not exist: {inputs}")
+    require(inputs not in output.parents, "Archive must be outside its input directory")
     names = files(inputs)  # Reject symlinks before publishing anything.
     require(names, "No evidence to archive")
     output.parent.mkdir(parents=True, exist_ok=True)

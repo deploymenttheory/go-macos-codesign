@@ -2,6 +2,8 @@
 import copy
 import importlib.util
 from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 
 spec = importlib.util.spec_from_file_location("research_check", Path(__file__).with_name("check-research.py"))
@@ -16,6 +18,20 @@ class ResearchTests(unittest.TestCase):
 
     def test_complete_mapping(self):
         research.validate(self.plan, self.inventory)
+
+    def test_compressed_inputs_survive_windows_checkout(self):
+        # Exercise Git's real Windows checkout conversion without normalizing
+        # bytes in the provenance checker or modifying the working tree.
+        capture = research.read("testdata/research/compressed-signing.json")
+        paths = sorted(p for p in capture["source_sha256"] if not p.startswith("/"))
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(["git", "-c", "core.autocrlf=true", "checkout-index",
+                            "--prefix=" + Path(directory).as_posix() + "/", "--", *paths],
+                           cwd=research.ROOT, check=True, capture_output=True)
+            for path in paths:
+                with self.subTest(path=path):
+                    committed = subprocess.check_output(["git", "show", ":" + path], cwd=research.ROOT)
+                    self.assertEqual((Path(directory) / path).read_bytes(), committed)
 
     def test_missing_duplicate_wrong_status_and_phase(self):
         mutations = []
