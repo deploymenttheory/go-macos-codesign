@@ -10,6 +10,8 @@
 *.c text eol=lf
 *.h text eol=lf
 *.yml text eol=lf
+# Native CMS evidence hashes these public test identities byte for byte.
+testdata/identities/*.pem text eol=lf
 # This XML is embedded verbatim in the Apple reference signatures.
 testdata/entitlements.plist text eol=lf
 testdata/macho/* -text
