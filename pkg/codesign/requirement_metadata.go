@@ -25,8 +25,15 @@ func (r *Report) RequirementText(architecture string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := a.Signature.find(SlotRequirements)
-	if stored := directory.specialSlotHash(SlotRequirements); stored == nil {
+	data, err := a.Signature.componentBytes(SlotRequirements)
+	if err != nil {
+		return nil, err
+	}
+	stored, err := directory.specialSlotHash(SlotRequirements)
+	if err != nil {
+		return nil, err
+	}
+	if stored == nil {
 		data = nil // Native ignores a component with no nonzero directory hash.
 	} else {
 		actual, _ := digest(directory.HashType, data)
@@ -79,7 +86,19 @@ func requirementDirectory(signature *Signature) (Directory, error) {
 	if len(signature.Directories) > 1 {
 		return Directory{}, unsupported("requirement extraction with alternate CodeDirectories")
 	}
-	return parseDirectory(signature.find(SlotDirectory))
+	return signature.primaryDirectory()
+}
+
+func (s *Signature) primaryDirectory() (Directory, error) {
+	if s.view != nil {
+		for _, d := range s.Directories {
+			if d.view.slot == SlotDirectory {
+				return d, nil
+			}
+		}
+		return Directory{}, malformed("missing primary CodeDirectory")
+	}
+	return parseDirectory(s.find(SlotDirectory))
 }
 
 func requirementSetText(data []byte) (string, bool, error) {
@@ -113,14 +132,17 @@ func requirementSetText(data []byte) (string, bool, error) {
 }
 
 // specialSlotHash requires a parsed directory. A zero hash denotes absence.
-func (d Directory) specialSlotHash(slot uint32) []byte {
+func (d Directory) specialSlotHash(slot uint32) ([]byte, error) {
 	if slot == 0 || slot > d.SpecialSlots {
-		return nil
+		return nil, nil
 	}
 	offset := d.HashOffset - slot*uint32(d.HashSize)
-	hash := d.Raw[offset : offset+uint32(d.HashSize)]
-	if bytes.Equal(hash, make([]byte, len(hash))) {
-		return nil
+	hash, err := d.hashAt(uint64(offset))
+	if err != nil {
+		return nil, err
 	}
-	return hash
+	if bytes.Equal(hash, make([]byte, len(hash))) {
+		return nil, nil
+	}
+	return hash, nil
 }

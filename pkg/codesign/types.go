@@ -55,8 +55,11 @@ type RemoveOptions struct {
 type SignOptions struct {
 	// BundleVersion has the same meaning as PathOptions.BundleVersion.
 	BundleVersion string
-	Identifier    string
-	Force         bool
+	// PreserveAFSC requests recompression after replacing a compressed file.
+	// Queue rejection can fail after the signed replacement has been committed.
+	PreserveAFSC bool
+	Identifier   string
+	Force        bool
 	// NoStrict disables signing preflight metadata rejection and code-object
 	// stripping. Explicit stripping of included ordinary resources still runs.
 	NoStrict bool
@@ -225,6 +228,7 @@ type Directory struct {
 	Raw          []byte `json:"-"`
 	certificate  []byte
 	chain        []*certificate
+	view         *directoryView
 }
 
 type Signature struct {
@@ -233,6 +237,7 @@ type Signature struct {
 	Directories []Directory
 	// CertificateMetadata is descriptive; inspection never sets Report.Valid.
 	CertificateMetadata *CertificateMetadata `json:",omitempty"`
+	view                *signatureView
 }
 
 // CertificateMetadata describes CMS data whose cryptographic binding has been

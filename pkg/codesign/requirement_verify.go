@@ -27,7 +27,11 @@ func (r *Report) CheckRequirement(source, architecture string) error {
 // reread the input. Callers must not modify the report before checking it.
 func (r *Report) CheckDesignatedRequirement(architecture string) error {
 	return r.checkRequirements(architecture, func(s *Signature, d Directory) error {
-		return checkDesignatedRequirement(s.find(SlotRequirements), d)
+		data, err := s.componentBytes(SlotRequirements)
+		if err != nil {
+			return err
+		}
+		return checkDesignatedRequirement(data, d)
 	})
 }
 

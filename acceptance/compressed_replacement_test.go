@@ -13,8 +13,16 @@ import (
 // Live compression storage requires a Darwin filesystem. Portable logical-byte
 // signing remains covered by the shared mutation matrix; this oracle additionally
 // checks the hidden native storage that the replacement writer must discard.
-// Recompression (--preserve-afsc) is a separate, still-open phase obligation.
 func TestCompressedReplacementNative(t *testing.T) {
+	compressedReplacementNative(t, false, "")
+}
+
+func TestPreserveAFSCNative(t *testing.T) {
+	compressedReplacementNative(t, true, "")
+}
+
+func compressedReplacementNative(t *testing.T, preserve bool, parent string) {
+	t.Helper()
 	native := apple(t)
 	dir := t.TempDir()
 	var module struct{ Dir string }
@@ -64,7 +72,7 @@ func TestCompressedReplacementNative(t *testing.T) {
 					var envelopes [2][]byte
 					var envelopePresent [2]bool
 					for i, tool := range []string{native, binaryPath} {
-						base := t.TempDir()
+						base := compressionCaseDirectory(t, parent)
 						operand := filepath.Join(base, "hello")
 						executable := operand
 						if shape == "bundle" {
@@ -108,6 +116,9 @@ func TestCompressedReplacementNative(t *testing.T) {
 						case "remove":
 							args = []string{"--remove-signature"}
 						}
+						if preserve {
+							args = append(args, "--preserve-afsc")
+						}
 						mustRun(t, tool, append(args, operand)...)
 						states[i] = snapshot(t, executable)
 						after, err := os.Stat(executable)
@@ -143,4 +154,21 @@ func TestCompressedReplacementNative(t *testing.T) {
 			}
 		}
 	}
+}
+
+func compressionCaseDirectory(t *testing.T, parent string) string {
+	t.Helper()
+	if parent == "" {
+		return t.TempDir()
+	}
+	dir, err := os.MkdirTemp(parent, "compression-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Error(err)
+		}
+	})
+	return dir
 }

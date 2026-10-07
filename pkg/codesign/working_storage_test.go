@@ -250,6 +250,8 @@ func TestWorkingStorageFailures(t *testing.T) {
 	if _, err := newWorkingSection(ctx, 1); err == nil {
 		t.Fatal("overflow accepted")
 	}
+	// Restore the injected counter to the actual extent before cleanup.
+	s.stats.SpillBytes = 0
 	s.remove = func(string) error { return os.ErrPermission }
 	if err := s.Close(); !errors.Is(err, io.ErrClosedPipe) || !errors.Is(err, os.ErrPermission) {
 		t.Fatal(err)

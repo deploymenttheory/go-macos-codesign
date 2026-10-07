@@ -117,7 +117,10 @@ download. The complete export name sets match between Linux and Windows.
 These counts describe terminal test records, including parent tests and existing
 skips; they are not counts of newly implemented features or unique native probes.
 
-Each OS has one unit worker and four acceptance workers. Whole top-level tests
+Each OS has one unit shard and four acceptance shards. Linux/Windows use separate
+workers; macOS runs all five and their aggregation on the same runner so an image
+rollout cannot mix OS builds. Each macOS shard retains its 35-minute limit.
+Whole top-level tests
 stay intact; no internal case matrix is sampled. Longest-first assignment uses the
 maximum observed duration across hosts, producing approximately 510 seconds of
 historical assigned work per acceptance shard. That is a scheduling estimate;

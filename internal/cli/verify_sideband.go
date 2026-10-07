@@ -13,6 +13,17 @@ import (
 )
 
 func verifyWithMetadataMap(ctx context.Context, path, carrier, manifest string, opts codesign.VerifyOptions) (*codesign.Report, error) {
+	return verificationMetadata(ctx, path, carrier, manifest, opts, codesign.Verify)
+}
+
+func visitVerificationWithMetadataMap(ctx context.Context, path, carrier, manifest string, opts codesign.VerifyOptions, visitor codesign.ReportVisitor) error {
+	_, err := verificationMetadata(ctx, path, carrier, manifest, opts, func(ctx context.Context, path string, opts codesign.VerifyOptions) (*codesign.Report, error) {
+		return nil, codesign.VisitVerification(ctx, path, opts, visitor)
+	})
+	return err
+}
+
+func verificationMetadata(ctx context.Context, path, carrier, manifest string, opts codesign.VerifyOptions, verify func(context.Context, string, codesign.VerifyOptions) (*codesign.Report, error)) (*codesign.Report, error) {
 	if manifest != "" {
 		var err error
 		opts.AppleDoubleFiles, err = readSidebandManifest(ctx, manifest)
@@ -35,7 +46,7 @@ func verifyWithMetadataMap(ctx context.Context, path, carrier, manifest string, 
 		}
 		opts.AppleDouble = io.NewSectionReader(f, 0, st.Size())
 	}
-	return codesign.Verify(ctx, path, opts)
+	return verify(ctx, path, opts)
 }
 
 // A manifest is a JSON object mapping object paths to carrier paths. Carrier

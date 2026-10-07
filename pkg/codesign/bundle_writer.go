@@ -20,6 +20,7 @@ type preparedBundleExecutable struct {
 	original    os.FileInfo
 	staged      os.FileInfo
 	replacement *bundleReplacement
+	compression uint32
 }
 
 // Keep the source descriptor through the SDK's deferred metadata restoration.
@@ -387,6 +388,9 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 	if err := root.Rename(p.replacement.Path, p.write.name); err != nil {
 		return err
 	}
+	if err := recompressNativeRoot(ctx, root, p.write.name, p.compression); err != nil {
+		return err
+	}
 	if p.write.cleanup != bundleCleanupNone {
 		if err := p.write.bundle.purgeSignatureFiles(ctx, p.write.cleanup == bundleCleanupKeepResources); err != nil {
 			return err
@@ -444,6 +448,10 @@ func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result
 	}
 	if err := p.replacement.RestoreMetadataContext(ctx); err != nil {
 		return fmt.Errorf("restore staged executable metadata: %w", err)
+	}
+	p.compression, err = captureCompression(ctx, p.replacement.source)
+	if err != nil {
+		return err
 	}
 	if err := ctx.Err(); err != nil {
 		return err

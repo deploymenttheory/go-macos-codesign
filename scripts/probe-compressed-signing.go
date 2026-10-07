@@ -77,9 +77,62 @@ type result struct {
 	SDKError     string `json:"sdk_error"`
 }
 
+type volumeObservation struct {
+	Filesystem   string `json:"filesystem"`
+	Flags        uint32 `json:"flags"`
+	CProtectMask uint32 `json:"cprotect_mask"`
+}
+
+// Select from independent input observations, never from the produced storage
+// or a comparison that happens to pass. Both builds occur on different volumes.
+func compressedProfile(build string, volume volumeObservation) (string, error) {
+	if build != "26A428" && build != "26A434" {
+		return "", fmt.Errorf("unqualified native compression build: %s", build)
+	}
+	if volume.Filesystem != "apfs" || volume.CProtectMask != 0x80 {
+		return "", fmt.Errorf("unqualified native compression volume: %+v", volume)
+	}
+	if volume.Flags&volume.CProtectMask != 0 {
+		return "compressed-signing-26A434.json", nil
+	}
+	return "compressed-signing.json", nil
+}
+
+type astNode struct {
+	Kind, Name string
+	Inner      []astNode
+}
+
+func volumeAST(dir string) map[string]map[string]int {
+	sdk := strings.TrimSpace(string(checked("xcrun", "--show-sdk-path")))
+	result := map[string]map[string]int{}
+	for _, target := range []string{"arm64-apple-macos27", "x86_64-apple-macos27"} {
+		raw := checked("xcrun", "clang", "-std=c11", "-Wall", "-Wextra", "-Werror", "-target", target, "-isysroot", sdk,
+			"-Xclang", "-ast-dump=json", "-Xclang", "-ast-dump-filter=observe_volume", "-fsyntax-only", "testdata/research/compressed-signing.c")
+		var node astNode
+		must(json.Unmarshal(raw, &node))
+		if node.Kind != "FunctionDecl" || node.Name != "observe_volume" {
+			panic("missing native volume probe body")
+		}
+		counts := map[string]int{}
+		var walk func(astNode)
+		walk = func(n astNode) {
+			counts[n.Kind]++
+			for _, child := range n.Inner {
+				walk(child)
+			}
+		}
+		walk(node)
+		result[target] = counts
+		must(os.WriteFile(filepath.Join(dir, "volume-"+target+".json"), raw, 0600))
+	}
+	return result
+}
+
 func main() {
 	out := flag.String("out", "artifacts/compressed-signing.json", "capture output")
 	check := flag.Bool("check", false, "compare all cases with committed native observations")
+	parent := flag.String("parent", "", "existing volume directory for native fixtures; empty uses os.TempDir")
 	flag.Parse()
 	if *check {
 		destination, err := filepath.Abs(*out)
@@ -92,7 +145,7 @@ func main() {
 			}
 		}
 	}
-	dir, err := os.MkdirTemp("", "codesign-compressed-")
+	dir, err := os.MkdirTemp(*parent, "codesign-compressed-")
 	must(err)
 	defer os.RemoveAll(dir)
 	var module struct{ Dir, Version, Sum string }
@@ -122,6 +175,13 @@ func main() {
 		return s
 	}
 	checked("clang", "-Wall", "-Wextra", "testdata/research/compressed-signing.c", "-o", filepath.Join(dir, "observe"))
+	var volume volumeObservation
+	must(json.Unmarshal(checked(filepath.Join(dir, "observe"), "--volume", dir), &volume))
+	build := strings.TrimSpace(string(checked("sw_vers", "-buildVersion")))
+	profile, err := compressedProfile(build, volume)
+	must(err)
+	ast := volumeAST(dir)
+	fmt.Printf("native context: build=%s volume=%+v profile=%s\n", build, volume, profile)
 	var cases []result
 	for _, shape := range []string{"standalone", "bundle"} {
 		for _, operation := range []string{"sign", "resign", "dryrun", "remove"} {
@@ -137,6 +197,11 @@ func main() {
 					must(os.WriteFile(filepath.Join(operand, "Contents/Info.plist"), []byte(`<?xml version="1.0"?><plist version="1.0"><dict><key>CFBundleExecutable</key><string>hello</string><key>CFBundleIdentifier</key><string>org.example.compression</string><key>CFBundlePackageType</key><string>APPL</string></dict></plist>`), 0644))
 				}
 				must(os.WriteFile(executable, read("testdata/removal/unsigned-arm64.macho"), 0755))
+				var observed volumeObservation
+				must(json.Unmarshal(checked(filepath.Join(dir, "observe"), "--volume", executable), &observed))
+				if observed != volume {
+					panic("fixture volume differs from selected capture context")
+				}
 				if operation == "resign" || operation == "remove" {
 					checked("/usr/bin/codesign", "-s", "-", "-i", "org.example.compression", "--timestamp=none", operand)
 				}
@@ -201,7 +266,7 @@ func main() {
 	for _, p := range []string{"scripts/probe-compressed-signing.go", "testdata/research/compressed-signing.c", "testdata/removal/unsigned-arm64.macho", "go.mod", "go.sum", "/usr/bin/codesign"} {
 		sources[p] = hash(read(p))
 	}
-	capture := map[string]any{"schema": 1, "source_sha256": sources, "sdk": module.Version, "sdk_sum": module.Sum, "native_producer_sha256": hash(read(cSource)), "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c", "host": string(checked("sw_vers")), "cases": cases}
+	capture := map[string]any{"schema": 2, "source_sha256": sources, "sdk": module.Version, "sdk_sum": module.Sum, "native_producer_sha256": hash(read(cSource)), "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c", "host": string(checked("sw_vers")), "volume": volume, "volume_ast": ast, "profile": profile, "cases": cases}
 	b, err := json.MarshalIndent(capture, "", "  ")
 	must(err)
 	// Retain the complete fresh observation even when comparison fails, so CI
@@ -209,20 +274,21 @@ func main() {
 	must(os.MkdirAll(filepath.Dir(*out), 0755))
 	must(os.WriteFile(*out, append(b, '\n'), 0644))
 	if *check {
-		build := strings.TrimSpace(string(checked("sw_vers", "-buildVersion")))
-		profiles := map[string]string{"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}
-		profile, ok := profiles[build]
-		if !ok {
-			panic("unqualified native compression build: " + build)
-		}
 		var baseline struct {
-			Cases    []result          `json:"cases"`
-			Sources  map[string]string `json:"source_sha256"`
-			SDK      string            `json:"sdk"`
-			SDKSum   string            `json:"sdk_sum"`
-			Producer string            `json:"native_producer_sha256"`
+			Schema   int                       `json:"schema"`
+			Profile  string                    `json:"profile"`
+			Volume   volumeObservation         `json:"volume"`
+			AST      map[string]map[string]int `json:"volume_ast"`
+			Cases    []result                  `json:"cases"`
+			Sources  map[string]string         `json:"source_sha256"`
+			SDK      string                    `json:"sdk"`
+			SDKSum   string                    `json:"sdk_sum"`
+			Producer string                    `json:"native_producer_sha256"`
 		}
 		must(json.Unmarshal(read(filepath.Join("testdata/research", profile)), &baseline))
+		if baseline.Schema != 2 || baseline.Profile != profile || baseline.Volume.Filesystem != volume.Filesystem || baseline.Volume.CProtectMask != volume.CProtectMask || baseline.Volume.Flags&volume.CProtectMask != volume.Flags&volume.CProtectMask || !reflect.DeepEqual(ast, baseline.AST) {
+			panic("native compression volume/AST profile changed")
+		}
 		if !reflect.DeepEqual(sources, baseline.Sources) || module.Version != baseline.SDK || module.Sum != baseline.SDKSum || hash(read(cSource)) != baseline.Producer {
 			panic("stale compressed lifecycle provenance; recapture with the pinned dependency")
 		}

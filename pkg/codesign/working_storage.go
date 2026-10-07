@@ -24,11 +24,19 @@ type WorkingStorageOptions struct {
 
 // WorkingStorageStats measures reservations, not process heap or resident memory.
 // SpillBytes is the high-water extent of the single operation-owned spill file.
+// TemporaryBytes measures logical scratch-file extents, not allocated disk blocks.
+// TemporaryFiles and TemporaryBytes include spill and recompression staging;
+// unsuccessful removals remain counted after cleanup. Replacement outputs and
+// caller-owned files are not included in these scratch counters.
 type WorkingStorageStats struct {
-	PeakMemoryBytes int64
-	MemoryBytes     int64
-	SpillBytes      int64
-	SpillFiles      int
+	PeakMemoryBytes    int64
+	MemoryBytes        int64
+	SpillBytes         int64
+	SpillFiles         int
+	TemporaryBytes     int64
+	PeakTemporaryBytes int64
+	TemporaryFiles     int
+	PeakTemporaryFiles int
 }
 
 type storageOptionsKey struct{}
@@ -58,6 +66,19 @@ type workingStorage struct {
 	closed  bool
 	create  func(string, string) (scratchFile, error)
 	remove  func(string) error
+	stages  map[*compressionStage]struct{}
+}
+
+// Caller holds mu. A successful file creation owns one scratch name until its
+// removal succeeds. These counters describe storage, independently of memory.
+func (s *workingStorage) addTemporaryFile() {
+	s.stats.TemporaryFiles++
+	s.stats.PeakTemporaryFiles = max(s.stats.PeakTemporaryFiles, s.stats.TemporaryFiles)
+}
+
+func (s *workingStorage) growTemporary(n int64) {
+	s.stats.TemporaryBytes += n
+	s.stats.PeakTemporaryBytes = max(s.stats.PeakTemporaryBytes, s.stats.TemporaryBytes)
 }
 
 func beginWorkingStorage(ctx context.Context) (context.Context, *workingStorage, error) {
@@ -195,6 +216,9 @@ func newWorkingSection(ctx context.Context, size int64) (workingSection, error) 
 	if size > math.MaxInt64-s.stats.SpillBytes {
 		return workingSection{}, malformed("spill extent overflow")
 	}
+	if size > math.MaxInt64-s.stats.TemporaryBytes {
+		return workingSection{}, malformed("temporary extent overflow")
+	}
 	if s.file == nil {
 		file, err := s.create(s.options.TemporaryDirectory, "macoscodesign-work-*")
 		if err != nil {
@@ -202,12 +226,14 @@ func newWorkingSection(ctx context.Context, size int64) (workingSection, error) 
 		}
 		s.file = file
 		s.stats.SpillFiles++
+		s.addTemporaryFile()
 	}
 	base := s.stats.SpillBytes
 	if err := s.file.Truncate(base + size); err != nil {
 		return workingSection{}, err
 	}
 	s.stats.SpillBytes += size
+	s.growTemporary(size)
 	return workingSection{reader: s.file, writer: s.file, base: base, size: size}, nil
 }
 
@@ -222,12 +248,30 @@ func (s *workingStorage) Close() error {
 	}
 	s.closed = true
 	close(s.changed)
+	stages := make([]*compressionStage, 0, len(s.stages))
+	for stage := range s.stages {
+		stages = append(stages, stage)
+	}
+	s.mu.Unlock()
 	var err error
+	// A stage normally closes at the end of its compression operation. Retain
+	// scope ownership as a cleanup backstop for an interrupted caller too.
+	for _, stage := range stages {
+		err = errors.Join(err, stage.Close())
+	}
 	if s.file != nil {
-		err = errors.Join(s.file.Close(), s.remove(s.file.Name()))
+		closeErr, removeErr := s.file.Close(), s.remove(s.file.Name())
+		err = errors.Join(err, closeErr, removeErr)
+		if removeErr == nil {
+			s.mu.Lock()
+			s.stats.TemporaryFiles--
+			s.stats.TemporaryBytes -= s.stats.SpillBytes
+			s.mu.Unlock()
+		}
 	}
 	// Closing is an operation boundary after all workers have joined. Memory
 	// section references must no longer escape through an output plan.
+	s.mu.Lock()
 	s.stats.MemoryBytes = 0
 	stats := s.stats
 	s.mu.Unlock()

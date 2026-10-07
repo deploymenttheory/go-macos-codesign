@@ -144,6 +144,18 @@ class EvidenceTests(unittest.TestCase):
                     self.inspect()
         e.write_json(p, original)
 
+    def test_same_codesign_binary_does_not_allow_mixed_macos_builds(self):
+        expected = dict(self.prov, macos="27.0 26A428", codesign_sha256="same-binary")
+        for part in e.PARTS:
+            path = self.inputs / part / "receipt.json"
+            receipt = e.load(path)
+            receipt["provenance"] = dict(expected)
+            if part == "unit":
+                receipt["provenance"]["macos"] = "27.0.1 26A434"
+            e.write_json(path, receipt)
+        with self.assertRaisesRegex(ValueError, r"unit; differing fields: \['macos'\]"):
+            e.inspect_shards(self.inputs, self.plan, expected)
+
     def test_missing_extra_or_changed_artifacts_fail(self):
         p = self.inputs / "1/coverage.out"
         original = p.read_bytes()

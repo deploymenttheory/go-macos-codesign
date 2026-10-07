@@ -27,22 +27,34 @@ in the production statement denominator. New production packages enter the gate
 automatically through `go list`.
 
 The acceptance test deadline is thirty minutes. Producer worker budgets remain
-45 minutes on Windows and 35 minutes on Linux/macOS. CI now runs one unit worker
-and four acceptance workers per OS, then a required within-OS coverage/evidence
-aggregation job. Whole test matrices, assertions and native controls are retained.
+45 minutes on Windows and 35 minutes on Linux/macOS. Each OS runs one unit shard
+and four acceptance shards, then requires coverage/evidence aggregation. Linux
+and Windows use separate workers. macOS runs all five shards and aggregation on
+one runner: the `xcode-27` pool can contain different OS builds during an image
+rollout, and evidence from different builds must not be combined. Each macOS
+shard retains its 35-minute step limit; the enclosing job allows 190 minutes for
+the five shards and aggregation. Whole test matrices, assertions and native
+controls are retained.
 See the [phase 01 evidence contract](research-phase.md#required-evidence-partitioning)
 for pinned nested-case manifests, missing/duplicate/cancelled-shard rejection,
 four package race workers and four groups retaining all thirteen sixty-second
 fuzz targets. GoReleaser still produces all six release targets.
 
 The following file table describes the monolithic local `make verify` path.
-CI retains raw transcripts in `evidence-shard-<runner>-<part>` and merged coverage,
+CI retains Linux/Windows raw transcripts in `evidence-shard-<runner>-<part>` and
+all five macOS shard trees in `evidence-shards-xcode-27` (`shards.tar`). Merged coverage,
 attestations, provenance and completion records in `evidence-<runner>`. Each contains
 `evidence.tar`, preserving native filenames that artifact storage cannot accept as
 loose files; extract it on the producing OS to inspect the original tree. Failed
 workers still upload their raw logs and source provenance; Mac failure diagnostics
 have a separate artifact. Both foreign exports carry a producer manifest checked
 before Apple's unchanged case-by-case import suite.
+
+Native capture has five required groups: signatures, storage, plist, legacy and
+ISO-2022. Each keeps the 35-minute job limit. The 36 original probe commands are
+pinned in `spec/ci-native-capture-plan.json`; harness tests reject dropped probes,
+changed commands, optional failures and missing group assignments. Both foreign
+verification jobs require all capture groups and all three OS evidence gates.
 
 The resulting files under `artifacts/` include:
 

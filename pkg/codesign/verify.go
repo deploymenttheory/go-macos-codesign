@@ -80,17 +80,14 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	if sig == nil {
 		return nil, ErrUnsigned
 	}
-	cms := sig.find(SlotCMS)
+	cms, err := sig.componentBytes(SlotCMS)
+	if err != nil {
+		return nil, err
+	}
 	if len(cms) <= 8 {
 		return nil, nil
 	}
-	dirs := [][]byte{sig.find(SlotDirectory)}
-	for slot := uint32(0x1000); slot < 0x1005; slot++ {
-		if cd := sig.find(slot); cd != nil {
-			dirs = append(dirs, cd)
-		}
-	}
-	info, err := VerifyCMS(cms[8:], dirs)
+	info, err := sig.verifyCMS(cms[8:])
 	if err != nil {
 		return nil, err
 	}
@@ -200,17 +197,12 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 			return r, verificationFailure(ErrUnsigned.Error(), ErrUnsigned)
 		}
 		var signer []byte
-		cms := a.Signature.find(SlotCMS)
+		cms, err := a.Signature.componentBytes(SlotCMS)
+		if err != nil {
+			return r, err
+		}
 		if len(cms) > 8 {
-			var directories [][]byte
-			// The primary is defined by its slot, not by index-table order.
-			directories = append(directories, a.Signature.find(SlotDirectory))
-			for slot := uint32(0x1000); slot < 0x1005; slot++ {
-				if cd := a.Signature.find(slot); cd != nil {
-					directories = append(directories, cd)
-				}
-			}
-			info, err := VerifyCMS(cms[8:], directories)
+			info, err := a.Signature.verifyCMS(cms[8:])
 			if err != nil {
 				return r, err
 			}
@@ -286,7 +278,11 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 					return r, err
 				}
 				p := uint64(d.HashOffset) + uint64(i)*uint64(d.HashSize)
-				if !bytes.Equal(h, d.Raw[p:p+uint64(d.HashSize)]) {
+				want, err := d.hashAt(p)
+				if err != nil {
+					return r, err
+				}
+				if !bytes.Equal(h, want) {
 					return r, verificationFailure(signatureDiagnostic, invalid("%s: code page %d", a.Name, i))
 				}
 			}
@@ -297,19 +293,38 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 					continue
 				}
 				p := uint64(d.HashOffset) - uint64(slot)*uint64(d.HashSize)
-				want := d.Raw[p : p+uint64(d.HashSize)]
-				payload := a.Signature.find(slot)
+				want, err := d.hashAt(p)
+				if err != nil {
+					return r, err
+				}
+				var payload []byte
+				external := false
 				if slot == SlotInfo {
 					payload = opts.InfoPlist
+					external = true
 				}
 				if slot == SlotResources {
 					payload = opts.Resources
+					external = true
 				}
 				if slot == SlotRepSpecific && len(r.repSpecific) > 0 {
 					payload = r.repSpecific
+					external = true
+				}
+				var h []byte
+				present := len(payload) > 0
+				if external {
+					if present {
+						h, err = digestContext(ctx, d.HashType, payload)
+					}
+				} else {
+					h, present, err = a.Signature.componentDigest(ctx, slot, d.HashType)
+				}
+				if err != nil {
+					return r, err
 				}
 				zero := bytes.Equal(want, make([]byte, d.HashSize))
-				if len(payload) == 0 {
+				if !present {
 					if zero {
 						continue
 					}
@@ -317,10 +332,6 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 						return r, slotVerificationFailure(slot, unsupported(fmt.Sprintf("external data for special slot %d is required", slot)))
 					}
 					return r, slotVerificationFailure(slot, invalid("missing special slot %d", slot))
-				}
-				h, err := digestContext(ctx, d.HashType, payload)
-				if err != nil {
-					return r, err
 				}
 				if !bytes.Equal(h, want) {
 					return r, slotVerificationFailure(slot, invalid("special slot %d", slot))
@@ -332,7 +343,11 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 			if len(signer) == 0 && d.Flags&FlagAdhoc == 0 {
 				return r, invalid("missing certificate signature")
 			}
-			if set := a.Signature.find(SlotRequirements); len(set) != 0 {
+			set, err := a.Signature.componentBytes(SlotRequirements)
+			if err != nil {
+				return r, err
+			}
+			if len(set) != 0 {
 				if err := validateRequirements(set); err != nil {
 					return r, err
 				}

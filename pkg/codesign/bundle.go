@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
@@ -491,6 +492,7 @@ func inspectBundle(ctx context.Context, path string, opts PathOptions) (report *
 		return nil, err
 	}
 	defer func() {
+		failure = consumeReport(ctx, report, failure)
 		failure = errors.Join(failure, b.close())
 		if failure != nil && report != nil {
 			report.Valid = false
@@ -518,6 +520,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (report 
 		return nil, err
 	}
 	defer func() {
+		failure = consumeReport(ctx, report, failure)
 		failure = errors.Join(failure, b.close())
 		if failure != nil && report != nil {
 			report.Valid = false
@@ -689,11 +692,25 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	} else if !st.Mode().IsRegular() {
 		return unsupported("writing non-regular bundle file")
 	}
+	var kind uint32
+	if preserve, _ := ctx.Value(preserveCompressionKey{}).(bool); preserve && st != nil {
+		info, queryErr := hostdata.QueryCompressionNoFollow(ctx, filepath.Join(b.root.Name(), name), st, 64<<10)
+		if errors.Is(queryErr, hostdata.ErrMetadataIdentity) {
+			return queryErr
+		}
+		if queryErr == nil && info.StoredSize > 0 {
+			kind = info.Type
+		}
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	f, err := b.root.OpenFile(name, flags, 0644)
 	if err != nil {
 		return err
 	}
-	defer func() { result = errors.Join(result, f.Close()) }()
+	closer := operationCloser{f.Close}
+	defer func() { result = errors.Join(result, closer.Close()) }()
 	current, err := f.Stat()
 	if err != nil {
 		return err
@@ -701,7 +718,13 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	if st != nil && !os.SameFile(st, current) {
 		return fmt.Errorf("bundle write target changed")
 	}
-	return populateOutput(ctx, f, byteOutput(data), nil)
+	if err := populateOutput(ctx, f, byteOutput(data), nil); err != nil {
+		return err
+	}
+	if err := closer.Close(); err != nil {
+		return err
+	}
+	return recompressNativeRoot(ctx, b.root, name, kind)
 }
 
 func removeBundle(ctx context.Context, path string, opts RemoveOptions) (failure error) {

@@ -24,6 +24,7 @@ type signatureView struct {
 	directoryCount int
 }
 type directoryView struct {
+	slot             uint32
 	metadata         Directory
 	source           codeSource
 	identifier, team viewString
@@ -91,6 +92,7 @@ func parseSignatureView(source codeSource, allowUnsigned bool) (*signatureView, 
 				return nil, err
 			}
 			v.directories[v.directoryCount] = d
+			v.directories[v.directoryCount].slot = slot
 			v.directoryCount++
 		}
 		if !overlap {
@@ -117,6 +119,49 @@ func parseSignatureView(source codeSource, allowUnsigned bool) (*signatureView, 
 		return nil, malformed("missing primary CodeDirectory")
 	}
 	return v, nil
+}
+
+func (v *signatureView) component(slot uint32) (codeSource, bool, error) {
+	i, found, err := v.slots.find(slot)
+	if err != nil || !found {
+		return codeSource{}, found, err
+	}
+	entry, err := v.source.read(12+uint64(i)*8, 8)
+	if err != nil {
+		return codeSource{}, false, err
+	}
+	offset := uint64(be.Uint32(entry[4:]))
+	if be.Uint32(entry) != slot || !rangeOK(offset, 8, uint64(v.length)) {
+		return codeSource{}, false, malformed("signature index changed while reading")
+	}
+	header, err := v.source.read(offset, 8)
+	if err != nil {
+		return codeSource{}, false, err
+	}
+	length := uint64(be.Uint32(header[4:]))
+	if length < 8 || !rangeOK(offset, length, uint64(v.length)) {
+		return codeSource{}, false, malformed("signature component changed while reading")
+	}
+	return codeSource{v.source.ctx, outputSource{v.source.source.reader, v.source.source.offset + int64(offset), int64(length)}}, true, nil
+}
+
+func (v *signatureView) report() (*Signature, error) {
+	s := &Signature{Length: v.length, view: v}
+	for i := 0; i < v.directoryCount; i++ {
+		view := &v.directories[i]
+		d := view.metadata
+		identifier, err := view.source.read(view.identifier.offset, view.identifier.length)
+		if err != nil {
+			return nil, err
+		}
+		team, err := view.source.read(view.team.offset, view.team.length)
+		if err != nil {
+			return nil, err
+		}
+		d.Identifier, d.TeamID, d.view = string(identifier), string(team), view
+		s.Directories = append(s.Directories, d)
+	}
+	return s, nil
 }
 
 // Consume every component byte before interpreting it, matching the old owned

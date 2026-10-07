@@ -98,10 +98,24 @@ def validate_filesystem_history(plan):
                 "Lost historical HFS+ failure")
 
 
-def validate_compressed_profile(capture, build, version, checksum, producer):
-    require(capture["schema"] == 1, "Unexpected compressed profile schema")
-    require(re.search(r"BuildVersion:\s*" + re.escape(build) + r"\s*$", capture["host"]),
+COMPRESSION_PROFILES = {"compressed-signing.json": False, "compressed-signing-26A434.json": True}
+
+
+def validate_compressed_profile(capture, profile, version, checksum, producer):
+    require(capture["schema"] == 2, "Unexpected compressed profile schema")
+    require(re.search(r"BuildVersion:\s*(26A428|26A434)\s*$", capture["host"]),
             "Wrong compressed profile host")
+    require(profile in COMPRESSION_PROFILES and capture["profile"] == profile, "Wrong compressed volume profile")
+    volume = capture["volume"]
+    require(volume["filesystem"] == "apfs" and volume["cprotect_mask"] == 0x80 and
+            type(volume["flags"]) is int and 0 <= volume["flags"] <= 0xffffffff,
+            "Missing independent compression volume observation")
+    require(bool(volume["flags"] & volume["cprotect_mask"]) == COMPRESSION_PROFILES[profile],
+            "Wrong observed compression mount policy")
+    require(set(capture["volume_ast"]) == {"arm64-apple-macos27", "x86_64-apple-macos27"},
+            "Missing compiled volume probe target")
+    require(all(n.get("CallExpr", 0) >= 7 and n.get("CompoundStmt", 0) for n in capture["volume_ast"].values()),
+            "Missing complete native volume probe body")
     paths = {"scripts/probe-compressed-signing.go", "testdata/research/compressed-signing.c",
              "testdata/removal/unsigned-arm64.macho", "go.mod", "go.sum"}
     require(set(capture["source_sha256"]) == paths | {"/usr/bin/codesign"}, "Missing compressed provenance")
@@ -116,6 +130,23 @@ def validate_compressed_profile(capture, build, version, checksum, producer):
     require(len(cases) == 16 and {(c["shape"], c["operation"], c["preserve"]) for c in cases} == expected,
             "Incomplete compressed cases")
     require(all(c["exit"] == 0 and c["sdk_error"] == "" for c in cases), "Compressed lifecycle regression")
+
+
+def validate_compressed_history(plan):
+    history = plan["apfs_audit"]["compression_history"]
+    expected = {"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}
+    require(len(history) == 2 and {h["build"] for h in history} == set(expected), "Missing compression history")
+    for item in history:
+        require(item["path"] == "testdata/research/history/compressed-signing-" + item["build"] + ".json",
+                "Wrong compression history path")
+        require(sha(ROOT / item["path"]) == item["sha256"], "Changed historical compression capture")
+        capture = read(item["path"])
+        require(capture["schema"] == 1 and re.search(r"BuildVersion:\s*" + re.escape(item["build"]) + r"\s*$", capture["host"]),
+                "Changed historical compression host")
+        require(capture["sdk"] == item["version"] and capture["sdk_sum"] == item["sum"], "Changed historical compression SDK")
+        current = read("testdata/research/" + expected[item["build"]])
+        require(len(capture["cases"]) == 16 and capture["cases"] == current["cases"],
+                "Lost or changed retained compression observations")
 
 
 def validate_large_source(large, inventory):
@@ -270,8 +301,9 @@ def main():
     require(process["codesign_sha256"] == inventory["baseline"]["codesign_sha256"], "Unexpected native binary")
     module = json.loads(subprocess.check_output(["go", "list", "-m", "-json", plan["apfs_audit"]["module"]], cwd=ROOT, text=True))
     require(module["Version"] == plan["apfs_audit"]["version"] and module["Sum"] == plan["apfs_audit"]["sum"], "Stale released APFS audit")
-    for build, filename in {"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}.items():
-        validate_compressed_profile(read("testdata/research/" + filename), build, module["Version"], module["Sum"],
+    validate_compressed_history(plan)
+    for filename in COMPRESSION_PROFILES:
+        validate_compressed_profile(read("testdata/research/" + filename), filename, module["Version"], module["Sum"],
                                     sha(Path(module["Dir"]) / "testdata/appledouble/native/decmpfs-formats.c"))
     for api in plan["apfs_audit"]["apis"]:
         require(sha(Path(module["Dir"]) / api["path"]) == api["sha256"], "Changed APFS API evidence")

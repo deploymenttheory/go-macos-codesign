@@ -23,7 +23,9 @@ class ResearchTests(unittest.TestCase):
         # Exercise Git's real Windows checkout conversion without normalizing
         # bytes in the provenance checker or modifying the working tree.
         capture = research.read("testdata/research/compressed-signing.json")
-        paths = sorted(p for p in capture["source_sha256"] if not p.startswith("/"))
+        cms = research.read("testdata/research/signature-metadata-cms.json")
+        paths = sorted(p for p in set(capture["source_sha256"]) | set(cms["Sources"])
+                       if not p.startswith("/"))
         with tempfile.TemporaryDirectory() as directory:
             subprocess.run(["git", "-c", "core.autocrlf=true", "checkout-index",
                             "--prefix=" + Path(directory).as_posix() + "/", "--", *paths],
@@ -66,11 +68,11 @@ class ResearchTests(unittest.TestCase):
         research.validate_large_source(research.read("testdata/research/large-source.json"), self.inventory)
 
     def test_compressed_profile_provenance(self):
-        for build, filename in {"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}.items():
+        for filename in research.COMPRESSION_PROFILES:
             original = research.read("testdata/research/" + filename)
             audit = self.plan["apfs_audit"]
             def check(capture):
-                research.validate_compressed_profile(capture, build, audit["version"], audit["sum"],
+                research.validate_compressed_profile(capture, filename, audit["version"], audit["sum"],
                                                     original["native_producer_sha256"])
             check(original)
             mutations = [lambda c: c["source_sha256"].__setitem__("go.mod", "0" * 64),
@@ -79,14 +81,38 @@ class ResearchTests(unittest.TestCase):
                          lambda c: c.__setitem__("sdk_sum", "stale"),
                          lambda c: c.__setitem__("native_producer_sha256", "0" * 64),
                          lambda c: c.__setitem__("host", "other host"),
+                         lambda c: c.__setitem__("profile", "unknown"),
+                         lambda c: c["volume"].__setitem__("filesystem", "hfs"),
+                         lambda c: c["volume"].__setitem__("flags", c["volume"]["flags"] ^ 0x80),
+                         lambda c: c["volume"].__setitem__("cprotect_mask", 0),
+                         lambda c: c["volume_ast"].pop("arm64-apple-macos27"),
+                         lambda c: c["volume_ast"]["arm64-apple-macos27"].__setitem__("CallExpr", 0),
                          lambda c: c["cases"].pop(),
                          lambda c: c["cases"].__setitem__(0, c["cases"][1]),
                          lambda c: c["cases"][0].__setitem__("sdk_error", "failed")]
             for i, mutate in enumerate(mutations):
-                with self.subTest(build=build, mutation=i), self.assertRaises(ValueError):
+                with self.subTest(profile=filename, mutation=i), self.assertRaises(ValueError):
                     changed = copy.deepcopy(original)
                     mutate(changed)
                     check(changed)
+
+    def test_compressed_history(self):
+        research.validate_compressed_history(self.plan)
+        for mutation in ("missing", "hash", "sdk"):
+            changed = copy.deepcopy(self.plan)
+            history = changed["apfs_audit"]["compression_history"]
+            if mutation == "missing":
+                history.pop()
+            elif mutation == "hash":
+                history[0]["sha256"] = "0" * 64
+            else:
+                history[0]["version"] = "stale"
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                research.validate_compressed_history(changed)
+
+    def test_compressed_mount_selection(self):
+        subprocess.run(["go", "test", "scripts/probe-compressed-signing.go",
+                        "scripts/probe-compressed-signing_test.go"], cwd=research.ROOT, check=True)
 
     def test_large_macho_capture(self):
         research.validate_large_macho(research.read("testdata/research/large-macho.json"), self.inventory)

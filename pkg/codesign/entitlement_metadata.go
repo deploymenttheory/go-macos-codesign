@@ -31,9 +31,17 @@ func InspectEntitlements(signature *Signature) (*EntitlementMetadata, error) {
 	if signature == nil {
 		return nil, ErrUnsigned
 	}
-	data, slot, magic := signature.find(SlotDEREntitlements), SlotDEREntitlements, MagicDEREntitlements
+	data, err := signature.componentBytes(SlotDEREntitlements)
+	slot, magic := SlotDEREntitlements, MagicDEREntitlements
+	if err != nil {
+		return nil, err
+	}
 	if data == nil {
-		data, slot, magic = signature.find(SlotEntitlements), SlotEntitlements, MagicEntitlements
+		data, err = signature.componentBytes(SlotEntitlements)
+		slot, magic = SlotEntitlements, MagicEntitlements
+		if err != nil {
+			return nil, err
+		}
 	}
 	if data == nil {
 		return nil, nil
@@ -41,15 +49,22 @@ func InspectEntitlements(signature *Signature) (*EntitlementMetadata, error) {
 	if len(signature.Directories) > 1 {
 		return nil, unsupported("entitlement extraction with alternate CodeDirectories")
 	}
-	directory, err := parseDirectory(signature.find(SlotDirectory))
+	directory, err := signature.primaryDirectory()
 	if err != nil {
 		return nil, err
 	}
 	if len(data) < 8 || len(data)-8 > maxBundlePlist || be.Uint32(data) != magic || uint64(be.Uint32(data[4:])) != uint64(len(data)) {
 		return nil, malformed("entitlements blob")
 	}
-	stored := directory.specialSlotHash(slot)
-	if stored == nil || slot == SlotEntitlements && directory.specialSlotHash(SlotDEREntitlements) != nil {
+	stored, err := directory.specialSlotHash(slot)
+	if err != nil {
+		return nil, err
+	}
+	derHash, err := directory.specialSlotHash(SlotDEREntitlements)
+	if err != nil {
+		return nil, err
+	}
+	if stored == nil || slot == SlotEntitlements && derHash != nil {
 		return nil, invalid("entitlements component/hash presence")
 	}
 	actual, _ := digest(directory.HashType, data) // parseDirectory checked the algorithm.

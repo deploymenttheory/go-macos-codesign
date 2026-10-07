@@ -1,9 +1,10 @@
 # APFS integration
 
 During Phase 02, codesign pins merged APFS main commit
-[`8821862a12de`](https://github.com/deploymenttheory/go-apfs-v2/commit/8821862a12deeb1b7976e00c5edcc548cdef120e)
-as `v0.17.3-0.20261005072906-8821862a12de`. This includes PR198's compressed-source
-replacement fix. Upstream releases are batched under the
+[`674c2a3a815b`](https://github.com/deploymenttheory/go-apfs-v2/commit/674c2a3a815b05fc6ce34d9931291ff6a86bd62f)
+as `v0.17.3-0.20261007070340-674c2a3a815b`. This includes PR198's compressed-source
+replacement fix, PR208's shared lifecycle work and PR209's Windows staging error
+classification. Upstream releases are batched under the
 [phase dependency policy](implementation_plan.md); development and CI use the
 same reproducible module version until the batch release is available.
 There is no local APFS replacement or workspace override. Existing replacement,

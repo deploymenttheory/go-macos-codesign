@@ -110,6 +110,10 @@ func replaceSource(ctx context.Context, path string, source *os.File, sourceClos
 	}); err != nil {
 		return err
 	}
+	kind, err := captureCompression(ctx, source)
+	if err != nil {
+		return err
+	}
 	if err := f.Close(); err != nil {
 		return err
 	}
@@ -126,7 +130,10 @@ func replaceSource(ctx context.Context, path string, source *os.File, sourceClos
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("target changed during signing")
 	}
-	return os.Rename(f.Name(), path)
+	if err := os.Rename(f.Name(), path); err != nil {
+		return err
+	}
+	return recompressNativePath(ctx, path, kind)
 }
 
 func overwriteFile(ctx context.Context, path string, data []byte) (result error) {

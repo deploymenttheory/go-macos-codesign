@@ -153,9 +153,10 @@ including real UDIF verification above 4 GiB. [DMG signing](dmg-streaming.md) no
 [Standalone Mach-O signing/removal](macho-streaming.md) now hashes and assembles
 held ranges, then transfers into an SDK replacement. [Bundle paths](bundle-streaming.md)
 now use held executable plans and stream resources without a 1 GiB payload ceiling.
-Operation-wide budgets remain
-outstanding. Metadata/CodeDirectory materialization, CDHash calculation and other
-metadata/CMS hashing still include one-shot paths. Bundle planning reads,
+The managed buffer pool and generated-section spill file share an operation
+scope. Borrowed signature views also hash CodeDirectories and CMS bindings from
+ranges. Complete resource accounting remains outstanding: owned reports,
+remaining parsed metadata and codec allocations still need qualification. Bundle planning reads,
 metadata/close checkpoints outside the shared transfer, source-content races,
 compression policy, asynchronous sibling scheduling and full native failure
 qualification remain in the [roadmap](implementation_plan.md#phase-02).
@@ -163,9 +164,22 @@ qualification remain in the [roadmap](implementation_plan.md#phase-02).
 The agreed Phase 02 architecture replaces these whole-file path operations with
 held-source range parsing, direct range hashing, streamed write plans and spill
 storage. Its initial shared managed-buffer budget is 128 MiB across nested and
-concurrent work. This is a proposed budget to benchmark, not implemented behavior
-or a total-process memory cap. The intended result removes the arbitrary 1 GiB
+concurrent work. The pool implements that initial budget for managed reservations;
+it is not a total-process memory cap or evidence of complete allocation coverage.
+The intended result removes the arbitrary 1 GiB
 file-size ceiling while preserving byte API contracts and native commit effects.
 See the [implementation sequence](implementation_plan.md#pipeline-implementation-sequence)
 for the prerequisite audit, real-file size boundaries, memory measurements and
 mandatory three-OS qualification.
+
+`WorkingStorageStats.TemporaryBytes` and `TemporaryFiles` account for signature
+spill files and private recompression stages. Their peak fields retain maximum
+simultaneous usage. Bytes measure logical extents, including sparse holes, rather
+than physical disk allocation. Partial writes extend counters only through the
+bytes actually written; failed removals remain counted after cleanup. The scope
+owns a cleanup backstop for stages whose callers have not closed them. Independent
+stages and the shared spill retain distinct byte ranges and file ownership.
+
+These scratch counters exclude replacement output files, caller-owned inputs and
+general open descriptors. Those resources, parsed values and queued work remain
+part of the unfinished Phase 02 accounting audit.

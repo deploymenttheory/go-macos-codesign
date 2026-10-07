@@ -1,5 +1,52 @@
 # Held-file inspection and verification
 
+`VisitInspection` and `VisitVerification` consume signature components through
+held ranges while a callback runs. Non-JSON CLI display and verification use
+these scoped APIs. CodeDirectory hash tables and opaque components remain ranges;
+the existing spillable indexes check duplicate slots and overlapping blobs.
+Page and special-slot validation read the required ranges, and certificate
+binding hashes directory ranges directly. The cryptographic and trust policies
+are shared with the owned-byte APIs.
+
+The callback receives the operation error even when no report could be produced,
+and runs exactly once. Its error is joined with operation and subsequent cleanup
+errors. Borrowed reports have no `Signature.Blobs` or `Directory.Raw` arrays;
+use `BlobReader`, `BlobSize`, `ReadBlob` and `Directory.Size` instead. Report
+methods for requirements, entitlements, certificates and file lists work inside
+the callback. Do not retain the borrowed report or its readers after returning.
+An explicit `ReadBlob` requests an owned component allocation; streamed callers
+should prefer `BlobReader`. The existing `Inspect`, `Verify`, byte APIs and JSON
+CLI output continue to return/serialize complete owned component bytes.
+
+[Native metadata evidence](../testdata/research/signature-metadata.json) covers
+twelve dense files with CodeDirectory lengths immediately below, at and above
+64 KiB, 16 MiB, 128 MiB and 1 GiB. Apple's CLI and an independently compiled
+C/SDK probe accept every control. Both Clang targets compile the real SDK calls;
+this records the public API contract, not the private framework implementation.
+The capture retains compiler, SDK-header, oracle-binary, source and complete-file
+hashes. The deterministic recipe extends a native ad-hoc directory with zeros,
+adjusts its container lengths and retains its original page/special-slot bindings.
+
+Every host reconstructs all twelve dense files and compares complete CLI output
+with the capture. Library verification runs each at 64 KiB, 128 MiB and 256 MiB
+working budgets, checks the SDK-observed CDHash, enforces an 8 MiB total Go
+allocation regression bound, and requires scratch cleanup. The local 1 GiB
+directory control used about 164 KiB of total Go allocations with the 64 KiB
+budget. Each budget/case also runs in a fresh test process, recording total Go
+allocations, a sampled heap peak, the OS-reported process peak, elapsed time and
+storage reservations. Unix uses `getrusage`; Windows observes the Go worker's
+`PeakWorkingSet64` through the test harness. The 1 ms heap sampler can miss short
+peaks and is reported separately from the OS measurement. Local macOS process
+peaks were approximately 15–16 MiB for the largest control. Cross-host results
+must establish regression bounds before closure; these measurements cover one
+metadata shape, not concurrent/nested workloads or a measured optimum for the
+default budget. The wider Phase 02 scale matrix remains open.
+
+```sh
+go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json
+go test -count=1 -run '^TestSignatureMetadataBoundaries$' ./acceptance
+```
+
 Standalone `Inspect`/`InspectWithOptions` and `Verify`, including the CLI display
 and verification operations, read supported Mach-O and UDIF representations through
 held file descriptors. They no longer read the entire payload into a byte slice
@@ -85,11 +132,35 @@ Go API measurement. Its small-metadata regression control requires less than
 working set, a general peak-memory result or implementation of the planned shared
 128 MiB budget. It excludes fixture setup and tests a single-page CodeDirectory.
 
+## Certificate-backed directory sizes
+
+Native strict verification and the independent C/SDK probe accept certificate-
+backed CodeDirectories immediately below, at and above 16 MiB. The previous
+16 MiB directory limit in CMS binding was an implementation ceiling, so both
+owned and borrowed CMS binding now accept those directories. Borrowed verification
+hashes their complete ranges within the shared buffer budget. The CMS message
+itself remains a separately parsed object; this change does not remove its
+remaining allocation limits or qualify every CMS shape.
+
+`testdata/research/signature-metadata-cms.json` retains three dense reconstruction
+recipes, complete file hashes, native CLI verification, SDK results and both
+Clang AST targets. Its public RSA fixture signs both Apple hash-agility attributes;
+no keychain or private credentials are used. Every host reconstructs and verifies
+the same bytes with three budgets and isolated process-memory observations.
+The original twelve ad-hoc controls retain their complete display and verification
+comparisons. The additional certificate profile focuses on CMS verification;
+display/date formatting remains covered by the existing certificate suites.
+
+```sh
+go run scripts/probe-signature-metadata.go -certificate -check -out artifacts/signature-metadata-cms.json
+go test ./acceptance -run '^TestCMSMetadataBoundaries$' -count=1 -v
+```
+
 ## Size-limit audit and remaining integration
 
 | Location | Current contract | Remaining Phase 02 work |
 | --- | --- | --- |
-| `source.go` | Standalone read-only payloads use ranges; each materialized metadata read still has the legacy 1 GiB ceiling | Shared accounting, metadata spilling and aggregate/report ownership |
+| `source.go` / `source_report.go` | Scoped inspection and verification borrow signature ranges and spill their indexes; owned report/component reads retain the legacy 1 GiB allocation ceiling | Remaining materialized metadata/CMS limits, full accounting and ownership qualification |
 | `sign.go` / `io.go` | Standalone Mach-O signing/removal use held-source plans and SDK replacement; byte APIs retain complete output buffers | Shared metadata budgets and remaining lifecycle policy |
 | `macho.go` / `macho_commands.go` / `macho_source.go` | Fixed-size load-command summaries, source-range patches and streamed thin/FAT assembly; native 32-bit whole-file mutation limits are distinguished from byte API allocation limits | Large command-region native acceptance, input signature views and dense multi-gigabyte scaling |
 | `dmg.go` / `dmg_source.go` | Path inspection, verification and signing use held ranges; signing writes only the new tail; byte APIs retain memory bounds | Shared metadata budget/spilling and larger page/metadata profiles |
@@ -141,7 +212,9 @@ queued work and handle accounting remain to be integrated and measured. Caller
 input and returned byte/report ownership remain unchanged; those allocations and
 runtime overhead must be measured independently of managed reservations. The
 phase still requires isolated heap/RSS/working-set and temporary-storage controls
-before the default can be described as qualified at scale.
+across payload, nested and concurrent workloads before the default can be
+described as qualified at scale. The dense signature-metadata controls now
+collect isolated process measurements as described above.
 
 Compressed-source replacement uses the merged result of
 [APFS PR #198](https://github.com/deploymenttheory/go-apfs-v2/pull/198), pinned
@@ -149,24 +222,31 @@ to an exact `main` commit during Phase 02. The next upstream release is batched
 under the [phase dependency policy](implementation_plan.md). The
 research-only `scripts/probe-compressed-signing.go` records native standalone
 and bundle sign/re-sign/dry-run/removal outcomes, with and without
-`--preserve-afsc`, in versioned native captures. The macOS 27.0 build 26A428
-profile is `testdata/research/compressed-signing.json`; the macOS 27.0.1 build
-26A434 profile is `compressed-signing-26A434.json`. The former capture stores
-these inputs inline, while the latter uses resource forks. This difference must
-not be attributed to the OS build alone: the host framework checks the held
-file's `fstatfs` flags and suppresses inline storage on `MNT_CPROTECT` volumes.
-The local host volume has that flag; independently created test images can
-permit inline storage on the same OS build. Extend the signing capture with
-explicit volume-policy observations before selecting recompression behavior.
-Each existing profile retains
-its exact native storage bytes and provenance; the recapture selects the host
-build explicitly and rejects an unqualified build. Its sixteen
-cases have dependency/source provenance checked for both retained builds before
-test shards run. When the dependency changes, each build needs a genuine fresh
-capture; updating the local host's profile alone is insufficient. The 26A428
-profile for APFS #209 was recovered from native-capture artifact `11467997498`
-in codesign CI run `37587472210`: its driver/input/module hashes match the
-checkout and all sixteen behavior records match the previous capture.
+`--preserve-afsc`, in versioned native captures. Storage selection depends on
+independently observed volume policy, not the OS build alone. The C observer
+opens each fixture and calls `fstatfs`; its full function compiles for both Clang
+targets. Capture records the filesystem, complete flags and the SDK's
+`MNT_CPROTECT` mask. Every fixture must agree with the enclosing volume observation.
+
+`compressed-signing.json` contains the unprotected APFS profile;
+`compressed-signing-26A434.json` retains its existing filename but represents
+content-protected APFS. Both were genuinely recaptured on macOS 27.0.1 against
+the merged APFS #212 dependency, on a mounted APFS image and the host volume.
+All sixteen cases in each match their previously retained observations exactly.
+The original build-specific captures remain byte-for-byte in
+`testdata/research/history/`, with pinned hashes and original dependency provenance.
+They are historical observations, not newly executed tests of the old build.
+
+Fresh comparison selects a profile from the independently observed APFS
+`MNT_CPROTECT` flag, before examining outcomes. Known build, source, module,
+producer, native binary and both AST checks remain mandatory. Unqualified context
+fails explicitly. Updating a dependency requires genuine recapture of both volume
+profiles. CI checks both retained profiles and their complete historical case
+sets, then freshly recaptures the runner's actual context; matching whichever
+output happens to pass is never a selection rule. Use `-parent` to place fixtures
+on an explicitly mounted test volume. The runner upgrade to `26A434` exposed why
+a build-only selector was incorrect: its unprotected APFS volume still produced
+the inline representation recorded on `26A428`.
 The sixteen
 cases originally exposed the v0.17.2 staging rejection, retained in
 `compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK

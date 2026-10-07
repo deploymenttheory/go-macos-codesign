@@ -196,6 +196,19 @@ file-size constant as a substitute for this architecture.
 
 ### Pipeline implementation sequence
 
+The completion branch starts from merged PR #105. Its working acceptance ledger
+below is deliberately narrower than phase closure; all unchecked requirements
+in this phase still apply.
+
+| Deliverable | Current completion work | Remaining exit evidence |
+| --- | --- | --- |
+| Borrowed inspection and verification | Scoped reports, range-backed directory hashes/CMS binding, non-JSON CLI integration, callback lifetime/error tests | Final three-host CI; remaining materialized CMS, string and owned-report allocation audit |
+| Large signature metadata | Twelve ad-hoc native controls around 64 KiB/16 MiB/128 MiB/1 GiB plus three certificate-backed controls across the former CMS directory ceiling; dense reconstruction, three-budget replay and fresh-process memory observations | Final three-host CI; measured cross-host regression bounds, additional metadata shapes and concurrent/nested measurements |
+| Shared resource accounting | Memory reservation pool; shared spill/recompression scratch extent and file counters with cleanup ownership | Replacement-output storage, general handles, codec/parsed allocations, queued work and complete failure qualification |
+| Lifecycle and scheduling | Existing cancellable transfer and APFS preparation/restoration | Remaining discovery/planning/cleanup/commit checkpoints, asynchronous sibling and single-threaded behavior |
+| Compression and release profiles | Native signing/re-signing commit integration; 24 preservation comparisons plus 24 retained replacement controls; 30 envelope cases and 108 mounted APFS/HFS+ cases pass against merged APFS #212; portable admission/cancellation policy tests | Final consumer CI; explicit foreign carrier integration, remaining authorization/failure matrix and macOS 15/26/27 qualification |
+| Phase closure | No family or whole phase is declared complete by this branch | Every delivery gate below, final dependency policy, evidence and documentation reconciliation |
+
 These are coordinated workstreams within Phase 02, not separate per-feature PR
 requirements. Preserve the existing byte APIs while moving path operations onto
 the following pipeline.
@@ -220,8 +233,9 @@ the following pipeline.
      now use ranges, including [bundles](bundle-streaming.md); bound or spill large
      signature metadata/index tables too, since moving only payload bytes is
      insufficient. Load-command parsing now retains fixed-size summaries and
-     mutation patches original ranges; complete its cross-host native acceptance
-     before treating command-region scaling as qualified.
+     mutation patches original ranges; PR #105 completed its cross-host native
+     command-region acceptance. Finish the remaining metadata families without
+     treating that result as complete representation coverage.
    - [ ] Track source identity and relevant content stability from discovery to
      hashing and commit. Define descriptor handoff for Windows share/rename
      rules, revalidation and remaining races without promising a filesystem
@@ -326,11 +340,25 @@ APFS integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
 **Consumer integration and batch release remain open.** APFS PR #208 is merged
-and its final-head CI passed. Codesign consumes APFS #209 merge commit
-`674c2a3a815b05fc6ce34d9931291ff6a86bd62f` through its exact module pseudo-version,
-with no local replacement. Its cancellable preparation and restoration APIs now
-receive the codesign operation context. Qualify these consumer changes on all
-three hosts and the final batch release before closing Phase 02. The user controls the
+and its final-head CI passed. The completion branch consumes merged
+[APFS #212](https://github.com/deploymenttheory/go-apfs-v2/pull/212) at
+`6829b607475e82f8ececc42775f212278da7b9c0`, including #211's borrowed replacement
+attribute policy. Envelope ACL and mounted acceptance pass locally against that
+exact module, without a workspace override. Both retained compression volume
+profiles now have genuine dependency-sensitive recaptures and unchanged case
+observations. Selection uses independently captured `fstatfs` policy with both
+Clang targets; the original build-specific evidence remains hash-pinned history.
+The full local unit/acceptance aggregate and race suite pass; every production
+package exceeds 95% coverage, including codesign at 95.91%. Final-head consumer
+CI and the remaining delivery requirements are still open.
+The optional `sdk_revision` input on the existing command-range workflow captures
+a proposed dependency on the runner before changing the consumer pin; it restores
+the committed module before running all existing controls. Its artifact is
+evidence for review, never an automatic baseline replacement.
+The cancellable preparation and restoration APIs now
+receive the codesign operation context. PR #105 passed its consumer gates on all
+three hosts; remaining integration and final batch-release qualification are
+still required before closing Phase 02. The user controls the
 release PR and requires at least eight substantive changes, rather than cosmetic
 commits or test-only follow-ups.
 
@@ -360,6 +388,25 @@ The SDK now supplies held compression-input acquisition, held volume observation
 cancellable replacement lifecycle, foreign pathname authorization and carrier
 replacement/in-place composition. Reuse those merged implementations. The
 remaining codesign recompression integration must cover these concrete boundaries:
+
+- [APFS PR #211](https://github.com/deploymenttheory/go-apfs-v2/pull/211) exposes
+  replacement attribute selection for borrowed foreign values. Its native controls
+  distinguish compression-storage ownership from ordinary namespace visibility:
+  active compression hides even independent resource forks from replacement.
+  Consume the merged API and retain its mounted comparisons; do not duplicate
+  private SDK filtering in codesign. The consumer still needs generation-checked
+  payload/metadata publication, source security/mount/version binding and native
+  readback of Linux/Windows output. Native `--preserve-afsc` comparisons alone do
+  not qualify this foreign route.
+
+- [APFS PR #212](https://github.com/deploymenttheory/go-apfs-v2/pull/212) adds
+  no-follow pathname compression observation for resource envelopes whose ACLs
+  deny content reads. Observe compression before the writable open decompresses
+  the input, validate the previously observed identity, and retain native query
+  failure behavior. Keep the SDK's independent C query, both Clang AST targets,
+  macOS 15/26/27 controls and strict coverage gates. The new consumer comparisons
+  include failed admission after an envelope write and unchanged executable
+  identity; do not turn those partial outcomes into successful signing.
 
 - Keep the package boundary explicit: APFS `pkg/recompression` owns foreign
   operation policy, authorization, private staging and resulting inode state;

@@ -1,0 +1,156 @@
+{
+  "schema": 1,
+  "groups": [
+    "signatures",
+    "storage",
+    "plist",
+    "legacy",
+    "iso2022"
+  ],
+  "probes": {
+    "Recapture native compressed signing lifecycle and APFS staging": {
+      "group": "signatures",
+      "command": "go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json"
+    },
+    "Recapture dense signature metadata with the native CLI and two-target C SDK probe": {
+      "group": "signatures",
+      "command": "go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json"
+    },
+    "Recapture certificate-backed metadata boundaries with native CLI and C SDK validation": {
+      "group": "signatures",
+      "command": "go run scripts/probe-signature-metadata.go -certificate -check -out artifacts/signature-metadata-cms.json"
+    },
+    "Check held-file Apple readers with both Clang targets": {
+      "group": "signatures",
+      "command": "python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json"
+    },
+    "Check pinned Apple CodeDirectory sizing and builder bodies": {
+      "group": "signatures",
+      "command": "python3 scripts/extract-dmg-builder.py --check --output artifacts/apple-dmg-builder.json"
+    },
+    "Recapture native large-file signatures and strict verification": {
+      "group": "storage",
+      "command": "go run scripts/probe-large-source.go -check -out artifacts/large-source.json"
+    },
+    "Check complete Apple Mach-O allocation bodies with both Clang targets": {
+      "group": "storage",
+      "command": "go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json"
+    },
+    "Recapture native large Mach-O signing and removal boundaries": {
+      "group": "storage",
+      "command": "go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json"
+    },
+    "Check complete Apple bundle hashing bodies with both Clang targets": {
+      "group": "storage",
+      "command": "go run scripts/extract-bundle-streaming.go -check -out artifacts/apple-bundle-streaming.json"
+    },
+    "Recapture native large bundle operations and complete member hashes": {
+      "group": "storage",
+      "command": "go run scripts/probe-large-bundles.go -check -out artifacts/large-bundles.json"
+    },
+    "Check native incremental digest boundary corpus": {
+      "group": "signatures",
+      "command": "go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json"
+    },
+    "Check pinned Apple hashing methods with both Clang targets": {
+      "group": "signatures",
+      "command": "python3 scripts/extract-hashing.py --check --output artifacts/apple-hashing.json"
+    },
+    "Check controlled native live-process prerequisites": {
+      "group": "signatures",
+      "command": "go run scripts/probe-process-context.go -check -out artifacts/process-context.json"
+    },
+    "Stress native strict reference profiles with 100 fresh frameworks": {
+      "group": "signatures",
+      "command": "go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance"
+    },
+    "Check native sideband reference policy and retain attribute evidence": {
+      "group": "signatures",
+      "command": "go run scripts/probe-sideband.go -check"
+    },
+    "Check native platform plist research profile": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-platform-info.go -out artifacts/platform-info-research.json"
+    },
+    "Check native platform plist selection across bundle layouts": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json"
+    },
+    "Check native plist interpretation across bundle layouts": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -out artifacts/plist-interpretation.json"
+    },
+    "Capture native removal plist encodings": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile encodings -out artifacts/plist-encodings.json"
+    },
+    "Capture native UTF-32 removal plists": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32 -out artifacts/plist-utf32.json"
+    },
+    "Capture native UTF-32 XML character grammar": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json"
+    },
+    "Capture native XML strings and character selection": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile xml-characters -out artifacts/plist-xml-characters.json"
+    },
+    "Capture native unmarked plist encodings": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile unmarked -out artifacts/plist-unmarked.json"
+    },
+    "Capture native declared legacy plist encodings": {
+      "group": "legacy",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile legacy -out artifacts/plist-legacy.json"
+    },
+    "Capture native Shift-JIS removal interpretation": {
+      "group": "legacy",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile shift-jis -out artifacts/plist-shift-jis.json"
+    },
+    "Check exhaustive native Shift-JIS streams": {
+      "group": "legacy",
+      "command": "go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json"
+    },
+    "Capture native EUC-JP removal interpretation": {
+      "group": "legacy",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile euc-jp -out artifacts/plist-euc-jp.json"
+    },
+    "Check exhaustive native EUC-JP streams": {
+      "group": "legacy",
+      "command": "go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json"
+    },
+    "Capture native XML value fidelity": {
+      "group": "plist",
+      "command": "go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json"
+    },
+    "Check native legacy encoding byte observations": {
+      "group": "legacy",
+      "command": "go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json"
+    },
+    "Capture native ISO-2022-JP removal interpretation": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-jp -out artifacts/plist-iso2022-jp.json"
+    },
+    "Check exhaustive native ISO-2022-JP states and transitions": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-plist-iso2022-jp.go -check -out artifacts/plist-iso2022-jp-values.json"
+    },
+    "Check native ISO-2022-JP conversion boundaries": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-plist-iso2022-jp-boundaries.go -check -out artifacts/plist-iso2022-jp-boundaries.json"
+    },
+    "Capture native ISO-2022 extension removal operations": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-extensions -out artifacts/plist-iso2022-extensions.json"
+    },
+    "Check exhaustive native ISO-2022 extension mappings": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-plist-iso2022-extensions.go -check -out artifacts/plist-iso2022-extensions-values.json"
+    },
+    "Check native ISO-2022 extension streams": {
+      "group": "iso2022",
+      "command": "go run scripts/probe-plist-iso2022-extension-streams.go -check -out artifacts/plist-iso2022-extension-streams.json"
+    }
+  }
+}
