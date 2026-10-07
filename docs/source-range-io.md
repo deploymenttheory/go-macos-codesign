@@ -164,8 +164,8 @@ build explicitly and rejects an unqualified build. Its sixteen
 cases have dependency/source provenance checked for both retained builds before
 test shards run. When the dependency changes, each build needs a genuine fresh
 capture; updating the local host's profile alone is insufficient. The 26A428
-profile for APFS #208 was recovered from native-capture artifact `11461919992`
-in codesign CI run `37575123529`: its driver/input/module hashes match the
+profile for APFS #209 was recovered from native-capture artifact `11467997498`
+in codesign CI run `37587472210`: its driver/input/module hashes match the
 checkout and all sixteen behavior records match the previous capture.
 The sixteen
 cases originally exposed the v0.17.2 staging rejection, retained in
