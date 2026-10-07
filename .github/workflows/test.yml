@@ -143,6 +143,8 @@ jobs:
         run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Recapture dense signature metadata with the native CLI and two-target C SDK probe
         run: go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json
+      - name: Recapture certificate-backed metadata boundaries with native CLI and C SDK validation
+        run: go run scripts/probe-signature-metadata.go -certificate -check -out artifacts/signature-metadata-cms.json
       - name: Check held-file Apple readers with both Clang targets
         run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
       - name: Check pinned Apple CodeDirectory sizing and builder bodies

@@ -237,7 +237,8 @@ func TestBorrowedCMSBinding(t *testing.T) {
 		}
 	}
 	view.directories[0].source.source.size = 16<<20 + 1
-	if _, err := view.cmsBinding(); !errors.Is(err, ErrFormat) {
+	// A supported large directory must still reject a truncated held source.
+	if _, err := view.cmsBinding(); !errors.Is(err, io.ErrUnexpectedEOF) {
 		t.Fatal(err)
 	}
 	if _, err := (&signatureView{}).cmsBinding(); !errors.Is(err, ErrFormat) {

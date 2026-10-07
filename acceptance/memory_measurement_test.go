@@ -21,6 +21,7 @@ const metadataMeasurementPrefix = "METADATA_MEASUREMENT="
 type metadataMeasurementRequest struct {
 	Path, TemporaryDirectory string
 	Budget                   int64
+	TrustedCertificates      [][]byte
 }
 type metadataMeasurement struct {
 	CDHash                                       string
@@ -63,7 +64,7 @@ func metadataMeasurementWorker(t *testing.T, request string) {
 	})
 	start := time.Now()
 	calls := 0
-	err := codesign.VisitVerification(ctx, input.Path, codesign.VerifyOptions{}, func(r *codesign.Report, err error) error {
+	err := codesign.VisitVerification(ctx, input.Path, codesign.VerifyOptions{TrustedCertificates: input.TrustedCertificates}, func(r *codesign.Report, err error) error {
 		calls++
 		if err != nil {
 			return err
@@ -98,9 +99,9 @@ func metadataMeasurementWorker(t *testing.T, request string) {
 	fmt.Println(metadataMeasurementPrefix + string(data))
 }
 
-func measureMetadataProcess(t *testing.T, path, temp string, budget int64) metadataMeasurement {
+func measureMetadataProcess(t *testing.T, path, temp string, budget int64, trusted [][]byte) metadataMeasurement {
 	t.Helper()
-	request, err := json.Marshal(metadataMeasurementRequest{path, temp, budget})
+	request, err := json.Marshal(metadataMeasurementRequest{Path: path, TemporaryDirectory: temp, Budget: budget, TrustedCertificates: trusted})
 	if err != nil {
 		t.Fatal(err)
 	}

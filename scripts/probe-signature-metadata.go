@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/disk"
+	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 )
 
 const seedPath = "testdata/dmg/native-adhoc-raw.dmg"
@@ -99,13 +100,14 @@ func walk(n astNode, counts map[string]int) {
 		walk(child, counts)
 	}
 }
-func recipe(seed []byte, footer disk.DMGFooter, size int64) observation {
+func recipe(seed []byte, footer disk.DMGFooter, size int64, identity *codesign.Identity) observation {
 	be := binary.BigEndian
 	original := seed[footer.CodeSignatureOffset : footer.CodeSignatureOffset+footer.CodeSignatureLength]
 	count := be.Uint32(original[8:])
 	header := bytes.Clone(original[:12+8*count])
 	p := uint32(len(header))
 	c := observation{DirectorySize: size}
+	var cms []byte
 	for i := uint32(0); i < count; i++ {
 		slot, offset := be.Uint32(original[12+i*8:]), be.Uint32(original[16+i*8:])
 		length := be.Uint32(original[offset+4:])
@@ -113,6 +115,24 @@ func recipe(seed []byte, footer disk.DMGFooter, size int64) observation {
 		if slot == 0 {
 			length = uint32(size)
 			be.PutUint32(data[4:], length)
+			if identity != nil {
+				be.PutUint32(data[12:], 0) // Certificate-backed, not ad-hoc.
+				directory := make([]byte, size)
+				copy(directory, data)
+				var err error
+				cms, err = codesign.SignCMS(context.Background(), identity, [][]byte{directory}, time.Date(2026, 9, 24, 12, 0, 0, 0, time.UTC))
+				must(err)
+			}
+		}
+		if identity != nil && slot == codesign.SlotCMS {
+			if len(cms) == 0 {
+				panic("seed CMS precedes its directory")
+			}
+			length = uint32(8 + len(cms))
+			data = make([]byte, length)
+			be.PutUint32(data, codesign.MagicCMS)
+			be.PutUint32(data[4:], length)
+			copy(data[8:], cms)
 		}
 		be.PutUint32(header[16+i*8:], p)
 		c.Parts = append(c.Parts, part{int64(footer.CodeSignatureOffset) + int64(p), data})
@@ -153,6 +173,7 @@ func writeFixture(path string, prefix []byte, c observation) {
 func main() {
 	output := flag.String("out", "artifacts/signature-metadata.json", "native capture destination")
 	check := flag.Bool("check", false, "require equality with the retained native case corpus")
+	certificate := flag.Bool("certificate", false, "capture certificate-backed directory boundaries")
 	flag.Parse()
 	dir, err := os.MkdirTemp("", "codesign-metadata-")
 	must(err)
@@ -162,6 +183,19 @@ func main() {
 	oracle := filepath.Join(dir, "oracle")
 	sdk := strings.TrimSpace(successful("xcrun", "--show-sdk-path"))
 	c := capture{Schema: 1, Scope: "Dense native-ad-hoc UDIF seed with a zero-extended CodeDirectory; the SuperBlob lengths and UDIF signature length change. Code pages, special slots and the blinded trailer binding are unchanged. Native CLI observations and independent SDK validation establish acceptance; AST records only the real SDK calls and declarations, not Apple's private implementation.", Host: successful("sw_vers"), SDK: sdk, Sources: map[string]string{}, AST: map[string]map[string]int{}}
+	baselinePath := "testdata/research/signature-metadata.json"
+	boundaries := []int64{64 << 10, 16 << 20, 128 << 20, 1 << 30}
+	var identity *codesign.Identity
+	if *certificate {
+		identity, err = codesign.LoadIdentityPEM(read("testdata/identities/rsa-identity.pem"), nil)
+		must(err)
+		baselinePath = "testdata/research/signature-metadata-cms.json"
+		boundaries = []int64{16 << 20}
+		c.Scope = "Dense zero-extended CodeDirectory around the former 16 MiB CMS binding ceiling. A public RSA test key signs the directory with both Apple hash-agility attributes. Native CLI strict verification and independent C/SDK inspection/validation are the oracle; the Go producer is not the oracle. No keychain access. Display/date formatting is outside this profile."
+		for _, path := range []string{"testdata/identities/rsa-identity.pem", "pkg/codesign/cms.go", "pkg/codesign/cms_binding.go"} {
+			c.Sources[path] = hash(read(path))
+		}
+	}
 	c.Compiler = successful("xcrun", "clang", "--version")
 	c.SDKHeaders = map[string]string{}
 	for _, name := range []string{"SecCode.h", "SecStaticCode.h"} {
@@ -188,9 +222,9 @@ func main() {
 	must(binary.Read(bytes.NewReader(seed[len(seed)-512:]), binary.BigEndian, &footer))
 	c.SeedPrefixBytes = int64(footer.CodeSignatureOffset)
 	path := filepath.Join(dir, "metadata.dmg")
-	for _, boundary := range []int64{64 << 10, 16 << 20, 128 << 20, 1 << 30} {
+	for _, boundary := range boundaries {
 		for _, delta := range []int64{-1, 0, 1} {
-			item := recipe(seed, footer, boundary+delta)
+			item := recipe(seed, footer, boundary+delta, identity)
 			fmt.Fprintf(os.Stderr, "START dense fixture directory=%d bytes\n", item.DirectorySize)
 			writeFixture(path, seed[:c.SeedPrefixBytes], item)
 			f, err := os.Open(path)
@@ -200,7 +234,9 @@ func main() {
 			must(err)
 			must(f.Close())
 			item.SHA256 = hex.EncodeToString(h.Sum(nil))
-			item.Display = command("/usr/bin/codesign", "-d", "--verbose=4", path)
+			if !*certificate {
+				item.Display = command("/usr/bin/codesign", "-d", "--verbose=4", path)
+			}
 			item.Verify = command("/usr/bin/codesign", "--verify", "--strict", "--verbose=4", path)
 			item.Display.Text = strings.ReplaceAll(item.Display.Text, path, "<image>")
 			item.Verify.Text = strings.ReplaceAll(item.Verify.Text, path, "<image>")
@@ -221,7 +257,7 @@ func main() {
 	must(os.WriteFile(*output, append(encoded, '\n'), 0600))
 	if *check {
 		var baseline capture
-		must(json.Unmarshal(read("testdata/research/signature-metadata.json"), &baseline))
+		must(json.Unmarshal(read(baselinePath), &baseline))
 		// RawMessage retains input indentation. Compact both serializations;
 		// every observation value and array element remains part of equality.
 		actual, err := json.Marshal(c.Cases)
@@ -229,10 +265,10 @@ func main() {
 		expected, err := json.Marshal(baseline.Cases)
 		must(err)
 		if !bytes.Equal(actual, expected) {
-			panic("native signature metadata cases changed; compare " + *output + " with testdata/research/signature-metadata.json")
+			panic("native signature metadata cases changed; compare " + *output + " with " + baselinePath)
 		}
 		if !reflect.DeepEqual(c.AST, baseline.AST) {
-			panic("native signature metadata AST changed; compare " + *output + " with testdata/research/signature-metadata.json")
+			panic("native signature metadata AST changed; compare " + *output + " with " + baselinePath)
 		}
 		for p, sum := range c.Sources {
 			if !strings.HasPrefix(p, "/") && baseline.Sources[p] != sum {

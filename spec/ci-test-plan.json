@@ -61,6 +61,7 @@
     "TestBundleWriterParity": 3,
     "TestCLILiveAppleTimestamp": 2,
     "TestCLITimestampHTTP": 0,
+    "TestCMSMetadataBoundaries": 3,
     "TestCertificateExtraction": 1,
     "TestCertificateExtractionBundleParentAlias": 0,
     "TestCertificateExtractionIgnoredOperations": 0,
@@ -504,6 +505,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCLITimestampHTTP": {
           "cases": 11,
           "sha256": "e6fb9f6a78911a53ca99a38eb5d84fece3bf0f532cef99a61b917bb634084c8f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCMSMetadataBoundaries": {
+          "cases": 13,
+          "sha256": "2cf8d0d6b59bb2c8d43ac53413b13b2b6cb6864144879b372673677f3929a171"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCertificateExtraction": {
           "cases": 97,
@@ -1773,6 +1778,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
+          "cases": 4,
+          "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSEnvelopeBoundaries": {
           "cases": 1,
@@ -3114,6 +3123,10 @@
           "cases": 11,
           "sha256": "e6fb9f6a78911a53ca99a38eb5d84fece3bf0f532cef99a61b917bb634084c8f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCMSMetadataBoundaries": {
+          "cases": 13,
+          "sha256": "2cf8d0d6b59bb2c8d43ac53413b13b2b6cb6864144879b372673677f3929a171"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCertificateExtraction": {
           "cases": 97,
           "sha256": "fb9de7b3d032b82420ca5e390a8abf8cb5732fe530a1f67e3e0e22098ed39200"
@@ -4274,6 +4287,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
+          "cases": 4,
+          "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSEnvelopeBoundaries": {
           "cases": 1,
@@ -5607,6 +5624,10 @@
           "cases": 11,
           "sha256": "e6fb9f6a78911a53ca99a38eb5d84fece3bf0f532cef99a61b917bb634084c8f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCMSMetadataBoundaries": {
+          "cases": 13,
+          "sha256": "2cf8d0d6b59bb2c8d43ac53413b13b2b6cb6864144879b372673677f3929a171"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestCertificateExtraction": {
           "cases": 97,
           "sha256": "fb9de7b3d032b82420ca5e390a8abf8cb5732fe530a1f67e3e0e22098ed39200"
@@ -6771,6 +6792,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
+          "cases": 4,
+          "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSEnvelopeBoundaries": {
           "cases": 1,

@@ -132,6 +132,30 @@ Go API measurement. Its small-metadata regression control requires less than
 working set, a general peak-memory result or implementation of the planned shared
 128 MiB budget. It excludes fixture setup and tests a single-page CodeDirectory.
 
+## Certificate-backed directory sizes
+
+Native strict verification and the independent C/SDK probe accept certificate-
+backed CodeDirectories immediately below, at and above 16 MiB. The previous
+16 MiB directory limit in CMS binding was an implementation ceiling, so both
+owned and borrowed CMS binding now accept those directories. Borrowed verification
+hashes their complete ranges within the shared buffer budget. The CMS message
+itself remains a separately parsed object; this change does not remove its
+remaining allocation limits or qualify every CMS shape.
+
+`testdata/research/signature-metadata-cms.json` retains three dense reconstruction
+recipes, complete file hashes, native CLI verification, SDK results and both
+Clang AST targets. Its public RSA fixture signs both Apple hash-agility attributes;
+no keychain or private credentials are used. Every host reconstructs and verifies
+the same bytes with three budgets and isolated process-memory observations.
+The original twelve ad-hoc controls retain their complete display and verification
+comparisons. The additional certificate profile focuses on CMS verification;
+display/date formatting remains covered by the existing certificate suites.
+
+```sh
+go run scripts/probe-signature-metadata.go -certificate -check -out artifacts/signature-metadata-cms.json
+go test ./acceptance -run '^TestCMSMetadataBoundaries$' -count=1 -v
+```
+
 ## Size-limit audit and remaining integration
 
 | Location | Current contract | Remaining Phase 02 work |

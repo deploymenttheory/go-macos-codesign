@@ -43,11 +43,6 @@ func (v *signatureView) cmsBinding() (cmsDirectoryBinding, error) {
 			if d.slot != slot {
 				continue
 			}
-			// Keep the existing CMS decoder policy while removing the duplicate
-			// directory allocation. Native size-policy qualification is separate.
-			if d.source.source.size > 16<<20 {
-				return bound, malformed("CMS CodeDirectory length")
-			}
 			kind := d.metadata.HashType
 			var oid asn1.ObjectIdentifier
 			switch kind {

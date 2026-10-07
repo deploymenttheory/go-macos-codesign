@@ -21,7 +21,29 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 		metadataMeasurementWorker(t, request)
 		return
 	}
-	raw, err := os.ReadFile(filepath.Join(root, "testdata/research/signature-metadata.json"))
+	signatureMetadataBoundaries(t, false)
+}
+
+func TestCMSMetadataBoundaries(t *testing.T) {
+	signatureMetadataBoundaries(t, true)
+}
+
+func signatureMetadataBoundaries(t *testing.T, certificate bool) {
+	t.Helper()
+	fixture := "testdata/research/signature-metadata.json"
+	boundaries := []int64{64 << 10, 16 << 20, 128 << 20, 1 << 30}
+	sourceCount := 6
+	var trusted [][]byte
+	if certificate {
+		fixture = "testdata/research/signature-metadata-cms.json"
+		boundaries, sourceCount = []int64{16 << 20}, 9
+		var err error
+		trusted, err = codesign.ParseCertificatesPEM(nativeRead(t, filepath.Join(root, "testdata/identities/rsa-cert.pem")))
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	raw, err := os.ReadFile(filepath.Join(root, fixture))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +75,7 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 	if err := json.Unmarshal(raw, &capture); err != nil {
 		t.Fatal(err)
 	}
-	if capture.Schema != 1 || len(capture.Cases) != 12 || len(capture.AST) != 2 || len(capture.Sources) != 6 {
+	if capture.Schema != 1 || len(capture.Cases) != 3*len(boundaries) || len(capture.AST) != 2 || len(capture.Sources) != sourceCount {
 		t.Fatal("incomplete metadata capture")
 	}
 	if capture.Compiler == "" || len(capture.OracleSHA256) != 64 || len(capture.SDKHeaders) != 2 || len(capture.SDKHeaders["SecCode.h"]) != 64 || len(capture.SDKHeaders["SecStaticCode.h"]) != 64 {
@@ -64,7 +86,11 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 			t.Fatal("missing compiled native probe", target)
 		}
 	}
-	for _, path := range []string{"scripts/probe-signature-metadata.go", "testdata/research/signature-metadata.c", "testdata/dmg/native-adhoc-raw.dmg", "go.mod", "go.sum"} {
+	sources := []string{"scripts/probe-signature-metadata.go", "testdata/research/signature-metadata.c", "testdata/dmg/native-adhoc-raw.dmg", "go.mod", "go.sum"}
+	if certificate {
+		sources = append(sources, "testdata/identities/rsa-identity.pem", "pkg/codesign/cms.go", "pkg/codesign/cms_binding.go")
+	}
+	for _, path := range sources {
 		data, err := os.ReadFile(filepath.Join(root, path))
 		if err != nil || hash(data) != capture.Sources[path] {
 			t.Fatal("stale source", path, err)
@@ -74,7 +100,6 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 	if err != nil || capture.SeedPrefixBytes <= 0 || capture.SeedPrefixBytes > int64(len(seed)) {
 		t.Fatal("invalid seed", err)
 	}
-	boundaries := [...]int64{64 << 10, 16 << 20, 128 << 20, 1 << 30}
 	for i, tc := range capture.Cases {
 		if tc.DirectorySize != boundaries[i/3]+int64(i%3)-1 || tc.FileSize < tc.DirectorySize || len(tc.Parts) != 5 || len(tc.SHA256) != 64 || tc.Display.Exit != 0 || tc.Verify.Exit != 0 || tc.Framework.Create != 0 || tc.Framework.Inspect != 0 || tc.Framework.Verify != 0 || len(tc.Framework.CDHash) != 40 {
 			t.Fatal("invalid or reordered native control", i, tc.DirectorySize)
@@ -115,11 +140,19 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 				t.Fatal(err)
 			}
 			t.Logf("dense fixture populated: bytes=%d elapsed=%s", tc.FileSize, time.Since(started))
-			for _, control := range []struct {
+			controls := []struct {
 				args []string
 				want string
-			}{{[]string{"-dvvvv", path}, tc.Display.Text}, {[]string{"--verify", "--strict", "--verbose=4", path}, tc.Verify.Text}} {
-				out, stderr, code := run(t, binaryPath, control.args...)
+			}{{[]string{"-dvvvv", path}, tc.Display.Text}, {[]string{"--verify", "--strict", "--verbose=4", path}, tc.Verify.Text}}
+			if certificate {
+				controls = controls[1:] // This additional profile qualifies CMS verification.
+			}
+			for _, control := range controls {
+				args := append([]string(nil), control.args...)
+				if certificate {
+					args = append(args, "--trust", filepath.Join(root, "testdata/identities/rsa-cert.pem"))
+				}
+				out, stderr, code := run(t, binaryPath, args...)
 				if code != 0 || strings.ReplaceAll(out+stderr, path, "<image>") != control.want {
 					t.Fatalf("portable metadata parity: exit=%d\nwant=%s\nstdout=%s\nstderr=%s", code, control.want, out, stderr)
 				}
@@ -139,7 +172,7 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 					runtime.ReadMemStats(&before)
 					start := time.Now()
 					calls := 0
-					err := codesign.VisitVerification(ctx, path, codesign.VerifyOptions{}, func(r *codesign.Report, err error) error {
+					err := codesign.VisitVerification(ctx, path, codesign.VerifyOptions{TrustedCertificates: trusted}, func(r *codesign.Report, err error) error {
 						calls++
 						if err != nil || r == nil || !r.Valid || len(r.Architectures) != 1 {
 							t.Fatal("borrowed verification", r, err)
@@ -160,7 +193,7 @@ func TestSignatureMetadataBoundaries(t *testing.T) {
 					if err != nil || len(entries) != 0 {
 						t.Fatal("metadata scratch leak", entries, err)
 					}
-					measured := measureMetadataProcess(t, path, temp, budget)
+					measured := measureMetadataProcess(t, path, temp, budget, trusted)
 					t.Logf("isolated metadata measurement: %+v", measured)
 					if measured.CDHash != tc.Framework.CDHash || measured.DirectorySize != tc.DirectorySize || measured.AllocatedBytes > 8<<20 || measured.Storage.MemoryBytes != 0 || measured.Storage.PeakMemoryBytes > budget {
 						t.Fatal("isolated metadata regression", measured)

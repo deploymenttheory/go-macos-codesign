@@ -114,7 +114,7 @@ func directoryHashes(directories [][]byte) (cdHashPlist, [][]byte, error) {
 		if err != nil {
 			return pl, nil, err
 		}
-		if len(raw) > 16<<20 || uint64(be.Uint32(raw[4:])) != uint64(len(raw)) {
+		if uint64(be.Uint32(raw[4:])) != uint64(len(raw)) {
 			return pl, nil, malformed("CMS CodeDirectory length")
 		}
 		var oid asn1.ObjectIdentifier
