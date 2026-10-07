@@ -1838,6 +1838,18 @@
           "cases": 7,
           "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchAccounting": {
+          "cases": 1,
+          "sha256": "ec4f9f106a49a48572148b5620c397533dc8457ddb72faef25edd598d298ec46"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchConcurrentExtents": {
+          "cases": 1,
+          "sha256": "a17df0a735b0412ce0c0f6c6cfbf75c2528a52de9fda9678975b607aed91fbfc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchFailures": {
+          "cases": 1,
+          "sha256": "9e64a3e9bd9de7c0323d370e1effb9b294e9596b374f395294055d18f0c3ff4d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,
           "sha256": "da7f788bd8e8a1203f563afc2e58edeccbed9fcda750efaaa148ccc9a9d63c0d"
@@ -4327,6 +4339,18 @@
           "cases": 7,
           "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchAccounting": {
+          "cases": 1,
+          "sha256": "ec4f9f106a49a48572148b5620c397533dc8457ddb72faef25edd598d298ec46"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchConcurrentExtents": {
+          "cases": 1,
+          "sha256": "a17df0a735b0412ce0c0f6c6cfbf75c2528a52de9fda9678975b607aed91fbfc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchFailures": {
+          "cases": 1,
+          "sha256": "9e64a3e9bd9de7c0323d370e1effb9b294e9596b374f395294055d18f0c3ff4d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,
           "sha256": "da7f788bd8e8a1203f563afc2e58edeccbed9fcda750efaaa148ccc9a9d63c0d"
@@ -6811,6 +6835,18 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionPrivateStage": {
           "cases": 7,
           "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchAccounting": {
+          "cases": 1,
+          "sha256": "ec4f9f106a49a48572148b5620c397533dc8457ddb72faef25edd598d298ec46"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchConcurrentExtents": {
+          "cases": 1,
+          "sha256": "a17df0a735b0412ce0c0f6c6cfbf75c2528a52de9fda9678975b607aed91fbfc"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionScratchFailures": {
+          "cases": 1,
+          "sha256": "9e64a3e9bd9de7c0323d370e1effb9b294e9596b374f395294055d18f0c3ff4d"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,

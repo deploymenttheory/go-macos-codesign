@@ -3,8 +3,11 @@ package codesign
 import (
 	"context"
 	"errors"
+	"io"
+	"math"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/compression/decmpfs"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
@@ -61,27 +64,97 @@ func recompressCommitted(ctx context.Context, name string, kind uint32, open fun
 }
 
 type compressionStage struct {
-	*os.File
+	scratchFile
+	mu      sync.Mutex
 	cleanup *error
+	storage *workingStorage
+	extent  int64
+	closed  bool
 }
 
 func newCompressionStage(ctx context.Context, cleanup *error) (*compressionStage, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	dir := ""
 	if storage := storageFrom(ctx); storage != nil {
-		dir = storage.options.TemporaryDirectory
+		storage.mu.Lock()
+		defer storage.mu.Unlock()
+		if storage.closed {
+			return nil, os.ErrClosed
+		}
+		file, err := storage.create(storage.options.TemporaryDirectory, "macoscodesign-compression-*")
+		if err != nil {
+			return nil, err
+		}
+		stage := &compressionStage{scratchFile: file, cleanup: cleanup, storage: storage}
+		if storage.stages == nil {
+			storage.stages = make(map[*compressionStage]struct{})
+		}
+		storage.stages[stage] = struct{}{}
+		storage.addTemporaryFile()
+		return stage, nil
 	}
-	file, err := os.CreateTemp(dir, "macoscodesign-compression-*")
+	file, err := os.CreateTemp("", "macoscodesign-compression-*")
 	if err != nil {
 		return nil, err
 	}
-	return &compressionStage{File: file, cleanup: cleanup}, nil
+	return &compressionStage{scratchFile: file, cleanup: cleanup}, nil
+}
+
+func (s *compressionStage) WriteAt(p []byte, at int64) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return 0, os.ErrClosed
+	}
+	if at < 0 || at > math.MaxInt64-int64(len(p)) {
+		return 0, io.ErrShortWrite
+	}
+	if s.storage != nil {
+		s.storage.mu.Lock()
+		defer s.storage.mu.Unlock()
+		if s.storage.closed {
+			return 0, os.ErrClosed
+		}
+		if len(p) > 0 && max(at+int64(len(p))-s.extent, 0) > math.MaxInt64-s.storage.stats.TemporaryBytes {
+			return 0, malformed("temporary extent overflow")
+		}
+	}
+	n, err := s.scratchFile.WriteAt(p, at)
+	// Failed writes can still extend a file. Count the actual written range,
+	// including holes, without claiming unwritten requested bytes were stored.
+	if n > 0 && at+int64(n) > s.extent {
+		end := at + int64(n)
+		if s.storage != nil {
+			s.storage.growTemporary(end - s.extent)
+		}
+		s.extent = end
+	}
+	return n, err
 }
 
 func (s *compressionStage) Close() error {
-	err := errors.Join(s.File.Close(), os.Remove(s.Name()))
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return nil
+	}
+	s.closed = true
+	remove := os.Remove
+	if s.storage != nil {
+		remove = s.storage.remove
+	}
+	closeErr, removeErr := s.scratchFile.Close(), remove(s.Name())
+	err := errors.Join(closeErr, removeErr)
+	if s.storage != nil {
+		s.storage.mu.Lock()
+		delete(s.storage.stages, s)
+		if removeErr == nil {
+			s.storage.stats.TemporaryFiles--
+			s.storage.stats.TemporaryBytes -= s.extent
+		}
+		s.storage.mu.Unlock()
+	}
 	*s.cleanup = errors.Join(*s.cleanup, err)
 	return err
 }

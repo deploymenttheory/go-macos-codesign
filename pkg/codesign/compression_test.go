@@ -175,7 +175,7 @@ func TestCompressionPrivateStage(t *testing.T) {
 				t.Fatal(err)
 			}
 			if name == "close-failure" || name == "remove-failure" {
-				if err := stage.File.Close(); err != nil {
+				if err := stage.scratchFile.Close(); err != nil {
 					t.Fatal(err)
 				}
 			}
