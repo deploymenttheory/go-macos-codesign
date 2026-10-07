@@ -14,7 +14,7 @@
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
     "go.mod": "356254d19a34ee04d7c78c30074ca47478e470cc8e55f83fa1ac8b2b04cae029",
     "go.sum": "dc2288897d56c793e0d3064fa1059a457d67f700eca4c16029095a1eb70c97fa",
-    "scripts/probe-signature-metadata.go": "d8fa997d32180805c25e6c0c6d64df4623dff58f5e99d0114459471a8f0a554e",
+    "scripts/probe-signature-metadata.go": "c816b6c0cca97129182a36848e2d002447508dfcc524cfcedb41729d73aa6343",
     "testdata/dmg/native-adhoc-raw.dmg": "7f1984ce2d52aff1d69bcfcb30246d9ae612a91d0a963af47536550bf315b6f2",
     "testdata/research/signature-metadata.c": "0b2d98351f54ec2f31dfba09fe6f4da633cd497649c26718aa989a92914eee4c"
   },

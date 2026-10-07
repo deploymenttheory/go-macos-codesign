@@ -213,11 +213,26 @@ func main() {
 			must(os.Remove(path))
 		}
 	}
+	// Retain evidence even when comparison fails, so CI can expose the actual
+	// native observation rather than only the assertion message.
+	encoded, err := json.MarshalIndent(c, "", "  ")
+	must(err)
+	must(os.MkdirAll(filepath.Dir(*output), 0755))
+	must(os.WriteFile(*output, append(encoded, '\n'), 0600))
 	if *check {
 		var baseline capture
 		must(json.Unmarshal(read("testdata/research/signature-metadata.json"), &baseline))
-		if !reflect.DeepEqual(c.Cases, baseline.Cases) || !reflect.DeepEqual(c.AST, baseline.AST) {
-			panic("native signature metadata observations changed")
+		// RawMessage retains input indentation. Compact both serializations;
+		// every observation value and array element remains part of equality.
+		actual, err := json.Marshal(c.Cases)
+		must(err)
+		expected, err := json.Marshal(baseline.Cases)
+		must(err)
+		if !bytes.Equal(actual, expected) {
+			panic("native signature metadata cases changed; compare " + *output + " with testdata/research/signature-metadata.json")
+		}
+		if !reflect.DeepEqual(c.AST, baseline.AST) {
+			panic("native signature metadata AST changed; compare " + *output + " with testdata/research/signature-metadata.json")
 		}
 		for p, sum := range c.Sources {
 			if !strings.HasPrefix(p, "/") && baseline.Sources[p] != sum {
@@ -225,8 +240,4 @@ func main() {
 			}
 		}
 	}
-	encoded, err := json.MarshalIndent(c, "", "  ")
-	must(err)
-	must(os.MkdirAll(filepath.Dir(*output), 0755))
-	must(os.WriteFile(*output, append(encoded, '\n'), 0600))
 }
