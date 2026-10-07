@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2025, xcode-27]
+        os: [ubuntu-24.04, windows-2025]
         part: [unit, 0, 1, 2, 3]
     runs-on: ${{ matrix.os }}
     # Retain existing limits; partitioning changes scheduling, never test depth.
@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2025, xcode-27]
+        os: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
@@ -127,7 +127,95 @@ jobs:
             artifacts/complete/producer.json
           include-hidden-files: true
           if-no-files-found: error
+  macos-test:
+    name: test (xcode-27)
+    runs-on: xcode-27
+    # All five receipts and their aggregation must observe exactly the same OS
+    # build. Hosted runners sharing a label can straddle an image rollout.
+    timeout-minutes: 190
+    env:
+      CGO_ENABLED: '0'
+      MACOSCODESIGN_REQUIRE_APPLE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Enforce pure Go and fixture provenance
+        run: python3 scripts/guards.py
+      - name: Check native charset table generation
+        run: |
+          go run scripts/generate-plist-legacy.go -check
+          go run scripts/generate-plist-shift-jis.go -check
+          go run scripts/generate-plist-euc-jp.go -check
+          go run scripts/generate-plist-iso2022-jp.go -check
+          go run scripts/generate-plist-iso2022-extensions.go -check
+      - name: Check roadmap evidence and complete race/fuzz membership
+        run: python3 scripts/check-research.py
+      - name: Test evidence harness
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
+      - name: Run complete macOS shard unit
+        if: ${{ !cancelled() }}
+        timeout-minutes: 35
+        run: python3 scripts/evidence.py shard unit --output artifacts/shards/unit
+      - name: Run complete macOS shard 0
+        if: ${{ !cancelled() }}
+        timeout-minutes: 35
+        run: python3 scripts/evidence.py shard 0 --output artifacts/shards/0
+      - name: Run complete macOS shard 1
+        if: ${{ !cancelled() }}
+        timeout-minutes: 35
+        run: python3 scripts/evidence.py shard 1 --output artifacts/shards/1
+      - name: Run complete macOS shard 2
+        if: ${{ !cancelled() }}
+        timeout-minutes: 35
+        run: python3 scripts/evidence.py shard 2 --output artifacts/shards/2
+      - name: Run complete macOS shard 3
+        if: ${{ !cancelled() }}
+        timeout-minutes: 35
+        run: python3 scripts/evidence.py shard 3 --output artifacts/shards/3
+      - name: Require all cases, artifacts and coverage above 95% per package
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: python3 scripts/evidence.py aggregate --inputs artifacts/shards --output artifacts/complete
+      - name: Collect native failure diagnostics
+        if: failure()
+        continue-on-error: true
+        run: go run scripts/collect-native-diagnostics.go
+      - name: Package every macOS shard including incomplete evidence
+        if: always()
+        run: python3 scripts/evidence.py pack --inputs artifacts/shards --output artifacts/shards.tar
+      - name: Upload exact macOS shard evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: evidence-shards-xcode-27
+          path: artifacts/shards.tar
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Upload native failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: native-failure-macos
+          path: artifacts/native-diagnostics/
+          if-no-files-found: error
+      - name: Package complete OS evidence
+        if: ${{ !cancelled() && hashFiles('artifacts/complete/complete.json') != '' }}
+        run: python3 scripts/evidence.py pack --inputs artifacts/complete --output artifacts/evidence.tar
+      - name: Upload complete OS evidence
+        if: ${{ !cancelled() && hashFiles('artifacts/complete/complete.json') != '' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: evidence-xcode-27
+          path: artifacts/evidence.tar
+          include-hidden-files: true
+          if-no-files-found: error
   native-capture:
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [signatures, storage, plist, legacy, iso2022]
     runs-on: xcode-27
     timeout-minutes: 35
     env:
@@ -140,79 +228,115 @@ jobs:
       - name: Enforce pure Go and fixture provenance
         run: python3 scripts/guards.py
       - name: Recapture native compressed signing lifecycle and APFS staging
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-compressed-signing.go -check -out artifacts/compressed-signing.json
       - name: Recapture dense signature metadata with the native CLI and two-target C SDK probe
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-signature-metadata.go -check -out artifacts/signature-metadata.json
       - name: Recapture certificate-backed metadata boundaries with native CLI and C SDK validation
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-signature-metadata.go -certificate -check -out artifacts/signature-metadata-cms.json
       - name: Check held-file Apple readers with both Clang targets
+        if: matrix.group == 'signatures'
         run: python3 scripts/extract-source-ranges.py --check --output artifacts/apple-source-ranges.json
       - name: Check pinned Apple CodeDirectory sizing and builder bodies
+        if: matrix.group == 'signatures'
         run: python3 scripts/extract-dmg-builder.py --check --output artifacts/apple-dmg-builder.json
       - name: Recapture native large-file signatures and strict verification
+        if: matrix.group == 'storage'
         run: go run scripts/probe-large-source.go -check -out artifacts/large-source.json
       - name: Check complete Apple Mach-O allocation bodies with both Clang targets
+        if: matrix.group == 'storage'
         run: go run scripts/extract-macho-allocation.go -check -out artifacts/apple-macho-allocation.json
       - name: Recapture native large Mach-O signing and removal boundaries
+        if: matrix.group == 'storage'
         run: go run scripts/probe-large-macho.go -check -out artifacts/large-macho.json
       - name: Check complete Apple bundle hashing bodies with both Clang targets
+        if: matrix.group == 'storage'
         run: go run scripts/extract-bundle-streaming.go -check -out artifacts/apple-bundle-streaming.json
       - name: Recapture native large bundle operations and complete member hashes
+        if: matrix.group == 'storage'
         run: go run scripts/probe-large-bundles.go -check -out artifacts/large-bundles.json
       - name: Check native incremental digest boundary corpus
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-hash-streams.go -check -out artifacts/hash-streams.json
       - name: Check pinned Apple hashing methods with both Clang targets
+        if: matrix.group == 'signatures'
         run: python3 scripts/extract-hashing.py --check --output artifacts/apple-hashing.json
       - name: Check controlled native live-process prerequisites
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-process-context.go -check -out artifacts/process-context.json
       - name: Stress native strict reference profiles with 100 fresh frameworks
+        if: matrix.group == 'signatures'
         run: go test -count=50 -run '^TestResourceSymlinkNativeSigning/framework/(pair-cycle|dangling-chain)$' ./acceptance
         env:
           MACOSCODESIGN_REQUIRE_APPLE: '1'
       - name: Check native sideband reference policy and retain attribute evidence
+        if: matrix.group == 'signatures'
         run: go run scripts/probe-sideband.go -check
       - name: Check native platform plist research profile
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-platform-info.go -out artifacts/platform-info-research.json
       - name: Check native platform plist selection across bundle layouts
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-platform-selection.go -out artifacts/platform-selection.json
       - name: Check native plist interpretation across bundle layouts
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -out artifacts/plist-interpretation.json
 
       - name: Capture native removal plist encodings
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile encodings -out artifacts/plist-encodings.json
       - name: Capture native UTF-32 removal plists
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32 -out artifacts/plist-utf32.json
       - name: Capture native UTF-32 XML character grammar
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile utf32-grammar -out artifacts/plist-utf32-grammar.json
       - name: Capture native XML strings and character selection
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile xml-characters -out artifacts/plist-xml-characters.json
       - name: Capture native unmarked plist encodings
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile unmarked -out artifacts/plist-unmarked.json
       - name: Capture native declared legacy plist encodings
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile legacy -out artifacts/plist-legacy.json
       - name: Capture native Shift-JIS removal interpretation
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile shift-jis -out artifacts/plist-shift-jis.json
       - name: Check exhaustive native Shift-JIS streams
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-plist-shift-jis.go -check -out artifacts/plist-shift-jis-values.json
       - name: Capture native EUC-JP removal interpretation
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile euc-jp -out artifacts/plist-euc-jp.json
       - name: Check exhaustive native EUC-JP streams
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-plist-euc-jp.go -check -out artifacts/plist-euc-jp-values.json
       - name: Capture native XML value fidelity
+        if: matrix.group == 'plist'
         run: go run scripts/probe-removal-xml-values.go -check -out artifacts/plist-xml-values.json
       - name: Check native legacy encoding byte observations
+        if: matrix.group == 'legacy'
         run: go run scripts/probe-removal-legacy-values.go -check -out artifacts/plist-legacy-values.json
       - name: Capture native ISO-2022-JP removal interpretation
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-jp -out artifacts/plist-iso2022-jp.json
       - name: Check exhaustive native ISO-2022-JP states and transitions
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-plist-iso2022-jp.go -check -out artifacts/plist-iso2022-jp-values.json
       - name: Check native ISO-2022-JP conversion boundaries
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-plist-iso2022-jp-boundaries.go -check -out artifacts/plist-iso2022-jp-boundaries.json
       - name: Capture native ISO-2022 extension removal operations
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-removal-plist-interpretation.go scripts/probe-plist-inputs-*.go -profile iso2022-extensions -out artifacts/plist-iso2022-extensions.json
       - name: Check exhaustive native ISO-2022 extension mappings
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-plist-iso2022-extensions.go -check -out artifacts/plist-iso2022-extensions-values.json
       - name: Check native ISO-2022 extension streams
+        if: matrix.group == 'iso2022'
         run: go run scripts/probe-plist-iso2022-extension-streams.go -check -out artifacts/plist-iso2022-extension-streams.json
       - name: Collect native failure diagnostics
         if: failure()
@@ -222,11 +346,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: native-capture
+          name: native-capture-${{ matrix.group }}
           path: artifacts/
           if-no-files-found: error
   verify-foreign-signatures:
-    needs: [test, native-capture]
+    needs: [test, macos-test, native-capture]
     runs-on: xcode-27
     timeout-minutes: 10
     steps:
@@ -253,7 +377,7 @@ jobs:
           path: artifacts/verification/
           if-no-files-found: error
   verify-foreign-bundles:
-    needs: [test, native-capture]
+    needs: [test, macos-test, native-capture]
     runs-on: xcode-27
     # Add independent capacity; keep the existing foreign corpus and deadlines.
     timeout-minutes: 10

@@ -170,7 +170,10 @@ def inspect_shards(inputs, plan, prov):
         part = receipt["part"]
         require(receipt.get("schema") == 1 and part in PARTS, "Invalid receipt")
         require(part not in receipts, f"Duplicate shard: {part}")
-        require(receipt["provenance"] == prov, f"Stale/mixed OS, source or instrumentation: {part}")
+        differences = [key for key in sorted(receipt["provenance"].keys() | prov.keys())
+                       if receipt["provenance"].get(key) != prov.get(key)]
+        require(receipt["provenance"] == prov,
+                f"Stale/mixed OS, source or instrumentation: {part}; differing fields: {differences}")
         actual_files = files(directory)
         del actual_files["receipt.json"]
         require(receipt["files"] == actual_files, f"Missing/changed artifact: {part}")
