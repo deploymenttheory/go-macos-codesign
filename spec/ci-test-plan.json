@@ -118,6 +118,7 @@
     "TestLayoutMutationParity": 0,
     "TestLayoutRemoval": 0,
     "TestMixedLayoutTimestamps": 0,
+    "TestMountedFilesystemDetachPolicy": 3,
     "TestMountedFilesystemWriterParity": 3,
     "TestNativeBinaryBundleFixtures": 3,
     "TestNativeBundleFixtures": 1,
@@ -729,6 +730,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMixedLayoutTimestamps": {
           "cases": 1,
           "sha256": "3d6b862e28b9ae380d4ee01b6817b2da44fd468c5c92d9a001785805b98335de"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemDetachPolicy": {
+          "cases": 9,
+          "sha256": "f043f665f43615a763e3493d721e1fe55dae2499d80f1b1599910d115b2ba6a2"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemWriterParity": {
           "cases": 111,
@@ -3239,6 +3244,10 @@
           "cases": 1,
           "sha256": "3d6b862e28b9ae380d4ee01b6817b2da44fd468c5c92d9a001785805b98335de"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemDetachPolicy": {
+          "cases": 9,
+          "sha256": "f043f665f43615a763e3493d721e1fe55dae2499d80f1b1599910d115b2ba6a2"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeBinaryBundleFixtures": {
           "cases": 4,
           "sha256": "087ba4d9c97ee72f9eb23c7c35ccc1d69894f0ac51472d1a38fa2db01c10f123"
@@ -5663,6 +5672,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMixedLayoutTimestamps": {
           "cases": 1,
           "sha256": "3d6b862e28b9ae380d4ee01b6817b2da44fd468c5c92d9a001785805b98335de"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemDetachPolicy": {
+          "cases": 9,
+          "sha256": "f043f665f43615a763e3493d721e1fe55dae2499d80f1b1599910d115b2ba6a2"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeBinaryBundleFixtures": {
           "cases": 4,

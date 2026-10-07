@@ -334,6 +334,14 @@ three hosts and the final batch release before closing Phase 02. The user contro
 release PR and requires at least eight substantive changes, rather than cosmetic
 commits or test-only follow-ups.
 
+Windows consumer qualification exposed an error-classification prerequisite in
+the new private-directory creation route. [APFS PR #209](https://github.com/deploymenttheory/go-apfs-v2/pull/209)
+normalizes its native NTSTATUS result so `errors.Is(err, os.ErrPermission)` can
+select codesign's allocation-failure behavior. Consume its merged revision after
+upstream CI and user merge, recapture both compression profiles and rerun the
+unchanged cross-host gates; codesign cannot become green using the current
+dependency while this denial classification is wrong.
+
 The merged installation APIs from [APFS PR #204](https://github.com/deploymenttheory/go-apfs-v2/pull/204)
 are available for integration, but do not provide complete path-based
 recompression. Preserve its 591 native lifecycle observations, 66 portable

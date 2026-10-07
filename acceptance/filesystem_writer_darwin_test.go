@@ -2,10 +2,14 @@ package acceptance
 
 import (
 	"bytes"
+	"context"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"golang.org/x/sys/unix"
 )
@@ -21,8 +25,39 @@ func TestMountedFilesystemWriterParity(t *testing.T) {
 				t.Fatal(err)
 			}
 			mustRun(t, "/usr/bin/hdiutil", "create", "-size", "128m", "-fs", filesystem, "-volname", "CodesignWriter", image)
-			mustRun(t, "/usr/bin/hdiutil", "attach", "-nobrowse", "-owners", "on", "-mountpoint", mount, image)
-			t.Cleanup(func() { mustRun(t, "/usr/bin/hdiutil", "detach", mount) })
+			out, diagnostic, status := run(t, "/usr/bin/hdiutil", "attach", "-plist", "-nobrowse", "-owners", "on", "-mountpoint", mount, image)
+			if status != 0 {
+				t.Fatalf("attach: exit=%d stdout=%s stderr=%s", status, out, diagnostic)
+			}
+			t.Logf("attachment: %s", out)
+			device := mount // Preserve cleanup even if the attachment record is invalid.
+			t.Cleanup(func() {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+				defer cancel()
+				err := detachTestImage(ctx, func() (int, error) {
+					t.Logf("START ordinary image detach %s", device)
+					command := exec.CommandContext(ctx, "/usr/bin/hdiutil", "detach", device)
+					command.WaitDelay = time.Second
+					output, err := command.CombinedOutput()
+					code := -1
+					if command.ProcessState != nil {
+						code = command.ProcessState.ExitCode()
+					}
+					t.Logf("END ordinary image detach %s exit=%d error=%v output=%s", device, code, err, output)
+					if err != nil {
+						err = fmt.Errorf("detach %s: %w: %s", device, err, output)
+					}
+					return code, err
+				}, waitForImageDetach)
+				if err != nil {
+					t.Errorf("image cleanup failed: %v", err)
+				}
+			})
+			backing, err := attachedTestDevice([]byte(out))
+			if err != nil {
+				t.Fatal(err)
+			}
+			device = backing
 			var stat unix.Statfs_t
 			if err := unix.Statfs(mount, &stat); err != nil {
 				t.Fatal(err)

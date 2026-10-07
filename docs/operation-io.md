@@ -92,6 +92,15 @@ staging. The checkpoint count follows each host's actual SDK route; no platform
 is omitted. These are cancellation-contract tests, not a substitute for the
 existing native metadata and permission comparisons.
 
+Mounted writer acceptance retains the backing device from `hdiutil attach
+-plist`. An ordinary detach can unmount the volume and still return resource
+busy while ejecting the device; the vanished mount path cannot identify a
+subsequent attempt reliably. Cleanup retries only busy status 16, at most ten
+times within a one-minute context, recording every command result. It never
+forces ejection. Other errors, cancellation and exhausted retries fail the test.
+Portable harness tests require these failure boundaries on all three hosts;
+all existing mounted APFS/HFS+ writer cases remain mandatory.
+
 The native permission matrix also records complete per-member manifests for
 bundle failures. Denying `readattr` on an app or framework main executable can
 leave an independent helper fully signed before Apple reports the failure.

@@ -98,6 +98,26 @@ def validate_filesystem_history(plan):
                 "Lost historical HFS+ failure")
 
 
+def validate_compressed_profile(capture, build, version, checksum, producer):
+    require(capture["schema"] == 1, "Unexpected compressed profile schema")
+    require(re.search(r"BuildVersion:\s*" + re.escape(build) + r"\s*$", capture["host"]),
+            "Wrong compressed profile host")
+    paths = {"scripts/probe-compressed-signing.go", "testdata/research/compressed-signing.c",
+             "testdata/removal/unsigned-arm64.macho", "go.mod", "go.sum"}
+    require(set(capture["source_sha256"]) == paths | {"/usr/bin/codesign"}, "Missing compressed provenance")
+    for path in paths:
+        require(sha(ROOT / path) == capture["source_sha256"][path], "Stale compressed source: " + path)
+    require(capture["sdk"] == version and capture["sdk_sum"] == checksum, "Stale compressed SDK")
+    require(capture["native_producer_path"] == "testdata/appledouble/native/decmpfs-formats.c" and
+            capture["native_producer_sha256"] == producer, "Stale compressed producer")
+    expected = {(shape, operation, preserve) for shape in ("standalone", "bundle")
+                for operation in ("sign", "resign", "dryrun", "remove") for preserve in (False, True)}
+    cases = capture["cases"]
+    require(len(cases) == 16 and {(c["shape"], c["operation"], c["preserve"]) for c in cases} == expected,
+            "Incomplete compressed cases")
+    require(all(c["exit"] == 0 and c["sdk_error"] == "" for c in cases), "Compressed lifecycle regression")
+
+
 def validate_large_source(large, inventory):
     require(len(large["cases"]) == 9 and {c["content_length"] for c in large["cases"]} ==
             {b + d for b in (1 << 30, 2 << 30, 4 << 30) for d in (-1, 0, 1)}, "Incomplete large-source capture")
@@ -250,6 +270,9 @@ def main():
     require(process["codesign_sha256"] == inventory["baseline"]["codesign_sha256"], "Unexpected native binary")
     module = json.loads(subprocess.check_output(["go", "list", "-m", "-json", plan["apfs_audit"]["module"]], cwd=ROOT, text=True))
     require(module["Version"] == plan["apfs_audit"]["version"] and module["Sum"] == plan["apfs_audit"]["sum"], "Stale released APFS audit")
+    for build, filename in {"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}.items():
+        validate_compressed_profile(read("testdata/research/" + filename), build, module["Version"], module["Sum"],
+                                    sha(Path(module["Dir"]) / "testdata/appledouble/native/decmpfs-formats.c"))
     for api in plan["apfs_audit"]["apis"]:
         require(sha(Path(module["Dir"]) / api["path"]) == api["sha256"], "Changed APFS API evidence")
     # Pin race/fuzz membership as well as worker success: a smaller matrix cannot

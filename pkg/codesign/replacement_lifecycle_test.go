@@ -35,6 +35,12 @@ func TestReplacementLifecycleCheckpoints(t *testing.T) {
 				if err := os.Link(path, neighbour); err != nil {
 					t.Fatal(err)
 				}
+				// Windows pathname Stat loads its identity lazily. Cache it while
+				// both names still refer to the original, before replacement.
+				linked, err := os.Stat(neighbour)
+				if err != nil || !os.SameFile(before, linked) {
+					t.Fatalf("initial hard-link identity: %v", err)
+				}
 				changed := bytes.Repeat([]byte("replacement"), transferBufferSize/4)
 				dryRun := strings.HasSuffix(kind, "-dryrun")
 				ctx, cancel := context.WithCancel(t.Context())

@@ -49,6 +49,29 @@ class ResearchTests(unittest.TestCase):
     def test_large_source_capture(self):
         research.validate_large_source(research.read("testdata/research/large-source.json"), self.inventory)
 
+    def test_compressed_profile_provenance(self):
+        for build, filename in {"26A428": "compressed-signing.json", "26A434": "compressed-signing-26A434.json"}.items():
+            original = research.read("testdata/research/" + filename)
+            audit = self.plan["apfs_audit"]
+            def check(capture):
+                research.validate_compressed_profile(capture, build, audit["version"], audit["sum"],
+                                                    original["native_producer_sha256"])
+            check(original)
+            mutations = [lambda c: c["source_sha256"].__setitem__("go.mod", "0" * 64),
+                         lambda c: c["source_sha256"].pop("go.sum"),
+                         lambda c: c.__setitem__("sdk", "stale"),
+                         lambda c: c.__setitem__("sdk_sum", "stale"),
+                         lambda c: c.__setitem__("native_producer_sha256", "0" * 64),
+                         lambda c: c.__setitem__("host", "other host"),
+                         lambda c: c["cases"].pop(),
+                         lambda c: c["cases"].__setitem__(0, c["cases"][1]),
+                         lambda c: c["cases"][0].__setitem__("sdk_error", "failed")]
+            for i, mutate in enumerate(mutations):
+                with self.subTest(build=build, mutation=i), self.assertRaises(ValueError):
+                    changed = copy.deepcopy(original)
+                    mutate(changed)
+                    check(changed)
+
     def test_large_macho_capture(self):
         research.validate_large_macho(research.read("testdata/research/large-macho.json"), self.inventory)
 

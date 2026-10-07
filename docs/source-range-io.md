@@ -161,6 +161,13 @@ explicit volume-policy observations before selecting recompression behavior.
 Each existing profile retains
 its exact native storage bytes and provenance; the recapture selects the host
 build explicitly and rejects an unqualified build. Its sixteen
+cases have dependency/source provenance checked for both retained builds before
+test shards run. When the dependency changes, each build needs a genuine fresh
+capture; updating the local host's profile alone is insufficient. The 26A428
+profile for APFS #208 was recovered from native-capture artifact `11461919992`
+in codesign CI run `37575123529`: its driver/input/module hashes match the
+checkout and all sixteen behavior records match the previous capture.
+The sixteen
 cases originally exposed the v0.17.2 staging rejection, retained in
 `compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK
 eligibility checks. `TestCompressedReplacementNative` also compares 24 live
