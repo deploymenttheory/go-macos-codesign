@@ -1,12 +1,8 @@
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261005072906-8821862a12de h1:SxWYy13HDWKN2rc4AFzjr4tUqZOS9ijxcDDua7f6gGc=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261005072906-8821862a12de/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261005100916-45fe038d5fa8 h1:RUJnP5sQL/dzH8n7AjEnjfe+j5QNNdE1qCs9dE5Mojw=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261005100916-45fe038d5fa8/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261006032702-9764869bf139 h1:edrZV77xYNCY4VWh4OEU98/U6GD/+xKkUa6NV9doiPE=
-github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261006032702-9764869bf139/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
+github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261007044008-2369b7c390ae h1:2SBi0an8tl/Dm/AckhFtJzmtl9hZyiRDSFxZNbGURcw=
+github.com/deploymenttheory/go-apfs-v2 v0.17.3-0.20261007044008-2369b7c390ae/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=

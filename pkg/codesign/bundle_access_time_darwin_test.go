@@ -140,7 +140,7 @@ func TestBundlePreparationDefersSourceAccess(t *testing.T) {
 		t.Fatal("private preparation changed source metadata")
 	}
 	started := time.Now()
-	if err := p.copySourceAccess(); err != nil {
+	if err := p.copySourceAccess(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	finished := time.Now()

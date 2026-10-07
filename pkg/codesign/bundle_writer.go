@@ -133,7 +133,7 @@ func applyBundleWrites(ctx context.Context, writes []bundleWrite, dryRun bool) (
 
 // Copy root stat metadata into newly created signature directories. Leave
 // existing directories unchanged; explicit ACL entries are not copied.
-func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
+func (b *appBundle) createSignatureDirectory(ctx context.Context) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer source.Close()
+	defer func() { result = errors.Join(result, source.Close()) }()
 	st, err := b.root.Lstat(name)
 	if err != nil {
 		return err
@@ -164,7 +164,7 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer target.Close()
+	defer func() { result = errors.Join(result, target.Close()) }()
 	current, err := target.Stat()
 	if err != nil {
 		return err
@@ -180,7 +180,7 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) error {
 
 // Purge regular signature files after executable commit. Keep the directory and
 // preserve hard-link neighbours by unlinking entries without following symlinks.
-func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool) error {
+func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 	if err != nil {
 		return err
 	}
-	defer root.Close()
+	defer func() { result = errors.Join(result, root.Close()) }()
 	current, err := root.Stat(".")
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (b *appBundle) purgeSignatureFiles(ctx context.Context, keepResources bool)
 	if err != nil {
 		return err
 	}
-	defer dir.Close()
+	defer func() { result = errors.Join(result, dir.Close()) }()
 	// Use case-insensitive APFS order so partial cleanup leaves the same entries
 	// on every host. Read one extra entry to detect overflow with bounded memory.
 	entries, err := dir.ReadDir(maxBundleEntries + 1)
@@ -312,8 +312,11 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	if st.ModTime().Before(created) {
 		created = st.ModTime()
 	}
-	r, err := hostdata.PrepareReplacementAt(source, root, filepath.Dir(write.name))
+	r, err := hostdata.PrepareReplacementAtContext(ctx, source, root, filepath.Dir(write.name))
 	if err != nil {
+		if canceled := ctx.Err(); canceled != nil {
+			return nil, errors.Join(err, canceled)
+		}
 		if errors.Is(err, os.ErrPermission) {
 			return nil, &bundleAllocationError{err: err, original: st}
 		}
@@ -367,7 +370,7 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if err := p.copySourceAccess(); err != nil {
+	if err := p.copySourceAccess(ctx); err != nil {
 		return err
 	}
 	if err := ctx.Err(); err != nil {
@@ -400,7 +403,10 @@ func (p *preparedBundleExecutable) recordReadAccess() error {
 
 // Defer source access until preceding envelope writes and descendant cleanup
 // succeed. Copy its exact time into the private replacement before rename.
-func (p *preparedBundleExecutable) copySourceAccess() (result error) {
+func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result error) {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if p.write.output.reader != nil {
 		if err := sourceUnchanged(p.replacement.source, p.original); err != nil {
 			return err
@@ -414,12 +420,21 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 	defer func() { result = errors.Join(result, source.Close()) }()
 	// Validate the staged pathname, but update metadata through the retained
 	// writer: this read handle does not grant Windows write-attribute access.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	target, err := openBundleExecutable(root, p.replacement.Path, p.staged)
 	if err != nil {
 		return err
 	}
 	defer func() { result = errors.Join(result, target.Close()) }()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if err := accesstime.RecordReadAccess(source); err != nil && !errors.Is(err, accesstime.ErrReadAccessUnsupported) {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if err := accesstime.CopyAccessTime(source, p.replacement.File); err != nil {
@@ -427,11 +442,17 @@ func (p *preparedBundleExecutable) copySourceAccess() (result error) {
 			return fmt.Errorf("copy staged executable access time: %w", err)
 		}
 	}
-	if err := p.replacement.RestoreMetadata(); err != nil {
+	if err := p.replacement.RestoreMetadataContext(ctx); err != nil {
 		return fmt.Errorf("restore staged executable metadata: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	if err := p.replacement.File.Sync(); err != nil {
 		return fmt.Errorf("sync staged executable metadata: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	return errors.Join(p.replacement.File.Close(), p.replacement.closeSource())
 }

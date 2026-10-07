@@ -2391,6 +2391,10 @@
           "cases": 1,
           "sha256": "8fc824f0f729c08f42b653cd4b979eabbe5ca24a3802a86e75ab46eaa0f5d7a7"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementLifecycleCheckpoints": {
+          "cases": 6,
+          "sha256": "f102af1d500f00e5b0766466c4848e523d803bb657dbb2eb5b089924b438ef99"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementNotificationBoundary": {
           "cases": 19,
           "sha256": "7eb9963c7d98ae4c84f6c29841a9618d5269cad6a8d96bf7f28b4cf42811cce4"
@@ -4816,6 +4820,10 @@
           "cases": 1,
           "sha256": "8fc824f0f729c08f42b653cd4b979eabbe5ca24a3802a86e75ab46eaa0f5d7a7"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementLifecycleCheckpoints": {
+          "cases": 6,
+          "sha256": "f102af1d500f00e5b0766466c4848e523d803bb657dbb2eb5b089924b438ef99"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementNotificationBoundary": {
           "cases": 19,
           "sha256": "7eb9963c7d98ae4c84f6c29841a9618d5269cad6a8d96bf7f28b4cf42811cce4"
@@ -7240,6 +7248,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementCancellationPreservesHardlinks": {
           "cases": 1,
           "sha256": "8fc824f0f729c08f42b653cd4b979eabbe5ca24a3802a86e75ab46eaa0f5d7a7"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementLifecycleCheckpoints": {
+          "cases": 6,
+          "sha256": "f102af1d500f00e5b0766466c4848e523d803bb657dbb2eb5b089924b438ef99"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestReplacementNotificationBoundary": {
           "cases": 19,

@@ -325,10 +325,12 @@ to all remaining planning, metadata, cleanup and commit paths, preserving the
 APFS integration. Keep source-preserving SDK transport distinct
 from native operation metadata profiles. No complete Phase 02 family is closed.
 
-**Upstream integration and batch release remain open.** Consume only merged
-APFS main commits for development and CI, with no local module replacement.
-Re-pin and recapture codesign provenance after the remaining prerequisites merge;
-qualify the final batch release before closing Phase 02. The user controls the
+**Consumer integration and batch release remain open.** APFS PR #208 is merged
+and its final-head CI passed. Codesign consumes merge commit
+`2369b7c390ae9a9e88d8356db6f07ff683580c1d` through its exact module pseudo-version,
+with no local replacement. Its cancellable preparation and restoration APIs now
+receive the codesign operation context. Qualify these consumer changes on all
+three hosts and the final batch release before closing Phase 02. The user controls the
 release PR and requires at least eight substantive changes, rather than cosmetic
 commits or test-only follow-ups.
 
@@ -347,7 +349,10 @@ comparisons, including independent native readback of Linux and Windows outputs
 on both macOS runners. Final codesign integration and provenance recapture remain
 outstanding.
 
-The remaining recompression prerequisite must cover these concrete boundaries:
+The SDK now supplies held compression-input acquisition, held volume observation,
+cancellable replacement lifecycle, foreign pathname authorization and carrier
+replacement/in-place composition. Reuse those merged implementations. The
+remaining codesign recompression integration must cover these concrete boundaries:
 
 - Keep the package boundary explicit: APFS `pkg/recompression` owns foreign
   operation policy, authorization, private staging and resulting inode state;
@@ -356,8 +361,8 @@ The remaining recompression prerequisite must cover these concrete boundaries:
   `pkg/compression/decmpfs`, held native operations in `pkg/hostdata`, and version
   selection in `pkg/osversion`. The separation must preserve all native replay,
   cancellation, partial-publication and cross-host image-readback gates. It is
-  an upstream prerequisite for codesign integration, not an additional product
-  roadmap or evidence that Phase 02 is complete.
+  a merged upstream prerequisite for codesign integration, not evidence that
+  Phase 02 is complete.
 
 - Integrate shared APFS `pkg/osversion` and carry an explicit macOS product
   version through behavior-sensitive operations on Linux, macOS and Windows.
@@ -402,15 +407,22 @@ The remaining recompression prerequisite must cover these concrete boundaries:
   old storage; after edits, encode new storage. Exercise generation conflicts,
   partial publication, disk exhaustion, cancellation and cleanup on every host.
 
-Remaining shared prerequisites include held-file volume policy, compression
-installation and failure/cleanup semantics, and complete foreign-metadata
-integration. In particular, `MNT_CPROTECT` suppresses inline compression even
+Remaining consumer work includes using the SDK's held-file volume observation,
+compression installation and failure/cleanup results, and completing explicit
+foreign-metadata integration. In particular, `MNT_CPROTECT` suppresses inline compression even
 when requested; the same OS build can choose different storage on different
 volumes. Capture and consume actual mount policy rather than selecting storage
 from OS version alone. AppleDouble attributes alone do not establish BSD flags
 or mount policy; preserve that distinction when binding explicit foreign inputs.
 `--preserve-afsc` must also retain native post-rename failure behavior. None of
 these dependency changes closes the codesign compression integration by itself.
+
+Preserve the upstream qualification boundary: macOS 15's native kernel cannot
+safely consume the newer APFS formatter profiles in four cross-version cells.
+The SDK harness records those as forward-incompatible, without inventing lookup
+results; its portable readers still read every producer's images on every host.
+Do not describe those four cells as successful native lookup captures or use the
+kernel limitation to exclude Linux or Windows functionality.
 
 The main pin passes 24 live compressed standalone/bundle lifecycle comparisons
 and the retained sixteen-case native recapture. These are ordinary replacement
