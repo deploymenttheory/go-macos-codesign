@@ -149,6 +149,7 @@
     "TestPortablePKCS12": 0,
     "TestPortableRemovalFixtures": 2,
     "TestPortableTimestampReplay": 3,
+    "TestPreserveAFSCNative": 1,
     "TestRecordAppleBinaryBundleFixtures": 2,
     "TestRecordAppleBundleFixtures": 2,
     "TestRecordAppleFrameworkVersions": 2,
@@ -856,6 +857,10 @@
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
+          "cases": 25,
+          "sha256": "fcee9afa2d458d8eb449464fbcfdffcde1cd562eccb0ee9e6a62663f7240c84a"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestRecordAppleBinaryBundleFixtures": {
           "cases": 1,
           "sha256": "7e8c8a09c8a9b87bb532a65b97b15894406172c7fc4832ff8b9bff8b858f87d2"
@@ -1328,6 +1333,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPKCS12AndRootCommands": {
           "cases": 1,
           "sha256": "722684455b8d55ec88930ec21a23250e5e48c9d8cb39e5fd810cc14dbff4cde2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPreserveAFSCOption": {
+          "cases": 6,
+          "sha256": "96a8ac50a0ebac7909f103d59d7fe32ade7c7e5bf2ce34e80dd79a60b94147ba"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
@@ -1816,6 +1825,18 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompiledRequirementsRejectMalformed": {
           "cases": 1,
           "sha256": "4f1e00153862306a4c2bd3f6b7b936fe3cc44c9a5195b1c9bf67ba9096b26c71"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionAdmissionPolicy": {
+          "cases": 9,
+          "sha256": "3d65acf21c641a1a72df552ecab6e7f94cc086dbf13d432bbbef04755efee344"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionObservationPolicy": {
+          "cases": 7,
+          "sha256": "d483bb7825eb0fd4680fa6afd835e31db2056aae56a99f8fb61687f3776e61ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionPrivateStage": {
+          "cases": 7,
+          "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,
@@ -3397,6 +3418,10 @@
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
+          "cases": 1,
+          "sha256": "eca3e500a4245a2030e6584eb6ce63349fa80e75202c197ee07f88fc6eb382a0"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestRecordAppleBinaryBundleFixtures": {
           "cases": 1,
           "sha256": "7e8c8a09c8a9b87bb532a65b97b15894406172c7fc4832ff8b9bff8b858f87d2"
@@ -3825,6 +3850,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPKCS12AndRootCommands": {
           "cases": 1,
           "sha256": "722684455b8d55ec88930ec21a23250e5e48c9d8cb39e5fd810cc14dbff4cde2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPreserveAFSCOption": {
+          "cases": 6,
+          "sha256": "96a8ac50a0ebac7909f103d59d7fe32ade7c7e5bf2ce34e80dd79a60b94147ba"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
@@ -4285,6 +4314,18 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompiledRequirementsRejectMalformed": {
           "cases": 1,
           "sha256": "4f1e00153862306a4c2bd3f6b7b936fe3cc44c9a5195b1c9bf67ba9096b26c71"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionAdmissionPolicy": {
+          "cases": 9,
+          "sha256": "3d65acf21c641a1a72df552ecab6e7f94cc086dbf13d432bbbef04755efee344"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionObservationPolicy": {
+          "cases": 7,
+          "sha256": "d483bb7825eb0fd4680fa6afd835e31db2056aae56a99f8fb61687f3776e61ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionPrivateStage": {
+          "cases": 7,
+          "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,
@@ -5858,6 +5899,10 @@
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
+          "cases": 1,
+          "sha256": "eca3e500a4245a2030e6584eb6ce63349fa80e75202c197ee07f88fc6eb382a0"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestRecordAppleBinaryBundleFixtures": {
           "cases": 1,
           "sha256": "7e8c8a09c8a9b87bb532a65b97b15894406172c7fc4832ff8b9bff8b858f87d2"
@@ -6286,6 +6331,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPKCS12AndRootCommands": {
           "cases": 1,
           "sha256": "722684455b8d55ec88930ec21a23250e5e48c9d8cb39e5fd810cc14dbff4cde2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestPreserveAFSCOption": {
+          "cases": 6,
+          "sha256": "96a8ac50a0ebac7909f103d59d7fe32ade7c7e5bf2ce34e80dd79a60b94147ba"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
@@ -6750,6 +6799,18 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompiledRequirementsRejectMalformed": {
           "cases": 1,
           "sha256": "4f1e00153862306a4c2bd3f6b7b936fe3cc44c9a5195b1c9bf67ba9096b26c71"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionAdmissionPolicy": {
+          "cases": 9,
+          "sha256": "3d65acf21c641a1a72df552ecab6e7f94cc086dbf13d432bbbef04755efee344"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionObservationPolicy": {
+          "cases": 7,
+          "sha256": "d483bb7825eb0fd4680fa6afd835e31db2056aae56a99f8fb61687f3776e61ff"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCompressionPrivateStage": {
+          "cases": 7,
+          "sha256": "e161b5c8164f5fddc80d3515b05bcde5714837cea2ffc3e77ec8cecdb339da3c"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestConstantsMatchAppleAST": {
           "cases": 1,

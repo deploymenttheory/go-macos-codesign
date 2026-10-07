@@ -28,6 +28,7 @@ const usage = `Usage: macoscodesign -s identity [-fv*] [-o flags] [-r reqs] [-i 
 `
 
 type options struct {
+	preserveAFSC                                                                         bool
 	ignoreResources                                                                      bool
 	strictRequested                                                                      bool
 	strictMask                                                                           uint32
@@ -188,6 +189,11 @@ func parse(args []string) (options, error) {
 			var val string
 			var err error
 			switch name {
+			case "preserve-afsc":
+				if has {
+					return o, fmt.Errorf("--preserve-afsc does not accept an argument")
+				}
+				o.preserveAFSC = true
 			case "strip-disallowed-xattrs":
 				if has {
 					return o, fmt.Errorf("--strip-disallowed-xattrs does not accept an argument")
@@ -445,6 +451,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	signOpts.PreserveAFSC = o.preserveAFSC
 	signOpts.NoStrict, signOpts.StripDisallowedXattrs = o.noStrict, o.stripDisallowed
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
 		fmt.Fprintln(stderr, "macoscodesign: --key/--password-file require certificate signing and are mutually exclusive; --trust/--trust-root require verification")
@@ -603,6 +610,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			}
 		case "remove":
 			var opts codesign.RemoveOptions
+			// Native removal accepts --preserve-afsc but does not recompress.
 			opts.BundleVersion = o.bundleVersion
 			opts.AppleDouble, opts.AppleDoubleFiles, err = mutableMetadata(ctx, o.appleDoublePath, o.appleDoubleMap)
 			if err == nil {

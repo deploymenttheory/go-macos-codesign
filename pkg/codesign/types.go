@@ -55,8 +55,11 @@ type RemoveOptions struct {
 type SignOptions struct {
 	// BundleVersion has the same meaning as PathOptions.BundleVersion.
 	BundleVersion string
-	Identifier    string
-	Force         bool
+	// PreserveAFSC requests recompression after replacing a compressed file.
+	// Queue rejection can fail after the signed replacement has been committed.
+	PreserveAFSC bool
+	Identifier   string
+	Force        bool
 	// NoStrict disables signing preflight metadata rejection and code-object
 	// stripping. Explicit stripping of included ordinary resources still runs.
 	NoStrict bool

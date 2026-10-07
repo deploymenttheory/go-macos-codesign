@@ -75,6 +75,7 @@ func recordMachORead(f *os.File) error {
 // disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
 // matching codesign; see SignOptions.DryRun.
 func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
+	ctx = context.WithValue(ctx, preserveCompressionKey{}, opts.PreserveAFSC)
 	ctx, storage, err := beginWorkingStorage(ctx)
 	if err != nil {
 		return err

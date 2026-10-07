@@ -691,11 +691,21 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	} else if !st.Mode().IsRegular() {
 		return unsupported("writing non-regular bundle file")
 	}
+	var kind uint32
+	if preserve, _ := ctx.Value(preserveCompressionKey{}).(bool); preserve && st != nil {
+		if source, openErr := b.root.Open(name); openErr == nil {
+			kind, err = captureCompression(ctx, source)
+			if err = errors.Join(err, source.Close()); err != nil {
+				return err
+			}
+		}
+	}
 	f, err := b.root.OpenFile(name, flags, 0644)
 	if err != nil {
 		return err
 	}
-	defer func() { result = errors.Join(result, f.Close()) }()
+	closer := operationCloser{f.Close}
+	defer func() { result = errors.Join(result, closer.Close()) }()
 	current, err := f.Stat()
 	if err != nil {
 		return err
@@ -703,7 +713,13 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	if st != nil && !os.SameFile(st, current) {
 		return fmt.Errorf("bundle write target changed")
 	}
-	return populateOutput(ctx, f, byteOutput(data), nil)
+	if err := populateOutput(ctx, f, byteOutput(data), nil); err != nil {
+		return err
+	}
+	if err := closer.Close(); err != nil {
+		return err
+	}
+	return recompressNativeRoot(ctx, b.root, name, kind)
 }
 
 func removeBundle(ctx context.Context, path string, opts RemoveOptions) (failure error) {

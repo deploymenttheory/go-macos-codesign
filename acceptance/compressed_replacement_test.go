@@ -13,8 +13,16 @@ import (
 // Live compression storage requires a Darwin filesystem. Portable logical-byte
 // signing remains covered by the shared mutation matrix; this oracle additionally
 // checks the hidden native storage that the replacement writer must discard.
-// Recompression (--preserve-afsc) is a separate, still-open phase obligation.
 func TestCompressedReplacementNative(t *testing.T) {
+	compressedReplacementNative(t, false)
+}
+
+func TestPreserveAFSCNative(t *testing.T) {
+	compressedReplacementNative(t, true)
+}
+
+func compressedReplacementNative(t *testing.T, preserve bool) {
+	t.Helper()
 	native := apple(t)
 	dir := t.TempDir()
 	var module struct{ Dir string }
@@ -107,6 +115,9 @@ func TestCompressedReplacementNative(t *testing.T) {
 							args = append(args, "--dryrun")
 						case "remove":
 							args = []string{"--remove-signature"}
+						}
+						if preserve {
+							args = append(args, "--preserve-afsc")
 						}
 						mustRun(t, tool, append(args, operand)...)
 						states[i] = snapshot(t, executable)

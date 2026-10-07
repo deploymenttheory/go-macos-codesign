@@ -206,7 +206,7 @@ in this phase still apply.
 | Large signature metadata | Twelve native CLI/C SDK controls around 64 KiB/16 MiB/128 MiB/1 GiB; dense reconstruction, three-budget replay and fresh-process memory observations | Final three-host CI; measured cross-host regression bounds, additional metadata shapes and concurrent/nested measurements |
 | Shared resource accounting | Existing memory reservation pool and spill file | Complete handles, parsed values, queued work, temporary-storage accounting and failure qualification |
 | Lifecycle and scheduling | Existing cancellable transfer and APFS preparation/restoration | Remaining discovery/planning/cleanup/commit checkpoints, asynchronous sibling and single-threaded behavior |
-| Compression and release profiles | Merged APFS prerequisites remain pinned | Complete codesign consumer integration and macOS 15/26/27 qualification |
+| Compression and release profiles | Native signing/re-signing commit integration; 24 preservation comparisons plus 24 retained replacement controls; portable admission/cancellation policy tests | Explicit foreign carrier integration, full envelope/authorization failure matrix, macOS 15/26/27 qualification and APFS #211 |
 | Phase closure | No family or whole phase is declared complete by this branch | Every delivery gate below, final dependency policy, evidence and documentation reconciliation |
 
 These are coordinated workstreams within Phase 02, not separate per-feature PR
@@ -375,6 +375,16 @@ The SDK now supplies held compression-input acquisition, held volume observation
 cancellable replacement lifecycle, foreign pathname authorization and carrier
 replacement/in-place composition. Reuse those merged implementations. The
 remaining codesign recompression integration must cover these concrete boundaries:
+
+- [APFS PR #211](https://github.com/deploymenttheory/go-apfs-v2/pull/211) exposes
+  replacement attribute selection for borrowed foreign values. Its native controls
+  distinguish compression-storage ownership from ordinary namespace visibility:
+  active compression hides even independent resource forks from replacement.
+  Consume the merged API and retain its mounted comparisons; do not duplicate
+  private SDK filtering in codesign. The consumer still needs generation-checked
+  payload/metadata publication, source security/mount/version binding and native
+  readback of Linux/Windows output. Native `--preserve-afsc` comparisons alone do
+  not qualify this foreign route.
 
 - Keep the package boundary explicit: APFS `pkg/recompression` owns foreign
   operation policy, authorization, private staging and resulting inode state;
