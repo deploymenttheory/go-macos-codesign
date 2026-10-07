@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.3-0.20261007070340-674c2a3a815b",
-    "sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg=",
+    "version": "v0.17.3-0.20261007144907-6829b607475e",
+    "sum": "h1:FvRn5T2O2vgFS9r36qdHIoOffOipw8uhdBQhTx79o+0=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
@@ -5987,7 +5987,7 @@
           "replacementCloneUnavailable",
           "copyReplacementMetadata"
         ],
-        "decision": "Merged PR198 main pin uses fresh staging for compressed sources, preserving independent resource forks and target compression flags. Recompression remains a separate prerequisite."
+        "decision": "Use fresh staging for compressed sources and the SDK ordinary-namespace replacement policy. Active compression hides even independent inline resource forks; compression-storage ownership alone does not determine replacement visibility. Retain mounted native controls."
       },
       {
         "path": "pkg/hostdata/replacement_root_windows.go",
@@ -6032,6 +6032,22 @@
           "makeReplacementDirectoryAt"
         ],
         "decision": "Merged PR209 normalizes private-directory NTSTATUS errors to Win32 errors. Preserve errors.Is(err, os.ErrPermission) for allocation-failure handling and qualify denied creation through rooted and standalone consumer operations."
+      },
+      {
+        "path": "pkg/hostdata/compression_path.go",
+        "sha256": "f7b3b4eee722e85ea11c008e172ffb50d43742dd2cf608119c9756d5fd178f90",
+        "symbols": [
+          "QueryCompressionNoFollow"
+        ],
+        "decision": "Merged PR212 queries compression before a writable open without requiring data-read access. Reuse identity validation and bounded attribute observation; retain the documented pathname race boundary."
+      },
+      {
+        "path": "pkg/hostdata/compression_path_darwin.go",
+        "sha256": "4a8f9676dd63317a4e5106e79633fb02b51f923032f5eff0b9dde3bead263bf8",
+        "symbols": [
+          "nativeCompressionPathXattr"
+        ],
+        "decision": "The native query uses existing typed x/sys no-follow libSystem xattr wrappers; no custom binding or deprecated direct syscall."
       }
     ],
     "prerequisite_findings": [
@@ -6065,7 +6081,23 @@
       "sha256": "bf2ff6ab77e7a437825f7365503789d91d6a26844545bfe2509a5ea9f08a078d",
       "version": "v0.17.0",
       "sum": "h1:MjYtnrBQhq7rW2JNv6obY76JK4UXLbGEyZMafK66AZE="
-    }
+    },
+    "compression_history": [
+      {
+        "path": "testdata/research/history/compressed-signing-26A428.json",
+        "sha256": "14a911d06b92967542633379c0774a2913b8b348ce24986639ee13bedda266cf",
+        "build": "26A428",
+        "version": "v0.17.3-0.20261007070340-674c2a3a815b",
+        "sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg="
+      },
+      {
+        "path": "testdata/research/history/compressed-signing-26A434.json",
+        "sha256": "70fa33495858b84413381174ca07e3d45962745079aa1b43e2989a186d6674c8",
+        "build": "26A434",
+        "version": "v0.17.3-0.20261007070340-674c2a3a815b",
+        "sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg="
+      }
+    ]
   },
   "classification_limits": "Single-probe acceptance/rejection records one exact fixture/value only; ignored/default/precedence/representation behavior remains to be captured. Future case families are specifications, not fabricated observations.",
   "source_reviews": [

@@ -356,59 +356,15 @@
   "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
   "native_producer_path": "testdata/appledouble/native/decmpfs-formats.c",
   "native_producer_sha256": "6e49c855d738664284fc51a064822db1603e7bdd870dfbc3130d2fd99317159c",
-  "profile": "compressed-signing-26A434.json",
-  "schema": 2,
-  "sdk": "v0.17.3-0.20261007144907-6829b607475e",
-  "sdk_sum": "h1:FvRn5T2O2vgFS9r36qdHIoOffOipw8uhdBQhTx79o+0=",
+  "schema": 1,
+  "sdk": "v0.17.3-0.20261007070340-674c2a3a815b",
+  "sdk_sum": "h1:mnDDR4IfJoV7BH0FI4BsVOXqMeOWdo8b9cyIWxsg3Fg=",
   "source_sha256": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "1fbe31abed79ea529904d82e937c78e0a9ce79b1da2ebfee26967b5ebd54bf99",
-    "go.sum": "fd1287022c354875da07fd8a6cb96ee739d8f9427111b30ca5e05aa77601909b",
-    "scripts/probe-compressed-signing.go": "a3c3df829722695f41422d5ca247652b3cee745ddfebf3b7c12687df47a6f770",
+    "go.mod": "356254d19a34ee04d7c78c30074ca47478e470cc8e55f83fa1ac8b2b04cae029",
+    "go.sum": "dc2288897d56c793e0d3064fa1059a457d67f700eca4c16029095a1eb70c97fa",
+    "scripts/probe-compressed-signing.go": "e99dc9c6144cd9724e6fe11e0797117c59f381e335c24a2e7d28d051975da672",
     "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6",
-    "testdata/research/compressed-signing.c": "c45835b3bd00a93def220fa8d93c6f9d30f4e7fe2848be98d57a2a502742086d"
-  },
-  "volume": {
-    "filesystem": "apfs",
-    "flags": 76583040,
-    "cprotect_mask": 128
-  },
-  "volume_ast": {
-    "arm64-apple-macos27": {
-      "BinaryOperator": 1,
-      "CStyleCastExpr": 1,
-      "CallExpr": 7,
-      "CompoundStmt": 1,
-      "DeclRefExpr": 14,
-      "DeclStmt": 2,
-      "FunctionDecl": 1,
-      "IfStmt": 3,
-      "ImplicitCastExpr": 21,
-      "IntegerLiteral": 4,
-      "MemberExpr": 2,
-      "ParmVarDecl": 1,
-      "ReturnStmt": 1,
-      "StringLiteral": 4,
-      "UnaryOperator": 1,
-      "VarDecl": 2
-    },
-    "x86_64-apple-macos27": {
-      "BinaryOperator": 1,
-      "CStyleCastExpr": 1,
-      "CallExpr": 7,
-      "CompoundStmt": 1,
-      "DeclRefExpr": 14,
-      "DeclStmt": 2,
-      "FunctionDecl": 1,
-      "IfStmt": 3,
-      "ImplicitCastExpr": 21,
-      "IntegerLiteral": 4,
-      "MemberExpr": 2,
-      "ParmVarDecl": 1,
-      "ReturnStmt": 1,
-      "StringLiteral": 4,
-      "UnaryOperator": 1,
-      "VarDecl": 2
-    }
+    "testdata/research/compressed-signing.c": "f4f2dfbaab6e652283876bc62783a8fb3875c918347951b802fb75bc099d8fbb"
   }
 }

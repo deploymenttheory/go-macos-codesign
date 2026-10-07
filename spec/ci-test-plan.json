@@ -119,6 +119,7 @@
     "TestLayoutMutationParity": 0,
     "TestLayoutRemoval": 0,
     "TestMixedLayoutTimestamps": 0,
+    "TestMountedCompressionPreservation": 3,
     "TestMountedFilesystemDetachPolicy": 3,
     "TestMountedFilesystemWriterParity": 3,
     "TestNativeBinaryBundleFixtures": 3,
@@ -150,6 +151,7 @@
     "TestPortablePKCS12": 0,
     "TestPortableRemovalFixtures": 2,
     "TestPortableTimestampReplay": 3,
+    "TestPreserveAFSCEnvelopeNative": 1,
     "TestPreserveAFSCNative": 1,
     "TestRecordAppleBinaryBundleFixtures": 2,
     "TestRecordAppleBundleFixtures": 2,
@@ -738,6 +740,10 @@
           "cases": 1,
           "sha256": "3d6b862e28b9ae380d4ee01b6817b2da44fd468c5c92d9a001785805b98335de"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedCompressionPreservation": {
+          "cases": 115,
+          "sha256": "d9c56a1a602c5d9bca4d4ed92cfacd02f32d7fef6f0d1e650d4327e6a9a8e233"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestMountedFilesystemDetachPolicy": {
           "cases": 9,
           "sha256": "f043f665f43615a763e3493d721e1fe55dae2499d80f1b1599910d115b2ba6a2"
@@ -861,6 +867,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPortableTimestampReplay": {
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCEnvelopeNative": {
+          "cases": 31,
+          "sha256": "496ff446473c95a49ed5467965d610b468b03cfaafa89334a4247cf6525726d1"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
           "cases": 25,
@@ -3443,6 +3453,10 @@
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCEnvelopeNative": {
+          "cases": 1,
+          "sha256": "3268afeb692ea45e4b2a6e1d93fa74f15db22b9248cfbeb80328d72daf95440d"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
           "cases": 1,
           "sha256": "eca3e500a4245a2030e6584eb6ce63349fa80e75202c197ee07f88fc6eb382a0"
@@ -5943,6 +5957,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPortableTimestampReplay": {
           "cases": 1,
           "sha256": "8473becba019ea68501cb3ed07ca5928bd2b4c62e09f0fd5b6f27ed6260a7423"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCEnvelopeNative": {
+          "cases": 1,
+          "sha256": "3268afeb692ea45e4b2a6e1d93fa74f15db22b9248cfbeb80328d72daf95440d"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestPreserveAFSCNative": {
           "cases": 1,

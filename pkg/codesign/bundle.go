@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
@@ -693,12 +694,16 @@ func (b *appBundle) writeResource(ctx context.Context, name string, data []byte)
 	}
 	var kind uint32
 	if preserve, _ := ctx.Value(preserveCompressionKey{}).(bool); preserve && st != nil {
-		if source, openErr := b.root.Open(name); openErr == nil {
-			kind, err = captureCompression(ctx, source)
-			if err = errors.Join(err, source.Close()); err != nil {
-				return err
-			}
+		info, queryErr := hostdata.QueryCompressionNoFollow(ctx, filepath.Join(b.root.Name(), name), st, 64<<10)
+		if errors.Is(queryErr, hostdata.ErrMetadataIdentity) {
+			return queryErr
 		}
+		if queryErr == nil && info.StoredSize > 0 {
+			kind = info.Type
+		}
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	f, err := b.root.OpenFile(name, flags, 0644)
 	if err != nil {

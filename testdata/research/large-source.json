@@ -3,8 +3,8 @@
   "recipe": "prefix, zero-filled sparse extent to content_length, native signature, native trailer; native signing uses -s - -i org.example.large-source --timestamp=none",
   "source_sha256": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "356254d19a34ee04d7c78c30074ca47478e470cc8e55f83fa1ac8b2b04cae029",
-    "go.sum": "dc2288897d56c793e0d3064fa1059a457d67f700eca4c16029095a1eb70c97fa",
+    "go.mod": "1fbe31abed79ea529904d82e937c78e0a9ce79b1da2ebfee26967b5ebd54bf99",
+    "go.sum": "fd1287022c354875da07fd8a6cb96ee739d8f9427111b30ca5e05aa77601909b",
     "scripts/probe-large-source.go": "cfff984250d6ceb95abf9c716766b4754465b8a7dcb458ea007998bf83f32112",
     "testdata/dmg/native-adhoc-raw.dmg": "7f1984ce2d52aff1d69bcfcb30246d9ae612a91d0a963af47536550bf315b6f2"
   },

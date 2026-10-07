@@ -222,24 +222,31 @@ to an exact `main` commit during Phase 02. The next upstream release is batched
 under the [phase dependency policy](implementation_plan.md). The
 research-only `scripts/probe-compressed-signing.go` records native standalone
 and bundle sign/re-sign/dry-run/removal outcomes, with and without
-`--preserve-afsc`, in versioned native captures. The macOS 27.0 build 26A428
-profile is `testdata/research/compressed-signing.json`; the macOS 27.0.1 build
-26A434 profile is `compressed-signing-26A434.json`. The former capture stores
-these inputs inline, while the latter uses resource forks. This difference must
-not be attributed to the OS build alone: the host framework checks the held
-file's `fstatfs` flags and suppresses inline storage on `MNT_CPROTECT` volumes.
-The local host volume has that flag; independently created test images can
-permit inline storage on the same OS build. Extend the signing capture with
-explicit volume-policy observations before selecting recompression behavior.
-Each existing profile retains
-its exact native storage bytes and provenance; the recapture selects the host
-build explicitly and rejects an unqualified build. Its sixteen
-cases have dependency/source provenance checked for both retained builds before
-test shards run. When the dependency changes, each build needs a genuine fresh
-capture; updating the local host's profile alone is insufficient. The 26A428
-profile for APFS #209 was recovered from native-capture artifact `11467997498`
-in codesign CI run `37587472210`: its driver/input/module hashes match the
-checkout and all sixteen behavior records match the previous capture.
+`--preserve-afsc`, in versioned native captures. Storage selection depends on
+independently observed volume policy, not the OS build alone. The C observer
+opens each fixture and calls `fstatfs`; its full function compiles for both Clang
+targets. Capture records the filesystem, complete flags and the SDK's
+`MNT_CPROTECT` mask. Every fixture must agree with the enclosing volume observation.
+
+`compressed-signing.json` contains the unprotected APFS profile;
+`compressed-signing-26A434.json` retains its existing filename but represents
+content-protected APFS. Both were genuinely recaptured on macOS 27.0.1 against
+the merged APFS #212 dependency, on a mounted APFS image and the host volume.
+All sixteen cases in each match their previously retained observations exactly.
+The original build-specific captures remain byte-for-byte in
+`testdata/research/history/`, with pinned hashes and original dependency provenance.
+They are historical observations, not newly executed tests of the old build.
+
+Fresh comparison selects a profile from the independently observed APFS
+`MNT_CPROTECT` flag, before examining outcomes. Known build, source, module,
+producer, native binary and both AST checks remain mandatory. Unqualified context
+fails explicitly. Updating a dependency requires genuine recapture of both volume
+profiles. CI checks both retained profiles and their complete historical case
+sets, then freshly recaptures the runner's actual context; matching whichever
+output happens to pass is never a selection rule. Use `-parent` to place fixtures
+on an explicitly mounted test volume. The runner upgrade to `26A434` exposed why
+a build-only selector was incorrect: its unprotected APFS volume still produced
+the inline representation recorded on `26A428`.
 The sixteen
 cases originally exposed the v0.17.2 staging rejection, retained in
 `compressed-signing-v0.17.2.json`. CI now recaptures all sixteen outcomes and SDK
