@@ -19,10 +19,16 @@ func orderedFilesystemBundle(t *testing.T, bundle, order string) []string {
 	infoCarrier := filepath.Join(bundle, "Contents/._Info.plist")
 	if order == "resource-first" {
 		bundleWrite(t, bundle, "Contents/Resources/message.txt", []byte("hello\n"))
+		bundleFixture(t, bundle, "arm64")
 	} else {
-		bundleWrite(t, bundle, "Contents/._Info.plist", seeds["ordinary"])
+		// Restore metadata to an existing data file. Creating the associated
+		// file later can discard an orphaned carrier on a native filesystem.
+		bundleWrite(t, bundle, "Contents/Info.plist", []byte(bundleInfo))
+		installFilesystemCarrier(t, filepath.Join(bundle, "Contents/Info.plist"), seeds["ordinary"])
+		t.Logf("after Info.plist metadata restoration: %q", filesystemContentsOrder(t, bundle))
+		bundleFixturePayload(t, bundle, "arm64")
 	}
-	bundleFixture(t, bundle, "arm64")
+	t.Logf("after payload creation: %q", filesystemContentsOrder(t, bundle))
 	// Keep the deliberately early entry throughout preparation. The ordinary
 	// fixture removes and recreates attribute files, which lets FAT allocation
 	// move this entry after Resources on Windows and macOS 26. Overwrite its
@@ -41,11 +47,23 @@ func orderedFilesystemBundle(t *testing.T, bundle, order string) []string {
 	}); err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("after incidental metadata cleanup: %q", filesystemContentsOrder(t, bundle))
 	installFilesystemCarrier(t, filepath.Join(bundle, "Contents"), seeds["ordinary"])
 	if err := os.WriteFile(infoCarrier, seeds["ordinary"], 0600); err != nil {
 		t.Fatal(err)
 	}
 	installFilesystemCarrier(t, filepath.Join(bundle, "Contents/Resources/message.txt"), seeds["strip"])
+	names := filesystemContentsOrder(t, bundle)
+	t.Logf("after final metadata restoration: %q", names)
+	nested, resource := slices.Index(names, "._Info.plist"), slices.Index(names, "Resources")
+	if nested < 0 || resource < 0 || (resource < nested) != (order == "resource-first") {
+		t.Fatalf("fixture did not establish %s: %q", order, names)
+	}
+	return names
+}
+
+func filesystemContentsOrder(t *testing.T, bundle string) []string {
+	t.Helper()
 	directory, err := os.Open(filepath.Join(bundle, "Contents"))
 	if err != nil {
 		t.Fatal(err)
@@ -54,10 +72,6 @@ func orderedFilesystemBundle(t *testing.T, bundle, order string) []string {
 	closed := directory.Close()
 	if err != nil || closed != nil {
 		t.Fatal(err, closed)
-	}
-	nested, resource := slices.Index(names, "._Info.plist"), slices.Index(names, "Resources")
-	if nested < 0 || resource < 0 || (resource < nested) != (order == "resource-first") {
-		t.Fatalf("fixture did not establish %s: %q", order, names)
 	}
 	return names
 }

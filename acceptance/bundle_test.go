@@ -31,6 +31,13 @@ func bundleWrite(t *testing.T, app, name string, data []byte) {
 func bundleFixture(t *testing.T, app, arch string) {
 	t.Helper()
 	bundleWrite(t, app, "Contents/Info.plist", []byte(bundleInfo))
+	bundleFixturePayload(t, app, arch)
+}
+
+// Keep the Info.plist creation step separate so ordered metadata-restoration
+// fixtures can restore its attributes before creating the remaining tree.
+func bundleFixturePayload(t *testing.T, app, arch string) {
+	t.Helper()
 	bundleWrite(t, app, "Contents/Resources/message.txt", []byte("hello\n"))
 	bundleWrite(t, app, "Contents/Resources/Base.lproj/hello.txt", []byte("base\n"))
 	bundleWrite(t, app, "Contents/Resources/fr.lproj/hello.txt", []byte("local\n"))
