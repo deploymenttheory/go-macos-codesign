@@ -196,6 +196,10 @@ the native rejection of packed zero-offset empty attribute entries.
 Its exact pin and qualified local cases are recorded in the
 [filesystem migration guide](filesystem-metadata-migration.md). Final dependency
 selection and all-host qualification remain closure prerequisites.
+The foreign FAT resource-signing cases additionally require
+[APFS #220](https://github.com/deploymenttheory/go-apfs-v2/pull/220), which retains
+native `EPERM` for attribute-file targets. It must land on main, be pinned, and
+pass the unchanged consumer cases before closing P02-FS qualification.
 
 ### Completion ledger
 

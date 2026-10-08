@@ -12,8 +12,8 @@
   "SeedPrefixBytes": 9115,
   "Sources": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "1fbe31abed79ea529904d82e937c78e0a9ce79b1da2ebfee26967b5ebd54bf99",
-    "go.sum": "fd1287022c354875da07fd8a6cb96ee739d8f9427111b30ca5e05aa77601909b",
+    "go.mod": "b9badc7a912312a380129d02540254583fb49a46ca4532a30af84a7f9595f759",
+    "go.sum": "8ee25db5bb6f445e30b452887597300678c38bab469694558f5539899f84ee2a",
     "scripts/probe-signature-metadata.go": "3d8557e14e9ca04748560c6a8ec1eaf6d5e86d6602e60804447f1cbcb01efa6f",
     "testdata/dmg/native-adhoc-raw.dmg": "7f1984ce2d52aff1d69bcfcb30246d9ae612a91d0a963af47536550bf315b6f2",
     "testdata/research/signature-metadata.c": "0b2d98351f54ec2f31dfba09fe6f4da633cd497649c26718aa989a92914eee4c"

@@ -118,6 +118,21 @@ func observeEmptyInfo(t *testing.T, exe string, tc emptyInfoCase, platform strin
 func observeEmptyInfoAt(t *testing.T, exe string, tc emptyInfoCase, platform, dir string) emptyInfoResult {
 	t.Helper()
 	operand, base := emptyInfoFixture(t, dir, tc)
+	if platform == "appledouble" {
+		// Match the captured input metadata on every host. Remove only fixture-
+		// creation bookkeeping, before installing native seeds or running codesign.
+		if err := filepath.WalkDir(operand, func(path string, entry os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if entry.Type().IsRegular() && strings.HasPrefix(entry.Name(), "._") {
+				return os.Remove(path)
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	metadata := appledouble.File{Attrs: []appledouble.Attr{{Name: "com.apple.cs.CodeDirectory", Value: []byte("attached signature")}, {Name: "user.codesign-control", Value: []byte("unchanged")}}}
 	carriers := map[string]string{}
 	before := map[string]*os.File{}

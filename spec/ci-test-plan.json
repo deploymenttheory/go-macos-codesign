@@ -1397,8 +1397,8 @@
           "sha256": "866d13c993034cfe031af84426511cb4b9dc6a31d96dcbc632fd898ecc75c16c"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestErrorsNeverBecomeAbsence": {
-          "cases": 31,
-          "sha256": "7bf0eccbc8298bad0d01fba4446f8c6142726c434eaadcf59fedbebf428da139"
+          "cases": 41,
+          "sha256": "e00498ec03072a549b6efae45818f348876527a7cc94a013436d388a77345091"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestFirstCancellationAndHeldObject": {
           "cases": 1,
@@ -1457,8 +1457,8 @@
           "sha256": "546ba3b030182ecb0162e331f2041831357223581a5f7a672ce78046705fb8a1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributePermissionPolicy": {
-          "cases": 18,
-          "sha256": "5a4828688569d6cc7d999426d1cb30832a4779bd566bfcde3c032631d7a5d4c7"
+          "cases": 21,
+          "sha256": "5bfed3092ce41ec8b8e2032b11229eba4869f4484ca5757e7bd12f6505c8cb05"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributeQuery": {
           "cases": 1,
@@ -1481,8 +1481,8 @@
           "sha256": "4cf88f614b5d129621203e10919a7c60a798d9b220ff96aa5f56b35f6cbfa82f"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestStripNativeOrderingAndFailure": {
-          "cases": 28,
-          "sha256": "00b9826a0292c0b105c53c2fe07abfc2d292bbddb2a5fd44920098147e243981"
+          "cases": 37,
+          "sha256": "bf2be233f03ed8a81c28289451bbc4b6d1c105092861d9a77ea5520524bc04e9"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/FuzzBundleResources": {
           "cases": 7,
@@ -3974,8 +3974,8 @@
           "sha256": "866d13c993034cfe031af84426511cb4b9dc6a31d96dcbc632fd898ecc75c16c"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestErrorsNeverBecomeAbsence": {
-          "cases": 31,
-          "sha256": "7bf0eccbc8298bad0d01fba4446f8c6142726c434eaadcf59fedbebf428da139"
+          "cases": 41,
+          "sha256": "e00498ec03072a549b6efae45818f348876527a7cc94a013436d388a77345091"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestFirstCancellationAndHeldObject": {
           "cases": 1,
@@ -4034,8 +4034,8 @@
           "sha256": "546ba3b030182ecb0162e331f2041831357223581a5f7a672ce78046705fb8a1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributePermissionPolicy": {
-          "cases": 18,
-          "sha256": "5a4828688569d6cc7d999426d1cb30832a4779bd566bfcde3c032631d7a5d4c7"
+          "cases": 21,
+          "sha256": "5bfed3092ce41ec8b8e2032b11229eba4869f4484ca5757e7bd12f6505c8cb05"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributeQuery": {
           "cases": 1,
@@ -4058,8 +4058,8 @@
           "sha256": "4cf88f614b5d129621203e10919a7c60a798d9b220ff96aa5f56b35f6cbfa82f"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestStripNativeOrderingAndFailure": {
-          "cases": 28,
-          "sha256": "00b9826a0292c0b105c53c2fe07abfc2d292bbddb2a5fd44920098147e243981"
+          "cases": 37,
+          "sha256": "bf2be233f03ed8a81c28289451bbc4b6d1c105092861d9a77ea5520524bc04e9"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/FuzzBundleResources": {
           "cases": 7,
@@ -6515,8 +6515,8 @@
           "sha256": "866d13c993034cfe031af84426511cb4b9dc6a31d96dcbc632fd898ecc75c16c"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestErrorsNeverBecomeAbsence": {
-          "cases": 31,
-          "sha256": "7bf0eccbc8298bad0d01fba4446f8c6142726c434eaadcf59fedbebf428da139"
+          "cases": 41,
+          "sha256": "e00498ec03072a549b6efae45818f348876527a7cc94a013436d388a77345091"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestFirstCancellationAndHeldObject": {
           "cases": 1,
@@ -6575,8 +6575,8 @@
           "sha256": "546ba3b030182ecb0162e331f2041831357223581a5f7a672ce78046705fb8a1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributePermissionPolicy": {
-          "cases": 18,
-          "sha256": "5a4828688569d6cc7d999426d1cb30832a4779bd566bfcde3c032631d7a5d4c7"
+          "cases": 21,
+          "sha256": "5bfed3092ce41ec8b8e2032b11229eba4869f4484ca5757e7bd12f6505c8cb05"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestPlatformAttributeQuery": {
           "cases": 1,
@@ -6599,8 +6599,8 @@
           "sha256": "4cf88f614b5d129621203e10919a7c60a798d9b220ff96aa5f56b35f6cbfa82f"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestStripNativeOrderingAndFailure": {
-          "cases": 28,
-          "sha256": "00b9826a0292c0b105c53c2fe07abfc2d292bbddb2a5fd44920098147e243981"
+          "cases": 37,
+          "sha256": "bf2be233f03ed8a81c28289451bbc4b6d1c105092861d9a77ea5520524bc04e9"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/FuzzBundleResources": {
           "cases": 7,

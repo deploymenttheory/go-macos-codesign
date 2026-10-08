@@ -95,6 +95,23 @@ These local macOS results do not establish Linux/Windows runtime acceptance or
 complete macOS 15/26 qualification. CI provisioning, foreign artifact readback
 and the following qualification remains required.
 
+The foreign runtime matrix exposed a further dependency correction tracked in
+[APFS #220](https://github.com/deploymenttheory/go-apfs-v2/pull/220): a metadata
+query on a regular attribute file must retain native `EPERM`, distinct from
+`EACCES`. The consumer applies Apple's presence-query exception to the
+filesystem-selected AppleDouble backend while retaining fatal removal errors.
+The new dependency must land on main and be pinned before the affected resource
+signing cases can pass; the current #219 pin does not include that correction.
+
+Windows executable replacement retains a staged read handle through rename and
+refreshes its identity through that handle, because FAT file IDs can change on
+rename. Subsequent pathname checks still reject substitution. Mach-O removal
+retains its native purge order; canonical component removal before attribute
+flush belongs to generic FileDiskRep removal. Both regression matrices remain
+required. Discovery fixture setup removes only incidental macOS-created attribute
+files before installing captured inputs; full post-operation tree comparisons
+remain unchanged.
+
 No acceptance invocation uses the removed routing switches. Bundle verification,
 signing, paths, fallback removal and plist discovery now use ordinary CLI arguments.
 Their native object, policy, alias, authorization and preservation assertions

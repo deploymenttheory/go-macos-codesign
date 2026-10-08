@@ -54,11 +54,22 @@ jobs:
         if: runner.os == 'Linux' && (matrix.part == 2 || matrix.part == 3)
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y dosfstools exfatprogs
+          sudo apt-get install --no-install-recommends -y dosfstools exfatprogs strace
+          sudo apt-get install --no-install-recommends -y "linux-modules-extra-$(uname -r)"
+          sudo modprobe exfat
+          cat /proc/filesystems
       - name: Run every assigned case and seal its evidence
         run: python3 scripts/evidence.py shard ${{ matrix.part }} --output artifacts/shard
         env:
           MACOSCODESIGN_REQUIRE_APPLE: ${{ runner.os == 'macOS' && '1' || '0' }}
+          MACOSCODESIGN_TRACE_FILESYSTEM: ${{ runner.os == 'Linux' && matrix.part == 3 && '1' || '0' }}
+      - name: Upload Linux filesystem diagnostics
+        if: always() && runner.os == 'Linux' && matrix.part == 3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux-filesystem-traces
+          path: artifacts/filesystem-traces/
+          if-no-files-found: warn
       - name: Collect native failure diagnostics
         if: failure() && runner.os == 'macOS'
         continue-on-error: true

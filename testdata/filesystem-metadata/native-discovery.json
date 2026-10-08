@@ -7,8 +7,8 @@
     "acceptance/filesystem_metadata_discovery_test.go": "389f8578b0a28ecc0c2753e7b69676cd3fcf60601dcb30792aa7734cad333442",
     "acceptance/filesystem_metadata_evidence_test.go": "ec16228145597fd50ff07396b4e32496cf428343b7f533fac76d2ba32bd0f202",
     "acceptance/filesystem_metadata_test.go": "32f7d9dca5d71a2d9428cf37d650a9e8976117ddd6e6bfb03590e6bd16452598",
-    "acceptance/harness_test.go": "8643695241cfec404bee46f28645ea3c3781adf003646d99eb96cce83c14983e",
-    "acceptance/removal_empty_info_test.go": "aae9f33774c9512bff743c3841a2cbec3a7c35bf00b5ad45c0b3033b203f7de7",
+    "acceptance/harness_test.go": "bd7ed62da5d3d1e1a35bc38b3a94080b3ca259fc6e87858ba072b42340f21c03",
+    "acceptance/removal_empty_info_test.go": "75b730c627a0456a0823a0d5b2b9abb9595dcee8ade846c3f5e5eea3635d7b85",
     "acceptance/removal_generic_test.go": "c575c51f1dd5d5f455e92337683a9fa92006881922f54d517ea3ec624e018457",
     "acceptance/removal_platform_info_test.go": "92608844ce598d78f6e86bb5d025fe4a81c4e9541285768201759ff3ea4938af",
     "go.mod": "b9badc7a912312a380129d02540254583fb49a46ca4532a30af84a7f9595f759",
@@ -21,7 +21,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f2248499889e96e9be9f9d8a6ebd53920a5d511f64e113a34e667cd9289c4ffe",
+      "Tree": "8412cb2e2fb3abac68dafe66109316acb7cc72a71675b090da5b39e0b7a67962",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -35,7 +35,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "71422ff99c47d8ced6eefbec8195be6a4a7f0c0958691188f4f935dec706440a",
+      "Tree": "e7370fa94a1a5ee8fb62d60265ddb8885733575b9426f9e2f342e2bdda632487",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -54,7 +54,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-dictionary-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a2f00e0df302da85ca1201671e5ef81890fd5bfe2bec68c92755d424edcd826a",
+      "Tree": "c5e00e7eff9a1a78a3d9022012b1847104065ca29778818410cbc01ca3db824f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -68,7 +68,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-dictionary-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "c9479d9ee1ab654364f1217dcc4f897907c8b8249bab9b466fe17df68b626ee3",
+      "Tree": "0d63acc3a58f777b05cfb73f93b64bbeb9271104421d27a5de94fda8e9a4689c",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -87,7 +87,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-dictionary-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "31a7479d4ff6ac84d7d5708a13f88c446e9ec6ab27e4c236704eb020ef754d96",
+      "Tree": "463e2215b0455ee07be3609176e03c2e2d9375a7507a3e47ffebd19332fad851",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -106,7 +106,7 @@
     "filesystem-discovery-exfat-empty-info-app-empty-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e3261ee823afafad9b6fa75e540ac4c9c2dad0d0eca7a0167147a8cf08f4da79",
+      "Tree": "d0401a992d3ec428306d568c1864ec9c96f8bd1f5c6f40e24aa80f016fc69649",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -125,7 +125,7 @@
     "filesystem-discovery-exfat-empty-info-app-missing-absent.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "28e88c3a3c7c085deebac7dc3dac168900ae3967f247fd348269324fa2f5f187",
+      "Tree": "84882b4f798ec98be92a567a9f9930e20c0e97f38784059139f72749cc5b7cdc",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {}
@@ -133,7 +133,7 @@
     "filesystem-discovery-exfat-empty-info-app-missing-declared.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "ce8320c2a550ce1b733358a7157ee950e5b03ef9713543f7b89bce13c3f44876",
+      "Tree": "cf6315ed16b585d9a0886261fcdd13dc48d870e20678af023b67d43e6b4d7ba0",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {
@@ -147,7 +147,7 @@
     "filesystem-discovery-exfat-empty-info-app-missing-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "40ce3553fce4188f087eef9bc835d1b3716df605e23cee39aa6cc51de2526dd7",
+      "Tree": "c61c4288f0f32a9ea68867ad8da063411ba8b87e42e607996a44e7d666935c28",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -161,7 +161,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f9c51da4dc6f859e694da2ec767d10b4f4a737e2c6feb383ad8e1be3225541de",
+      "Tree": "33e89dc44f45d09fb3fba3e449e33f461485a18bfbaec6adba184e33fb6f7606",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -175,7 +175,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "19b020caf675aed8cce8407a1c2c0fea96b0a1e8d9c688f434bc1cc05ab39d09",
+      "Tree": "cf98c5c1dc43295615d4bf6299f95fae349545f568993fe9909c1a606633d7cc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -194,7 +194,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d98dab3150bc58b0f722469bfd49845be02d2fc3b661be8a751b7e6a852306bf",
+      "Tree": "86427bd7698fdfaba8e83d33632efe61cf18e22bc9696ad19813b66e0daaf1c9",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -208,7 +208,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "ee522708f9acd8a15f88bf75d8c4a4a84c886fc556870c6e1c8c8b7343353db8",
+      "Tree": "7d288c7234019e963c7fa82c53e3ee1ceb7d91d66e057559e38c915a25120de4",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -227,7 +227,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "9ea14ce5173802359f1e9a9ba60210b6634b2c11ce87e1a78bfa112b93de76a7",
+      "Tree": "fd5351ab47ed12e88f37a42f6651137dd321922f6a18e2fea9ac15fa4bac5e93",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -246,7 +246,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-empty-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "9da28fdcc135a91770ec5acc1727e579cfa02a838e95b9821ad8001e350d1316",
+      "Tree": "7c538c8d5291c69ee5be1d6ee03f4756d6ea1210a11bac9811f2b8ac429b77df",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -265,7 +265,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-missing-absent.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "11338dabeccab5db36e93bf242f24958136816198c9a38c8b4190cb90fce0eff",
+      "Tree": "182c626bf95e96dbe3fbf3faab7889b71d73bb6a5b1cfa7b150590f911925e2e",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {}
@@ -273,7 +273,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-missing-declared.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "10cb57e22030e6a675acefae190d3ed3fdf3fcf456adca8846285764fbc18c43",
+      "Tree": "70a9eda7fb7ff264e98dc9a6263b40a2d1bf706b145ddc98c4e9cc79e1692879",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {
@@ -287,7 +287,7 @@
     "filesystem-discovery-exfat-empty-info-flat-framework-missing-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a21cb89676601bd8dd87f10069a22b7e9d75fb22578b11b7a194cc8db5a90db2",
+      "Tree": "05921df239da766cda53a58542d87b0be6bebcffd817bb6987fe7c637b64a2c8",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -301,7 +301,7 @@
     "filesystem-discovery-exfat-platform-info-app-both.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "3270f952846475df556f95e2ca702843c2ae62a2d06cbce0fdbe75c277c3082d",
+      "Tree": "3448fd9568a8b739dd5bde539d4b766520d268cb5c4fbfc3f4e5c892021306dd",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -330,7 +330,7 @@
     "filesystem-discovery-exfat-platform-info-app-directory.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e88432580ff9688999216b799b799f831b54114854e19792cdb4ddc567067ae5",
+      "Tree": "d71ce735c26df87f1ae09d73fd2089b479e3cb985aacc1915e2060f2c1f7d9aa",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -354,7 +354,7 @@
     "filesystem-discovery-exfat-platform-info-app-empty-dictionary.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "cea57434d6949dcda9b3ca1d952296e9ae97d68937d321b97661252c15a56fe4",
+      "Tree": "1170c236bc8b4d495b11b07f449fb1d95175b277df65d5b8aa90377562a0515a",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -383,7 +383,7 @@
     "filesystem-discovery-exfat-platform-info-app-empty-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "2f00f79799aeb0ce980daaa731800cb0e5718c299f0ebf8dbf4f749859f9ae86",
+      "Tree": "ab90b1c5e522df82d9d06c16b4082cce368511bca37273892dcccde14f265bcc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -407,7 +407,7 @@
     "filesystem-discovery-exfat-platform-info-app-empty.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "5a53120d888317ea49435d7bcbd0a710b6b169aaa21ae3ab49d562536949657b",
+      "Tree": "3fd4373bd138c2fd984ad2b9dd8b136c014b16d4406724c1a0da99b6b9b307bc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -436,7 +436,7 @@
     "filesystem-discovery-exfat-platform-info-app-key-macos.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f648339661adbbcda039219177cd19148cf58b0b1240ce5fac07ff3a0d9ee669",
+      "Tree": "5e740c68e2c0acd636475b794f7ca856b59646f14883fe7151f9a016e4eb7cba",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -460,7 +460,7 @@
     "filesystem-discovery-exfat-platform-info-app-key-windows.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "2ae1f1e880d88dc9cd8161dd7b28b3789f221213c53710cc9985fceadc2ac491",
+      "Tree": "956dcbe6a9f0c570cc5df284b0050a41c964ee5f7f29455f5a3113f178340c1b",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -484,7 +484,7 @@
     "filesystem-discovery-exfat-platform-info-app-macosx.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f71708ea4c6611cf181b765bf18761db79457cfce5ab218f143a00f7d5b1402e",
+      "Tree": "3ab224112450e5f3dfeff22c881e6098cb9981f38f051f3104bbd336872b262f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -513,7 +513,7 @@
     "filesystem-discovery-exfat-platform-info-app-missing-target.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "c550b534f8358e1b6a43842231f0afedb739caca4eac8b1900535ea90de5f3ec",
+      "Tree": "9e840ad02ed0c94f5b3610eb514bef0b07b29b4bff2ff376fcdf94a4270bb668",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -537,7 +537,7 @@
     "filesystem-discovery-exfat-platform-info-app-number-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "cc658480a014be4f0691a5f4250fdd92b648f9a0d9dbf87c75c50c6325479c83",
+      "Tree": "17dbc0e0340af1f7d59e7fb5ddd8f55d5d725c20ece5c8912f7a3c6f328cd79f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -561,7 +561,7 @@
     "filesystem-discovery-exfat-platform-info-app-only.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "32e117b066f35ae28c165ca379c61c8d4393d1e4f88f343daf36e5c89743cbff",
+      "Tree": "ce15bc4969555bba702e31791683159b576b8b424a28de1e30368625d087ab36",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -585,7 +585,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-both.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "805627f8d970c882ea3150ce80d58395922a2ac0c31bf90ab7fcad261742acd5",
+      "Tree": "4d6744efc16c05495166c1ad5bd0a6e22fa46ad94ab706e5cff3adb02950b5ff",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -614,7 +614,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-directory.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a8cf861eafea592b1fc6f338d18ff5d9ee6a5a508f8a4e603db0f5bff2b2688c",
+      "Tree": "13e1f9e94f1a4919014cf7f30268c944d4e87ab4d22389498300e6d148e0f27e",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -638,7 +638,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-empty-dictionary.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e5905212d7571cea07bf27737d5b9a767955e1e1f9f7ccbc52cc21be2186e442",
+      "Tree": "69766e355d2abc272cc2004c3b53e89f0d5d6fa4ce4a8c46fa3c346fd55ac6be",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -667,7 +667,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-empty-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e9a695502e53b82afee2ff4dd18378495f069c0aea6ef4180c34782f5559b092",
+      "Tree": "8297e32f4062f06930c41b3762e964fcadc10e1fec8124d951566499a2c5abef",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -691,7 +691,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-empty.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e0ab4ce53d09bc143da9ab2b62e4ca54a695b8ec08b714292fed5575996b52ed",
+      "Tree": "fae3bd079de132e8e83b440ff89e518d75aebaf8fa29c250c9a10326fe6356ba",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -720,7 +720,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-key-macos.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "7cfd3e279e424055f97855b7ccd7dc6e363298faf17622f50e58feba22a0d74c",
+      "Tree": "204d18fdf29659abd22ebb7825d590a338508ded2902906937e28311e6167176",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -744,7 +744,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-key-windows.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d58959a5de0e4ee410be35301f548e64b2dbb6ed81c1bfc6d30b16f3a5ee36a8",
+      "Tree": "fb507846531da4618ff8629beb73e4d45089586e488b1e5e223de07eb999ba10",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -768,7 +768,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-macosx.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "b3db210d00dac8ee88e1aa992237930d955405fd5706569d1b02e4c9e08d6456",
+      "Tree": "16400c7b65005cc0e7dc8757d7276a5fafc4a2666e0f0719c3bd5189cb42a553",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -797,7 +797,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-missing-target.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "8bc731d24d1055f3a0ffe95834d8cf8aa43223e5b56328c79824b65f4099a8e3",
+      "Tree": "886db44dfd64261e6b59fe086db1d14fa4a722cbf891ea3b7b9856fbd608a048",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -821,7 +821,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-number-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d354e460305ca5be87eafd2cc3b1167d848a4b72a428cc7d5ad3fbaa475ba443",
+      "Tree": "7b9c050f360650cc0aed4fdf9ab1258f1e64fec0af24b8e62196ac53392b1a4f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -845,7 +845,7 @@
     "filesystem-discovery-exfat-platform-info-flat-framework-only.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a8f715c91faf2e68295071c5e4d540a3cf08590707e3443a68c47aece8cddb77",
+      "Tree": "e652b7c2fa5ca50a52f606ea556d3d28b47681257d4e6a16a6f7e00215412d5f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -869,7 +869,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f2248499889e96e9be9f9d8a6ebd53920a5d511f64e113a34e667cd9289c4ffe",
+      "Tree": "8412cb2e2fb3abac68dafe66109316acb7cc72a71675b090da5b39e0b7a67962",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -883,7 +883,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "71422ff99c47d8ced6eefbec8195be6a4a7f0c0958691188f4f935dec706440a",
+      "Tree": "e7370fa94a1a5ee8fb62d60265ddb8885733575b9426f9e2f342e2bdda632487",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -902,7 +902,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-dictionary-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a2f00e0df302da85ca1201671e5ef81890fd5bfe2bec68c92755d424edcd826a",
+      "Tree": "c5e00e7eff9a1a78a3d9022012b1847104065ca29778818410cbc01ca3db824f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -916,7 +916,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-dictionary-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "c9479d9ee1ab654364f1217dcc4f897907c8b8249bab9b466fe17df68b626ee3",
+      "Tree": "0d63acc3a58f777b05cfb73f93b64bbeb9271104421d27a5de94fda8e9a4689c",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -935,7 +935,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-dictionary-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "31a7479d4ff6ac84d7d5708a13f88c446e9ec6ab27e4c236704eb020ef754d96",
+      "Tree": "463e2215b0455ee07be3609176e03c2e2d9375a7507a3e47ffebd19332fad851",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -954,7 +954,7 @@
     "filesystem-discovery-fat32-empty-info-app-empty-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e3261ee823afafad9b6fa75e540ac4c9c2dad0d0eca7a0167147a8cf08f4da79",
+      "Tree": "d0401a992d3ec428306d568c1864ec9c96f8bd1f5c6f40e24aa80f016fc69649",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -973,7 +973,7 @@
     "filesystem-discovery-fat32-empty-info-app-missing-absent.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "28e88c3a3c7c085deebac7dc3dac168900ae3967f247fd348269324fa2f5f187",
+      "Tree": "84882b4f798ec98be92a567a9f9930e20c0e97f38784059139f72749cc5b7cdc",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {}
@@ -981,7 +981,7 @@
     "filesystem-discovery-fat32-empty-info-app-missing-declared.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "ce8320c2a550ce1b733358a7157ee950e5b03ef9713543f7b89bce13c3f44876",
+      "Tree": "cf6315ed16b585d9a0886261fcdd13dc48d870e20678af023b67d43e6b4d7ba0",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {
@@ -995,7 +995,7 @@
     "filesystem-discovery-fat32-empty-info-app-missing-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "40ce3553fce4188f087eef9bc835d1b3716df605e23cee39aa6cc51de2526dd7",
+      "Tree": "c61c4288f0f32a9ea68867ad8da063411ba8b87e42e607996a44e7d666935c28",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1009,7 +1009,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f9c51da4dc6f859e694da2ec767d10b4f4a737e2c6feb383ad8e1be3225541de",
+      "Tree": "33e89dc44f45d09fb3fba3e449e33f461485a18bfbaec6adba184e33fb6f7606",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1023,7 +1023,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "19b020caf675aed8cce8407a1c2c0fea96b0a1e8d9c688f434bc1cc05ab39d09",
+      "Tree": "cf98c5c1dc43295615d4bf6299f95fae349545f568993fe9909c1a606633d7cc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1042,7 +1042,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-absent.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d98dab3150bc58b0f722469bfd49845be02d2fc3b661be8a751b7e6a852306bf",
+      "Tree": "86427bd7698fdfaba8e83d33632efe61cf18e22bc9696ad19813b66e0daaf1c9",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1056,7 +1056,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-declared.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "ee522708f9acd8a15f88bf75d8c4a4a84c886fc556870c6e1c8c8b7343353db8",
+      "Tree": "7d288c7234019e963c7fa82c53e3ee1ceb7d91d66e057559e38c915a25120de4",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1075,7 +1075,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "9ea14ce5173802359f1e9a9ba60210b6634b2c11ce87e1a78bfa112b93de76a7",
+      "Tree": "fd5351ab47ed12e88f37a42f6651137dd321922f6a18e2fea9ac15fa4bac5e93",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1094,7 +1094,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-empty-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "9da28fdcc135a91770ec5acc1727e579cfa02a838e95b9821ad8001e350d1316",
+      "Tree": "7c538c8d5291c69ee5be1d6ee03f4756d6ea1210a11bac9811f2b8ac429b77df",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1113,7 +1113,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-missing-absent.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "11338dabeccab5db36e93bf242f24958136816198c9a38c8b4190cb90fce0eff",
+      "Tree": "182c626bf95e96dbe3fbf3faab7889b71d73bb6a5b1cfa7b150590f911925e2e",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {}
@@ -1121,7 +1121,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-missing-declared.json": {
       "Status": 1,
       "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
-      "Tree": "10cb57e22030e6a675acefae190d3ed3fdf3fcf456adca8846285764fbc18c43",
+      "Tree": "70a9eda7fb7ff264e98dc9a6263b40a2d1bf706b145ddc98c4e9cc79e1692879",
       "Platform": "appledouble",
       "Envelope": true,
       "Files": {
@@ -1135,7 +1135,7 @@
     "filesystem-discovery-fat32-empty-info-flat-framework-missing-stem.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a21cb89676601bd8dd87f10069a22b7e9d75fb22578b11b7a194cc8db5a90db2",
+      "Tree": "05921df239da766cda53a58542d87b0be6bebcffd817bb6987fe7c637b64a2c8",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1149,7 +1149,7 @@
     "filesystem-discovery-fat32-platform-info-app-both.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "3270f952846475df556f95e2ca702843c2ae62a2d06cbce0fdbe75c277c3082d",
+      "Tree": "3448fd9568a8b739dd5bde539d4b766520d268cb5c4fbfc3f4e5c892021306dd",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1178,7 +1178,7 @@
     "filesystem-discovery-fat32-platform-info-app-directory.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e88432580ff9688999216b799b799f831b54114854e19792cdb4ddc567067ae5",
+      "Tree": "d71ce735c26df87f1ae09d73fd2089b479e3cb985aacc1915e2060f2c1f7d9aa",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1202,7 +1202,7 @@
     "filesystem-discovery-fat32-platform-info-app-empty-dictionary.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "cea57434d6949dcda9b3ca1d952296e9ae97d68937d321b97661252c15a56fe4",
+      "Tree": "1170c236bc8b4d495b11b07f449fb1d95175b277df65d5b8aa90377562a0515a",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1231,7 +1231,7 @@
     "filesystem-discovery-fat32-platform-info-app-empty-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "2f00f79799aeb0ce980daaa731800cb0e5718c299f0ebf8dbf4f749859f9ae86",
+      "Tree": "ab90b1c5e522df82d9d06c16b4082cce368511bca37273892dcccde14f265bcc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1255,7 +1255,7 @@
     "filesystem-discovery-fat32-platform-info-app-empty.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "5a53120d888317ea49435d7bcbd0a710b6b169aaa21ae3ab49d562536949657b",
+      "Tree": "3fd4373bd138c2fd984ad2b9dd8b136c014b16d4406724c1a0da99b6b9b307bc",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1284,7 +1284,7 @@
     "filesystem-discovery-fat32-platform-info-app-key-macos.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f648339661adbbcda039219177cd19148cf58b0b1240ce5fac07ff3a0d9ee669",
+      "Tree": "5e740c68e2c0acd636475b794f7ca856b59646f14883fe7151f9a016e4eb7cba",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1308,7 +1308,7 @@
     "filesystem-discovery-fat32-platform-info-app-key-windows.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "2ae1f1e880d88dc9cd8161dd7b28b3789f221213c53710cc9985fceadc2ac491",
+      "Tree": "956dcbe6a9f0c570cc5df284b0050a41c964ee5f7f29455f5a3113f178340c1b",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1332,7 +1332,7 @@
     "filesystem-discovery-fat32-platform-info-app-macosx.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "f71708ea4c6611cf181b765bf18761db79457cfce5ab218f143a00f7d5b1402e",
+      "Tree": "3ab224112450e5f3dfeff22c881e6098cb9981f38f051f3104bbd336872b262f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1361,7 +1361,7 @@
     "filesystem-discovery-fat32-platform-info-app-missing-target.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "c550b534f8358e1b6a43842231f0afedb739caca4eac8b1900535ea90de5f3ec",
+      "Tree": "9e840ad02ed0c94f5b3610eb514bef0b07b29b4bff2ff376fcdf94a4270bb668",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1385,7 +1385,7 @@
     "filesystem-discovery-fat32-platform-info-app-number-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "cc658480a014be4f0691a5f4250fdd92b648f9a0d9dbf87c75c50c6325479c83",
+      "Tree": "17dbc0e0340af1f7d59e7fb5ddd8f55d5d725c20ece5c8912f7a3c6f328cd79f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1409,7 +1409,7 @@
     "filesystem-discovery-fat32-platform-info-app-only.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "32e117b066f35ae28c165ca379c61c8d4393d1e4f88f343daf36e5c89743cbff",
+      "Tree": "ce15bc4969555bba702e31791683159b576b8b424a28de1e30368625d087ab36",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1433,7 +1433,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-both.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "805627f8d970c882ea3150ce80d58395922a2ac0c31bf90ab7fcad261742acd5",
+      "Tree": "4d6744efc16c05495166c1ad5bd0a6e22fa46ad94ab706e5cff3adb02950b5ff",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1462,7 +1462,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-directory.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a8cf861eafea592b1fc6f338d18ff5d9ee6a5a508f8a4e603db0f5bff2b2688c",
+      "Tree": "13e1f9e94f1a4919014cf7f30268c944d4e87ab4d22389498300e6d148e0f27e",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1486,7 +1486,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-empty-dictionary.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e5905212d7571cea07bf27737d5b9a767955e1e1f9f7ccbc52cc21be2186e442",
+      "Tree": "69766e355d2abc272cc2004c3b53e89f0d5d6fa4ce4a8c46fa3c346fd55ac6be",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1515,7 +1515,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-empty-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e9a695502e53b82afee2ff4dd18378495f069c0aea6ef4180c34782f5559b092",
+      "Tree": "8297e32f4062f06930c41b3762e964fcadc10e1fec8124d951566499a2c5abef",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1539,7 +1539,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-empty.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "e0ab4ce53d09bc143da9ab2b62e4ca54a695b8ec08b714292fed5575996b52ed",
+      "Tree": "fae3bd079de132e8e83b440ff89e518d75aebaf8fa29c250c9a10326fe6356ba",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1568,7 +1568,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-key-macos.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "7cfd3e279e424055f97855b7ccd7dc6e363298faf17622f50e58feba22a0d74c",
+      "Tree": "204d18fdf29659abd22ebb7825d590a338508ded2902906937e28311e6167176",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1592,7 +1592,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-key-windows.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d58959a5de0e4ee410be35301f548e64b2dbb6ed81c1bfc6d30b16f3a5ee36a8",
+      "Tree": "fb507846531da4618ff8629beb73e4d45089586e488b1e5e223de07eb999ba10",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1616,7 +1616,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-macosx.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "b3db210d00dac8ee88e1aa992237930d955405fd5706569d1b02e4c9e08d6456",
+      "Tree": "16400c7b65005cc0e7dc8757d7276a5fafc4a2666e0f0719c3bd5189cb42a553",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1645,7 +1645,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-missing-target.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "8bc731d24d1055f3a0ffe95834d8cf8aa43223e5b56328c79824b65f4099a8e3",
+      "Tree": "886db44dfd64261e6b59fe086db1d14fa4a722cbf891ea3b7b9856fbd608a048",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1669,7 +1669,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-number-key.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "d354e460305ca5be87eafd2cc3b1167d848a4b72a428cc7d5ad3fbaa475ba443",
+      "Tree": "7b9c050f360650cc0aed4fdf9ab1258f1e64fec0af24b8e62196ac53392b1a4f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {
@@ -1693,7 +1693,7 @@
     "filesystem-discovery-fat32-platform-info-flat-framework-only.json": {
       "Status": 0,
       "Output": "",
-      "Tree": "a8f715c91faf2e68295071c5e4d540a3cf08590707e3443a68c47aece8cddb77",
+      "Tree": "e652b7c2fa5ca50a52f606ea556d3d28b47681257d4e6a16a6f7e00215412d5f",
       "Platform": "appledouble",
       "Envelope": false,
       "Files": {

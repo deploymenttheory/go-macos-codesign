@@ -16,7 +16,7 @@ import (
 
 func TestStripNativeOrderingAndFailure(t *testing.T) {
 	names := []string{appledouble.ResourceForkName, appledouble.FinderInfoName}
-	for _, platform := range []string{"darwin", "linux", "windows"} {
+	for _, platform := range []string{"darwin", "linux", "windows", "appledouble"} {
 		for _, state := range []string{"both", "empty", "missing", "query-denied", "remove-denied", "second-remove-denied", "cancel-after-first", "cancel-after-query", "inventory-denied"} {
 			t.Run(platform+"/"+state, func(t *testing.T) {
 				ctx, cancel := context.WithCancel(context.Background())
@@ -60,7 +60,7 @@ func TestStripNativeOrderingAndFailure(t *testing.T) {
 					want = nil
 				case "query-denied":
 					want = nil
-					if platform != "darwin" {
+					if platform != "darwin" && platform != "appledouble" {
 						wantErr = syscall.EPERM
 					}
 				case "remove-denied":

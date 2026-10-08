@@ -86,7 +86,7 @@ func checkPlatformAttribute(ctx context.Context, platform string, list func() ([
 		}
 	}
 	_, _, err := size(name)
-	if platform == "darwin" && errors.Is(err, syscall.EPERM) {
+	if (platform == "darwin" || platform == "appledouble") && errors.Is(err, syscall.EPERM) {
 		return nil
 	}
 	return err
@@ -138,9 +138,10 @@ func inspectPolicy(ctx context.Context, platform string, list func() ([]string, 
 			n, present, err = size(attr.name)
 		}
 		// Apple's checkFork ignores EPERM, not EACCES or arbitrary permission
-		// failures. Preserve this Darwin-specific rule without applying Unix
-		// errno numbers to Windows errors or to Linux inventory failures.
-		if platform == "darwin" && errors.Is(err, syscall.EPERM) {
+		// failures. The SDK's filesystem AppleDouble view reproduces this
+		// native errno contract on foreign hosts. Native Windows attributes and
+		// Linux inventory failures retain their host-specific policy.
+		if (platform == "darwin" || platform == "appledouble") && errors.Is(err, syscall.EPERM) {
 			n, present, err = 0, false, nil
 		}
 		if err != nil {

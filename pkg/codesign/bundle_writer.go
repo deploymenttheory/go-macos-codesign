@@ -17,11 +17,12 @@ import (
 )
 
 type preparedBundleExecutable struct {
-	write       bundleWrite
-	original    os.FileInfo
-	staged      os.FileInfo
-	replacement *bundleReplacement
-	compression uint32
+	write        bundleWrite
+	original     os.FileInfo
+	staged       os.FileInfo
+	stagedReader *os.File
+	replacement  *bundleReplacement
+	compression  uint32
 }
 
 // Keep the source descriptor through the SDK's deferred metadata restoration.
@@ -421,7 +422,13 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	return &preparedBundleExecutable{write: write, original: st, staged: staged, replacement: &bundleReplacement{r, source}}, nil
 }
 
-func (p *preparedBundleExecutable) commit(ctx context.Context) error {
+func (p *preparedBundleExecutable) commit(ctx context.Context) (result error) {
+	defer func() {
+		if p.stagedReader != nil {
+			result = errors.Join(result, p.stagedReader.Close())
+			p.stagedReader = nil
+		}
+	}()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -442,15 +449,17 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 	if err := root.Rename(p.replacement.Path, p.write.name); err != nil {
 		return err
 	}
+	// FAT file IDs can change during rename. Refresh through the descriptor
+	// retained before metadata restoration, never through the published path:
+	// a concurrently substituted pathname must still fail the access check.
+	p.staged, err = p.stagedReader.Stat()
+	if err != nil {
+		return err
+	}
 	if err := recompressNativeRoot(ctx, root, p.write.name, p.compression); err != nil {
 		return err
 	}
 	if p.write.cleanup != bundleCleanupNone {
-		if p.write.cleanup == bundleCleanupRemoveAll {
-			if err := p.write.bundle.removeSignatureComponents(ctx); err != nil {
-				return err
-			}
-		}
 		if err := p.write.bundle.purgeSignatureFiles(ctx, p.write.cleanup == bundleCleanupKeepResources); err != nil {
 			return err
 		}
@@ -490,7 +499,11 @@ func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result
 	if err != nil {
 		return err
 	}
-	defer func() { result = errors.Join(result, target.Close()) }()
+	defer func() {
+		if result != nil {
+			result = errors.Join(result, target.Close())
+		}
+	}()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -521,7 +534,11 @@ func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return errors.Join(p.replacement.File.Close(), p.replacement.closeSource())
+	if err := errors.Join(p.replacement.File.Close(), p.replacement.closeSource()); err != nil {
+		return err
+	}
+	p.stagedReader = target
+	return nil
 }
 
 func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) (result error) {
