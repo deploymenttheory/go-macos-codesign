@@ -1835,6 +1835,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -1870,6 +1874,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -4420,6 +4428,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -4455,6 +4467,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -7001,6 +7017,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -7036,6 +7056,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,

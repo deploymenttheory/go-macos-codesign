@@ -12,12 +12,16 @@ import (
 )
 
 func derWrap(tag byte, data []byte) []byte {
+	return append(derHeader(tag, uint64(len(data))), data...)
+}
+
+func derHeader(tag byte, length uint64) []byte {
 	out := []byte{tag}
-	if len(data) < 128 {
-		out = append(out, byte(len(data)))
+	if length < 128 {
+		out = append(out, byte(length))
 	} else {
 		var buf [8]byte
-		n := uint64(len(data))
+		n := length
 		i := len(buf)
 		for n > 0 {
 			i--
@@ -27,7 +31,7 @@ func derWrap(tag byte, data []byte) []byte {
 		out = append(out, 0x80|byte(len(buf)-i))
 		out = append(out, buf[i:]...)
 	}
-	return append(out, data...)
+	return out
 }
 
 func entitlementDER(v any, depth int) ([]byte, error) {

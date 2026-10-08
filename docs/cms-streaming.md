@@ -13,6 +13,11 @@ attributes retain strict DER validation. Internal fields borrow the input for
 the duration of verification. Public certificate results own their storage.
 Constructing a new timestamped message still assembles an owned envelope.
 
+Signature verification hashes the DER SET header and original attribute content
+separately. It does not allocate another complete signed-attributes buffer. The
+same path handles code signatures and timestamp signatures with SHA-1, SHA-256,
+SHA-384 and SHA-512. Ordering and duplicate-attribute checks precede hashing.
+
 This follows the existing Apple
 [CMS ASN.1 templates](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/cmsasn1.c)
 and [RFC 5652](https://www.rfc-editor.org/rfc/rfc5652.html#section-5.4).
@@ -24,6 +29,13 @@ certificate storage, including a 4 MiB unknown-attribute parser control.
 `TestCMSFieldValidation` adds malformed content/field/order/set cases. Both run
 in every host's required unit shard. The unknown attribute is a synthetic parser
 control, not evidence that native codesign accepts that attribute.
+
+`TestCMSLargeSignedAttributes` authenticates an 8 MiB attribute using the public
+test key, checks the signature with Go's independent X.509 verifier, requires
+less than 2 MiB of additional Go allocation during CMS verification, and rejects
+a changed final payload byte. This measures allocation rather than RSS.
+`TestCMSAttributeDigestLengths` independently checks DER length transitions for
+all four digest algorithms. Both are required on every host.
 
 ## Remaining Phase 02 integration
 

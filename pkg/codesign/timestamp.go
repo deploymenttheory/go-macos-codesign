@@ -308,7 +308,7 @@ func parseTimestampToken(token, signature []byte) (*TimestampInfo, error) {
 	if err := checkTimestampESS(attrs, signer); err != nil {
 		return nil, err
 	}
-	if err := verifyCMSDigestSignature(signer.public, si.Algorithm, h, timestampDigest(h, signed), si.Signature); err != nil {
+	if err := verifyCMSDigestSignature(signer.public, si.Algorithm, h, signed.digest(h), si.Signature); err != nil {
 		return nil, err
 	}
 	info.SignerCertificate = bytes.Clone(signer.raw)
