@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.18.1-0.20261008125555-18d01893f157",
-    "sum": "h1:jmI+zBpNFPMoGMZYV0U7ocBKGjUFEMr7N2pBKwIUalw=",
+    "version": "v0.18.1-0.20261008142750-571c1dca84d8",
+    "sum": "h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
@@ -6051,7 +6051,7 @@
       },
       {
         "path": "pkg/hostdata/filesystem_metadata.go",
-        "sha256": "6d271a21ef6bddd82c9c07dc21b49d8fe609e216c10e91f7f7861f46fe5688b0",
+        "sha256": "77191746e73d622678d91299d92d289bac08dda32b50987ff27b606fa230a993",
         "symbols": [
           "OpenFilesystemMetadata",
           "List",

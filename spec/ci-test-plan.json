@@ -2828,6 +2828,10 @@
           "cases": 13,
           "sha256": "7c0064db95fc563107b5100337980e4a01318b1720c25d1849bf0d8917e6cb74"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationDirectoryIdentity": {
+          "cases": 1,
+          "sha256": "62245a69fc21f3461ead80c904c1ec22930c0ac54d5e303c33d2acac676148cb"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationErrorContext": {
           "cases": 1,
           "sha256": "b1d287dafce93d23fbc01f04e6af562d296f82536901a2b30ae96d197117f255"
@@ -5368,6 +5372,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestUnsignedNestedDryRunAllocation": {
           "cases": 13,
           "sha256": "7c0064db95fc563107b5100337980e4a01318b1720c25d1849bf0d8917e6cb74"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationDirectoryIdentity": {
+          "cases": 1,
+          "sha256": "62245a69fc21f3461ead80c904c1ec22930c0ac54d5e303c33d2acac676148cb"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationErrorContext": {
           "cases": 1,
@@ -7917,6 +7925,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestUnsignedNestedDryRunAllocation": {
           "cases": 13,
           "sha256": "7c0064db95fc563107b5100337980e4a01318b1720c25d1849bf0d8917e6cb74"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationDirectoryIdentity": {
+          "cases": 1,
+          "sha256": "62245a69fc21f3461ead80c904c1ec22930c0ac54d5e303c33d2acac676148cb"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestVerificationErrorContext": {
           "cases": 1,

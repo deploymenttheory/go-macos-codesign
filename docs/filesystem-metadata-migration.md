@@ -28,7 +28,7 @@ behavior; they are not substitutes for invoking the codesign CLI on real volumes
 
 ## Qualified local integration and remaining acceptance
 
-The dependency is merged APFS main at `18d01893f157`, resolved through Go modules
+The dependency is merged APFS main at `571c1dca84d8`, resolved through Go modules
 without a local replacement. Its held metadata APIs, Darwin replacement
 capability checks and `FilesystemUsesXattrFiles` query support the integration.
 
@@ -100,8 +100,8 @@ The foreign runtime matrix exposed a further dependency correction tracked in
 query on a regular attribute file must retain native `EPERM`, distinct from
 `EACCES`. The consumer applies Apple's presence-query exception to the
 filesystem-selected AppleDouble backend while retaining fatal removal errors.
-The new dependency must land on main and be pinned before the affected resource
-signing cases can pass; the current #219 pin does not include that correction.
+The merged #220 commit is now pinned. The affected resource-signing cases remain
+required in the downstream Linux/Windows runtime and native readback gates.
 
 Windows executable replacement retains a staged read handle through rename and
 refreshes its identity through that handle, because FAT file IDs can change on
@@ -111,6 +111,13 @@ flush belongs to generic FileDiskRep removal. Both regression matrices remain
 required. Discovery fixture setup removes only incidental macOS-created attribute
 files before installing captured inputs; full post-operation tree comparisons
 remain unchanged.
+
+Verification also obtains each directory entry's identity with APFS's existing
+rooted metadata query. Go's Windows directory enumeration can omit file IDs on
+FAT/exFAT; comparing those incomplete records with held files falsely reports
+unchanged resources as replacements. Rooted metadata queries avoid that mismatch
+without requesting unrelated data or EA rights. Verification keeps lexical
+traversal order, while signing keeps the native filesystem order.
 
 No acceptance invocation uses the removed routing switches. Bundle verification,
 signing, paths, fallback removal and plist discovery now use ordinary CLI arguments.

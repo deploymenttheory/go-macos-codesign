@@ -13,6 +13,8 @@ github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008115416-cc855653389f h1:
 github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008115416-cc855653389f/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
 github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008125555-18d01893f157 h1:jmI+zBpNFPMoGMZYV0U7ocBKGjUFEMr7N2pBKwIUalw=
 github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008125555-18d01893f157/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
+github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008142750-571c1dca84d8 h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=
+github.com/deploymenttheory/go-apfs-v2 v0.18.1-0.20261008142750-571c1dca84d8/go.mod h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=

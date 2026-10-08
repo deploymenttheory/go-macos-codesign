@@ -5,7 +5,10 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"slices"
 	"strings"
+
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // os.Root.FS().ReadDir eagerly lstats every entry. Darwin permits reading a
@@ -58,6 +61,28 @@ func (b signingBundleWalker) walk(name string, entry fs.DirEntry, visit fs.WalkD
 }
 
 func (b signingBundleWalker) ReadDir(name string) ([]fs.DirEntry, error) {
+	return b.directoryEntries(name, true)
+}
+
+// Windows directory enumeration on FAT can omit file IDs. Obtain each identity
+// with the SDK's rooted metadata query before comparing the opened descriptor.
+// Verification retains fs.ReadDirFS's lexical order and its metadata failures.
+type verificationBundleFS struct {
+	fs.FS
+	bundle *appBundle
+}
+
+func (b verificationBundleFS) Stat(name string) (fs.FileInfo, error) {
+	return b.bundle.root.Stat(name)
+}
+
+func (b verificationBundleFS) ReadDir(name string) ([]fs.DirEntry, error) {
+	entries, err := b.bundle.directoryEntries(name, false)
+	slices.SortFunc(entries, func(a, b fs.DirEntry) int { return strings.Compare(a.Name(), b.Name()) })
+	return entries, err
+}
+
+func (b *appBundle) directoryEntries(name string, signing bool) ([]fs.DirEntry, error) {
 	dir, err := b.root.Open(name)
 	if err != nil {
 		return nil, err
@@ -73,8 +98,15 @@ func (b signingBundleWalker) ReadDir(name string) ([]fs.DirEntry, error) {
 	entries := make([]fs.DirEntry, 0, len(names))
 	for _, child := range names {
 		entry := path.Join(name, child)
-		info, err := b.root.Lstat(entry)
-		if errors.Is(err, os.ErrPermission) && b.ordinarySigningResource(entry) {
+		var info os.FileInfo
+		if signing {
+			info, err = b.root.Lstat(entry)
+		} else {
+			// This does not request content or EA rights on Windows. Directory
+			// enumeration permissions must not become unrelated metadata reads.
+			info, err = hostdata.StatMetadata(b.root, entry)
+		}
+		if signing && errors.Is(err, os.ErrPermission) && b.ordinarySigningResource(entry) {
 			info, err = b.resourceInfo(entry)
 		}
 		if err != nil {

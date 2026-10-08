@@ -6,8 +6,60 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"slices"
 	"testing"
 )
+
+func TestVerificationDirectoryIdentity(t *testing.T) {
+	app := testBundle(t)
+	for _, name := range []string{"z", "a", "q"} {
+		bundleFile(t, app, "Contents/Resources/"+name, []byte(name))
+	}
+	b, err := openAppBundle(app)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.close()
+	view := verificationBundleFS{b.root.FS(), b}
+	const directory = "Contents/Resources"
+	entries, err := view.ReadDir(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var names []string
+	for _, entry := range entries {
+		names = append(names, entry.Name())
+		info, err := entry.Info()
+		if err != nil {
+			t.Fatal(err)
+		}
+		file, err := b.root.Open(path.Join(directory, entry.Name()))
+		if err != nil {
+			t.Fatal(err)
+		}
+		held, statErr := file.Stat()
+		if err := errors.Join(statErr, file.Close()); err != nil {
+			t.Fatal(err)
+		}
+		if !os.SameFile(info, held) {
+			t.Fatal("enumeration lost the held resource identity", entry.Name())
+		}
+	}
+	if !slices.IsSorted(names) || !slices.Contains(names, "a") || !slices.Contains(names, "z") {
+		t.Fatal("verification directory membership or order changed", names)
+	}
+	for _, name := range []string{"missing", directory + "/a"} {
+		if _, err := view.ReadDir(name); err == nil {
+			t.Fatal("enumerated invalid directory", name)
+		}
+	}
+	if err := b.root.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := view.ReadDir(directory); !errors.Is(err, os.ErrClosed) {
+		t.Fatal("enumerated closed root", err)
+	}
+}
 
 func TestSigningWalkFilesystemOrder(t *testing.T) {
 	app := testBundle(t)

@@ -253,7 +253,7 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		if b.signing != nil {
 			return (signingBundleWalker{b}).WalkDir(start, visit)
 		}
-		return fs.WalkDir(b.root.FS(), start, visit)
+		return fs.WalkDir(verificationBundleFS{b.root.FS(), b}, start, visit)
 	}
 	err := walk(func(name string, d fs.DirEntry, walkErr error) (failure error) {
 		if walkErr != nil {

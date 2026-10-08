@@ -1,10 +1,10 @@
 # APFS integration
 
 During Phase 02, codesign pins merged APFS main commit
-[`18d01893f157`](https://github.com/deploymenttheory/go-apfs-v2/commit/18d01893f15709bd1eb37180989a1ebe5a53e62e)
-as `v0.18.1-0.20261008125555-18d01893f157`. Held filesystem metadata operations
+[`571c1dca84d8`](https://github.com/deploymenttheory/go-apfs-v2/commit/571c1dca84d82630c6582a9ae495afe2146a3759)
+as `v0.18.1-0.20261008142750-571c1dca84d8`. Held filesystem metadata operations
 select native attributes or associated FAT/exFAT storage from the volume contract.
-The pin includes packed-empty namespace validation, attribute-file storage queries,
+The pin includes packed-empty namespace validation, native `EPERM` for attribute-file queries,
 volume-aware replacement, compression and lifecycle prerequisites. Upstream releases are batched under the
 [phase dependency policy](implementation_plan.md); development and CI use the
 same reproducible module version until the batch release is available.

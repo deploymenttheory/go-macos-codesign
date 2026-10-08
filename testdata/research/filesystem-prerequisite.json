@@ -14,7 +14,7 @@
           "-",
           "--identifier",
           "phase02",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/sign"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/sign"
         ],
         "stdout": "",
         "stderr": "",
@@ -40,7 +40,7 @@
           "--identifier",
           "phase02",
           "--dryrun",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/dryrun"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/dryrun"
         ],
         "stdout": "",
         "stderr": "",
@@ -61,7 +61,7 @@
         "argv": [
           "/usr/bin/codesign",
           "--remove-signature",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
         ],
         "stdout": "",
         "stderr": "",
@@ -86,7 +86,7 @@
           "-",
           "--identifier",
           "phase02",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/sign"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/sign"
         ],
         "stdout": "",
         "stderr": "",
@@ -112,7 +112,7 @@
           "--identifier",
           "phase02",
           "--dryrun",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/dryrun"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/dryrun"
         ],
         "stdout": "",
         "stderr": "",
@@ -133,7 +133,7 @@
         "argv": [
           "/usr/bin/codesign",
           "--remove-signature",
-          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+          "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
         ],
         "stdout": "",
         "stderr": "",
@@ -146,14 +146,6 @@
     }
   ],
   "commands": [
-    {
-      "argv": [
-        "sw_vers"
-      ],
-      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
-      "stderr": "",
-      "exit": 0
-    },
     {
       "argv": [
         "uname",
@@ -171,7 +163,7 @@
         "-json",
         "github.com/deploymenttheory/go-apfs-v2"
       ],
-      "stdout": "{\n\t\"Path\": \"github.com/deploymenttheory/go-apfs-v2\",\n\t\"Version\": \"v0.18.1-0.20261008125555-18d01893f157\",\n\t\"Time\": \"2026-10-08T12:55:55Z\",\n\t\"Dir\": \"/Users/dafyddwatkins/go/pkg/mod/github.com/deploymenttheory/go-apfs-v2@v0.18.1-0.20261008125555-18d01893f157\",\n\t\"GoMod\": \"/Users/dafyddwatkins/go/pkg/mod/cache/download/github.com/deploymenttheory/go-apfs-v2/@v/v0.18.1-0.20261008125555-18d01893f157.mod\",\n\t\"GoVersion\": \"1.27.1\",\n\t\"Sum\": \"h1:jmI+zBpNFPMoGMZYV0U7ocBKGjUFEMr7N2pBKwIUalw=\",\n\t\"GoModSum\": \"h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=\"\n}\n",
+      "stdout": "{\n\t\"Path\": \"github.com/deploymenttheory/go-apfs-v2\",\n\t\"Version\": \"v0.18.1-0.20261008142750-571c1dca84d8\",\n\t\"Time\": \"2026-10-08T14:27:50Z\",\n\t\"Dir\": \"/Users/dafyddwatkins/go/pkg/mod/github.com/deploymenttheory/go-apfs-v2@v0.18.1-0.20261008142750-571c1dca84d8\",\n\t\"GoMod\": \"/Users/dafyddwatkins/go/pkg/mod/cache/download/github.com/deploymenttheory/go-apfs-v2/@v/v0.18.1-0.20261008142750-571c1dca84d8.mod\",\n\t\"GoVersion\": \"1.27.1\",\n\t\"Sum\": \"h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=\",\n\t\"GoModSum\": \"h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=\"\n}\n",
       "stderr": "",
       "exit": 0
     },
@@ -181,7 +173,15 @@
         "rev-parse",
         "HEAD"
       ],
-      "stdout": "21faa78affda2505b5792f4c707692f2c4687013\n",
+      "stdout": "cbc372d373f7e3cf0f567e9b5c4541556f3f69d3\n",
+      "stderr": "",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "sw_vers"
+      ],
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
       "stderr": "",
       "exit": 0
     },
@@ -195,9 +195,9 @@
         "APFS",
         "-volname",
         "CodesignPhase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/APFS.dmg"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/APFS.dmg"
       ],
-      "stdout": "created: /var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/APFS.dmg\n",
+      "stdout": "created: /var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/APFS.dmg\n",
       "stderr": "hdiutil: WARNING: 'hdiutil create -size -volname ...' is deprecated. Please use 'diskutil image create from/blank -size --volumeName ...' instead.\n",
       "exit": 0
     },
@@ -209,10 +209,10 @@
         "-owners",
         "on",
         "-mountpoint",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/APFS.dmg"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount",
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/APFS.dmg"
       ],
-      "stdout": "/dev/disk8          \tGUID_partition_scheme          \t\n/dev/disk8s1        \tApple_APFS                     \t\n/dev/disk9          \tEF57347C-0000-11AA-AA11-0030654\t\n/dev/disk9s1        \t41504653-0000-11AA-AA11-0030654\t/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount\n",
+      "stdout": "/dev/disk8          \tGUID_partition_scheme          \t\n/dev/disk8s1        \tApple_APFS                     \t\n/dev/disk9          \tEF57347C-0000-11AA-AA11-0030654\t\n/dev/disk9s1        \t41504653-0000-11AA-AA11-0030654\t/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount\n",
       "stderr": "hdiutil: WARNING: 'hdiutil attach -nobrowse -owners -mountpoint ...' is deprecated. Please use 'diskutil image attach --mountOptions nobrowse --mountOptions owners --mountPoint ...' instead.\n",
       "exit": 0
     },
@@ -224,7 +224,7 @@
         "-",
         "--identifier",
         "phase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/sign"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/sign"
       ],
       "stdout": "",
       "stderr": "",
@@ -239,7 +239,7 @@
         "--identifier",
         "phase02",
         "--dryrun",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/dryrun"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/dryrun"
       ],
       "stdout": "",
       "stderr": "",
@@ -252,7 +252,7 @@
         "-",
         "--identifier",
         "phase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
       ],
       "stdout": "",
       "stderr": "",
@@ -262,7 +262,7 @@
       "argv": [
         "/usr/bin/codesign",
         "--remove-signature",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
       ],
       "stdout": "",
       "stderr": "",
@@ -272,7 +272,7 @@
       "argv": [
         "/usr/bin/hdiutil",
         "detach",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount"
       ],
       "stdout": "\"disk8\" ejected.\n",
       "stderr": "hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.\n",
@@ -288,9 +288,9 @@
         "HFS+",
         "-volname",
         "CodesignPhase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/HFSplus.dmg"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/HFSplus.dmg"
       ],
-      "stdout": "created: /var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/HFSplus.dmg\n",
+      "stdout": "created: /var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/HFSplus.dmg\n",
       "stderr": "hdiutil: WARNING: 'hdiutil create -size -volname ...' is deprecated. Please use 'diskutil image create from/blank -size --volumeName ...' instead.\n",
       "exit": 0
     },
@@ -302,10 +302,10 @@
         "-owners",
         "on",
         "-mountpoint",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/HFSplus.dmg"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount",
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/HFSplus.dmg"
       ],
-      "stdout": "/dev/disk8          \tGUID_partition_scheme          \t\n/dev/disk8s1        \tApple_HFS                      \t/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount\n",
+      "stdout": "/dev/disk8          \tGUID_partition_scheme          \t\n/dev/disk8s1        \tApple_HFS                      \t/private/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount\n",
       "stderr": "hdiutil: WARNING: 'hdiutil attach -nobrowse -owners -mountpoint ...' is deprecated. Please use 'diskutil image attach --mountOptions nobrowse --mountOptions owners --mountPoint ...' instead.\n",
       "exit": 0
     },
@@ -317,7 +317,7 @@
         "-",
         "--identifier",
         "phase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/sign"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/sign"
       ],
       "stdout": "",
       "stderr": "",
@@ -332,7 +332,7 @@
         "--identifier",
         "phase02",
         "--dryrun",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/dryrun"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/dryrun"
       ],
       "stdout": "",
       "stderr": "",
@@ -345,7 +345,7 @@
         "-",
         "--identifier",
         "phase02",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
       ],
       "stdout": "",
       "stderr": "",
@@ -355,7 +355,7 @@
       "argv": [
         "/usr/bin/codesign",
         "--remove-signature",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount/remove"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount/remove"
       ],
       "stdout": "",
       "stderr": "",
@@ -365,7 +365,7 @@
       "argv": [
         "/usr/bin/hdiutil",
         "detach",
-        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-404237003/mount"
+        "/var/folders/f_/mq__q6c979vfsbz2lxnv9q180000gn/T/codesign-filesystem-research-1214598588/mount"
       ],
       "stdout": "\"disk8\" ejected.\n",
       "stderr": "hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.\n",
@@ -373,8 +373,8 @@
     }
   ],
   "provenance": {
-    "git": "21faa78affda2505b5792f4c707692f2c4687013",
-    "go": "{\n\t\"Path\": \"github.com/deploymenttheory/go-apfs-v2\",\n\t\"Version\": \"v0.18.1-0.20261008125555-18d01893f157\",\n\t\"Time\": \"2026-10-08T12:55:55Z\",\n\t\"Dir\": \"/Users/dafyddwatkins/go/pkg/mod/github.com/deploymenttheory/go-apfs-v2@v0.18.1-0.20261008125555-18d01893f157\",\n\t\"GoMod\": \"/Users/dafyddwatkins/go/pkg/mod/cache/download/github.com/deploymenttheory/go-apfs-v2/@v/v0.18.1-0.20261008125555-18d01893f157.mod\",\n\t\"GoVersion\": \"1.27.1\",\n\t\"Sum\": \"h1:jmI+zBpNFPMoGMZYV0U7ocBKGjUFEMr7N2pBKwIUalw=\",\n\t\"GoModSum\": \"h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=\"\n}",
+    "git": "cbc372d373f7e3cf0f567e9b5c4541556f3f69d3",
+    "go": "{\n\t\"Path\": \"github.com/deploymenttheory/go-apfs-v2\",\n\t\"Version\": \"v0.18.1-0.20261008142750-571c1dca84d8\",\n\t\"Time\": \"2026-10-08T14:27:50Z\",\n\t\"Dir\": \"/Users/dafyddwatkins/go/pkg/mod/github.com/deploymenttheory/go-apfs-v2@v0.18.1-0.20261008142750-571c1dca84d8\",\n\t\"GoMod\": \"/Users/dafyddwatkins/go/pkg/mod/cache/download/github.com/deploymenttheory/go-apfs-v2/@v/v0.18.1-0.20261008142750-571c1dca84d8.mod\",\n\t\"GoVersion\": \"1.27.1\",\n\t\"Sum\": \"h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=\",\n\t\"GoModSum\": \"h1:txgLJ7F0Te1wZiyg0UUNQIYaiSDmZns+Z+2f0v7zVGw=\"\n}",
     "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
     "uname": "Darwin MacBook-Air-2.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:57 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8132 arm64"
   },
@@ -382,8 +382,8 @@
   "schema": 1,
   "source_sha256": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "b9badc7a912312a380129d02540254583fb49a46ca4532a30af84a7f9595f759",
-    "go.sum": "8ee25db5bb6f445e30b452887597300678c38bab469694558f5539899f84ee2a",
+    "go.mod": "3f2915ecd73a9a9de9839a0569284a8e6f99222cbeb580b3affede362a4a8d3a",
+    "go.sum": "3d74849143fd25bfab7e87e3628ec4ae048e31f8436278b92db28b12af594328",
     "scripts/capture-filesystem-prerequisite.go": "f0527ab83f51252fe7f48e442ae5d9e9f96094907d63c8e5e9d083fe9f97b998",
     "spec/apple-writer.json": "31b6d331f8f85105269cda98cbf575ab1f7ea0df004adfb13103ca0988043fdd",
     "testdata/removal/unsigned-arm64.macho": "e865c15797bf7cda34665f1ee4a820b00d17d5a59172121636d78670fb16b2f6"

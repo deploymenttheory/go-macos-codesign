@@ -180,7 +180,7 @@ disk exhaustion + metadata restoration.
 ## Phase 02 — Portable filesystem behavior, streaming and lifecycle
 
 **Completion baseline:** codesign main through PR #106 and APFS main through
-PR #219 (following v0.18.0). Merge status is not an all-host qualification claim:
+PR #220 (following v0.18.0). Merge status is not an all-host qualification claim:
 outstanding CI checks remain required. These changes do not close this phase.
 Start new implementation branches from main.
 
@@ -190,7 +190,7 @@ AppleDouble-backed metadata is transparent below the CLI wherever Apple's
 filesystem contract selects it. No new metadata, transport, source-context or
 version flags/configuration requirements may substitute for this integration.
 
-The integration consumes merged APFS main at `18d01893f157`, including held
+The integration consumes merged APFS main at `571c1dca84d8`, including held
 metadata removal, volume-aware replacement, attribute-file storage queries and
 the native rejection of packed zero-offset empty attribute entries.
 Its exact pin and qualified local cases are recorded in the
@@ -198,8 +198,8 @@ Its exact pin and qualified local cases are recorded in the
 selection and all-host qualification remain closure prerequisites.
 The foreign FAT resource-signing cases additionally require
 [APFS #220](https://github.com/deploymenttheory/go-apfs-v2/pull/220), which retains
-native `EPERM` for attribute-file targets. It must land on main, be pinned, and
-pass the unchanged consumer cases before closing P02-FS qualification.
+native `EPERM` for attribute-file targets. That merged fix is now pinned; its
+unchanged consumer cases must pass before closing P02-FS qualification.
 
 ### Completion ledger
 
