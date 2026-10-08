@@ -5,11 +5,10 @@ file bytes. Apple's strict sideband policy rejects nonempty ResourceFork and
 FinderInfo attributes on applicable objects. Reading those attributes correctly
 is a prerequisite for matching its verification decisions and diagnostics.
 
-Codesign uses published [APFS v0.16.0](apfs-dependency.md) for native metadata and
-AppleDouble decoding. The dependency upgrade is merged in codesign PR70 and
-macOS-pkg PR72; macOS-pkg PR73 resolves its macOS 27 relocation-default gap.
-The former purego dependency blocker is resolved. No local SDK replacement or
-additional native binding is introduced here.
+Codesign uses the [shared APFS filesystem metadata view](apfs-dependency.md)
+for storage selection, held queries and mutations, and its AppleDouble codec for
+explicit library snapshots. Filesystem selection is automatic; metadata-routing
+CLI flags are not part of the command interface.
 
 The [read-only adapter](../internal/sideband/sideband.go) is connected to
 standalone and bundle verification. `--strict=sideband`, plain `--strict`, `--strict=all`
@@ -22,19 +21,17 @@ metadata policy, with separately qualified mutation and failure ordering.
 
 ```sh
 macoscodesign --verify --strict=sideband --verbose=1 executable
-macoscodesign --verify --strict=all --appledouble metadata.appledouble executable
-macoscodesign --verify --strict=all --deep --appledouble-map metadata.json Example.app
 ```
 
-The portable `--appledouble FILE` extension binds one explicitly named carrier
-to exactly one standalone operand. It requires enabled sideband policy and rejects
-ambiguous multi-operand use, other operations and disabling controls. An adjacent
-`._executable` has no special meaning. Library callers use `VerifyOptions.StrictSideband`
-and optional `VerifyOptions.AppleDouble`; callers retain ownership of that source.
+The CLI observes the metadata exposed by the selected filesystem. macOS uses
+native filesystem dispatch; Linux and Windows FAT/exFAT volumes associate
+`._name` with the held object. On other filesystems a neighboring file does not
+change native attributes. Library callers may additionally supply
+`VerifyOptions.AppleDouble` and retain ownership of that snapshot.
 Byte-only Mach-O verification rejects enabled sideband policy because it cannot
 observe a native object. UDIF byte verification needs no sideband observation.
 
-## Bundle traversal and explicit metadata maps
+## Bundle traversal and library metadata bindings
 
 Bundle verification checks signed code and special slots, then included resources,
 then the canonical bundle root and main executable. Resource checks follow links
@@ -54,34 +51,13 @@ not blanket-rejected. Framework `Resources/Info.plist` is an included resource;
 app `Contents/Info.plist` is excluded. A versioned framework's canonical root is
 its selected version, with `Versions/Current/.` retained in native diagnostics.
 
-The bundle map is a JSON object:
-
-```json
-{
-  ".": "metadata/root.appledouble",
-  "Contents/MacOS/hello": "metadata/executable.appledouble",
-  "Contents/Resources/icon.icns": "metadata/icon.appledouble"
-}
-```
-
-Object keys are relative to the resolved bundle operand; carrier paths are relative
-to the map file. Both can be absolute, allowing an explicitly named outside resource
-link target. Keys bind by filesystem identity: symbolic and hard-link aliases see
-the same supplied metadata. Duplicate keys or aliases for the same object are
-rejected. The map is limited to 8 MiB and 10,000 bindings. Carriers must be regular
-files; their fork payload is never read into memory. Native metadata remains
-additive. The extension requires enabled sideband verification of exactly one
-bundle and cannot be combined with standalone `--appledouble`.
-
-The API equivalent is `VerifyOptions.AppleDoubleFiles`, mapping object paths to
-caller-owned `appledouble.Value` sources. The verifier captures native query
-results while holding each file used for hashing. This bounds descriptor use
-without reopening resources to query their metadata. Errors and carrier decoding
-are deferred to the relevant verification stage, so a later metadata error cannot
-replace an earlier integrity failure. CLI carrier header reads hold and check their
-file identity, size and modification time; they close each handle after reading.
-All code, metadata sources and path bindings must remain stable during verification;
-this is not an atomic snapshot of concurrent filesystem mutations.
+Library `VerifyOptions.AppleDoubleFiles` maps object paths to caller-owned
+`appledouble.Value` sources. Bindings resolve by filesystem identity, including
+supported symbolic and hard-link aliases; conflicting aliases are rejected.
+The verifier captures filesystem queries while holding each resource used for
+hashing and defers policy errors until its validation stage. This bounds open
+handles while preserving integrity-error precedence. Inputs and bindings must
+remain stable; held identity does not provide an atomic content snapshot.
 
 Resource opens reproduce Darwin's 32-link limit on all three hosts, including
 framework selection aliases. Strict destination validation separately retains its
@@ -92,7 +68,7 @@ and the pinned Security bodies in `spec/apple-sideband.json` and
 `spec/apple-resource-verification.json`. The Clang extractor checks MAXSYMLINKS
 on both targets and includes complete bundle-root-to-executable delegation.
 
-`acceptance/sideband_bundle_test.go` runs native/carrier matrices on Linux, macOS
+`acceptance/sideband_bundle_test.go` runs native-filesystem matrices on Linux, macOS
 and Windows. macOS additionally compares Apple's output, preserves raw observations
 and checks input preservation. Resource detail arrays are compared as complete
 multisets because Apple's workers/CF collections do not provide a stable ordering;
@@ -107,7 +83,8 @@ failure. Existing native-signing strict tests now compare all implemented select
 same held file. It does not reopen the operand after signature verification.
 Symbolic aliases report the resolved target in attached-data details; hard links
 retain their selected path. A caller-supplied AppleDouble source is borrowed;
-the CLI opens its explicit carrier once and closes it on every return path.
+the library caller owns its lifetime. The filesystem view borrows the held file
+and releases its independently acquired association handles.
 Inputs must remain stable: holding the object prevents pathname substitution
 between these reads, but does not create an atomic snapshot of concurrent edits.
 
@@ -139,17 +116,17 @@ shared APFS opener, including Windows delete-sharing.
 
 ## Explicit AppleDouble input
 
-Foreign macOS metadata is an explicit additional input on **all three hosts**.
-Native attributes are always inspected as well. No adjacent `._` file is guessed
-or automatically reinterpreted, and an empty carrier cannot hide native data.
-The adapter receives an already-open file and an optional APFS `appledouble.Value`.
-It never opens paths, restores metadata, advances caller offsets or closes inputs.
+Library callers may supply an explicit additional snapshot on all three hosts.
+Filesystem-selected attributes are also inspected, so an empty snapshot cannot
+conceal a visible native or FAT-backed value. APFS owns discovery of genuine
+filesystem storage; the snapshot API never changes that selection.
 
 | Input | Inspection contract |
 | --- | --- |
 | macOS native | APFS held size queries, ordinary visible namespace; only Darwin EPERM is ignored by the measured Apple presence policy |
 | Windows native | APFS held native EA queries with Windows name semantics; failures propagate |
 | Linux native | APFS complete strict name inventory; query canonical names only when listed; no `user.com.apple.*` remapping |
+| Linux/Windows FAT storage | APFS binds the held object to its associated VFS carrier; names are case-sensitive and invalid-header size queries report absence |
 | Explicit AppleDouble | APFS streaming decode validates the complete header and referenced spans; nonempty fork, nonzero fixed FinderInfo, and every nonempty special-name ATTR record are additional observations |
 
 The fixed FinderInfo field is mandatory padding even when absent; an all-zero

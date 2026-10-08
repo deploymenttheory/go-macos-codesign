@@ -113,6 +113,87 @@ func TestGenericSignatureNamespace(t *testing.T) {
 	}
 }
 
+func TestSignatureComponentFlushOrder(t *testing.T) {
+	for _, failure := range []string{"none", "canonical", "components", "cancel-components", "list", "unknown"} {
+		t.Run(failure, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+			var events []string
+			err := removeSignatureAttributeSteps(ctx, false, func() ([]string, error) {
+				events = append(events, "list")
+				if failure == "list" {
+					return nil, io.ErrClosedPipe
+				}
+				return []string{signaturePrefix + "Unknown", "user.control"}, nil
+			}, func(name string) error {
+				events = append(events, name)
+				if failure == "canonical" || failure == "unknown" && strings.HasSuffix(name, ".Unknown") {
+					return io.ErrClosedPipe
+				}
+				return nil
+			}, func() error {
+				events = append(events, "components")
+				if failure == "components" {
+					return io.ErrClosedPipe
+				}
+				if failure == "cancel-components" {
+					cancel()
+				}
+				return nil
+			})
+			var want []string
+			for _, slot := range signatureSlots {
+				want = append(want, signaturePrefix+slot)
+			}
+			want = append(want, "components", "list", signaturePrefix+"Unknown")
+			var expectedError error
+			switch failure {
+			case "canonical":
+				want, expectedError = want[:1], io.ErrClosedPipe
+			case "components":
+				want, expectedError = want[:len(signatureSlots)+1], io.ErrClosedPipe
+			case "cancel-components":
+				want, expectedError = want[:len(signatureSlots)+1], context.Canceled
+			case "list":
+				want, expectedError = want[:len(signatureSlots)+2], io.ErrClosedPipe
+			case "unknown":
+				expectedError = io.ErrClosedPipe
+			}
+			if !slices.Equal(events, want) || !errors.Is(err, expectedError) {
+				t.Fatal(events, want, err, expectedError)
+			}
+		})
+	}
+	names := SignatureComponents()
+	names[0] = "caller-owned"
+	if signatureSlots[0] != "CodeDirectory" {
+		t.Fatal("caller changed canonical names")
+	}
+}
+
+func TestSignatureCarrierComponentFlush(t *testing.T) {
+	f, err := os.CreateTemp(t.TempDir(), "object")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	m := &mutableTestCarrier{Reader: carrier(t, appledouble.File{Attrs: []appledouble.Attr{
+		{Name: signaturePrefix + "CodeDirectory", Value: []byte("known")},
+		{Name: signaturePrefix + "Unknown", Value: []byte("unknown")},
+	}})}
+	called := 0
+	err = RemoveSignatureBeforeFlush(t.Context(), f, m, func() error {
+		called++
+		if !slices.Equal(m.removed, []string{signaturePrefix + "CodeDirectory"}) {
+			t.Fatal("component removal did not occur between canonical and namespace removal", m.removed)
+		}
+		return io.ErrClosedPipe
+	})
+	if called != 1 || !errors.Is(err, io.ErrClosedPipe) || !slices.Equal(m.removed, []string{signaturePrefix + "CodeDirectory"}) {
+		t.Fatal(called, err, m.removed)
+	}
+}
+
 func TestGenericSignatureCarrier(t *testing.T) {
 	f, err := os.CreateTemp(t.TempDir(), "object")
 	if err != nil {

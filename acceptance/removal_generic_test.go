@@ -70,6 +70,10 @@ func genericFixture(t *testing.T, dir, shape string) (operand, target string, bu
 // Read each supplied name rather than interpreting unrelated host bookkeeping.
 // Attribute name spelling is preserved in the report, including on NTFS.
 func genericAttrs(t *testing.T, target string, metadata appledouble.File, carrier string) map[string]string {
+	return genericAttrsForPlatform(t, target, metadata, carrier, runtime.GOOS)
+}
+
+func genericAttrsForPlatform(t *testing.T, target string, metadata appledouble.File, carrier, platform string) map[string]string {
 	t.Helper()
 	if carrier != "" {
 		f, err := appledouble.Decode(nativeRead(t, carrier))
@@ -90,7 +94,7 @@ func genericAttrs(t *testing.T, target string, metadata appledouble.File, carrie
 	}
 	for _, name := range names {
 		query := name
-		if runtime.GOOS == "linux" && strings.HasPrefix(query, "com.apple.") {
+		if platform == "linux" && strings.HasPrefix(query, "com.apple.") {
 			query = "user." + query
 		}
 		value, present, err := hostdata.ReadXattr(f, query, hostdata.MaxXattrReadSize)
@@ -122,99 +126,63 @@ type genericRemovalResult struct {
 	Out, Err, Data string
 	Attrs          map[string]string
 	SameFile       bool
+	Platform       string
 }
 
 func TestGenericRemoval(t *testing.T) {
 	for _, shape := range genericShapes {
 		for _, state := range []string{"clean", "populated", "empty"} {
-			for _, transport := range []string{"native", "appledouble"} {
-				t.Run(shape+"/"+state+"/"+transport, func(t *testing.T) {
-					dir := extractionDirectory(t)
-					metadata := genericMetadata(state)
-					execute := func(exe string, explicit bool) genericRemovalResult {
-						operand, target, bundle := genericFixture(t, dir, shape)
-						before := nativeRead(t, target)
-						original := accessFileInfo(t, target)
-						args := []string{"--remove-signature"}
-						carrier := ""
-						if explicit {
-							carrier = filepath.Join(dir, "metadata.ad")
-							wire, err := metadata.Encode()
-							if err != nil {
-								t.Fatal(err)
-							}
-							bundleWrite(t, dir, "metadata.ad", wire)
-							if bundle {
-								rel, err := filepath.Rel(operand, target)
-								if err != nil {
-									t.Fatal(err)
-								}
-								manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): carrier})
-								if err != nil {
-									t.Fatal(err)
-								}
-								bundleWrite(t, dir, "map.json", manifest)
-								args = append(args, "--appledouble-map", filepath.Join(dir, "map.json"))
-							} else {
-								args = append(args, "--appledouble", carrier)
-							}
-						} else {
-							setSidebandObject(t, target, metadata)
-						}
-						initialAttrs := genericAttrs(t, target, metadata, carrier)
-						out, stderr, status := run(t, exe, append(args, operand)...)
-						after := nativeRead(t, target)
-						nativeEqual(t, "generic data fork", after, before)
-						result := genericRemovalResult{status, out, stderr, hash(signingSidebandBytes(t, operand, bundle)), genericAttrs(t, target, metadata, carrier), os.SameFile(original, accessFileInfo(t, target))}
-						if status != 0 || out != "" || stderr != "" || !result.SameFile {
-							t.Fatalf("removal %s: %#v", exe, result)
-						}
-						want := initialAttrs
-						if explicit || runtime.GOOS != "linux" {
-							want = map[string]string{}
-							for n, v := range initialAttrs {
-								if !strings.HasPrefix(n, "com.apple.cs.") {
-									want[n] = v
-								}
-							}
-						}
-						if !reflect.DeepEqual(result.Attrs, want) {
-							t.Fatalf("attributes %#v; want %#v", result.Attrs, want)
-						}
-						if bundle {
-							b := filepath.Join(operand, "Contents/_CodeSignature/CodeResources")
-							if strings.TrimPrefix(shape, "fallback-") == "framework" {
-								b = filepath.Join(operand, "Versions/A/_CodeSignature/CodeResources")
-							}
-							if strings.TrimPrefix(shape, "fallback-") == "flat-framework" {
-								b = filepath.Join(operand, "_CodeSignature/CodeResources")
-							}
-							if _, err := os.Stat(b); !os.IsNotExist(err) {
-								t.Fatalf("envelope remains: %v", err)
-							}
-						}
-						if err := os.RemoveAll(operand); err != nil {
-							t.Fatal(err)
-						}
-						return result
+			t.Run(shape+"/"+state+"/native", func(t *testing.T) {
+				dir := extractionDirectory(t)
+				metadata := genericMetadata(state)
+				execute := func(exe string) genericRemovalResult {
+					operand, target, bundle := genericFixture(t, dir, shape)
+					before := nativeRead(t, target)
+					original := accessFileInfo(t, target)
+					setSidebandObject(t, target, metadata)
+					initialAttrs := genericAttrs(t, target, metadata, "")
+					out, stderr, status := run(t, exe, "--remove-signature", operand)
+					nativeEqual(t, "generic data fork", nativeRead(t, target), before)
+					result := genericRemovalResult{Status: status, Out: out, Err: stderr,
+						Data: hash(signingSidebandBytes(t, operand, bundle)), Attrs: genericAttrs(t, target, metadata, ""),
+						SameFile: os.SameFile(original, accessFileInfo(t, target)), Platform: runtime.GOOS}
+					if status != 0 || out != "" || stderr != "" || !result.SameFile {
+						t.Fatalf("removal %s: %#v", exe, result)
 					}
-					got := execute(binaryPath, transport == "appledouble")
-					if runtime.GOOS == "darwin" {
-						want := execute(apple(t), false)
-						if !reflect.DeepEqual(got, want) {
-							t.Fatalf("Go %#v; native %#v", got, want)
+					assertNativeGenericRemoval(t, result.Attrs, initialAttrs)
+					if bundle {
+						path := filepath.Join(operand, "Contents/_CodeSignature/CodeResources")
+						if strings.TrimPrefix(shape, "fallback-") == "framework" {
+							path = filepath.Join(operand, "Versions/A/_CodeSignature/CodeResources")
+						}
+						if strings.TrimPrefix(shape, "fallback-") == "flat-framework" {
+							path = filepath.Join(operand, "_CodeSignature/CodeResources")
+						}
+						if _, err := os.Stat(path); !os.IsNotExist(err) {
+							t.Fatalf("envelope remains: %v", err)
 						}
 					}
-					attest(t, got)
-					if export := os.Getenv("MACOSCODESIGN_EXPORT_DIR"); export != "" && transport == "appledouble" {
-						wire, err := json.Marshal(got)
-						if err != nil {
-							t.Fatal(err)
-						}
-						bundleWrite(t, export, "generic-removal-"+shape+"-"+state+".json", wire)
+					if err := os.RemoveAll(operand); err != nil {
+						t.Fatal(err)
 					}
-				})
-			}
+					return result
+				}
+				got := execute(binaryPath)
+				if runtime.GOOS == "darwin" {
+					want := execute(apple(t))
+					if !reflect.DeepEqual(got, want) {
+						t.Fatalf("Go %#v; native %#v", got, want)
+					}
+				}
+				attest(t, got)
+				if export := os.Getenv("MACOSCODESIGN_EXPORT_DIR"); export != "" {
+					wire, err := json.Marshal(got)
+					if err != nil {
+						t.Fatal(err)
+					}
+					bundleWrite(t, export, "generic-removal-"+shape+"-"+state+".json", wire)
+				}
+			})
 		}
 	}
 }
@@ -287,21 +255,27 @@ func genericFileDigest(t *testing.T, f *os.File, size int64) string {
 
 func verifyImportedGenericRemoval(t *testing.T, dir, reference string) {
 	t.Helper()
-	expected := map[string]genericRemovalResult{}
+	expected := map[string]map[string]genericRemovalResult{}
 	for _, shape := range genericShapes {
 		for _, state := range []string{"clean", "populated", "empty"} {
-			operand, target, bundle := genericFixture(t, extractionDirectory(t), shape)
-			metadata := genericMetadata(state)
-			setSidebandObject(t, target, metadata)
-			original := accessFileInfo(t, target)
-			out, stderr, status := run(t, reference, "--remove-signature", operand)
-			if status != 0 || out != "" || stderr != "" {
-				t.Fatalf("native generic oracle %d %q %q", status, out, stderr)
+			name := "generic-removal-" + shape + "-" + state + ".json"
+			expected[name] = map[string]genericRemovalResult{}
+			for _, platform := range []string{"linux", "windows"} {
+				operand, target, bundle := genericFixture(t, extractionDirectory(t), shape)
+				metadata := genericMetadata(state)
+				setSidebandObjectForPlatform(t, target, metadata, platform)
+				original := accessFileInfo(t, target)
+				out, stderr, status := run(t, reference, "--remove-signature", operand)
+				if status != 0 || out != "" || stderr != "" {
+					t.Fatalf("native generic oracle %d %q %q", status, out, stderr)
+				}
+				expected[name][platform] = genericRemovalResult{Status: status, Out: out, Err: stderr,
+					Data: hash(signingSidebandBytes(t, operand, bundle)), Attrs: genericAttrsForPlatform(t, target, metadata, "", platform),
+					SameFile: os.SameFile(original, accessFileInfo(t, target)), Platform: platform}
 			}
-			expected["generic-removal-"+shape+"-"+state+".json"] = genericRemovalResult{status, out, stderr, hash(signingSidebandBytes(t, operand, bundle)), genericAttrs(t, target, metadata, ""), os.SameFile(original, accessFileInfo(t, target))}
 		}
 	}
-	seen := map[string]int{}
+	seen := map[string]map[string]bool{}
 	if err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -309,25 +283,32 @@ func verifyImportedGenericRemoval(t *testing.T, dir, reference string) {
 		if d.IsDir() || !strings.HasPrefix(d.Name(), "generic-removal-") {
 			return nil
 		}
-		want, ok := expected[d.Name()]
+		profiles, ok := expected[d.Name()]
 		if !ok {
-			t.Fatalf("unexpected generic artifact %s", path)
+			t.Fatal("unexpected generic artifact", path)
 		}
 		var got genericRemovalResult
 		if err := json.Unmarshal(nativeRead(t, path), &got); err != nil {
 			return err
 		}
-		if !reflect.DeepEqual(got, want) {
+		want, ok := profiles[got.Platform]
+		if !ok || !reflect.DeepEqual(got, want) {
 			t.Fatalf("%s: foreign %#v; native %#v", path, got, want)
 		}
-		seen[d.Name()]++
+		if seen[d.Name()] == nil {
+			seen[d.Name()] = map[string]bool{}
+		}
+		if seen[d.Name()][got.Platform] {
+			t.Fatal("duplicate generic producer", path, got.Platform)
+		}
+		seen[d.Name()][got.Platform] = true
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
 	for name := range expected {
-		if seen[name] != 2 {
-			t.Fatalf("expected both producers for %s, got %d", name, seen[name])
+		if !seen[name]["linux"] || !seen[name]["windows"] {
+			t.Fatal("expected both generic producers", name, seen[name])
 		}
 	}
 	attest(t, map[string]any{"foreign_generic_removal_cases": len(expected), "per_case_producers": seen})
@@ -339,27 +320,9 @@ func TestGenericRemovalWriteDenial(t *testing.T) {
 			dir := extractionDirectory(t)
 			operand, target, bundle := genericFixture(t, dir, shape)
 			metadata := genericMetadata("populated")
-			wire, err := metadata.Encode()
-			if err != nil {
-				t.Fatal(err)
-			}
-			carrier := filepath.Join(dir, "metadata.ad")
-			bundleWrite(t, dir, "metadata.ad", wire)
+			setSidebandObject(t, target, metadata)
+			initialAttrs := genericAttrs(t, target, metadata, "")
 			args := []string{"--remove-signature"}
-			if bundle {
-				rel, err := filepath.Rel(operand, target)
-				if err != nil {
-					t.Fatal(err)
-				}
-				manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): carrier})
-				if err != nil {
-					t.Fatal(err)
-				}
-				bundleWrite(t, dir, "map.json", manifest)
-				args = append(args, "--appledouble-map", filepath.Join(dir, "map.json"))
-			} else {
-				args = append(args, "--appledouble", carrier)
-			}
 			before := signingSidebandBytes(t, operand, bundle)
 			original := accessFileInfo(t, target)
 			restore := func() {}
@@ -393,11 +356,13 @@ func TestGenericRemovalWriteDenial(t *testing.T) {
 				t.Fatalf("denied writer: %d %q %q", status, out, stderr)
 			}
 			nativeEqual(t, "denied generic object", signingSidebandBytes(t, operand, bundle), before)
-			nativeEqual(t, "denied generic carrier", nativeRead(t, carrier), wire)
+			if attrs := genericAttrs(t, target, metadata, ""); !reflect.DeepEqual(attrs, initialAttrs) {
+				t.Fatal("denied writer changed metadata", attrs, initialAttrs)
+			}
 			if !os.SameFile(original, accessFileInfo(t, target)) {
 				t.Fatal("denied object replaced")
 			}
-			attest(t, map[string]any{"status": status, "stdout": out, "stderr": stderr, "before": hash(before), "carrier": hash(wire)})
+			attest(t, map[string]any{"status": status, "stdout": out, "stderr": stderr, "before": hash(before), "attrs": initialAttrs})
 		})
 	}
 }
@@ -421,24 +386,16 @@ func TestGenericRemovalAliases(t *testing.T) {
 				before := nativeRead(t, target)
 				original := accessFileInfo(t, target)
 				metadata := genericMetadata("populated")
-				wire, err := metadata.Encode()
-				if err != nil {
-					t.Fatal(err)
-				}
-				carrier := filepath.Join(dir, "metadata.ad")
-				bundleWrite(t, dir, "metadata.ad", wire)
-				mustRun(t, binaryPath, "--remove-signature", "--appledouble", carrier, alias)
+				setSidebandObject(t, target, metadata)
+				initialAttrs := genericAttrs(t, target, metadata, "")
+				mustRun(t, binaryPath, "--remove-signature", alias)
 				nativeEqual(t, "alias target", nativeRead(t, target), before)
 				nativeEqual(t, "alias data", nativeRead(t, alias), before)
 				if !os.SameFile(original, accessFileInfo(t, target)) || !os.SameFile(original, accessFileInfo(t, alias)) {
 					t.Fatal("generic alias replaced")
 				}
-				got := genericAttrs(t, target, metadata, carrier)
-				for name := range got {
-					if strings.HasPrefix(name, "com.apple.cs.") {
-						t.Fatal("signature remains", name)
-					}
-				}
+				got := genericAttrs(t, target, metadata, "")
+				assertNativeGenericRemoval(t, got, initialAttrs)
 				if runtime.GOOS == "darwin" {
 					setSidebandObject(t, target, metadata)
 					mustRun(t, apple(t), "--remove-signature", alias)
@@ -459,34 +416,12 @@ func TestGenericRemovalDryRun(t *testing.T) {
 			dir := extractionDirectory(t)
 			metadata := genericMetadata("populated")
 			operand, target, bundle := genericFixture(t, dir, shape)
-			carrier := filepath.Join(dir, "metadata.ad")
-			wire, err := metadata.Encode()
-			if err != nil {
-				t.Fatal(err)
-			}
-			bundleWrite(t, dir, "metadata.ad", wire)
+			setSidebandObject(t, target, metadata)
+			initialAttrs := genericAttrs(t, target, metadata, "")
 			args := []string{"--remove-signature", "--dryrun"}
-			if bundle {
-				rel, err := filepath.Rel(operand, target)
-				if err != nil {
-					t.Fatal(err)
-				}
-				manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): carrier})
-				if err != nil {
-					t.Fatal(err)
-				}
-				bundleWrite(t, dir, "map.json", manifest)
-				args = append(args, "--appledouble-map", filepath.Join(dir, "map.json"))
-			} else {
-				args = append(args, "--appledouble", carrier)
-			}
 			mustRun(t, binaryPath, append(args, operand)...)
-			got := genericAttrs(t, target, metadata, carrier)
-			for name := range got {
-				if strings.HasPrefix(name, "com.apple.cs.") {
-					t.Fatal("dry run suppressed removal", name)
-				}
-			}
+			got := genericAttrs(t, target, metadata, "")
+			assertNativeGenericRemoval(t, got, initialAttrs)
 			data := signingSidebandBytes(t, operand, bundle)
 			if err := os.RemoveAll(operand); err != nil {
 				t.Fatal(err)
@@ -502,5 +437,20 @@ func TestGenericRemovalDryRun(t *testing.T) {
 			}
 			attest(t, map[string]any{"attrs": got, "data": hash(data)})
 		})
+	}
+}
+
+func assertNativeGenericRemoval(t *testing.T, got, before map[string]string) {
+	t.Helper()
+	want := map[string]string{}
+	for name, value := range before {
+		// Linux's user.com.apple.cs.* names are foreign namespace values. Native
+		// removal must retain them; actual FAT signature removal is tested separately.
+		if runtime.GOOS == "linux" || !strings.HasPrefix(name, "com.apple.cs.") {
+			want[name] = value
+		}
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatal("generic removal changed the wrong attributes", got, want)
 	}
 }

@@ -180,14 +180,22 @@ disk exhaustion + metadata restoration.
 ## Phase 02 — Portable filesystem behavior, streaming and lifecycle
 
 **Completion baseline:** codesign main through PR #106 and APFS main through
-PR #213 (released as v0.18.0). Their passing checks qualify the work delivered
-there; they do not close this phase. Start new implementation branches from main.
+PR #219 (following v0.18.0). Merge status is not an all-host qualification claim:
+outstanding CI checks remain required. These changes do not close this phase.
+Start new implementation branches from main.
 
 **Required result:** all remaining Phase 02 operations use bounded processing and
 native-compatible filesystem/lifecycle policy on Linux, macOS and Windows.
 AppleDouble-backed metadata is transparent below the CLI wherever Apple's
 filesystem contract selects it. No new metadata, transport, source-context or
 version flags/configuration requirements may substitute for this integration.
+
+The integration consumes merged APFS main at `18d01893f157`, including held
+metadata removal, volume-aware replacement, attribute-file storage queries and
+the native rejection of packed zero-offset empty attribute entries.
+Its exact pin and qualified local cases are recorded in the
+[filesystem migration guide](filesystem-metadata-migration.md). Final dependency
+selection and all-host qualification remain closure prerequisites.
 
 ### Completion ledger
 

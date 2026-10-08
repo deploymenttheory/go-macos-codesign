@@ -212,13 +212,23 @@ func TestHeldRemoval(t *testing.T) {
 	if err := hostdata.SetXattr(f, "user.codesign-test", []byte("value")); err != nil {
 		t.Fatal(err)
 	}
-	if err := removeAttribute(f, "user.codesign-test"); err != nil {
+	if err := removeFilesystemAttribute(context.Background(), f, "user.codesign-test"); err != nil {
 		t.Fatal(err)
 	}
-	if err := removeAttribute(f, "user.codesign-test"); err != nil {
+	if err := removeFilesystemAttribute(context.Background(), f, "user.codesign-test"); err != nil {
 		t.Fatal("disappeared attribute must be accepted", err)
 	}
-	if err := removeAttribute(nil, "user.codesign-test"); err == nil {
+	if err := removeFilesystemAttribute(context.Background(), nil, "user.codesign-test"); err == nil {
 		t.Fatal("invalid held object")
 	}
+}
+
+// Exercise the same borrowed view as the production policy calls.
+func removeFilesystemAttribute(ctx context.Context, file *os.File, name string) (err error) {
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, q.view.Close()) }()
+	return q.remove(name)
 }

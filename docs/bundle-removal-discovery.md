@@ -8,9 +8,10 @@ the executable. Apple stores this representation's
 signature in extended attributes on the plist. Removing it preserves the plist's
 data fork and inode, then removes the selected bundle's signature envelope.
 
-The same implementation runs on Linux, macOS and Windows. Native metadata uses
-APFS v0.16.0; foreign Apple metadata can be supplied through the existing explicit
-`--appledouble-map`. There is no implicit sidecar discovery or Linux xattr renaming.
+The same implementation runs on Linux, macOS and Windows. Metadata storage is
+selected by the shared APFS filesystem view, including dot-underscore metadata on
+FAT/exFAT. Linux native xattr names are not remapped. Explicit metadata bindings
+remain available to library callers.
 Signing, display and verification retain their existing metadata requirements.
 
 ## Selection and mutation

@@ -1,0 +1,1718 @@
+{
+  "Schema": 1,
+  "Host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "CodesignHash": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+  "Sources": {
+    "acceptance/bundle_test.go": "696ce96b30828e209285963b4982420431cc430274f266d7c35113c85793051b",
+    "acceptance/filesystem_metadata_discovery_test.go": "389f8578b0a28ecc0c2753e7b69676cd3fcf60601dcb30792aa7734cad333442",
+    "acceptance/filesystem_metadata_evidence_test.go": "ec16228145597fd50ff07396b4e32496cf428343b7f533fac76d2ba32bd0f202",
+    "acceptance/filesystem_metadata_test.go": "09942a35a98138e857a4ccd799f932a223b2c119e2ecea57f1ec36a2f49d12cb",
+    "acceptance/harness_test.go": "8643695241cfec404bee46f28645ea3c3781adf003646d99eb96cce83c14983e",
+    "acceptance/removal_empty_info_test.go": "aae9f33774c9512bff743c3841a2cbec3a7c35bf00b5ad45c0b3033b203f7de7",
+    "acceptance/removal_generic_test.go": "c575c51f1dd5d5f455e92337683a9fa92006881922f54d517ea3ec624e018457",
+    "acceptance/removal_platform_info_test.go": "92608844ce598d78f6e86bb5d025fe4a81c4e9541285768201759ff3ea4938af",
+    "go.mod": "b9badc7a912312a380129d02540254583fb49a46ca4532a30af84a7f9595f759",
+    "go.sum": "8ee25db5bb6f445e30b452887597300678c38bab469694558f5539899f84ee2a",
+    "testdata/bundle-removal/empty-info.json": "febb6c919a6294ffdba33d9aaeac0d48d24542ffa7efe69c59e208777a21ded2",
+    "testdata/bundle-removal/platform-selection.json": "22b92abf572aabbc93e3030cc584d55d17b6d9dfe08ecf78f071648be8e9f6a9",
+    "testdata/filesystem-metadata/native-seeds.json": "98f886bc65fa08e58a4b814e4a7f7e85ecc09b9a2395b9ffdf8bee47a41629d2"
+  },
+  "Cases": {
+    "filesystem-discovery-exfat-empty-info-app-empty-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f2248499889e96e9be9f9d8a6ebd53920a5d511f64e113a34e667cd9289c4ffe",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-empty-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "71422ff99c47d8ced6eefbec8195be6a4a7f0c0958691188f4f935dec706440a",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-empty-dictionary-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a2f00e0df302da85ca1201671e5ef81890fd5bfe2bec68c92755d424edcd826a",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-empty-dictionary-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "c9479d9ee1ab654364f1217dcc4f897907c8b8249bab9b466fe17df68b626ee3",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-empty-dictionary-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "31a7479d4ff6ac84d7d5708a13f88c446e9ec6ab27e4c236704eb020ef754d96",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-empty-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e3261ee823afafad9b6fa75e540ac4c9c2dad0d0eca7a0167147a8cf08f4da79",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-missing-absent.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "28e88c3a3c7c085deebac7dc3dac168900ae3967f247fd348269324fa2f5f187",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {}
+    },
+    "filesystem-discovery-exfat-empty-info-app-missing-declared.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "ce8320c2a550ce1b733358a7157ee950e5b03ef9713543f7b89bce13c3f44876",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-app-missing-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "40ce3553fce4188f087eef9bc835d1b3716df605e23cee39aa6cc51de2526dd7",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f9c51da4dc6f859e694da2ec767d10b4f4a737e2c6feb383ad8e1be3225541de",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "19b020caf675aed8cce8407a1c2c0fea96b0a1e8d9c688f434bc1cc05ab39d09",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d98dab3150bc58b0f722469bfd49845be02d2fc3b661be8a751b7e6a852306bf",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "ee522708f9acd8a15f88bf75d8c4a4a84c886fc556870c6e1c8c8b7343353db8",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-dictionary-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "9ea14ce5173802359f1e9a9ba60210b6634b2c11ce87e1a78bfa112b93de76a7",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-empty-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "9da28fdcc135a91770ec5acc1727e579cfa02a838e95b9821ad8001e350d1316",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-missing-absent.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "11338dabeccab5db36e93bf242f24958136816198c9a38c8b4190cb90fce0eff",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {}
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-missing-declared.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "10cb57e22030e6a675acefae190d3ed3fdf3fcf456adca8846285764fbc18c43",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-empty-info-flat-framework-missing-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a21cb89676601bd8dd87f10069a22b7e9d75fb22578b11b7a194cc8db5a90db2",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-both.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "3270f952846475df556f95e2ca702843c2ae62a2d06cbce0fdbe75c277c3082d",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-directory.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e88432580ff9688999216b799b799f831b54114854e19792cdb4ddc567067ae5",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-empty-dictionary.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "cea57434d6949dcda9b3ca1d952296e9ae97d68937d321b97661252c15a56fe4",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-empty-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "2f00f79799aeb0ce980daaa731800cb0e5718c299f0ebf8dbf4f749859f9ae86",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-empty.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "5a53120d888317ea49435d7bcbd0a710b6b169aaa21ae3ab49d562536949657b",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-key-macos.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f648339661adbbcda039219177cd19148cf58b0b1240ce5fac07ff3a0d9ee669",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-key-windows.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "2ae1f1e880d88dc9cd8161dd7b28b3789f221213c53710cc9985fceadc2ac491",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-macosx.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f71708ea4c6611cf181b765bf18761db79457cfce5ab218f143a00f7d5b1402e",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-missing-target.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "c550b534f8358e1b6a43842231f0afedb739caca4eac8b1900535ea90de5f3ec",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-number-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "cc658480a014be4f0691a5f4250fdd92b648f9a0d9dbf87c75c50c6325479c83",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-app-only.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "32e117b066f35ae28c165ca379c61c8d4393d1e4f88f343daf36e5c89743cbff",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-both.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "805627f8d970c882ea3150ce80d58395922a2ac0c31bf90ab7fcad261742acd5",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-directory.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a8cf861eafea592b1fc6f338d18ff5d9ee6a5a508f8a4e603db0f5bff2b2688c",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-empty-dictionary.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e5905212d7571cea07bf27737d5b9a767955e1e1f9f7ccbc52cc21be2186e442",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-empty-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e9a695502e53b82afee2ff4dd18378495f069c0aea6ef4180c34782f5559b092",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-empty.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e0ab4ce53d09bc143da9ab2b62e4ca54a695b8ec08b714292fed5575996b52ed",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-key-macos.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "7cfd3e279e424055f97855b7ccd7dc6e363298faf17622f50e58feba22a0d74c",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-key-windows.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d58959a5de0e4ee410be35301f548e64b2dbb6ed81c1bfc6d30b16f3a5ee36a8",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-macosx.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "b3db210d00dac8ee88e1aa992237930d955405fd5706569d1b02e4c9e08d6456",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-missing-target.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "8bc731d24d1055f3a0ffe95834d8cf8aa43223e5b56328c79824b65f4099a8e3",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-number-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d354e460305ca5be87eafd2cc3b1167d848a4b72a428cc7d5ad3fbaa475ba443",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-exfat-platform-info-flat-framework-only.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a8f715c91faf2e68295071c5e4d540a3cf08590707e3443a68c47aece8cddb77",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f2248499889e96e9be9f9d8a6ebd53920a5d511f64e113a34e667cd9289c4ffe",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "71422ff99c47d8ced6eefbec8195be6a4a7f0c0958691188f4f935dec706440a",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-dictionary-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a2f00e0df302da85ca1201671e5ef81890fd5bfe2bec68c92755d424edcd826a",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-dictionary-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "c9479d9ee1ab654364f1217dcc4f897907c8b8249bab9b466fe17df68b626ee3",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-dictionary-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "31a7479d4ff6ac84d7d5708a13f88c446e9ec6ab27e4c236704eb020ef754d96",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-empty-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e3261ee823afafad9b6fa75e540ac4c9c2dad0d0eca7a0167147a8cf08f4da79",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-missing-absent.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "28e88c3a3c7c085deebac7dc3dac168900ae3967f247fd348269324fa2f5f187",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {}
+    },
+    "filesystem-discovery-fat32-empty-info-app-missing-declared.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "ce8320c2a550ce1b733358a7157ee950e5b03ef9713543f7b89bce13c3f44876",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {
+        "Contents/MacOS/hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-app-missing-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "40ce3553fce4188f087eef9bc835d1b3716df605e23cee39aa6cc51de2526dd7",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/MacOS/A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f9c51da4dc6f859e694da2ec767d10b4f4a737e2c6feb383ad8e1be3225541de",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "19b020caf675aed8cce8407a1c2c0fea96b0a1e8d9c688f434bc1cc05ab39d09",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-absent.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d98dab3150bc58b0f722469bfd49845be02d2fc3b661be8a751b7e6a852306bf",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-declared.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "ee522708f9acd8a15f88bf75d8c4a4a84c886fc556870c6e1c8c8b7343353db8",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-dictionary-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "9ea14ce5173802359f1e9a9ba60210b6634b2c11ce87e1a78bfa112b93de76a7",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-empty-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "9da28fdcc135a91770ec5acc1727e579cfa02a838e95b9821ad8001e350d1316",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-missing-absent.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "11338dabeccab5db36e93bf242f24958136816198c9a38c8b4190cb90fce0eff",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {}
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-missing-declared.json": {
+      "Status": 1,
+      "Output": "$BUNDLE: bundle format unrecognized, invalid, or unsuitable\n",
+      "Tree": "10cb57e22030e6a675acefae190d3ed3fdf3fcf456adca8846285764fbc18c43",
+      "Platform": "appledouble",
+      "Envelope": true,
+      "Files": {
+        "hello": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-empty-info-flat-framework-missing-stem.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a21cb89676601bd8dd87f10069a22b7e9d75fb22578b11b7a194cc8db5a90db2",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "A": {
+          "SHA256": "e99f54a49a0c8201908beb4b7f1610e9494594c02cd3b9c37b8375a398918814",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-both.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "3270f952846475df556f95e2ca702843c2ae62a2d06cbce0fdbe75c277c3082d",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-directory.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e88432580ff9688999216b799b799f831b54114854e19792cdb4ddc567067ae5",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-empty-dictionary.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "cea57434d6949dcda9b3ca1d952296e9ae97d68937d321b97661252c15a56fe4",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-empty-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "2f00f79799aeb0ce980daaa731800cb0e5718c299f0ebf8dbf4f749859f9ae86",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-empty.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "5a53120d888317ea49435d7bcbd0a710b6b169aaa21ae3ab49d562536949657b",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-key-macos.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f648339661adbbcda039219177cd19148cf58b0b1240ce5fac07ff3a0d9ee669",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-key-windows.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "2ae1f1e880d88dc9cd8161dd7b28b3789f221213c53710cc9985fceadc2ac491",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-macosx.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "f71708ea4c6611cf181b765bf18761db79457cfce5ab218f143a00f7d5b1402e",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-missing-target.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "c550b534f8358e1b6a43842231f0afedb739caca4eac8b1900535ea90de5f3ec",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-number-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "cc658480a014be4f0691a5f4250fdd92b648f9a0d9dbf87c75c50c6325479c83",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-app-only.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "32e117b066f35ae28c165ca379c61c8d4393d1e4f88f343daf36e5c89743cbff",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Contents/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Contents/MacOS/platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-both.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "805627f8d970c882ea3150ce80d58395922a2ac0c31bf90ab7fcad261742acd5",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-directory.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a8cf861eafea592b1fc6f338d18ff5d9ee6a5a508f8a4e603db0f5bff2b2688c",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-empty-dictionary.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e5905212d7571cea07bf27737d5b9a767955e1e1f9f7ccbc52cc21be2186e442",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "819d3042b67ea07f26adc6c1e8c31268d6d83c3889548563cfd14a7ba45697ab",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-empty-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e9a695502e53b82afee2ff4dd18378495f069c0aea6ef4180c34782f5559b092",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "381a890d72767128b9fd7aba42d8e950e599f5b61200e98f5ba99eab7dd47699",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-empty.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "e0ab4ce53d09bc143da9ab2b62e4ca54a695b8ec08b714292fed5575996b52ed",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-key-macos.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "7cfd3e279e424055f97855b7ccd7dc6e363298faf17622f50e58feba22a0d74c",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "9818b6f1c40921aa1a0750d57abdb3bd1b7db3a0c9a94a28984ed6db4deb743a",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-key-windows.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d58959a5de0e4ee410be35301f548e64b2dbb6ed81c1bfc6d30b16f3a5ee36a8",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "f9cde224138b710851ab26e8215f7375c2b91827fd38a126d0300c6aa2df061b",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-macosx.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "b3db210d00dac8ee88e1aa992237930d955405fd5706569d1b02e4c9e08d6456",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macosx.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": false
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-missing-target.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "8bc731d24d1055f3a0ffe95834d8cf8aa43223e5b56328c79824b65f4099a8e3",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": false
+        },
+        "Resources/Info.plist": {
+          "SHA256": "f984f8ed5509a918f019900f8e8086d7edfb52cb4c6437496aa0676ceddb45d8",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-number-key.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "d354e460305ca5be87eafd2cc3b1167d848a4b72a428cc7d5ad3fbaa475ba443",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info.plist": {
+          "SHA256": "1a1728196d886fffceaae9284e88ddd5f9142d19590e0be011fff599ca9f0d75",
+          "same_inode": true,
+          "Signature": false
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": true
+        }
+      }
+    },
+    "filesystem-discovery-fat32-platform-info-flat-framework-only.json": {
+      "Status": 0,
+      "Output": "",
+      "Tree": "a8f715c91faf2e68295071c5e4d540a3cf08590707e3443a68c47aece8cddb77",
+      "Platform": "appledouble",
+      "Envelope": false,
+      "Files": {
+        "Resources/Info-macos.plist": {
+          "SHA256": "8592565002c5a74f722c33350c99bc3e584b1bc8a09f216463e6e0f1ec372f53",
+          "same_inode": true,
+          "Signature": true
+        },
+        "normal": {
+          "SHA256": "317b32c143692b9939c197f6a5df54f9698df9a4882fe8bf19608968662be4fa",
+          "same_inode": true,
+          "Signature": true
+        },
+        "platform": {
+          "SHA256": "d294fcce0cc88587843099d85dd805aeef1b09a63b0db1dd3e4dc62a343c1db5",
+          "same_inode": true,
+          "Signature": false
+        }
+      }
+    }
+  }
+}

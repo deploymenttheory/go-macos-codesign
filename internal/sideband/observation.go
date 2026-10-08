@@ -2,12 +2,11 @@ package sideband
 
 import (
 	"context"
+	"errors"
 	"os"
-	"runtime"
 	"slices"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // Observation retains native query results from the same held object used for
@@ -30,9 +29,19 @@ type attributeObservation struct {
 // Observe captures both queries, including their errors. A later First call
 // still short-circuits: a FinderInfo query error cannot override a resource fork.
 func Observe(ctx context.Context, file *os.File) *Observation {
-	return observe(ctx, runtime.GOOS,
-		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
-		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) })
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
+		return observe(ctx, "filesystem", func() ([]string, error) { return nil, err }, func(string) (int, bool, error) { return 0, false, err })
+	}
+	o := observe(ctx, q.platform(), q.list, q.size)
+	if err = q.view.Close(); err != nil {
+		o.inventory = errors.Join(o.inventory, err)
+		for name, a := range o.attrs {
+			a.err = errors.Join(a.err, err)
+			o.attrs[name] = a
+		}
+	}
+	return o
 }
 
 func observe(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error)) *Observation {

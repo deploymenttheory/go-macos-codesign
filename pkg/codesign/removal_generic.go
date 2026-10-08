@@ -14,6 +14,10 @@ import (
 // SingleDiskRep::Writer lazily opens O_RDWR even when no signature exists.
 // Bind that writable handle to the classified object before any mutation.
 func removeGenericSignature(ctx context.Context, original *os.File, open func() (*os.File, error), carrier appledouble.Value) (result error) {
+	return removeGenericSignatureBeforeFlush(ctx, original, open, carrier, nil)
+}
+
+func removeGenericSignatureBeforeFlush(ctx context.Context, original *os.File, open func() (*os.File, error), carrier appledouble.Value, beforeFlush func() error) (result error) {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -33,7 +37,7 @@ func removeGenericSignature(ctx context.Context, original *os.File, open func() 
 	if !os.SameFile(before, after) {
 		return invalid("generic file changed before signature removal")
 	}
-	return sideband.RemoveSignature(ctx, f, carrier)
+	return sideband.RemoveSignatureBeforeFlush(ctx, f, carrier, beforeFlush)
 }
 
 // Match Universal::typeOf's bounded header probe. A short header or MH_OBJECT

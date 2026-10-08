@@ -7,12 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"runtime"
 	"slices"
 	"syscall"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // Attributes records nonempty prohibited attributes, in native diagnostic order.
@@ -35,9 +33,9 @@ func (a Attributes) Names() []string {
 	return names
 }
 
-// Inspect reads native attributes from the caller's held object and, when
-// explicitly supplied, an AppleDouble snapshot. It never opens a pathname,
-// guesses a sidecar, restores metadata, changes offsets or closes either input.
+// Inspect reads filesystem-selected attributes from the caller's held object
+// and, when explicitly supplied, an additive AppleDouble snapshot. APFS owns
+// filesystem dispatch and carrier association; neither input is closed.
 // The caller must keep the inputs open and stable for the duration of the call.
 // Following a resource link, binding a carrier to its object and scheduling
 // checks relative to signature/resource verification belong to the caller.
@@ -67,10 +65,13 @@ func First(ctx context.Context, file *os.File, carrier appledouble.Value) (strin
 // attribute does not grant this implementation Apple platform-signing status;
 // only its read failure affects construction. Linux cannot query unnamespaced
 // names, so its native inventory establishes absence, as for sideband checks.
-func CheckPlatformAttribute(ctx context.Context, file *os.File) error {
-	return checkPlatformAttribute(ctx, runtime.GOOS,
-		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
-		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) })
+func CheckPlatformAttribute(ctx context.Context, file *os.File) (err error) {
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, q.view.Close()) }()
+	return checkPlatformAttribute(ctx, q.platform(), q.list, q.size)
 }
 
 func checkPlatformAttribute(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error)) error {
@@ -91,10 +92,18 @@ func checkPlatformAttribute(ctx context.Context, platform string, list func() ([
 	return err
 }
 
-func inspectFile(ctx context.Context, file *os.File, carrier appledouble.Value, first bool) (Attributes, error) {
-	return inspectPolicy(ctx, runtime.GOOS,
-		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
-		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) }, carrier, first)
+func inspectFile(ctx context.Context, file *os.File, carrier appledouble.Value, first bool) (attrs Attributes, err error) {
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
+		return Attributes{}, err
+	}
+	defer func() {
+		err = errors.Join(err, q.view.Close())
+		if err != nil {
+			attrs = Attributes{}
+		}
+	}()
+	return inspectPolicy(ctx, q.platform(), q.list, q.size, carrier, first)
 }
 
 func inspectPolicy(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), carrier appledouble.Value, first bool) (Attributes, error) {

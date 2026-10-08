@@ -13,6 +13,7 @@ import (
 	"github.com/deploymenttheory/go-apfs-v2/pkg/apfs"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
+	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
 type preparedBundleExecutable struct {
@@ -177,6 +178,59 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) (result error)
 		return err
 	}
 	return hostdata.CopyDirectoryStat(source, target)
+}
+
+// BundleDiskRep::Writer::remove unlinks canonical components before flush opens
+// its directory scanner. On attribute-file storage, deleting a component can
+// also delete its companion, so this must precede the purge inventory.
+func (b *appBundle) removeSignatureComponents(ctx context.Context) (result error) {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	name := b.base + "_CodeSignature"
+	st, err := b.root.Lstat(name)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return unsupported("signature directory is not a directory")
+	}
+	root, err := b.root.OpenRoot(name)
+	if err != nil {
+		return err
+	}
+	defer func() { result = errors.Join(result, root.Close()) }()
+	current, err := root.Stat(".")
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("bundle signature directory changed")
+	}
+	for _, component := range sideband.SignatureComponents() {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		info, err := root.Lstat(component)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		// os.Root.Remove can also remove an empty directory; native unlink
+		// cannot. Never traverse or remove a directory under a component name.
+		if info.IsDir() {
+			return unsupported("non-regular signature file: " + component)
+		}
+		if err := root.Remove(component); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+	}
+	return nil
 }
 
 // Purge regular signature files after executable commit. Keep the directory and
@@ -392,6 +446,11 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 		return err
 	}
 	if p.write.cleanup != bundleCleanupNone {
+		if p.write.cleanup == bundleCleanupRemoveAll {
+			if err := p.write.bundle.removeSignatureComponents(ctx); err != nil {
+				return err
+			}
+		}
 		if err := p.write.bundle.purgeSignatureFiles(ctx, p.write.cleanup == bundleCleanupKeepResources); err != nil {
 			return err
 		}

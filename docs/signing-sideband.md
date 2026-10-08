@@ -8,8 +8,6 @@ the same policy and the released APFS SDK's native metadata operations.
 ```sh
 macoscodesign -s - --strip-disallowed-xattrs Example.app
 macoscodesign -fs - --deep --strip-disallowed-xattrs Example.app
-macoscodesign -s - --appledouble metadata.ad --strip-disallowed-xattrs executable
-macoscodesign -fs - --appledouble-map metadata.json --strip-disallowed-xattrs Example.app
 ```
 
 The option removes only nonempty prohibited attributes. ResourceFork is queried
@@ -42,28 +40,17 @@ leave independent children unstarted. Acceptance checks complete before/after
 member manifests and independently verifies fully completed results; it does not
 accept arbitrary partial bytes or changes to failed ancestors.
 
-## Explicit portable metadata
+## Filesystem metadata and library snapshots
 
-`--appledouble` and `--appledouble-map` have the same explicit object-binding rules
-as [verification](sideband-policy.md). Native metadata is additional input; a
-carrier cannot conceal it. Neither operation discovers neighboring `._` files or
-restores foreign attributes onto the host. Linux `user.com.apple.*` attributes
-remain distinct native names, rather than an implicit Darwin-name remapping.
+The shared APFS view selects native attributes or FAT/exFAT dot-underscore
+storage. It performs stripping on that selected storage. Linux native
+`user.com.apple.*` names remain distinct and are not remapped.
 
-Stripping an explicit carrier authorizes changes to that carrier, including on a
-dry run. Native removals happen first; carrier removals follow in ResourceFork,
-FinderInfo order. Each carrier removal uses APFS's streaming decoder/encoder,
-retains unrelated decoded attribute values and produces a canonical snapshot.
-Padding, record placement and ignored nonsemantic wire data are not a preservation
-contract. Each removal is staged before writing through the original held carrier,
-preserving its object identity, hard links, mode and native metadata. Commit errors
-can leave partial bytes. Cancellation is checked during streaming and between
-commit reads. Shared references to one carrier observe its updated contents.
-
-Keep metadata carriers outside signed resource trees unless their changed bytes
-are deliberately part of the resources being signed. Keep operands and metadata
-stable for the duration of the operation; hostile concurrent mutation is not yet
-a qualified profile.
+Explicit AppleDouble snapshots are an additional library input. Filesystem
+removals happen first, followed by snapshot removals in ResourceFork/FinderInfo
+order. A mutable snapshot's implementation owns its commit, identity and failure
+contract. The shared rewrite helper produces canonical snapshot encoding;
+filesystem-selected removal instead preserves the VFS carrier layout.
 
 Library callers use `SignOptions.NoStrict`, `StripDisallowedXattrs`, `AppleDouble`
 and `AppleDoubleFiles`. A carrier requiring removal must implement

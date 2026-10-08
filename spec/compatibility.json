@@ -494,7 +494,9 @@
         "scripts/probe-sideband.go",
         "acceptance/sideband_object_test.go",
         "pkg/codesign/sideband_verification_test.go",
-        "internal/cli/verify_sideband_test.go",
+        "internal/cli/filesystem_metadata_test.go",
+        "acceptance/filesystem_metadata_test.go",
+        "acceptance/filesystem_metadata_bundle_test.go",
         "internal/sideband/first_test.go"
       ],
       "id": "--strict",
@@ -863,7 +865,7 @@
         "docs/strict-verification.md"
       ],
       "id": "--no-strict",
-      "notes": "Disables additional layout, symlink and standalone/bundle sideband policy, including when combined with supported plain/all/sideband selectors, while preserving signature integrity and trust checks. Unknown bits and non-verification operations remain unsupported. Explicit --appledouble and --appledouble-map inputs require enabled sideband verification. Wider filesystem and full strict-policy parity remain outstanding; see docs/strict-verification.md.",
+      "notes": "Disables additional layout, symlink and standalone/bundle sideband policy, including when combined with supported plain/all/sideband selectors, while preserving signature integrity and trust checks. Unknown bits and non-verification operations remain unsupported. Filesystem metadata selection belongs to the shared APFS view; explicit snapshots remain library inputs. Wider filesystem and full strict-policy parity remain outstanding; see docs/strict-verification.md.",
       "status": "partial"
     },
     {

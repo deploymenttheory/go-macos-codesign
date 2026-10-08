@@ -14,19 +14,18 @@ metadata; CoreFoundation's fallback to signing an Info.plist is not yet integrat
 
 ```sh
 macoscodesign --remove-signature ./script
-macoscodesign --remove-signature --appledouble ./script.metadata ./script
-macoscodesign --remove-signature --appledouble-map ./metadata-map.json ./Example.app
 ```
 
-The map has the same object-path-to-carrier-path format as signing and strict
-verification. Inputs are explicit: neighboring sidecars are never discovered
-implicitly. Native metadata is always processed first. Library callers can use
+Filesystem metadata comes from the shared APFS view. Linux and Windows FAT/exFAT
+volumes use associated dot-underscore storage; other filesystems keep their native
+attribute namespace. macOS delegates storage selection to its filesystem.
+Library callers can additionally use
 `codesign.Remove(ctx, path, codesign.RemoveOptions{AppleDouble: carrier})`, or
 `AppleDoubleFiles` for bundles. A carrier containing signature attributes must
 implement `codesign.MutableAppleDouble`. Existing `RemoveSignature` and
 `RemoveSignatureWithOptions` calls remain compatible.
 
-Linux cannot store unnamespaced `com.apple.*` attributes. A native inventory
+Linux native xattr storage cannot store unnamespaced `com.apple.*` attributes. A native inventory
 establishes their absence; `user.com.apple.cs.*` remains a distinct, untouched
 namespace. Explicit AppleDouble carriers provide the full Apple namespace,
 including present-empty and case-sensitive values, on every host. Windows uses
@@ -78,14 +77,18 @@ removal, and removal does not recurse into child bundles.
   prefix. Current macOS removes arbitrary names under `com.apple.cs.*`; the
   implementation follows the measured native behavior. This source discrepancy
   is recorded rather than silently changing the extracted C++ body.
-- The acceptance suite includes 102 native/carrier cases across seventeen shapes and
+- The native-filesystem acceptance suite includes 51 cases across seventeen shapes and
   three attribute states, six effective write denials, four alias cases, four
   dry-run controls and a sparse data fork above 1 GiB. Native ACL acceptance adds
   48 comparisons, plus removal of a script signed by Apple's ad-hoc signer.
+- Real FAT32/exFAT acceptance adds 54 cases across nine representable shapes and
+  three captured metadata states. It compares raw carrier bytes, all attributes,
+  diagnostics, held-object identity and partial signature-directory cleanup.
 - Foreign producers each export 51 generic-removal records. The existing native
   artifact job requires all 102 and compares data hashes, metadata, diagnostics and
-  inode-preservation results with independent Apple removals. Earlier artifact
-  requirements remain mandatory.
+  inode-preservation results with independent Apple removals using each producer's
+  actual attribute namespace. Each also exports all 54 FAT results for independent
+  native readback. Earlier artifact requirements remain mandatory.
 - Unit tests cover protocol ordering, list/removal failures, cancellation, readonly
   or malformed carriers, namespace boundaries, bounded probing and changed writer
   identity. Every production package must still exceed 95% combined coverage;

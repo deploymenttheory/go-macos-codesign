@@ -95,7 +95,11 @@ func TestBundleRejectsUnsupportedLayout(t *testing.T) {
 			app := testBundle(t)
 			bundleFile(t, app, name, []byte("unsupported"))
 			before, _ := os.ReadFile(filepath.Join(app, "Contents/MacOS/hello"))
-			if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, ErrUnsupported) {
+			want := ErrUnsupported
+			if name == "Contents/CodeResources" {
+				want = ErrUnsigned // ordinary Contents files are native nested code
+			}
+			if err := Sign(context.Background(), app, SignOptions{}); !errors.Is(err, want) {
 				t.Fatal(err)
 			}
 			after, _ := os.ReadFile(filepath.Join(app, "Contents/MacOS/hello"))

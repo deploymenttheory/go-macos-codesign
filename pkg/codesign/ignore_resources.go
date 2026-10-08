@@ -1,6 +1,7 @@
 package codesign
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
@@ -10,7 +11,7 @@ import (
 // Ignoring resources does not disable Apple's later structural validation.
 // Inspect only the outer root and signature directory; do not open resources,
 // their targets, child code or the contents of CodeResources.
-func (b *appBundle) verifyIgnoredResourceStructure(report *Report) error {
+func (b *appBundle) verifyIgnoredResourceStructure(ctx context.Context, report *Report) error {
 	unsealed := func() error {
 		return verificationFailure("unsealed contents present in the bundle root", invalid("unsealed bundle structure"))
 	}
@@ -21,6 +22,12 @@ func (b *appBundle) verifyIgnoredResourceStructure(report *Report) error {
 		}
 		for _, entry := range entries {
 			if entry.Name() == "Contents" && entry.IsDir() || entry.Name() == ".DS_Store" && entry.Type().IsRegular() {
+				continue
+			}
+			if carrier, err := b.validXattrFile(ctx, entry.Name(), entry); carrier || err != nil {
+				if err != nil {
+					return err
+				}
 				continue
 			}
 			return unsealed()

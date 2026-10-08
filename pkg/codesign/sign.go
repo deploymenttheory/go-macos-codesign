@@ -404,7 +404,8 @@ func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptio
 
 // Remove removes the selected embedded or generic attached signature. Generic
 // removal preserves the data fork and hard links; completed attribute removals
-// survive later failures. Only explicit AppleDouble inputs are considered.
+// survive later failures. The filesystem selects native or associated AppleDouble
+// storage; callers may also supply explicit library metadata bindings.
 func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	ctx, storage, err := beginWorkingStorage(ctx)
 	if err != nil {

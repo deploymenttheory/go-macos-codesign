@@ -283,6 +283,12 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("generic-signatures", func(t *testing.T) {
 		verifyImportedGenericRemoval(t, dir, reference)
 	})
+	t.Run("filesystem-signatures", func(t *testing.T) {
+		verifyImportedFilesystemRemoval(t, dir, reference)
+	})
+	t.Run("filesystem-discovery", func(t *testing.T) {
+		verifyImportedFilesystemDiscovery(t, dir, reference)
+	})
 	t.Run("empty-info", func(t *testing.T) {
 		verifyImportedEmptyInfo(t, dir, reference)
 	})

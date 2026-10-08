@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"slices"
 	"strings"
 )
 
@@ -13,11 +12,52 @@ import (
 // resource through a descriptor despite denying pathname READ_ATTRIBUTES.
 // Enumerate names inside the held root, obtaining identities through held
 // no-follow resource handles only when that particular pathname lookup fails.
-type signingBundleFS struct{ *appBundle }
+type signingBundleWalker struct{ *appBundle }
 
-func (b signingBundleFS) Open(name string) (fs.File, error) { return b.root.Open(name) }
+// WalkDir retains the filesystem's enumeration order. It deliberately does not
+// implement fs.ReadDirFS, whose contract requires sorted results.
+func (b signingBundleWalker) WalkDir(name string, visit fs.WalkDirFunc) error {
+	info, err := b.root.Stat(name)
+	if err != nil {
+		err = visit(name, nil, err)
+	} else {
+		err = b.walk(name, fs.FileInfoToDirEntry(info), visit)
+	}
+	if errors.Is(err, fs.SkipAll) || errors.Is(err, fs.SkipDir) {
+		return nil
+	}
+	return err
+}
 
-func (b signingBundleFS) ReadDir(name string) ([]fs.DirEntry, error) {
+func (b signingBundleWalker) walk(name string, entry fs.DirEntry, visit fs.WalkDirFunc) error {
+	err := visit(name, entry, nil)
+	if errors.Is(err, fs.SkipDir) && entry.IsDir() {
+		return nil
+	}
+	if err != nil || !entry.IsDir() {
+		return err
+	}
+	children, err := b.ReadDir(name)
+	if err != nil {
+		err = visit(name, entry, err)
+		if errors.Is(err, fs.SkipDir) {
+			return nil
+		}
+		return err
+	}
+	for _, child := range children {
+		err := b.walk(path.Join(name, child.Name()), child, visit)
+		if errors.Is(err, fs.SkipDir) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (b signingBundleWalker) ReadDir(name string) ([]fs.DirEntry, error) {
 	dir, err := b.root.Open(name)
 	if err != nil {
 		return nil, err
@@ -27,7 +67,9 @@ func (b signingBundleFS) ReadDir(name string) ([]fs.DirEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	slices.Sort(names)
+	// Apple's ResourceBuilder opens FTS without a comparison function. Retain
+	// the filesystem's enumeration order: stripping a resource can mutate its
+	// later-enumerated attribute file before that file's bytes are sealed.
 	entries := make([]fs.DirEntry, 0, len(names))
 	for _, child := range names {
 		entry := path.Join(name, child)
