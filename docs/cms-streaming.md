@@ -18,6 +18,13 @@ separately. It does not allocate another complete signed-attributes buffer. The
 same path handles code signatures and timestamp signatures with SHA-1, SHA-256,
 SHA-384 and SHA-512. Ordering and duplicate-attribute checks precede hashing.
 
+The shared BER walker represents values as checked source ranges. It reads only
+headers (at most six bytes per read), skips definite-length payload ranges, and
+walks child headers for indefinite containers. It checks source-base overflow,
+truncation, cancellation and I/O failures, and retains the existing depth and
+element bounds. The byte decoder uses this walker and borrows the resulting
+slices; verification still needs integration with held CMS component sources.
+
 This follows the existing Apple
 [CMS ASN.1 templates](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/cmsasn1.c)
 and [RFC 5652](https://www.rfc-editor.org/rfc/rfc5652.html#section-5.4).
@@ -36,6 +43,11 @@ less than 2 MiB of additional Go allocation during CMS verification, and rejects
 a changed final payload byte. This measures allocation rather than RSS.
 `TestCMSAttributeDigestLengths` independently checks DER length transitions for
 all four digest algorithms. Both are required on every host.
+
+`TestCMSRangeLargeValues` forbids payload reads while exercising BER ranges around
+1/2 GiB and through the maximum four-octet length. These virtual ranges prove
+arithmetic and bounded header reads, not native acceptance or real-file scaling.
+`TestCMSRangeIOFailures` checks source offsets, short/failed reads and cancellation.
 
 ## Remaining Phase 02 integration
 

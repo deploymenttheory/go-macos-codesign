@@ -1879,6 +1879,14 @@
           "cases": 1,
           "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
           "sha256": "b8b4105b8e77b24ea775d20bb4e8e000bab74096bdce69bad578a1e997d3f56d"
@@ -4472,6 +4480,14 @@
           "cases": 1,
           "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
           "sha256": "b8b4105b8e77b24ea775d20bb4e8e000bab74096bdce69bad578a1e997d3f56d"
@@ -7060,6 +7076,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
           "cases": 1,
           "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,

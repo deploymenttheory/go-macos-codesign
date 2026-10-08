@@ -1,6 +1,9 @@
 package codesign
 
-import "bytes"
+import (
+	"bytes"
+	"context"
+)
 
 // Apple emits indefinite-length BER for the four outer CMS containers. Only
 // those envelopes are rewritten for encoding/asn1; certificate and signed
@@ -11,47 +14,11 @@ type cmsBERValue struct {
 }
 
 func readCMSBER(data []byte, depth int, budget *int) (cmsBERValue, []byte, error) {
-	*budget--
-	if depth > 32 || *budget < 0 || len(data) < 2 || data[0] == 0 || data[0]&31 == 31 {
-		return cmsBERValue{}, nil, malformed("CMS BER tag, depth, or element limit")
+	value, err := readCMSBERRange(codeSource{context.Background(), byteOutput(data)}, 0, uint64(len(data)), depth, budget)
+	if err != nil {
+		return cmsBERValue{}, nil, err
 	}
-	header, length := 2, uint64(data[1])
-	if length == 128 {
-		if data[0]&0x20 == 0 {
-			return cmsBERValue{}, nil, malformed("primitive indefinite CMS BER")
-		}
-		rest := data[2:]
-		for {
-			if len(rest) >= 2 && rest[0] == 0 && rest[1] == 0 {
-				end := len(data) - len(rest)
-				return cmsBERValue{data[0], data[:end+2], data[2:end]}, rest[2:], nil
-			}
-			var err error
-			_, rest, err = readCMSBER(rest, depth+1, budget)
-			if err != nil {
-				return cmsBERValue{}, nil, err
-			}
-		}
-	}
-	if length > 128 {
-		n := int(length & 127)
-		if n > 4 || len(data) < 2+n || data[2] == 0 {
-			return cmsBERValue{}, nil, malformed("CMS BER length")
-		}
-		length = 0
-		for _, b := range data[2 : 2+n] {
-			length = length<<8 | uint64(b)
-		}
-		if length < 128 {
-			return cmsBERValue{}, nil, malformed("nonminimal CMS BER length")
-		}
-		header += n
-	}
-	if length > uint64(len(data)-header) {
-		return cmsBERValue{}, nil, malformed("truncated CMS BER")
-	}
-	end := header + int(length)
-	return cmsBERValue{data[0], data[:end], data[header:end]}, data[end:], nil
+	return cmsBERValue{value.tag, data[:value.length], data[value.content : value.content+value.contentSize]}, data[value.length:], nil
 }
 
 func cmsBERChildren(data []byte, tag byte, budget *int) ([]cmsBERValue, error) {
