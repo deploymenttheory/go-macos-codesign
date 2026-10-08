@@ -100,6 +100,7 @@
     "TestFilesystemMetadataDiscovery": 3,
     "TestFilesystemMetadataEvidence": 3,
     "TestFilesystemMetadataRemoval": 3,
+    "TestFilesystemMetadataResourceOrder": 3,
     "TestFrameworkPathsThroughParentLink": 3,
     "TestGenericRemoval": 1,
     "TestGenericRemovalAliases": 0,
@@ -672,6 +673,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataRemoval": {
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
@@ -1287,8 +1292,8 @@
         }
       },
       "attestations": {
-        "count": 21135,
-        "sha256": "873b894bcd096caf659acc36a53fb795cd4ed9fb4a54e9f1440f5eb5d594242f"
+        "count": 21141,
+        "sha256": "27b5f8ddcf128d3e36ab7220d54390e57ab171a0f1b729ffd95847c06d4d7669"
       },
       "baseline_logs": {
         "acceptance.jsonl": "471156684f6b15e8c46facde4453181764f42fe5e98352568f48bf961fde1d92",
@@ -1830,6 +1835,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -1837,6 +1846,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
@@ -1854,9 +1867,25 @@
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -3334,6 +3363,10 @@
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -3888,8 +3921,8 @@
         }
       },
       "attestations": {
-        "count": 16757,
-        "sha256": "7022e6fab8760ad914b85eccfa5bc437a554d0925be62dfaf1894ac33c03acbf"
+        "count": 16761,
+        "sha256": "d3cd554215898033d62fb8257c592ad1084249e780bcfec88677b30deea8c5a8"
       },
       "baseline_logs": {
         "acceptance.jsonl": "0efd77a6c221a8e7aa9a60825aa057de4c1c5abbd5bb43246daeee6564711c52",
@@ -4403,6 +4436,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -4410,6 +4447,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
@@ -4427,9 +4468,25 @@
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -5899,6 +5956,10 @@
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -6453,8 +6514,8 @@
         }
       },
       "attestations": {
-        "count": 16113,
-        "sha256": "0797be07b43c89b1b4f2efd6d947dc82a0f283cd0aacbc5fcb7b40730c617f5d"
+        "count": 16117,
+        "sha256": "8c63f59ffa93ae3cd4372d2c8eacb0e2cfc7f7764e38e5e196343241f8e55757"
       },
       "baseline_logs": {
         "acceptance.jsonl": "8f2b768541cc17146bd7177f405d33014535ee74f3a8adf7425113c89fad3dec",
@@ -6972,6 +7033,10 @@
           "cases": 1,
           "sha256": "a055e0f10c67b6c2377e1fed4df0c038998040c2356240e3388e61620e68f0c5"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeDigestLengths": {
+          "cases": 1,
+          "sha256": "2d369d79d0a9cc981f5aa2bd2d9ee80d60e1cf863e82b2cf160656ef892090e6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSAttributeRejections": {
           "cases": 12,
           "sha256": "4973f06c6201d48c2b5c38633fec912df27a1ec88e5d7eb06d76c2d02b54c328"
@@ -6979,6 +7044,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBindsAlternateDirectories": {
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
@@ -6996,9 +7065,25 @@
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSLargeSignedAttributes": {
+          "cases": 1,
+          "sha256": "a1733ad98cdc6dbd755df9d6eb56e4cb2734a8121208a0d009f3bfd4a56b82fe"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeIOFailures": {
+          "cases": 1,
+          "sha256": "1a252f579b2b1bb7cf44961204883ee7ef33d34951252a835d5b210e72f6924a"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
+          "cases": 1,
+          "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,

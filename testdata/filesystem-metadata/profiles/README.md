@@ -20,7 +20,10 @@ for ad-hoc signing. The macOS 27 baseline omits that extra ad-hoc reservation.
 `TestNativeSigningProfiles` extends live comparison on macOS 15/26/27 to both
 architectures, sixteen identifier lengths and default/4 KiB/16 KiB pages.
 `TestNativeSigningProfileResourceOrder` repeats default and serial native signing
-on FAT/exFAT to qualify the competing-error behavior separately from scheduling.
+on FAT/exFAT and predicts the first error from an independent SDK FTS trace.
+Error precedence is not an OS-major property: directory positions can differ
+despite identical final file contents. `TestFilesystemMetadataResourceOrder`
+requires both creation orders on all hosts, including whole-tree preservation.
 The ordinary filesystem suite continues to compare full CLI outcomes unchanged.
 
 Source references used to interpret the observations:

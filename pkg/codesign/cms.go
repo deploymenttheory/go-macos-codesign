@@ -270,19 +270,8 @@ func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
 }
 
 func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
-	der, err := cmsEnvelopeDER(der)
+	sd, err := decodeCMSFields(der)
 	if err != nil {
-		return nil, nil, err
-	}
-	var envelope cmsContent
-	if err := decodeDER(der, &envelope); err != nil {
-		return nil, nil, err
-	}
-	if !envelope.Type.Equal(oidSignedData) || envelope.Content.Class != 2 || envelope.Content.Tag != 0 || !envelope.Content.IsCompound {
-		return nil, nil, malformed("CMS ContentInfo")
-	}
-	var sd cmsSignedData
-	if err := decodeDER(envelope.Content.Bytes, &sd); err != nil {
 		return nil, nil, err
 	}
 	if len(sd.Signers) != 1 || sd.Signers[0].Version != 1 || len(sd.Digests) != 1 || len(sd.CRLs.FullBytes) > 0 {
@@ -309,10 +298,23 @@ func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
 		}
 		data = rest
 	}
-	return &sd, certs, nil
+	return sd, certs, nil
 }
 
-func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, error) {
+// cmsAttributeBytes borrows the original, validated DER attribute content. RFC
+// 5652 section 5.4 authenticates a SET header, not the stored implicit [0] tag.
+// Hash the replacement header and original content separately, without making
+// a second attributes-sized allocation or rewriting any authenticated bytes.
+type cmsAttributeBytes []byte
+
+func (content cmsAttributeBytes) digest(kind crypto.Hash) []byte {
+	h := kind.New()
+	_, _ = h.Write(derHeader(0x31, uint64(len(content))))
+	_, _ = h.Write(content)
+	return h.Sum(nil)
+}
+
+func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, cmsAttributeBytes, error) {
 	if raw.Class != 2 || raw.Tag != 0 || !raw.IsCompound || len(raw.Bytes) == 0 {
 		return nil, nil, malformed("CMS signed attributes")
 	}
@@ -342,7 +344,7 @@ func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, er
 		attrs[attr.ID.String()] = attr.Values
 		data = rest
 	}
-	return attrs, derWrap(0x31, raw.Bytes), nil
+	return attrs, cmsAttributeBytes(raw.Bytes), nil
 }
 
 // VerifyCMS verifies cryptographic integrity and Apple CodeDirectory bindings.
@@ -422,8 +424,8 @@ func verifyCMSBound(der []byte, bound cmsDirectoryBinding) (*CMSInfo, error) {
 			return nil, err
 		}
 	}
-	hashed := sha256.Sum256(signed)
-	if err := verifyCMSSignature(signer.public, si.Algorithm, hashed[:], si.Signature); err != nil {
+	hashed := signed.digest(crypto.SHA256)
+	if err := verifyCMSSignature(signer.public, si.Algorithm, hashed, si.Signature); err != nil {
 		if errors.Is(err, ErrUnsupported) {
 			return nil, err
 		}
