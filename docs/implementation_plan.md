@@ -6,7 +6,9 @@ and Windows. It replaces the former incremental work-package plan. Completed
 implementation and validation evidence belong in the [focused guides](README.md),
 [progress record](progress.md), source/fixture manifests and Git history.
 
-Planning baseline: 2026-10-05, main through PR104. During Phase 02, consume
+Inventory planning baseline: 2026-10-05. Phase 02 completion baseline: 2026-10-08,
+main through PR106; its refreshed ledger below supersedes the earlier Phase 02
+progress notes. During Phase 02, consume
 merged APFS `main` fixes through exact Go pseudo-versions, without local module
 replacements. The dependency and upstream batch are recorded below.
 The [compatibility inventory](../spec/compatibility.json) has **88 outstanding
@@ -80,10 +82,11 @@ release and rerun dependency-sensitive qualification.
   Add context-aware, known-size seekable/streaming interfaces without silently
   changing existing allocation, mutation or trust behavior. Represent omitted,
   explicitly empty and explicitly zero metadata options separately.
-- Use one native-compatible policy across all three hosts. Explicit AppleDouble
-  carriers and, where needed, logical filename representations supply metadata
-  that a host cannot store directly; they are not alternate permissive policies.
-  Do not auto-discover unrelated sidecars or silently rename unrepresentable names.
+- Use one native-compatible policy across all three hosts. The APFS filesystem
+  layer handles native/AppleDouble metadata transparently under qualified Apple
+  selection rules. Explicit transport remains available to library callers; it
+  does not replace ordinary CLI behavior. Do not reinterpret unrelated sidecars,
+  invent CLI switches or silently rename unrepresentable names.
 - Model architecture slices, CodeDirectories, SuperBlob slots and native signature
   slots separately. Extend reports without assuming one chain/signature per slice.
   Keep integrity, requirements, chain trust, timestamps, tickets and live runtime
@@ -174,341 +177,186 @@ extraction collision + failed write; and streaming + cancellation/source mutatio
 disk exhaustion + metadata restoration.
 
 <a id="phase-02"></a>
-## Phase 02 — Portable I/O, filesystem behavior and lifecycle
+## Phase 02 — Portable filesystem behavior, streaming and lifecycle
 
-**Deliverable:** remaining creation/open/transfer/restore/close behavior integrated
-with streaming, cancellation and precise partial-failure semantics on all hosts.
+**Completion baseline:** codesign main through PR #106 and APFS main through
+PR #213 (released as v0.18.0). Their passing checks qualify the work delivered
+there; they do not close this phase. Start new implementation branches from main.
 
-**Agreed architecture:** rework the file-processing pipeline within this phase.
-Retain the signing policy, codecs, APFS integration and acceptance harness. The
-target for path-based operations is no arbitrary 1 GiB file-size ceiling, with
-memory use controlled independently of payload size. Format representability,
-checked arithmetic and actual storage availability remain constraints.
+**Required result:** all remaining Phase 02 operations use bounded processing and
+native-compatible filesystem/lifecycle policy on Linux, macOS and Windows.
+AppleDouble-backed metadata is transparent below the CLI wherever Apple's
+filesystem contract selects it. No new metadata, transport, source-context or
+version flags/configuration requirements may substitute for this integration.
 
-Use **128 MiB (134,217,728 bytes) as the initial shared working-buffer budget**
-for an operation, including nested code and concurrent workers. Treat it as a
-proposed allocation budget to benchmark, not a measured optimum, per-file
-allowance or total-process RSS guarantee. Reaching the budget must select
-streaming, spill intermediate state to temporary storage or wait for budget
-already reserved by another worker; it must not reject an otherwise supported
-file merely because its payload exceeds the budget. Do not enlarge the current
-file-size constant as a substitute for this architecture.
+### Completion ledger
 
-### Pipeline implementation sequence
+These are coordinated workstreams, not a requirement for one PR per row. A row
+closes only with implementation, native evidence, portable execution and required
+final-revision CI. Valid existing behavior and stricter upstream gates remain mandatory. Obsolete
+non-native CLI/configuration scenarios must be replaced or removed with an
+explicit old-case-to-native-requirement audit; retaining invented behavior is not
+a testing requirement. Detailed completed evidence belongs in focused guides and history.
 
-The completion branch starts from merged PR #105. Its working acceptance ledger
-below is deliberately narrower than phase closure; all unchecked requirements
-in this phase still apply.
+| ID | Owner | Outstanding implementation | Closure evidence |
+| --- | --- | --- | --- |
+| P02-FS | APFS | Held filesystem metadata view with qualified native/AppleDouble backend selection; enumeration, read/write/remove, forks, association and lifecycle | macOS 15/26/27 native filesystem matrix, all-host replay and mutation tests, >95% package coverage |
+| P02-CLI | codesign | Use that view for ordinary path operations; replace AppleDouble CLI routing switches without losing capabilities | Native-compatible invocations on all hosts; native verification/readback of foreign results; retained former carrier cases |
+| P02-RANGE | codesign/APFS primitives | Remaining CMS, string, metadata/index and output assembly allocations; source stability and checked offsets | Native-accepted large metadata; malformed/race controls; source-range/owned API parity |
+| P02-BUDGET | codesign/APFS primitives | Account parsed/codec memory, replacement outputs, handles, queued/active work in the shared operation scope | Isolated measurements, bounded reservations, cancellation/deadlock/failure tests and complete cleanup accounting |
+| P02-LIFE | codesign/APFS primitives | Discovery through cleanup checkpoints; temporary permissions, authorization, metadata restoration and precise partial commits | Native whole-tree outcomes and fault injection at every reached checkpoint on every host |
+| P02-COMP | codesign/APFS | Compression observation/acquisition, publication and version/volume binding through the shared filesystem view | Full release/filesystem/authorization/failure matrix; native readback of Linux/Windows outputs |
+| P02-SCHED | codesign | Dependency-aware sibling execution and native --single-threaded-signing behavior | Native default/serial whole-outcome captures, parent suppression and shared-budget race/cancellation tests |
+| P02-SCALE | both | Complete dense/sparse payload, metadata, fork and nested/concurrent scaling qualification | Real files around 1/2/4 GiB; fresh-process memory/storage/handle bounds on each host |
+| P02-CI | APFS/codesign | Audit obsolete scenario contracts and duplicate execution; reuse exact-source evidence without weakening unique coverage | Before/after requirement mapping, measured job timings and complete per-host/version gates |
+| P02-CLOSE | both | Released dependency integration, evidence reconciliation and current documentation | All ledger rows closed; both repositories pass final-revision CI; no unexplained Phase 02 gaps |
 
-| Deliverable | Current completion work | Remaining exit evidence |
-| --- | --- | --- |
-| Borrowed inspection and verification | Scoped reports, range-backed directory hashes/CMS binding, non-JSON CLI integration, callback lifetime/error tests | Final three-host CI; remaining materialized CMS, string and owned-report allocation audit |
-| Large signature metadata | Twelve ad-hoc native controls around 64 KiB/16 MiB/128 MiB/1 GiB plus three certificate-backed controls across the former CMS directory ceiling; dense reconstruction, three-budget replay and fresh-process memory observations | Final three-host CI; measured cross-host regression bounds, additional metadata shapes and concurrent/nested measurements |
-| Shared resource accounting | Memory reservation pool; shared spill/recompression scratch extent and file counters with cleanup ownership | Replacement-output storage, general handles, codec/parsed allocations, queued work and complete failure qualification |
-| Lifecycle and scheduling | Existing cancellable transfer and APFS preparation/restoration | Remaining discovery/planning/cleanup/commit checkpoints, asynchronous sibling and single-threaded behavior |
-| Compression and release profiles | Native signing/re-signing commit integration; 24 preservation comparisons plus 24 retained replacement controls; 30 envelope cases and 108 mounted APFS/HFS+ cases pass against merged APFS #212; portable admission/cancellation policy tests | Final consumer CI; explicit foreign carrier integration, remaining authorization/failure matrix and macOS 15/26/27 qualification |
-| Phase closure | No family or whole phase is declared complete by this branch | Every delivery gate below, final dependency policy, evidence and documentation reconciliation |
+### Native contract and prerequisite audit
 
-These are coordinated workstreams within Phase 02, not separate per-feature PR
-requirements. Preserve the existing byte APIs while moving path operations onto
-the following pipeline.
+- Create stable requirement/case IDs before implementation. Record operation,
+  representation, native options, source owner, version/filesystem profile,
+  observations, outstanding neighboring cases and exact acceptance gates.
+- Reconcile every remaining size check, whole-value read/copy, output assembly
+  and host-int conversion. Classify format constraints, owned API contracts,
+  resource policies and removable implementation ceilings separately.
+- Extend pinned XNU attribute dispatch/AppleDouble fallback and applicable
+  service/parser research alongside Security writer, signer, dispatcher,
+  allocation, authorization and copyfile bodies. Extract complete bodies with
+  both Clang targets and hash sources/SDKs/helpers. Shims are not runtime proof.
+- Capture native macOS 15, 26 and 27 on APFS, HFS+, FAT and exFAT, including
+  relevant case-sensitive variants. Enumerate native-only/sidecar-only/both/neither,
+  equal/conflicting/empty values, missing/unsupported/denied results, malformed
+  and orphaned sidecars, ordinary dot-underscore files, links, rename/replacement
+  and interrupted updates. Determine metadata selection and resource enumeration
+  independently. Never implement unconditional sidecar scanning or merging.
+- Continue existing scripts and native fixture directories. Retain raw channels,
+  errors, complete bytes/metadata/tree changes, identities, link effects,
+  timestamps and provenance. Native execution, source evidence and synthetic
+  failure controls remain distinct qualification categories.
 
-1. **Native contract and prerequisite audit.**
-   - [ ] Complete and reconcile the [size-limit audit](source-range-io.md#size-limit-audit-and-remaining-integration)
-     for every `maxFileSize` check, bundle aggregate limit, whole-file
-     read/clone, output assembly and host-`int` conversion. Assign each an owner
-     and classify it as format validation, allocation budget or legacy ceiling.
-   - [ ] Extend pinned Apple source and host SDK research with complete relevant
-     parsing, sizing, hashing, allocation and commit bodies, using both Clang AST
-     targets. Capture runtime behavior separately; declarations do not establish
-     I/O, failure or size-limit behavior.
-   - [ ] Audit released APFS APIs for held-file access, bounded replacement,
-     temporary storage, metadata restoration and DMG range access. Record any
-     missing shared primitive, implement and qualify it upstream, then consume
-     its merged commit under the Phase 02 batching policy before dependent
-     codesign integration; consume the batch release for final qualification.
-2. **Held sources and range-based parsing.**
-   - [ ] Carry bounded subranges through thin/FAT Mach-O, CodeDirectory/SuperBlob,
-     large metadata/index tables and every remaining representation. Path payloads
-     now use ranges, including [bundles](bundle-streaming.md); bound or spill large
-     signature metadata/index tables too, since moving only payload bytes is
-     insufficient. Load-command parsing now retains fixed-size summaries and
-     mutation patches original ranges; PR #105 completed its cross-host native
-     command-region acceptance. Finish the remaining metadata families without
-     treating that result as complete representation coverage.
-   - [ ] Track source identity and relevant content stability from discovery to
-     hashing and commit. Define descriptor handoff for Windows share/rename
-     rules, revalidation and remaining races without promising a filesystem
-     snapshot or atomicity the host cannot supply.
-3. **Shared budgets and incremental processing.**
-   - [ ] Reserve/release managed buffers against the 128 MiB starting budget;
-     nested work and sibling workers share it. Retain bounded chunk hashing and
-     integrate direct file-range hashing for pages, special slots, resources and
-     other relevant metadata/CMS paths without whole-file backing slices.
-   - [ ] Account separately for memory, temporary storage, handles, parsed values
-     and queued work. Limit concurrent reservations, avoid deadlocks during
-     spills, and release reservations on cancellation and every failure path.
-   - [ ] Document caller-owned byte buffers, runtime overhead and other excluded
-     allocations; measure them independently. Do not use `GOMEMLIMIT` as a hard
-     budget or change process-global runtime settings from library operations.
-     Byte convenience APIs keep their ownership and return-value contracts;
-     returning a complete byte slice necessarily requires that output in memory.
-4. **Write plans and temporary storage.**
-   - [ ] Represent output as checked source ranges and generated sections, with
-     explicit offsets, lengths, alignment and reservation. Stream unchanged
-     bytes and produce modified sections without assembling a whole-file output.
-     The [DMG tail writer](dmg-streaming.md) and standalone [Mach-O plans](macho-streaming.md)
-     and [bundle plans](bundle-streaming.md) are integrated; large metadata and
-     its overlap-sensitive assembly remain.
-   - [ ] Spill intermediate sections and metadata when needed. Define temporary
-     file location, permissions, storage accounting, sync/close ownership and
-     cleanup for success, read/write failures, disk exhaustion and cancellation.
-   - [ ] Preserve representation-specific commit behavior: Mach-O replacement,
-     in-place DMG updates, resource-envelope inode effects and native partial
-     commits. Handle overlapping source/destination ranges safely before writes
-     can destroy bytes still needed for hashing or copying.
-5. **API/CLI integration and ceiling removal.**
-   - [ ] Route sign, force re-sign, verify, inspect/display, remove and dry-run
-     path operations through the new pipeline for their supported representations.
-     Apply the same capabilities on Linux, macOS and Windows; preserve existing
-     CLI options, diagnostics, trust policy and operation ordering.
-   - [ ] Finish auditing legacy metadata allocation checks after path payload and
-     aggregate bundle ceiling removal. Keep structural validation and arithmetic
-     checks; distinguish real resource failures from unsupported format. Qualify
-     large metadata growth across old limits without weakening separate
-     plist/parser safety contracts or byte API ownership guarantees.
-6. **Scale and failure qualification.**
-   - [ ] Add versioned, reproducible real-file fixtures at one byte below, at and
-     above 1 GiB, 2 GiB and 4 GiB where the format permits; include sparse and
-     populated multi-gigabyte payloads, FAT slices, supported DMGs and bundles
-     whose aggregate size exceeds the old limit. Record native rejection of an
-     invalid representation separately from a supported large-file control.
-   - [ ] Capture native operations on the macOS runner with the existing Clang,
-     codesign and mounted-image/hdiutil harness. Compare full output through
-     bounded reads, signature/resource data, verification, diagnostics, metadata,
-     inode/link effects and retained partial commits. Generate large payloads
-     deterministically and retain recipes, source hashes and observations.
-   - [ ] Execute corresponding real-file operations on Linux and Windows and
-     require native verification of their exported results. Logical high-offset
-     readers remain unit tests, not substitutes for real-file acceptance. Add
-     runner/storage capacity when needed; insufficient space must not skip cases.
-   - [ ] Measure peak managed reservations, Go heap, host-reported resident memory
-     or Windows working set, temporary storage and elapsed time in isolated test
-     processes. Compare increasing payloads and nested/concurrent workloads;
-     explain measurement differences and metadata-dependent growth. Set explicit
-     regression bounds from these measurements before phase closure, and validate
-     the initial 128 MiB choice against smaller and larger budgets.
-   - [ ] Exercise allocation/spill boundaries, source replacement/truncation or
-     growth, short/failing reads and writes, disk full, denied metadata restoration,
-     close failures and cancellation at each lifecycle checkpoint. Require cleanup
-     and reservation release, and retain native-permitted partial writes/commits.
-   - [ ] Extend exact case/artifact manifests without removing existing cases or
-     weakening any gate: every production package remains above 95% coverage on
-     each OS, with native capture, foreign-producer verification, race checks,
-     full-duration fuzzing and all GoReleaser targets still mandatory.
+### APFS filesystem view and consumer integration
 
-### Remaining filesystem and operation policy
+- Add operation-scoped held metadata access in the shared filesystem layer:
+  rooted acquisition, explicit follow/no-follow behavior, enumeration, bounded
+  reads, streamed updates, removal, sized fork readers, identity checks,
+  cancellation, lifecycle and explicit close ownership.
+- Keep host operations/selection in `hostdata`, AppleDouble encoding in
+  `appledouble`, association/publication in `metatransport`, operation policy in
+  `recompression`, codecs in `compression/decmpfs`, and profiles in `osversion`.
+  Preserve existing low-level API contracts rather than silently adding discovery.
+- On Darwin use native attribute operations without decoding kernel-resolved
+  sidecars twice. Foreign providers reproduce the qualified filesystem contract;
+  do not equate namespace restrictions with absent metadata or reinterpret every
+  neighboring file. Capture read/list/write/remove precedence independently.
+- Integrate the view into signing preflight, stripping, strict verification,
+  generic removal, replacement, envelope updates, nested resource processing,
+  fork preservation and compression. Codesign owns operation policy, not storage.
+- Replace `--appledouble` and `--appledouble-map` once the equivalent ordinary CLI
+  cases pass. Migrate their existing behavior tests, preserve explicit library
+  inputs, and test native-compatible rejection of the removed switches. No
+  replacement flag, environment variable or configuration switch is permitted.
+- Keep native runtime context separate from historical replay context. AppleDouble
+  does not establish source credentials, BSD flags or mount policy. Extend APFS
+  where required state cannot yet be represented; missing state blocks closure.
 
-- [ ] Audit current size/path/parser/chain/KDF limits against native-accepted
-  workloads. Distinguish intentional resource budgets from unsupported formats.
-  Use checked 64-bit offsets and host-int conversions before allocation or seeks;
-  raising the existing in-memory ceiling alone is not streaming support.
-- [ ] Complete first sign/re-sign/remove/dry-run metadata profiles: inherited ACLs,
-  independent file/directory permissions, owner/mode, access/creation times,
-  compression/resource-fork preservation and non-cloning filesystem fallback.
-  Use released APFS APIs for the underlying operations, including Windows DACLs,
-  share/rename semantics and Linux representable metadata.
-- [ ] Define operation checkpoints from discovery and source access through
-  allocation, signature cleanup, staging, restoration, close and commit. Complete
-  inaccessible-directory, temporary-permission and new/existing-envelope cases.
-  Preserve native differences between replacement and in-place writers.
-- [ ] Resolve broader asynchronous siblings, planning failures, parent suppression
-  and `--single-threaded-signing`. Capture native dispatch/commit order and whole
-  observed failure states; serial implementation alone does not establish the
-  option's contract. Keep unrelated sibling commits where native permits them.
-- [ ] Cover source identity/content changes between discovery, hashing and commit,
-  including rooted containment, aliases and internal/external hard links. Define
-  the last cancellable boundary and unavoidable partial commits. Do not promise
-  whole-bundle atomicity where neither native nor the filesystem provides it.
-- [ ] Complete `--preserve-afsc` and other compression interactions from observed
-  option applicability. Keep representation-specific dry runs and signing/removal
-  side effects distinct; do not infer that every dry run avoids writes.
+### Streaming, accounting and lifecycle
 
-**Qualification still required:** extend the [shared transfer checkpoints](operation-io.md)
-to all remaining planning, metadata, cleanup and commit paths, preserving the
-APFS integration. Keep source-preserving SDK transport distinct
-from native operation metadata profiles. No complete Phase 02 family is closed.
+- Complete checked range parsing and output plans for remaining metadata,
+  strings and indexes. Remove the separate 16 MiB CMS message ceiling through
+  bounded BER/DER parsing and streamed authenticated ranges, not a larger constant.
+  Qualify individually large certificates/attributes and aggregate growth while
+  retaining crypto and malformed-input checks.
+- Preserve owned byte/report contracts. Scoped operations and normal CLI paths
+  must not materialize whole payloads. Report explicit owned-output allocations
+  separately; preserve original signed encodings and overlapping source ranges.
+- Share the initial **128 MiB** managed-memory budget across the operation and all
+  nested/workers. Reserve codec/parsed allocations and bound active/queued work;
+  spill or wait cancellably instead of rejecting large payloads. Reserve a
+  progress path so spilling cannot deadlock behind persistent reservations.
+- Extend storage statistics with replacement outputs, handles and work queues.
+  Distinguish scratch extents, disk allocation, managed memory and owned results.
+  Failed cleanup remains visible. Do not alter process-global runtime limits.
+- Complete discover/acquire/validate/plan/prepare/transfer/restore/close/commit/
+  post-commit/cleanup checkpoints. Never pass nil contexts. Retain primary and
+  cleanup errors and release operation-owned resources after cancellation.
+- Preserve native replacement versus in-place and representation-specific dry-run
+  behavior. Finish ACL inheritance, temporary permissions, owner/mode/four times,
+  non-cloning replacement, Windows DACL/share/rename and Linux host access cases.
+- Hold source identity through hashing and revalidate before publication. Cover
+  truncation/growth/same-size edits, aliases, source replacement and internal or
+  external hard links. Document detection limits; do not promise snapshots or
+  whole-tree rollback. Keep completed native-permitted partial work.
 
-**Consumer integration and batch release remain open.** APFS PR #208 is merged
-and its final-head CI passed. The completion branch consumes merged
-[APFS #212](https://github.com/deploymenttheory/go-apfs-v2/pull/212) at
-`6829b607475e82f8ececc42775f212278da7b9c0`, including #211's borrowed replacement
-attribute policy. Envelope ACL and mounted acceptance pass locally against that
-exact module, without a workspace override. Both retained compression volume
-profiles now have genuine dependency-sensitive recaptures and unchanged case
-observations. Selection uses independently captured `fstatfs` policy with both
-Clang targets; the original build-specific evidence remains hash-pinned history.
-The full local unit/acceptance aggregate and race suite pass; every production
-package exceeds 95% coverage, including codesign at 95.91%. Final-head consumer
-CI and the remaining delivery requirements are still open.
-The optional `sdk_revision` input on the existing command-range workflow captures
-a proposed dependency on the runner before changing the consumer pin; it restores
-the committed module before running all existing controls. Its artifact is
-evidence for review, never an automatic baseline replacement.
-The cancellable preparation and restoration APIs now
-receive the codesign operation context. PR #105 passed its consumer gates on all
-three hosts; remaining integration and final batch-release qualification are
-still required before closing Phase 02. The user controls the
-release PR and requires at least eight substantive changes, rather than cosmetic
-commits or test-only follow-ups.
+### Compression and scheduling
 
-Windows consumer qualification exposed an error-classification prerequisite in
-the new private-directory creation route. [APFS PR #209](https://github.com/deploymenttheory/go-apfs-v2/pull/209)
-normalizes its native NTSTATUS result so `errors.Is(err, os.ErrPermission)` can
-select codesign's allocation-failure behavior. The merged fix is pinned; retain
-both genuine compression profiles and qualify allocation failure through the
-unchanged cross-host consumer gates before closing this prerequisite.
+- Reuse merged held compression observation/acquisition, replacement selection,
+  recompression and generation-checked publication. Observe before writable open
+  changes storage; qualify acquisition/zero-write effects and restoration timing.
+- Keep admission rejection distinct from accepted later failures and content
+  declines. Qualify preserve-afsc applicability for signing/re-signing/removal/
+  dry-run, replacement/in-place behavior and failure after rename/publication.
+- Preserve actual payload, flags and storage in partial states; attribute presence
+  alone never activates compression. Publish edited payload baselines and new
+  metadata consistently; never reuse stale compressed bytes after content edits.
+- Select macOS 15/26/27 profiles explicitly inside the operation environment;
+  qualify minor/patch differences and keep mount flags independent. Foreign hosts
+  use the project's pinned target profile, not their own OS version. Unknown
+  profiles cannot silently alias the newest known profile. No CLI switch is added.
+- Implement bounded dependency-aware siblings and `SignOptions.SingleThreaded`
+  wired to native `--single-threaded-signing`. Children precede parent sealing;
+  failed dependencies suppress parents, independent completed work remains where
+  native permits, and every worker shares storage and cancellation ownership.
+- Capture default/serial early/middle/late failure outcomes. Compare complete
+  observed states and error precedence, never a mixture of allowed fragments.
 
-The merged installation APIs from [APFS PR #204](https://github.com/deploymenttheory/go-apfs-v2/pull/204)
-are available for integration, but do not provide complete path-based
-recompression. Preserve its 591 native lifecycle observations, 66 portable
-real-file controls, 396 mounted native readbacks and strict coverage gates while
-adding acquisition, eligibility, private staging and foreign publication.
+### Qualification, delivery and closure
 
-[APFS PR #205](https://github.com/deploymenttheory/go-apfs-v2/pull/205)
-merged after all 77 applicable final-head checks passed. Consume its main commit
-`dba8f588d77debb9876e56ccd0a25f517b164c0d` with the remaining batch prerequisites.
-It corrects inactive-storage interpretation and extent-backed compression
-attributes, with 160 retained native APFS/HFS+ cases and 480 reader/writer/carrier
-comparisons, including independent native readback of Linux and Windows outputs
-on both macOS runners. Final codesign integration and provenance recapture remain
-outstanding.
+- Preserve every valid native, library-contract and fault-injection requirement
+  with exact artifact/provenance gates. Replace fake AppleDouble flag scenarios
+  with ordinary CLI filesystem cases; remove obsolete contracts with recorded
+  reasons. Consolidate duplicate package executions using reusable same-revision,
+  same-platform raw coverage/transcript evidence, retaining distinct build modes
+  such as race checks. Measure queue delay separately from execution time.
+- Add real sparse
+  and populated files immediately below/at/above 1, 2 and 4 GiB where representable,
+  FAT slices, supported DMGs, aggregate-large bundles, metadata growth and large
+  forks. Virtual readers are supplemental arithmetic tests, not real-file proof.
+- Measure managed reservations, Go heap, RSS/working set, handles, temporary
+  extents/allocation and elapsed time in isolated processes. Replay existing
+  64 KiB/128 MiB/256 MiB budgets; add nested/concurrent workloads. Establish
+  checked-in host-specific regression bounds and validate fresh runs.
+- Inject short/failing reads/writes, disk full, denied restoration, close errors,
+  stale generation, source races and cancellation at every applicable checkpoint.
+  Require native-compatible partial states and exact cleanup/reservation results.
+- Linux/Windows execute ordinary CLI operations and export results for native
+  verification/readback. API carrier replay does not substitute for CLI evidence.
+- macOS 15/26/27 native capture remains required. Retain recorded forward-
+  incompatible native image cells as limitations; portable readers still run all
+  producers. Do not fake observations or remove portable cases for kernel limits.
+- Every production package must exceed 95% coverage per applicable host; retain
+  stricter APFS checks, race, full-duration fuzz, pure-Go guards, golangci-lint,
+  native/foreign acceptance, complete manifests and every GoReleaser target.
+- Preserve same-host macOS evidence aggregation and partitioned capture jobs.
+  Every long command logs start/progress/deadline/outcome and uploads diagnostics
+  after failure. Partition measured work without dropping cases or changing the
+  approved runner pool; capacity failures are not successful skips.
+- Deliver cohesive APFS prerequisites from current main in draft PRs. Fix upstream
+  CI before integrating merged commits through exact pseudo-versions. Complete
+  independent codesign work on one fresh completion branch; no local replacement
+  may stand in for a reproducible dependency.
+- Follow the user-controlled batch-release policy: at least eight substantive
+  changes, no invented fixes or cosmetic splitting. Consume the resulting APFS
+  release and recapture dependency-sensitive evidence before final closure.
+- Reconcile all focused guides, inventory, help and this ledger. Keep PRs draft
+  until final-revision qualification passes. User merges/releases; commit titles
+  use conventional commits without breaking-change exclamation marks.
 
-The SDK now supplies held compression-input acquisition, held volume observation,
-cancellable replacement lifecycle, foreign pathname authorization and carrier
-replacement/in-place composition. Reuse those merged implementations. The
-remaining codesign recompression integration must cover these concrete boundaries:
+**Exit:** all ledger rows have implementation and acceptance evidence, ordinary
+native-compatible commands handle filesystem metadata transparently on all three
+hosts, bounded processing and lifecycle behavior are qualified, the released
+APFS dependency is consumed, and both repositories pass final-revision CI. No
+Phase 02 gap may be hidden by an unsupported route, skipped case or stale prose.
 
-- [APFS PR #211](https://github.com/deploymenttheory/go-apfs-v2/pull/211) exposes
-  replacement attribute selection for borrowed foreign values. Its native controls
-  distinguish compression-storage ownership from ordinary namespace visibility:
-  active compression hides even independent resource forks from replacement.
-  Consume the merged API and retain its mounted comparisons; do not duplicate
-  private SDK filtering in codesign. The consumer still needs generation-checked
-  payload/metadata publication, source security/mount/version binding and native
-  readback of Linux/Windows output. Native `--preserve-afsc` comparisons alone do
-  not qualify this foreign route.
-
-- [APFS PR #212](https://github.com/deploymenttheory/go-apfs-v2/pull/212) adds
-  no-follow pathname compression observation for resource envelopes whose ACLs
-  deny content reads. Observe compression before the writable open decompresses
-  the input, validate the previously observed identity, and retain native query
-  failure behavior. Keep the SDK's independent C query, both Clang AST targets,
-  macOS 15/26/27 controls and strict coverage gates. The new consumer comparisons
-  include failed admission after an envelope write and unchanged executable
-  identity; do not turn those partial outcomes into successful signing.
-
-- Keep the package boundary explicit: APFS `pkg/recompression` owns foreign
-  operation policy, authorization, private staging and resulting inode state;
-  `pkg/metatransport` owns immutable blobs, held payload association and
-  generation-checked publication. Shared codecs remain in
-  `pkg/compression/decmpfs`, held native operations in `pkg/hostdata`, and version
-  selection in `pkg/osversion`. The separation must preserve all native replay,
-  cancellation, partial-publication and cross-host image-readback gates. It is
-  a merged upstream prerequisite for codesign integration, not evidence that
-  Phase 02 is complete.
-
-- Integrate shared APFS `pkg/osversion` and carry an explicit macOS product
-  version through behavior-sensitive operations on Linux, macOS and Windows.
-  Qualify macOS 15, 26 and 27 separately; retain minor/patch versions when native
-  evidence establishes a difference. Native host detection must not choose a
-  foreign target from Linux/Windows host characteristics. Unknown versions must
-  not silently inherit the newest profile, and recognizing a version must not
-  be presented as complete feature support.
-- Complete the per-release C/Clang capture and replay matrix. The macOS 26
-  compression framework uses `open` for resource-fork acquisition where macOS 27
-  uses `openat`; keep the full distinct traces and queue outcomes. Add macOS 15
-  acquisition, storage, metadata and partial-failure evidence, then implement
-  every observed divergence. Keep filesystem flags such as `MNT_CPROTECT`
-  independent of the product-version profile. Require current-source provenance,
-  all-platform replay above 95% coverage and mounted APFS/HFS+ acceptance before
-  closing a release-specific behavior route. Audit quarantine and other shared
-  version-sensitive prerequisites rather than aliasing macOS 15 to 26 or 27.
-- Capture the complete acquisition/preflight sequence before encoding, including
-  read/write open and the native zero-byte write. A direct exploratory C probe
-  separates their effects: read/write open decompresses the tested compressed
-  file, removes its compression attribute/fork and changes modification time;
-  the following zero-byte write leaves that observed state unchanged. Qualify
-  this sequence across mounted profiles and capture restoration metadata after
-  acquisition rather than assuming the pre-open timestamp remains the target.
-- Preserve the distinction between successful queue admission and later failure.
-  Native open/stat failure can reject admission; storage or compression failure
-  after admission need not make `codesign` fail. Retain both outcomes in the SDK
-  result and map them at the representation-specific codesign commit boundary.
-- Qualify content-policy declines, including incompressible data: native can
-  synchronize/close the fork and restore data-handle timestamps without installing
-  an attribute. Keep size/name declines distinct from declines after acquisition.
-- Carry observed volume flags explicitly into foreign recompression. AppleDouble
-  attributes, the receiving OS and an APFS filesystem label do not establish
-  `MNT_CPROTECT`. Do not infer an unprotected volume from missing context.
-- Consume the qualified reader/writer/carrier correction in APFS PR #205 before
-  publishing partial recompression outcomes. Native
-  partial failures can retain valid or malformed compression metadata while
-  `UF_COMPRESSED` is clear. Preserve actual ordinary data, empty data, flags and
-  retained storage; never reactivate it from attribute presence alone.
-- Update the materialized payload baseline and compressed blobs together with
-  the explicit foreign operation state. Verify unchanged input before reusing
-  old storage; after edits, encode new storage. Exercise generation conflicts,
-  partial publication, disk exhaustion, cancellation and cleanup on every host.
-
-Remaining consumer work includes using the SDK's held-file volume observation,
-compression installation and failure/cleanup results, and completing explicit
-foreign-metadata integration. In particular, `MNT_CPROTECT` suppresses inline compression even
-when requested; the same OS build can choose different storage on different
-volumes. Capture and consume actual mount policy rather than selecting storage
-from OS version alone. AppleDouble attributes alone do not establish BSD flags
-or mount policy; preserve that distinction when binding explicit foreign inputs.
-`--preserve-afsc` must also retain native post-rename failure behavior. None of
-these dependency changes closes the codesign compression integration by itself.
-
-Preserve the upstream qualification boundary: macOS 15's native kernel cannot
-safely consume the newer APFS formatter profiles in four cross-version cells.
-The SDK harness records those as forward-incompatible, without inventing lookup
-results; its portable readers still read every producer's images on every host.
-Do not describe those four cells as successful native lookup captures or use the
-kernel limitation to exclude Linux or Windows functionality.
-
-The main pin passes 24 live compressed standalone/bundle lifecycle comparisons
-and the retained sixteen-case native recapture. These are ordinary replacement
-controls, not completion of the compression family. Further upstream changes
-must address evidenced missing behavior; the eight-change release threshold is
-not a reason to split or invent fixes.
-
-The operation storage manager and generated CodeDirectory/SuperBlob ranges are
-under implementation on the phase branch. They are not closure evidence for
-the budget checklist: remaining input metadata, parsed objects, queues, handles,
-large-file measurements and the complete acceptance matrix still need integration.
-
-**Source/oracles:** Apple `signer.cpp`, `signerutils.cpp`, disk-representation bodies,
-`codesign_alloc.cpp`, `copyfile.c`, authorization source and existing writer/path/
-removal AST drivers. Retain independent native permission controls and metadata
-snapshots; shared filesystem fixes require the APFS native harness as well.
-
-**Data points:** every checkpoint with cancellation/short write/disk full/close or
-restore failure; file versus directory denial; ACL inheritance; new/stale envelopes;
-APFS and HFS+ write strategies; Windows open handles and readonly attributes;
-changed source identity; deep children and siblings; sparse inputs across old and
-32-bit size boundaries. Record bytes, inode/link identity, timestamps and cleanup.
-
-**Exit:** owned operations have matching qualified commit/failure behavior, measured
-bounded working memory and portable real-file execution beyond the old 1 GiB
-ceiling. The shared budget and spill behavior are measured and documented, with
-no file-size-only rejection imposed by the former in-memory implementation. Any
-required APFS extension is released and consumed before this phase's PR is ready
-to merge. Update capability documentation and reconcile every audited legacy
-limit before declaring the pipeline complete; unqualified paths remain explicit
-gaps. Keep the implementation PR in draft until all required CI passes; the user
-performs the merge.
 
 <a id="phase-03"></a>
 ## Phase 03 — Plists, discovery and resource policy
