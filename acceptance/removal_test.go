@@ -295,6 +295,16 @@ func TestVerifyImportedRemoval(t *testing.T) {
 	t.Run("platform-info", func(t *testing.T) {
 		verifyImportedPlatformInfo(t, dir, reference)
 	})
+}
+
+// Keep the complete plist corpus in an independent native readback job. Every
+// case still requires both foreign producers and comparison with Apple codesign.
+func TestVerifyImportedRemovalPlists(t *testing.T) {
+	dir := os.Getenv("MACOSCODESIGN_IMPORT_DIR")
+	if dir == "" {
+		return
+	}
+	reference := apple(t)
 	t.Run("plist-interpretation", func(t *testing.T) {
 		verifyImportedPlistCases(t, dir, reference, removalPlistCases(t, "plist-interpretation.json", 180), "plist-interpretation-")
 	})

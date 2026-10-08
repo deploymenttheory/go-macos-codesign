@@ -54,7 +54,11 @@ Native capture has five required groups: signatures, storage, plist, legacy and
 ISO-2022. Each keeps the 35-minute job limit. The 36 original probe commands are
 pinned in `spec/ci-native-capture-plan.json`; harness tests reject dropped probes,
 changed commands, optional failures and missing group assignments. Both foreign
-verification jobs require all capture groups and all three OS evidence gates.
+verification producers remain required. Three readback jobs require all capture
+groups and all three OS evidence gates: signatures/removal, large bundles and
+the complete 8,340-case plist removal corpus. Each retains its ten-minute deadline
+and checks both Linux and Windows producers. The plist partition changes scheduling
+only; its eleven fixture sets and native byte comparisons remain intact.
 
 The resulting files under `artifacts/` include:
 

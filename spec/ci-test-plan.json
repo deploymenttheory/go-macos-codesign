@@ -253,7 +253,8 @@
     "TestVerifyImportedLargeBundles": 2,
     "TestVerifyImportedLargeDMGs": 3,
     "TestVerifyImportedLargeMachO": 3,
-    "TestVerifyImportedRemoval": 2
+    "TestVerifyImportedRemoval": 2,
+    "TestVerifyImportedRemovalPlists": 2
   },
   "baseline": {
     "export_artifacts": [
@@ -1289,6 +1290,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {
@@ -3926,6 +3931,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {
@@ -6527,6 +6536,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {

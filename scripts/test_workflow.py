@@ -45,8 +45,33 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("fail-fast: false", block)
         self.assertIn("timeout-minutes: 35", block)
         self.assertIn("name: native-capture-${{ matrix.group }}", block)
-        for name in ("verify-foreign-signatures", "verify-foreign-bundles"):
+        for name in ("verify-foreign-signatures", "verify-foreign-bundles", "verify-foreign-plists"):
             self.assertIn("needs: [test, macos-test, native-capture]", job(self.workflow, name))
+
+    def test_plist_readback_keeps_every_native_case_and_both_producers(self):
+        block = job(self.workflow, "verify-foreign-plists")
+        self.assertIn("runs-on: xcode-27", block)
+        self.assertIn("timeout-minutes: 10", block)
+        self.assertIn("scripts/evidence.py foreign --inputs artifacts/import", block)
+        self.assertIn("-run '^TestVerifyImportedRemovalPlists$'", block)
+        self.assertIn("MACOSCODESIGN_REQUIRE_APPLE: '1'", block)
+        self.assertNotIn("continue-on-error:", block)
+        source = (ROOT / "acceptance/removal_test.go").read_text()
+        corpus = source.split("func TestVerifyImportedRemovalPlists(t *testing.T) {", 1)[1]
+        cases = re.findall(r'removalPlistCases\(t, "([^"]+)", (\d+)\), "([^"]+)"', corpus)
+        self.assertEqual(cases, [
+            ("plist-interpretation.json", "180", "plist-interpretation-"),
+            ("plist-encodings.json", "120", "plist-encodings-"),
+            ("plist-xml-characters.json", "192", "plist-xml-characters-"),
+            ("plist-utf32-grammar.json", "36", "plist-xml-grammar-"),
+            ("plist-iso2022-extensions.json", "2100", "plist-iso2022-extensions-"),
+            ("plist-iso2022-jp.json", "1836", "plist-iso2022-jp-"),
+            ("plist-euc-jp.json", "1488", "plist-euc-jp-"),
+            ("plist-shift-jis.json", "912", "plist-shift-jis-"),
+            ("plist-legacy.json", "792", "plist-legacy-"),
+            ("plist-unmarked.json", "408", "plist-unmarked-"),
+            ("plist-utf32.json", "276", "plist-utf32-"),
+        ])
 
     def test_missing_duplicate_and_weakened_native_probes_are_rejected(self):
         for mutation in ("missing", "duplicate", "optional", "group", "command"):
