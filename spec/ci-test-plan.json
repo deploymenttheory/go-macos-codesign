@@ -101,6 +101,7 @@
     "TestFilesystemMetadataEvidence": 3,
     "TestFilesystemMetadataRemoval": 3,
     "TestFilesystemMetadataResourceOrder": 3,
+    "TestForeignBundleDiagnostic": 2,
     "TestFrameworkPathsThroughParentLink": 3,
     "TestGenericRemoval": 1,
     "TestGenericRemovalAliases": 0,
@@ -678,6 +679,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
@@ -3380,6 +3385,10 @@
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -5984,6 +5993,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,

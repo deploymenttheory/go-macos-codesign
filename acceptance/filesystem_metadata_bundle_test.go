@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -23,12 +24,29 @@ type filesystemBundleResult struct {
 func filesystemBundleFixture(t *testing.T, bundle, profile, location string) {
 	t.Helper()
 	seeds := filesystemSeedInputs(t)
-	bundleFixture(t, bundle, "arm64")
+	infoCarrier := filepath.Join(bundle, "Contents/._Info.plist")
+	if profile == "attribute-files" {
+		// Restore metadata to the existing Info.plist before copying payloads.
+		// Retain this entry: deleting it lets FAT reuse unrelated directory slots,
+		// which changes the native first-error input across producer hosts.
+		bundleWrite(t, bundle, "Contents/Info.plist", []byte(bundleInfo))
+		installFilesystemCarrier(t, filepath.Join(bundle, "Contents/Info.plist"), seeds["ordinary"])
+		bundleFixturePayload(t, bundle, "arm64")
+	} else {
+		bundleFixture(t, bundle, "arm64")
+	}
 	// Fixture creation can add process provenance. Start with the same data
 	// forks on every producer before installing genuine captured metadata.
+	// The bundle directory's own carrier lives beside it, outside WalkDir.
+	if err := os.Remove(filepath.Join(filepath.Dir(bundle), "._"+filepath.Base(bundle))); err != nil && !os.IsNotExist(err) {
+		t.Fatal(err)
+	}
 	if err := filepath.WalkDir(bundle, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		if profile == "attribute-files" && p == infoCarrier {
+			return nil
 		}
 		if strings.HasPrefix(d.Name(), "._") && d.Type().IsRegular() {
 			return os.Remove(p)
@@ -39,7 +57,14 @@ func filesystemBundleFixture(t *testing.T, bundle, profile, location string) {
 	}
 	if profile == "attribute-files" {
 		installFilesystemCarrier(t, filepath.Join(bundle, "Contents"), seeds["ordinary"])
-		installFilesystemCarrier(t, filepath.Join(bundle, "Contents/Info.plist"), seeds["ordinary"])
+		if err := os.WriteFile(infoCarrier, seeds["ordinary"], 0600); err != nil {
+			t.Fatal(err)
+		}
+		names := filesystemContentsOrder(t, bundle)
+		info, resources, executable := slices.Index(names, "._Info.plist"), slices.Index(names, "Resources"), slices.Index(names, "MacOS")
+		if info < 0 || resources < info || executable < info {
+			t.Fatalf("metadata-before-payload fixture order changed: %q", names)
+		}
 	}
 	target, seed := bundle, seeds["finder"]
 	switch location {
@@ -147,7 +172,12 @@ func verifyImportedFilesystemBundles(t *testing.T, directory, reference string) 
 		if err := json.Unmarshal(nativeRead(t, path), &got); err != nil {
 			return err
 		}
+		want.Stderr, err = foreignBundleDiagnostic(want.Stderr, foreignProducerOS(t, path))
+		if err != nil {
+			return err
+		}
 		if !reflect.DeepEqual(got, want) {
+			attest(t, map[string]any{"artifact": path, "foreign": got, "native": want})
 			t.Fatalf("%s: foreign outcome differs from native; archive %s/%s, diagnostic %q/%q", path, hash(got.Archive), hash(want.Archive), got.Stderr, want.Stderr)
 		}
 		seen[entry.Name()]++
