@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,12 +15,37 @@ import (
 // The resulting bytes are identical; directory enumeration is part of the input.
 func orderedFilesystemBundle(t *testing.T, bundle, order string) []string {
 	t.Helper()
+	seeds := filesystemSeedInputs(t)
+	infoCarrier := filepath.Join(bundle, "Contents/._Info.plist")
 	if order == "resource-first" {
 		bundleWrite(t, bundle, "Contents/Resources/message.txt", []byte("hello\n"))
 	} else {
-		bundleWrite(t, bundle, "Contents/._Info.plist", filesystemSeedInputs(t)["ordinary"])
+		bundleWrite(t, bundle, "Contents/._Info.plist", seeds["ordinary"])
 	}
-	filesystemBundleFixture(t, bundle, "attribute-files", "resource")
+	bundleFixture(t, bundle, "arm64")
+	// Keep the deliberately early entry throughout preparation. The ordinary
+	// fixture removes and recreates attribute files, which lets FAT allocation
+	// move this entry after Resources on Windows and macOS 26. Overwrite its
+	// contents in place after removing incidental process metadata instead.
+	if err := filepath.WalkDir(bundle, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if order == "nested-first" && path == infoCarrier {
+			return nil
+		}
+		if strings.HasPrefix(entry.Name(), "._") && entry.Type().IsRegular() {
+			return os.Remove(path)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	installFilesystemCarrier(t, filepath.Join(bundle, "Contents"), seeds["ordinary"])
+	if err := os.WriteFile(infoCarrier, seeds["ordinary"], 0600); err != nil {
+		t.Fatal(err)
+	}
+	installFilesystemCarrier(t, filepath.Join(bundle, "Contents/Resources/message.txt"), seeds["strip"])
 	directory, err := os.Open(filepath.Join(bundle, "Contents"))
 	if err != nil {
 		t.Fatal(err)

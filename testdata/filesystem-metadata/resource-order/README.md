@@ -18,6 +18,9 @@ from an OS version or generated from Go's expected result.
   creation sequences on FAT32 and exFAT. The complete archived contents must match
   across creation orders and between Go/native copies. Diagnostics must differ as
   predicted, and failed signing must preserve every data fork.
+  The nested-first setup keeps its early directory entry while restoring its
+  captured bytes in place. Deleting and recreating that entry does not establish
+  the same order across filesystem drivers; setup asserts the actual order.
 - Linux and Windows run both creation sequences on real mounted volumes. macOS
   15/26/27 additionally run the native C oracle and both-target Clang extraction.
   This local capture does not claim foreign or other-version runtime results.
