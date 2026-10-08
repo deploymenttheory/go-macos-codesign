@@ -109,7 +109,7 @@ func TestFilesystemMetadataResourceOrder(t *testing.T) {
 						}
 						want := "$BUNDLE: resource fork, Finder information, or similar detritus not allowed\n"
 						if order == "nested-first" {
-							want = "$BUNDLE: code object is not signed at all\nIn subcomponent: $BUNDLE/Contents/._Info.plist\n"
+							want = "$BUNDLE: code object is not signed at all\nIn subcomponent: " + filepath.Join("$BUNDLE", "Contents", "._Info.plist") + "\n"
 						}
 						var trace []resourceOrderEntry
 						if probe != "" {
