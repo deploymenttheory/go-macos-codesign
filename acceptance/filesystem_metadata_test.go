@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -120,18 +121,13 @@ func metadataVolume(t *testing.T, filesystem string) string {
 		// Microsoft requires at least 15 seconds between scripted invocations.
 		// Register cleanup before setup so a partially attached private VHD is
 		// still released when a later setup command fails.
-		finished := time.Now()
 		t.Cleanup(func() {
-			if remaining := 15*time.Second - time.Since(finished); remaining > 0 {
-				t.Logf("waiting %s before diskpart cleanup", remaining)
-				if err := waitForImageDetach(context.Background(), remaining); err != nil {
-					t.Error(err)
-				}
+			out, diagnostic, status := metadataDiskpart(t, cleanup)
+			if status != 0 {
+				t.Errorf("diskpart cleanup: status=%d stdout=%s stderr=%s", status, out, diagnostic)
 			}
-			command("diskpart", "/s", cleanup)
 		})
-		out, diagnostic, status := run(t, "diskpart", "/s", setup)
-		finished = time.Now()
+		out, diagnostic, status := metadataDiskpart(t, setup)
 		if status != 0 {
 			t.Fatalf("diskpart setup: status=%d stdout=%s stderr=%s", status, out, diagnostic)
 		}
@@ -169,6 +165,32 @@ func metadataVolume(t *testing.T, filesystem string) string {
 		t.Fatal(err)
 	}
 	return mount
+}
+
+var metadataDiskpartState struct {
+	sync.Mutex
+	finished time.Time
+}
+
+// Successive scripts need a shutdown interval, including detach -> the next
+// test's create, not only create -> detach within one volume's lifecycle.
+// https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/diskpart-scripts-and-examples
+func metadataDiskpart(t *testing.T, script string) (string, string, int) {
+	t.Helper()
+	metadataDiskpartState.Lock()
+	defer metadataDiskpartState.Unlock()
+	if remaining := 15*time.Second - time.Since(metadataDiskpartState.finished); remaining > 0 {
+		t.Logf("waiting %s before diskpart script %s", remaining, script)
+		// Cleanup must still run after the test's context has been cancelled.
+		if err := waitForImageDetach(context.Background(), remaining); err != nil {
+			t.Fatal(err)
+		}
+	}
+	defer func() { metadataDiskpartState.finished = time.Now() }()
+	t.Logf("START metadata volume command: diskpart /s %s", script)
+	out, diagnostic, status := run(t, "diskpart", "/s", script)
+	t.Logf("END metadata volume command: diskpart status=%d stdout=%s stderr=%s", status, out, diagnostic)
+	return out, diagnostic, status
 }
 
 func TestFilesystemMetadataCLI(t *testing.T) {

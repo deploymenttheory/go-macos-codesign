@@ -6,7 +6,7 @@
     "acceptance/bundle_test.go": "696ce96b30828e209285963b4982420431cc430274f266d7c35113c85793051b",
     "acceptance/filesystem_metadata_discovery_test.go": "389f8578b0a28ecc0c2753e7b69676cd3fcf60601dcb30792aa7734cad333442",
     "acceptance/filesystem_metadata_evidence_test.go": "ec16228145597fd50ff07396b4e32496cf428343b7f533fac76d2ba32bd0f202",
-    "acceptance/filesystem_metadata_test.go": "09942a35a98138e857a4ccd799f932a223b2c119e2ecea57f1ec36a2f49d12cb",
+    "acceptance/filesystem_metadata_test.go": "32f7d9dca5d71a2d9428cf37d650a9e8976117ddd6e6bfb03590e6bd16452598",
     "acceptance/harness_test.go": "8643695241cfec404bee46f28645ea3c3781adf003646d99eb96cce83c14983e",
     "acceptance/removal_empty_info_test.go": "aae9f33774c9512bff743c3841a2cbec3a7c35bf00b5ad45c0b3033b203f7de7",
     "acceptance/removal_generic_test.go": "c575c51f1dd5d5f455e92337683a9fa92006881922f54d517ea3ec624e018457",
