@@ -270,19 +270,8 @@ func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
 }
 
 func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
-	der, err := cmsEnvelopeDER(der)
+	sd, err := decodeCMSFields(der)
 	if err != nil {
-		return nil, nil, err
-	}
-	var envelope cmsContent
-	if err := decodeDER(der, &envelope); err != nil {
-		return nil, nil, err
-	}
-	if !envelope.Type.Equal(oidSignedData) || envelope.Content.Class != 2 || envelope.Content.Tag != 0 || !envelope.Content.IsCompound {
-		return nil, nil, malformed("CMS ContentInfo")
-	}
-	var sd cmsSignedData
-	if err := decodeDER(envelope.Content.Bytes, &sd); err != nil {
 		return nil, nil, err
 	}
 	if len(sd.Signers) != 1 || sd.Signers[0].Version != 1 || len(sd.Digests) != 1 || len(sd.CRLs.FullBytes) > 0 {
@@ -309,7 +298,7 @@ func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
 		}
 		data = rest
 	}
-	return &sd, certs, nil
+	return sd, certs, nil
 }
 
 func parseCMSAttributes(raw asn1.RawValue) (map[string]asn1.RawValue, []byte, error) {

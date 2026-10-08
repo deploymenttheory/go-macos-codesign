@@ -1,0 +1,37 @@
+# CMS storage and verification
+
+CMS authenticates a CodeDirectory and Apple's attributes binding the alternate
+CodeDirectories. Timestamp tokens carry their own SignedData message. Both paths
+use the same envelope decoder on Linux, macOS and Windows.
+
+## Original encodings and owned results
+
+Decoding walks the original BER envelope and decodes each field separately.
+It does not rebuild the entire message into nested DER buffers. Only the four
+outer containers accept indefinite BER; certificates, signer sets and signed
+attributes retain strict DER validation. Internal fields borrow the input for
+the duration of verification. Public certificate results own their storage.
+Constructing a new timestamped message still assembles an owned envelope.
+
+This follows the existing Apple
+[CMS ASN.1 templates](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/cmsasn1.c)
+and [RFC 5652](https://www.rfc-editor.org/rfc/rfc5652.html#section-5.4).
+The retained native certificate fixtures and SDK/Clang evidence remain in
+`testdata/certificate-layout` and `spec/apple-cms.json`.
+
+`TestCMSBorrowedFields` checks borrowed envelope fields and independent returned
+certificate storage, including a 4 MiB unknown-attribute parser control.
+`TestCMSFieldValidation` adds malformed content/field/order/set cases. Both run
+in every host's required unit shard. The unknown attribute is a synthetic parser
+control, not evidence that native codesign accepts that attribute.
+
+## Remaining Phase 02 integration
+
+Avoiding envelope copies does not make the complete CMS path bounded. The input
+message, certificate parsing, attribute maps, cryptographic fields and timestamp
+output still need ranged parsing and shared-budget integration. The 16 MiB CMS
+and DER ceilings remain until their replacements and native large-message
+qualification are complete. Individually large certificates and attributes,
+aggregate growth, authenticated range hashing, cancellation/source mutation,
+owned-output accounting and foreign-output native verification remain required.
+See [Phase 02](implementation_plan.md#phase-02).

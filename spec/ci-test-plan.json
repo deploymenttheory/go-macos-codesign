@@ -1843,6 +1843,10 @@
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
           "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
@@ -1858,6 +1862,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFailureBoundaries": {
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
@@ -4420,6 +4428,10 @@
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
           "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
@@ -4435,6 +4447,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFailureBoundaries": {
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
@@ -6993,6 +7009,10 @@
           "cases": 1,
           "sha256": "e981395773ba9683037c891c33ffd0f0ee7648fe75d3c0f46497f986ae41aaef"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSBorrowedFields": {
+          "cases": 1,
+          "sha256": "d22b4379b014abcc221be15e319525f298bd919cc38c094ee784f7d73309e760"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSDirectorySizeBoundary": {
           "cases": 4,
           "sha256": "54cd797e33eb21e0ba4c06a0a0cbddb6c65a330a405ab0813b4128d7e36b93f7"
@@ -7008,6 +7028,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFailureBoundaries": {
           "cases": 1,
           "sha256": "d6c88b05e44c41e5be185f3a64d038a1598633f881ca57b28febde4d1dbc975f"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSFieldValidation": {
+          "cases": 1,
+          "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,

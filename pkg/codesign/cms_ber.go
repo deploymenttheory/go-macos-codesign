@@ -74,31 +74,43 @@ func cmsBERChildren(data []byte, tag byte, budget *int) ([]cmsBERValue, error) {
 	return children, nil
 }
 
-func cmsEnvelopeDER(data []byte) ([]byte, error) {
+// cmsEnvelopeFields borrows the original field encodings. Verification must not
+// rebuild the complete message just to remove its four BER container headers.
+func cmsEnvelopeFields(data []byte) ([]byte, []cmsBERValue, error) {
 	if len(data) > 16<<20 {
-		return nil, malformed("CMS size limit")
+		return nil, nil, malformed("CMS size limit")
 	}
 	budget := 4096
 	outer, err := cmsBERChildren(data, 0x30, &budget)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(outer) != 2 {
-		return nil, malformed("CMS ContentInfo fields")
+		return nil, nil, malformed("CMS ContentInfo fields")
 	}
 	wrapped, err := cmsBERChildren(outer[1].raw, 0xa0, &budget)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(wrapped) != 1 {
-		return nil, malformed("CMS explicit content")
+		return nil, nil, malformed("CMS explicit content")
 	}
 	fields, err := cmsBERChildren(wrapped[0].raw, 0x30, &budget)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(fields) < 4 || len(fields) > 6 || fields[2].tag != 0x30 {
-		return nil, malformed("CMS SignedData fields")
+		return nil, nil, malformed("CMS SignedData fields")
+	}
+	return outer[0].raw, fields, nil
+}
+
+// Encoding a new timestamped message still needs owned DER envelope bytes.
+// Decoding instead uses cmsEnvelopeFields and preserves borrowed DER fields.
+func cmsEnvelopeDER(data []byte) ([]byte, error) {
+	oid, fields, err := cmsEnvelopeFields(data)
+	if err != nil {
+		return nil, err
 	}
 	var parts [][]byte
 	for i, field := range fields {
@@ -108,7 +120,7 @@ func cmsEnvelopeDER(data []byte) ([]byte, error) {
 			parts = append(parts, field.raw)
 		}
 	}
-	return derSequence(outer[0].raw, derWrap(0xa0, derSequence(parts...))), nil
+	return derSequence(oid, derWrap(0xa0, derSequence(parts...))), nil
 }
 
 func cmsBERWrap(tag byte, parts ...[]byte) []byte {
