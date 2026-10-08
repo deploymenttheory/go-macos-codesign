@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Inventory planning baseline: 2026-10-05. Phase 02 completion baseline: 2026-10-08,
-main through PR107; its refreshed ledger below supersedes the earlier Phase 02
+main through PR108; its refreshed ledger below supersedes the earlier Phase 02
 progress notes. During Phase 02, consume
 merged APFS `main` fixes through exact Go pseudo-versions, without local module
 replacements. The dependency and upstream batch are recorded below.
@@ -179,12 +179,10 @@ disk exhaustion + metadata restoration.
 <a id="phase-02"></a>
 ## Phase 02 — Portable filesystem behavior, streaming and lifecycle
 
-**Completion baseline:** codesign main through PR #107 (`c2cf7d6`) and APFS main
-through PR #220. The completion branch is `feat/phase-02-completion-main-107`,
-cut directly from that main revision. PR107's macOS 27 acceptance failed even
-though it was merged; its native resource-error ordering must be corrected and
-qualified before treating filesystem integration as complete. Its Linux/Windows
-and macOS 15/26 results do not substitute for that missing gate.
+**Completion baseline:** codesign main through PR #108 (`e8d8c04`) and APFS main
+through PR #220. Continue on `feat/phase-02-cms-source-main-108`, cut directly
+from that merged main revision. Every remaining ledger row still requires its
+implementation, native/portable evidence and successful final-revision CI.
 
 **Required result:** all remaining Phase 02 operations use bounded processing and
 native-compatible filesystem/lifecycle policy on Linux, macOS and Windows.
@@ -203,14 +201,12 @@ The foreign FAT resource-signing cases additionally require
 native `EPERM` for attribute-file targets. That merged fix is now pinned; its
 unchanged consumer cases must pass before closing P02-FS qualification.
 
-The first remaining correction is to model resource-error precedence from the
-actual directory traversal and reached nested work. Identical archived file
-contents do not establish identical directory order: incidental native attribute
-files can leave reusable FAT slots after removal. Do not assign this behavior to
-an OS major version or accept either diagnostic indiscriminately. Capture SDK
-FTS order, exercise both real creation sequences, and retain complete partial
-outcome comparisons on every host. The existing macOS 15/26/27 jobs must run the
-expanded probes and both portable creation-order cases.
+The next storage work must finish certificate and authenticated-attribute range
+processing, parsed-object/index accounting and output assembly. Field-level CMS
+reads alone do not bound aggregate parsed storage or remove the 16 MiB message
+ceiling. Qualify large individual fields and aggregate growth independently, with
+native captures across macOS 15/26/27 and all-host replay. Preserve the native
+traversal-order, partial-result and lifecycle assertions already in the harness.
 
 The CLI audit must also account for the remaining declared non-native extensions
 (`--config`, `--json`, credential/trust-file and timestamp configuration switches).

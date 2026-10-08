@@ -13,7 +13,7 @@ not an alternative completion checklist with fewer requirements.
 
 | Site | Current limit or allocation | Classification and next action |
 | --- | --- | --- |
-| `cmsEnvelopeFields` in `cms_ber.go` | 16 MiB complete CMS message | Implementation ceiling. Integrate the checked BER walker with held component sources and streamed authenticated fields before removing it. Native capture must distinguish large individual attributes/certificates from aggregate message growth. |
+| `cmsEnvelopeRanges` in `cms_range.go` | 16 MiB complete CMS message | Implementation ceiling. Held-field decoding is integrated; stream individual certificates and authenticated fields before removing it. Native capture must distinguish large individual attributes/certificates from aggregate message growth. |
 | `decodeDER`, `pemBlocks` in `identity.go` | 16 MiB DER value / PEM input | Parser/import resource policy, not an established native format limit. DER is shared with certificates, requirements and timestamps. Audit callers separately; replacing the CMS outer ceiling alone does not make large certificates work. |
 | `readCMSBERRange` in `cms_range.go` | Four length octets, depth 32, 4096 shared element visits in the envelope caller | Existing parser policies retained by the range refactor. Four octets cover signature-component lengths; depth/element admission still needs native qualification. Indefinite outer containers revisit nested headers, so the budget is not simply a certificate count. |
 | `decodeSignedData` in `cms.go` | At most 32 embedded certificates; one signer and one digest algorithm | Existing CMS policy. Decode individual certificates without retaining an aggregate certificate-set copy; determine native admission for counts independently of bounded storage. Single-signer support must not be silently broadened without binding and trust-policy work. |
@@ -35,13 +35,14 @@ deleting the assertions is not the migration.
 
 ## Live whole-value consumers
 
-The following calls still materialize signature metadata even when a report is
-borrowed. `Signature.componentBytes` delegates to the public owned `ReadBlob`
+The following consumers still materialize signature metadata even when a report
+is borrowed. CMS now reads individual fields from its held component; other
+consumers still request complete components. `Signature.componentBytes` delegates to the public owned `ReadBlob`
 method for a `signatureView`.
 
 | Consumer | Current data flow | Required replacement |
 | --- | --- | --- |
-| `InspectCertificateMetadata` / `verifyInput` in `verify.go` | Read the complete CMS component, then decode and verify it | Locate CMS fields in the held component; parse bounded fields, hash authenticated ranges and account returned certificate metadata independently. Retain readable inspection when verification fails. |
+| `InspectCertificateMetadata` / `verifyInput` in `verify.go` | Read certificate/signer fields separately from the held CMS component | Stream certificate and authenticated-attribute internals, bound parsed indexes, and account returned certificate metadata independently. Retain readable inspection when verification fails. |
 | `entitlement_metadata.go` | Read complete DER or XML entitlement component | Ranged input and a bounded/planned semantic representation; preserve DER/XML selection and malformed-input precedence. |
 | `requirement_text.go`, `requirement_verify.go`, `requirement_metadata.go`, requirement checks in `verify.go` | Read the complete requirements component | Ranged requirement lookup/evaluation/formatting with checked offsets, preserving requirements semantics and explicit owned output APIs. |
 | `signatureView.report` | Read complete identifier and team strings, then convert each slice to a string | Avoid duplicate copies and account parsed/report storage. Scoped display needs a streaming representation for unusually large strings; owned reports still own their result. |
@@ -101,7 +102,7 @@ its own branch from main and draft PR with its native and all-host gates.
    obsolete-case replacements by requirement. Closure requires the final code
    and pinned APFS prerequisite to pass CI; an earlier green revision is not proof.
 
-The implemented CMS copy reductions and range-walker tests are described in
+The implemented CMS copy reductions, held-field integration and range tests are described in
 [CMS storage and verification](cms-streaming.md). They address intermediate
-copies and header traversal; they do not close this audit's remaining consumers,
+copies and field traversal; they do not close this audit's remaining consumers,
 native admission questions or operation-wide accounting.
