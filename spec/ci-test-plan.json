@@ -100,6 +100,7 @@
     "TestFilesystemMetadataDiscovery": 3,
     "TestFilesystemMetadataEvidence": 3,
     "TestFilesystemMetadataRemoval": 3,
+    "TestFilesystemMetadataResourceOrder": 3,
     "TestFrameworkPathsThroughParentLink": 3,
     "TestGenericRemoval": 1,
     "TestGenericRemovalAliases": 0,
@@ -672,6 +673,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataRemoval": {
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
@@ -1287,8 +1292,8 @@
         }
       },
       "attestations": {
-        "count": 21135,
-        "sha256": "873b894bcd096caf659acc36a53fb795cd4ed9fb4a54e9f1440f5eb5d594242f"
+        "count": 21141,
+        "sha256": "27b5f8ddcf128d3e36ab7220d54390e57ab171a0f1b729ffd95847c06d4d7669"
       },
       "baseline_logs": {
         "acceptance.jsonl": "471156684f6b15e8c46facde4453181764f42fe5e98352568f48bf961fde1d92",
@@ -3334,6 +3339,10 @@
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -3888,8 +3897,8 @@
         }
       },
       "attestations": {
-        "count": 16757,
-        "sha256": "7022e6fab8760ad914b85eccfa5bc437a554d0925be62dfaf1894ac33c03acbf"
+        "count": 16761,
+        "sha256": "d3cd554215898033d62fb8257c592ad1084249e780bcfec88677b30deea8c5a8"
       },
       "baseline_logs": {
         "acceptance.jsonl": "0efd77a6c221a8e7aa9a60825aa057de4c1c5abbd5bb43246daeee6564711c52",
@@ -5899,6 +5908,10 @@
           "cases": 57,
           "sha256": "6ebf5ff667345139e059bf9c7d407a556f8f6c39a47962b5056e92d8c4655642"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
+          "cases": 7,
+          "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -6453,8 +6466,8 @@
         }
       },
       "attestations": {
-        "count": 16113,
-        "sha256": "0797be07b43c89b1b4f2efd6d947dc82a0f283cd0aacbc5fcb7b40730c617f5d"
+        "count": 16117,
+        "sha256": "8c63f59ffa93ae3cd4372d2c8eacb0e2cfc7f7764e38e5e196343241f8e55757"
       },
       "baseline_logs": {
         "acceptance.jsonl": "8f2b768541cc17146bd7177f405d33014535ee74f3a8adf7425113c89fad3dec",

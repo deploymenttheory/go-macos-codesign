@@ -146,12 +146,33 @@ can set `SignOptions.MacOSProfile` on any host; zero retains the macOS 27 defaul
 No additional CLI option or environment override is introduced. Unknown native
 macOS major versions are rejected rather than silently assigned another profile.
 
-The qualified differences are ad-hoc CMS space reservation (15/26), default
-ARM64 signing pages (4 KiB on 15, 16 KiB on 26/27), and resource-preflight error
-propagation. This is not complete per-version signing parity. Retained native
+The qualified version differences are ad-hoc CMS space reservation (15/26) and
+default ARM64 signing pages (4 KiB on 15, 16 KiB on 26/27).
+Resource-preflight errors follow actual traversal and reached nested work;
+they are not selected by OS major version. This is not complete per-version signing parity. Retained native
 archives, source provenance and SDK ASTs are in
 [`testdata/filesystem-metadata/profiles`](../testdata/filesystem-metadata/profiles/README.md).
 All hosts replay the native signature bytes. The existing macOS 15/26 jobs and
 macOS 27 suite additionally require live allocation-alignment comparisons and
 repeated default/serial resource-error probes. These add assertions without
 relaxing the existing whole-bundle comparisons or foreign readback requirements.
+
+### Traversal and partial work
+
+PR107 incorrectly assigned the competing resource/nested error to an OS major
+version. The same final file bytes can occupy different directory positions.
+Native-created attribute files can leave reusable FAT slots when fixture cleanup
+removes them; later attribute files can reuse those slots. SDK `fts_read` and Go's
+unsorted rooted enumeration observe this input difference.
+
+The resource-order probe uses Apple's `ResourceBuilder` FTS flags with the real
+SDK declarations and records attribute sizes, traversal, source hashes and both
+architecture ASTs. The native test predicts the first failure from this independent
+trace; it still requires the exact diagnostic and unchanged complete data tree.
+Additional Linux/macOS/Windows cases establish both resource-first and nested-first
+creation sequences and require their distinct outcomes. Native default and serial
+observations remain separate. Shallow signing stops at the first reached resource
+failure. Deep signing retains its existing, independently captured nested partial
+results. Exact admission, stop and completion behavior for parallel and serial
+deep signing remains outstanding in P02-SCHED; shallow traversal evidence does
+not close that workstream.

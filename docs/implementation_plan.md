@@ -7,7 +7,7 @@ implementation and validation evidence belong in the [focused guides](README.md)
 [progress record](progress.md), source/fixture manifests and Git history.
 
 Inventory planning baseline: 2026-10-05. Phase 02 completion baseline: 2026-10-08,
-main through PR106; its refreshed ledger below supersedes the earlier Phase 02
+main through PR107; its refreshed ledger below supersedes the earlier Phase 02
 progress notes. During Phase 02, consume
 merged APFS `main` fixes through exact Go pseudo-versions, without local module
 replacements. The dependency and upstream batch are recorded below.
@@ -179,10 +179,12 @@ disk exhaustion + metadata restoration.
 <a id="phase-02"></a>
 ## Phase 02 — Portable filesystem behavior, streaming and lifecycle
 
-**Completion baseline:** codesign main through PR #106 and APFS main through
-PR #220 (following v0.18.0). Merge status is not an all-host qualification claim:
-outstanding CI checks remain required. These changes do not close this phase.
-Start new implementation branches from main.
+**Completion baseline:** codesign main through PR #107 (`c2cf7d6`) and APFS main
+through PR #220. The completion branch is `feat/phase-02-completion-main-107`,
+cut directly from that main revision. PR107's macOS 27 acceptance failed even
+though it was merged; its native resource-error ordering must be corrected and
+qualified before treating filesystem integration as complete. Its Linux/Windows
+and macOS 15/26 results do not substitute for that missing gate.
 
 **Required result:** all remaining Phase 02 operations use bounded processing and
 native-compatible filesystem/lifecycle policy on Linux, macOS and Windows.
@@ -200,6 +202,23 @@ The foreign FAT resource-signing cases additionally require
 [APFS #220](https://github.com/deploymenttheory/go-apfs-v2/pull/220), which retains
 native `EPERM` for attribute-file targets. That merged fix is now pinned; its
 unchanged consumer cases must pass before closing P02-FS qualification.
+
+The first remaining correction is to model resource-error precedence from the
+actual directory traversal and reached nested work. Identical archived file
+contents do not establish identical directory order: incidental native attribute
+files can leave reusable FAT slots after removal. Do not assign this behavior to
+an OS major version or accept either diagnostic indiscriminately. Capture SDK
+FTS order, exercise both real creation sequences, and retain complete partial
+outcome comparisons on every host. The existing macOS 15/26/27 jobs must run the
+expanded probes and both portable creation-order cases.
+
+The CLI audit must also account for the remaining declared non-native extensions
+(`--config`, `--json`, credential/trust-file and timestamp configuration switches).
+The removed AppleDouble routing flags do not establish complete CLI parity.
+Record each extension's native replacement/prerequisite and preserve its valid
+library capabilities and tests; no new extension may replace an outstanding
+native operation. Identity-provider and trust-policy dependencies remain owned
+by their existing later phases until implemented and qualified.
 
 ### Completion ledger
 

@@ -66,6 +66,7 @@ func TestNativeSigningProfiles(t *testing.T) {
 // of forcing serial flags into the ordinary CLI parity suite.
 func TestNativeSigningProfileResourceOrder(t *testing.T) {
 	profile := nativeSigningProfile(t)
+	probe := resourceOrderProbe(t)
 	for _, filesystem := range []string{"fat32", "exfat"} {
 		t.Run(filesystem, func(t *testing.T) {
 			volume := metadataVolume(t, filesystem)
@@ -75,17 +76,14 @@ func TestNativeSigningProfileResourceOrder(t *testing.T) {
 						bundle := filepath.Join(filesystemCaseDirectory(t, volume), "Fixture.app")
 						filesystemBundleFixture(t, bundle, "attribute-files", "resource")
 						before := layoutArchive(t, bundle)
+						trace, want := observeResourceOrder(t, probe, bundle)
 						args := []string{"-s", "-", "-i", "org.example.filesystem", "--timestamp=none"}
 						if serial {
 							args = append(args, "--single-threaded-signing")
 						}
 						out, diagnostic, status := run(t, apple(t), append(args, bundle)...)
 						diagnostic = strings.ReplaceAll(diagnostic, bundle, "$BUNDLE")
-						want := "$BUNDLE: resource fork, Finder information, or similar detritus not allowed\n"
-						if profile == osversion.MacOS27 {
-							want = "$BUNDLE: code object is not signed at all\nIn subcomponent: $BUNDLE/Contents/._Info.plist\n"
-						}
-						attest(t, map[string]any{"profile": profile, "serial": serial, "repeat": repeat, "status": status, "stdout": out, "stderr": diagnostic, "before_sha256": hash(before), "after_sha256": hash(layoutArchive(t, bundle))})
+						attest(t, map[string]any{"fts_trace": trace, "profile": profile, "serial": serial, "repeat": repeat, "status": status, "stdout": out, "stderr": diagnostic, "before_sha256": hash(before), "after_sha256": hash(layoutArchive(t, bundle))})
 						if status != 1 || out != "" || diagnostic != want {
 							t.Fatalf("native resource ordering changed: %d %q %q", status, out, diagnostic)
 						}

@@ -55,8 +55,9 @@ type RemoveOptions struct {
 // SignOptions controls the signed representation. A nil Identity requests ad-hoc signing.
 type SignOptions struct {
 	// MacOSProfile selects versioned signing behavior on every host. Zero uses
-	// the macOS 27 reference. This covers signature reservation, default signing
-	// page size and resource preflight ordering, not complete OS compatibility.
+	// the macOS 27 reference. This covers signature reservation and default
+	// signing page size, not complete OS compatibility. Resource error order
+	// follows traversal and operation dependencies, not the OS major version.
 	MacOSProfile osversion.MacOSProfile
 	// BundleVersion has the same meaning as PathOptions.BundleVersion.
 	BundleVersion string
