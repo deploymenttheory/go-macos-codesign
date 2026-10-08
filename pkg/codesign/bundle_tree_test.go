@@ -263,6 +263,11 @@ func TestNestedAppSourceAST(t *testing.T) {
 		if methods["findStringEndingNoCase"].Kinds["IfStmt"] != 1 {
 			t.Fatal(target, "missing localization helper")
 		}
+		for _, name := range []string{"validate", "pathExists", "pathMatchesXattrFilenameSpec", "pathIsRegularFile", "pathHasXattrs", "pathFileSystemUsesXattrFiles", "pathIsValidXattrFile"} {
+			if methods[name].Kinds["CompoundStmt"] == 0 || methods[name].Kinds["IfStmt"] == 0 {
+				t.Fatal(target, "missing complete attribute-file policy body", name)
+			}
+		}
 	}
 }
 

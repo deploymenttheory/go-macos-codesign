@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/osversion"
 )
 
 // maxFileSize bounds legacy byte paths and metadata, not held-source payloads.
@@ -75,6 +76,9 @@ func recordMachORead(f *os.File) error {
 // disk image to path. A DMG ad-hoc dry run writes unsigned components in place,
 // matching codesign; see SignOptions.DryRun.
 func Sign(ctx context.Context, path string, opts SignOptions) (err error) {
+	if err := opts.validateProfile(); err != nil {
+		return err
+	}
 	ctx = context.WithValue(ctx, preserveCompressionKey{}, opts.PreserveAFSC)
 	ctx, storage, err := beginWorkingStorage(ctx)
 	if err != nil {
@@ -148,6 +152,9 @@ func SignBytes(ctx context.Context, data []byte, opts SignOptions) (output []byt
 }
 
 func prepareSigningOptions(opts *SignOptions) error {
+	if err := opts.validateProfile(); err != nil {
+		return err
+	}
 	if opts.Identifier == "" || bytes.IndexByte([]byte(opts.Identifier), 0) >= 0 {
 		return fmt.Errorf("identifier must be nonempty and contain no NUL")
 	}
@@ -213,7 +220,7 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	page := opts.PageSize
 	if page == 0 {
 		page = 4096
-		if im.cpu == 0x100000c {
+		if im.cpu == 0x100000c && opts.MacOSProfile != osversion.MacOS15 {
 			page = 16384
 		}
 	}
@@ -284,9 +291,10 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	// Apple's first pass reserves a current-version CodeDirectory, even when
 	// the emitted directory needs a shorter header. The size delta
 	// affects page hashes through LC_CODE_SIGNATURE and must be reproduced.
-	if opts.Identity != nil {
+	if opts.Identity != nil || opts.legacySigningProfile() {
 		// SuperBlob::Maker::size counts the estimate as the entire CMS blob.
 		// Replace the empty wrapper already counted above, then align once.
+		// macOS 15/26 retain this reservation for ad-hoc signatures as well.
 		sigLen += defaultCMSSize - 8
 	}
 	sigSize := (sigLen + int64(max(96-header, 0)) + 15) &^ 15
@@ -390,6 +398,19 @@ func signImageSource(ctx context.Context, im *image, source outputSource, opts S
 	return patchedOutput(patched, end, outputSpan{codeEnd, sig})
 }
 
+func (opts SignOptions) legacySigningProfile() bool {
+	return opts.MacOSProfile == osversion.MacOS15 || opts.MacOSProfile == osversion.MacOS26
+}
+
+func (opts SignOptions) validateProfile() error {
+	switch opts.MacOSProfile {
+	case 0, osversion.MacOS15, osversion.MacOS26, osversion.MacOS27:
+		return nil
+	default:
+		return unsupported("macOS signing profile")
+	}
+}
+
 // RemoveSignature removes embedded Mach-O, generic attached and supported
 // app-bundle signatures. Use Remove to supply explicit AppleDouble metadata.
 // Native codesign does not support removing a UDIF signature; that returns ErrUnsupported.
@@ -404,7 +425,8 @@ func RemoveSignatureWithOptions(ctx context.Context, path string, opts PathOptio
 
 // Remove removes the selected embedded or generic attached signature. Generic
 // removal preserves the data fork and hard links; completed attribute removals
-// survive later failures. Only explicit AppleDouble inputs are considered.
+// survive later failures. The filesystem selects native or associated AppleDouble
+// storage; callers may also supply explicit library metadata bindings.
 func Remove(ctx context.Context, path string, opts RemoveOptions) (err error) {
 	ctx, storage, err := beginWorkingStorage(ctx)
 	if err != nil {

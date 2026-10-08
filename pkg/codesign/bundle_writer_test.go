@@ -335,6 +335,9 @@ func TestBundleDeferredMetadataLifecycle(t *testing.T) {
 			}
 			if phase != "abandon" {
 				err = p.commit(ctx)
+				if p.stagedReader != nil {
+					t.Fatal("commit retained its staging identity handle")
+				}
 				if phase == "commit" && err != nil {
 					t.Fatal(err)
 				}

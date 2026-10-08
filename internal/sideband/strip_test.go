@@ -16,7 +16,7 @@ import (
 
 func TestStripNativeOrderingAndFailure(t *testing.T) {
 	names := []string{appledouble.ResourceForkName, appledouble.FinderInfoName}
-	for _, platform := range []string{"darwin", "linux", "windows"} {
+	for _, platform := range []string{"darwin", "linux", "windows", "appledouble"} {
 		for _, state := range []string{"both", "empty", "missing", "query-denied", "remove-denied", "second-remove-denied", "cancel-after-first", "cancel-after-query", "inventory-denied"} {
 			t.Run(platform+"/"+state, func(t *testing.T) {
 				ctx, cancel := context.WithCancel(context.Background())
@@ -60,7 +60,7 @@ func TestStripNativeOrderingAndFailure(t *testing.T) {
 					want = nil
 				case "query-denied":
 					want = nil
-					if platform != "darwin" {
+					if platform != "darwin" && platform != "appledouble" {
 						wantErr = syscall.EPERM
 					}
 				case "remove-denied":
@@ -212,13 +212,23 @@ func TestHeldRemoval(t *testing.T) {
 	if err := hostdata.SetXattr(f, "user.codesign-test", []byte("value")); err != nil {
 		t.Fatal(err)
 	}
-	if err := removeAttribute(f, "user.codesign-test"); err != nil {
+	if err := removeFilesystemAttribute(context.Background(), f, "user.codesign-test"); err != nil {
 		t.Fatal(err)
 	}
-	if err := removeAttribute(f, "user.codesign-test"); err != nil {
+	if err := removeFilesystemAttribute(context.Background(), f, "user.codesign-test"); err != nil {
 		t.Fatal("disappeared attribute must be accepted", err)
 	}
-	if err := removeAttribute(nil, "user.codesign-test"); err == nil {
+	if err := removeFilesystemAttribute(context.Background(), nil, "user.codesign-test"); err == nil {
 		t.Fatal("invalid held object")
 	}
+}
+
+// Exercise the same borrowed view as the production policy calls.
+func removeFilesystemAttribute(ctx context.Context, file *os.File, name string) (err error) {
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, q.view.Close()) }()
+	return q.remove(name)
 }

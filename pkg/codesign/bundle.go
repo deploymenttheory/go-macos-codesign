@@ -249,11 +249,13 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 	if b.version != "" {
 		start = strings.TrimSuffix(b.base, "/")
 	}
-	tree := b.root.FS()
-	if b.signing != nil {
-		tree = signingBundleFS{b}
+	walk := func(visit fs.WalkDirFunc) error {
+		if b.signing != nil {
+			return (signingBundleWalker{b}).WalkDir(start, visit)
+		}
+		return fs.WalkDir(verificationBundleFS{b.root.FS(), b}, start, visit)
 	}
-	err := fs.WalkDir(tree, start, func(name string, d fs.DirEntry, walkErr error) (failure error) {
+	err := walk(func(name string, d fs.DirEntry, walkErr error) (failure error) {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -277,6 +279,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			return nil
 		}
 		if !strings.HasPrefix(name, b.base) {
+			if carrier, err := b.validXattrFile(ctx, name, d); carrier || err != nil {
+				return err
+			}
 			return unsupported("unsealed app root entry: " + name)
 		}
 		if strings.HasPrefix(rel, "_CodeSignature/") && (name != b.resourcesPath() || scope.signatureCleanup && d.IsDir()) {
@@ -307,9 +312,17 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			// or read. Retain inode checks against in-place envelope writes.
 			return scope.regularFile(prefix+name, st)
 		}
+		if scope.verifyResources {
+			if carrier, err := b.validXattrFile(ctx, name, d); carrier || err != nil {
+				if carrier {
+					files2[rel] = xattrResourceExemption{}
+				}
+				return err
+			}
+		}
 		nested, container := nestedCodePath(rel)
-		if b.framework && !strings.Contains(rel, "/") && !d.IsDir() {
-			nested = true // additional top-level Mach-O files are nested code
+		if !strings.Contains(rel, "/") && !d.IsDir() {
+			nested = true // native rules2: ^[^/]+$ has nested=true, weight=10
 		}
 		link := d.Type()&os.ModeSymlink != 0
 		switch {
@@ -396,6 +409,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 			// Format validation applies even during inspection; unsigned
 			// Mach-O files are permitted until a seal is actually requested.
 			if _, err := data.container(); err != nil {
+				if b.signing != nil {
+					return b.nestedFormatError(ctx, name, data, err)
+				}
 				return err
 			}
 			if err := scope.addBytes(data.source.size); err != nil {
@@ -428,6 +444,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		b.observeSideband(name, f)
 		if b.signing != nil && include2 {
 			if err := b.signingFile(ctx, f, filepath.Join(b.sidebandBase, filepath.FromSlash(name)), true); err != nil {
+				if b.signing.legacySigningProfile() {
+					return &signingMetadataError{err}
+				}
 				if b.signingFailure == nil {
 					b.signingFailure = err
 				}
@@ -539,6 +558,7 @@ func verifyBundle(ctx context.Context, path string, opts VerifyOptions) (report 
 		scope.recurse = opts.Deep
 		scope.verifyVersions = true
 		scope.verifyLinks = true
+		scope.verifyResources = true
 		_, actual, err = b.scanTree(ctx, scope, 0, "")
 		if err != nil {
 			return nil, err
@@ -598,7 +618,7 @@ func verifyBundleSnapshot(ctx context.Context, b *appBundle, data codeSource, re
 		}
 	}
 	if opts.IgnoreResources && !opts.NoStrict {
-		if err := b.verifyIgnoredResourceStructure(r); err != nil {
+		if err := b.verifyIgnoredResourceStructure(ctx, r); err != nil {
 			return r, err
 		}
 	}
@@ -763,7 +783,7 @@ func removeBundle(ctx context.Context, path string, opts RemoveOptions) (failure
 		if err := sideband.CheckPlatformAttribute(ctx, f); err != nil {
 			return err
 		}
-		if err := removeGenericSignature(ctx, f, func() (*os.File, error) { return b.root.OpenFile(b.executable, os.O_RDWR, 0) }, carrier); err != nil {
+		if err := removeGenericSignatureBeforeFlush(ctx, f, func() (*os.File, error) { return b.root.OpenFile(b.executable, os.O_RDWR, 0) }, carrier, func() error { return b.removeSignatureComponents(ctx) }); err != nil {
 			return err
 		}
 		return b.purgeSignatureFiles(ctx, false)

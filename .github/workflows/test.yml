@@ -50,10 +50,26 @@ jobs:
         run: |
           Write-Output "RUNNER_TEMP=$env:RUNNER_TEMP TEMP=$env:TEMP"
           Get-Volume | Select-Object DriveLetter, FileSystemType, SizeRemaining, Size | Format-Table
+      - name: Install real FAT and exFAT volume tools
+        if: runner.os == 'Linux' && (matrix.part == 2 || matrix.part == 3)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y dosfstools exfatprogs strace
+          sudo apt-get install --no-install-recommends -y "linux-modules-extra-$(uname -r)"
+          sudo modprobe exfat
+          cat /proc/filesystems
       - name: Run every assigned case and seal its evidence
         run: python3 scripts/evidence.py shard ${{ matrix.part }} --output artifacts/shard
         env:
           MACOSCODESIGN_REQUIRE_APPLE: ${{ runner.os == 'macOS' && '1' || '0' }}
+          MACOSCODESIGN_TRACE_FILESYSTEM: ${{ runner.os == 'Linux' && matrix.part == 3 && '1' || '0' }}
+      - name: Upload Linux filesystem diagnostics
+        if: always() && runner.os == 'Linux' && matrix.part == 3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux-filesystem-traces
+          path: artifacts/filesystem-traces/
+          if-no-files-found: warn
       - name: Collect native failure diagnostics
         if: failure() && runner.os == 'macOS'
         continue-on-error: true
@@ -526,3 +542,40 @@ jobs:
         run: |
           test "$RACE_RESULT" = success
           test "$FUZZ_RESULT" = success
+  metadata-native-profiles:
+    name: Filesystem metadata (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      CGO_ENABLED: '0'
+      MACOSCODESIGN_REQUIRE_APPLE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Capture this host's genuine metadata seeds and SDK ASTs
+        run: go run scripts/probe-filesystem-metadata-seeds.go
+      - name: Compare ordinary CLI operations on real FAT32 and exFAT volumes
+        shell: bash
+        env:
+          MACOSCODESIGN_RECORD_FILESYSTEM_REMOVAL: testdata/filesystem-metadata/native-removal.json
+          MACOSCODESIGN_RECORD_FILESYSTEM_DISCOVERY: testdata/filesystem-metadata/native-discovery.json
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/filesystem-metadata
+          go test -count=1 -json ./acceptance -run '^Test(FilesystemMetadata|NativeFilesystemIgnores|NativeSigningProfile)' | tee artifacts/filesystem-metadata/tests.jsonl
+      - name: Retain native seeds, source binding, ASTs and before/after observations
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: filesystem-metadata-${{ matrix.os }}
+          path: |
+            artifacts/filesystem-metadata/
+            testdata/filesystem-metadata/
+          if-no-files-found: error
+          include-hidden-files: true

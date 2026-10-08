@@ -36,7 +36,7 @@ func TestGenericRemovalNativePermissions(t *testing.T) {
 						mustRun(t, "/bin/chmod", "-RN", dir)
 						nativeEqual(t, "generic denied data fork", nativeRead(t, target), before)
 						attrs := genericAttrs(t, target, metadata, "")
-						r := genericRemovalResult{status, out, stderr, hash(signingSidebandBytes(t, operand, bundle)), attrs, os.SameFile(original, accessFileInfo(t, target))}
+						r := genericRemovalResult{Status: status, Out: out, Err: stderr, Data: hash(signingSidebandBytes(t, operand, bundle)), Attrs: attrs, SameFile: os.SameFile(original, accessFileInfo(t, target)), Platform: "darwin"}
 						if !r.SameFile || aclBefore != aclAfter {
 							t.Fatalf("identity/ACL changed: %#v %#v %#v", r, aclBefore, aclAfter)
 						}

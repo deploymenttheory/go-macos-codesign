@@ -23,13 +23,18 @@ func sidebandObjectAttrs(t *testing.T, path string) map[string]string {
 		t.Fatal(err)
 	}
 	defer f.Close()
-	names, err := hostdata.ListXattrNames(f, hostdata.MaxXattrListSize)
+	view, err := hostdata.FilesystemMetadataForFile(t.Context(), f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer view.Close()
+	names, err := view.List(t.Context(), hostdata.MaxXattrListSize)
 	if err != nil {
 		t.Fatal(err)
 	}
 	values := map[string]string{}
 	for _, name := range names {
-		b, present, err := hostdata.ReadXattr(f, name, 8<<20)
+		b, present, err := view.Read(t.Context(), name, 8<<20)
 		if err != nil || !present {
 			t.Fatal(name, present, err)
 		}
@@ -39,6 +44,13 @@ func sidebandObjectAttrs(t *testing.T, path string) map[string]string {
 }
 
 func setSidebandObject(t *testing.T, path string, metadata appledouble.File) {
+	setSidebandObjectForPlatform(t, path, metadata, runtime.GOOS)
+}
+
+// Reproduce the producer's actual attribute names when macOS independently
+// verifies a foreign native-filesystem result. This changes fixture names only;
+// the CLI receives ordinary native arguments and has no metadata routing mode.
+func setSidebandObjectForPlatform(t *testing.T, path string, metadata appledouble.File, platform string) {
 	t.Helper()
 	f, err := os.Open(path)
 	if err != nil {
@@ -54,7 +66,7 @@ func setSidebandObject(t *testing.T, path string, metadata appledouble.File) {
 	}
 	for _, attr := range attrs {
 		name := attr.Name
-		if runtime.GOOS == "linux" && strings.HasPrefix(name, "com.apple.") {
+		if platform == "linux" && strings.HasPrefix(name, "com.apple.") {
 			name = "user." + name
 		}
 		if err := hostdata.SetXattr(f, name, attr.Value); err != nil {
@@ -64,6 +76,8 @@ func setSidebandObject(t *testing.T, path string, metadata appledouble.File) {
 }
 
 func TestStandaloneSidebandVerification(t *testing.T) {
+	volume := metadataVolume(t, "exfat")
+	seeds := filesystemSeedInputs(t)
 	for _, format := range []string{"arm64", "x86_64", "universal", "dmg"} {
 		states := []string{"clean", "fork", "finder", "both", "ordinary", "corrupt-fork"}
 		if format != "dmg" {
@@ -72,7 +86,12 @@ func TestStandaloneSidebandVerification(t *testing.T) {
 		for _, state := range states {
 			for _, transport := range []string{"native", "appledouble"} {
 				t.Run(format+"/"+state+"/"+transport, func(t *testing.T) {
-					dir := extractionDirectory(t)
+					var dir string
+					if transport == "appledouble" {
+						dir = filesystemCaseDirectory(t, volume)
+					} else {
+						dir = extractionDirectory(t)
+					}
 					t.Chdir(dir)
 					input := "testdata/macho/adhoc-" + format
 					if format == "dmg" {
@@ -106,16 +125,29 @@ func TestStandaloneSidebandVerification(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
+					if transport == "appledouble" {
+						kind := state
+						if strings.Contains(state, "fork") {
+							kind = "fork"
+						}
+						carrier = seeds[kind]
+					}
 					bundleWrite(t, dir, "metadata", carrier)
 					bundleWrite(t, dir, "fixture", data)
 					if transport == "native" {
 						setSidebandObject(t, "fixture", metadata)
+					} else {
+						installFilesystemCarrier(t, "fixture", carrier)
 					}
 					// An independent native object carries the same metadata on
 					// macOS. Only its path prefix is normalized in comparisons.
 					if runtime.GOOS == "darwin" {
 						bundleWrite(t, dir, "native/fixture", data)
-						setSidebandObject(t, "native/fixture", metadata)
+						if transport == "native" {
+							setSidebandObject(t, "native/fixture", metadata)
+						} else {
+							installFilesystemCarrier(t, "native/fixture", carrier)
+						}
 					}
 					before := layoutArchive(t, dir)
 					attrs := sidebandObjectAttrs(t, "fixture")
@@ -134,9 +166,6 @@ func TestStandaloneSidebandVerification(t *testing.T) {
 							}
 							active := policy != "default" && policy != "no-strict" && policy != "none"
 							goArgs := append([]string{}, args...)
-							if transport == "appledouble" && active {
-								goArgs = append(goArgs, "--appledouble", "metadata")
-							}
 							prohibited := format != "dmg" && (len(metadata.ResourceFork) != 0 || metadata.FinderInfo != [32]byte{}) && (transport == "appledouble" || runtime.GOOS != "linux")
 							want := 0
 							if active && prohibited || state == "corrupt-fork" || state == "trailing-fork" && policy != "none" && policy != "no-strict" {
@@ -188,6 +217,7 @@ func TestStandaloneSidebandAliases(t *testing.T) {
 				t.Fatal(err)
 			}
 			bundleWrite(t, dir, "metadata", encoded)
+			setSidebandObject(t, "fixture", metadata)
 			if link == "symbolic" {
 				err = os.Symlink("fixture", "alias")
 			} else {
@@ -202,9 +232,15 @@ func TestStandaloneSidebandAliases(t *testing.T) {
 			if link == "hard" {
 				path = filepath.Join(dir, "alias")
 			}
-			out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble", "metadata", "alias")...)
+			out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), "alias")...)
 			want := fmt.Sprintf("file with invalid attached data: Disallowed xattr com.apple.ResourceFork found on %s\n", path)
-			if status != 1 || out != want {
+			wantStatus := 1
+			if runtime.GOOS == "linux" {
+				// Linux native user.com.apple.* attributes remain a separate
+				// namespace. FAT metadata is qualified by the real-volume tests.
+				want, wantStatus = "", 0
+			}
+			if status != wantStatus || out != want {
 				t.Fatal(status, out, want, stderr)
 			}
 			nativeEqual(t, "carrier alias preservation", layoutArchive(t, dir), before)
@@ -212,9 +248,6 @@ func TestStandaloneSidebandAliases(t *testing.T) {
 				t.Fatal("carrier alias metadata changed")
 			}
 			if runtime.GOOS == "darwin" {
-				// Stage native metadata only after the carrier-only check. Each
-				// command has its own preservation boundary around that setup.
-				setSidebandObject(t, "fixture", metadata)
 				before, attrs := layoutArchive(t, dir), sidebandObjectAttrs(t, "fixture")
 				nout, nerr, nstatus := run(t, apple(t), append(args, "alias")...)
 				if nstatus != status || out != nout || stderr != nerr {
@@ -231,10 +264,12 @@ func TestStandaloneSidebandAliases(t *testing.T) {
 }
 
 func TestStandaloneSidebandArchitectureSelection(t *testing.T) {
+	volume := metadataVolume(t, "exfat")
+	encoded := filesystemSeedInputs(t)["strip"]
 	for _, corrupt := range []bool{false, true} {
 		for _, selected := range []string{"", "arm64", "x86_64"} {
 			t.Run(fmt.Sprintf("corrupt-%t/%s", corrupt, selected), func(t *testing.T) {
-				dir := extractionDirectory(t)
+				dir := filesystemCaseDirectory(t, volume)
 				t.Chdir(dir)
 				data := nativeRead(t, filepath.Join(root, "testdata/macho/adhoc-universal"))
 				if corrupt {
@@ -243,18 +278,13 @@ func TestStandaloneSidebandArchitectureSelection(t *testing.T) {
 					data[int(binary.BigEndian.Uint32(data[16:]))+4096] ^= 1
 				}
 				bundleWrite(t, dir, "fixture", data)
-				metadata := appledouble.File{ResourceFork: []byte("fork"), FinderInfo: [32]byte{1}}
-				encoded, err := metadata.Encode()
-				if err != nil {
-					t.Fatal(err)
-				}
-				bundleWrite(t, dir, "metadata", encoded)
+				installFilesystemCarrier(t, "fixture", encoded)
 				args := []string{"--verify", "--verbose=1", "--strict=all"}
 				if selected != "" {
 					args = append(args, "--architecture", selected)
 				}
 				before, attrs := layoutArchive(t, dir), sidebandObjectAttrs(t, "fixture")
-				out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble", "metadata", "fixture")...)
+				out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), "fixture")...)
 				if status != 1 {
 					t.Fatal(status, out, stderr)
 				}
@@ -268,7 +298,6 @@ func TestStandaloneSidebandArchitectureSelection(t *testing.T) {
 				}
 				nout, nerr := "", ""
 				if runtime.GOOS == "darwin" {
-					setSidebandObject(t, "fixture", metadata)
 					attrs = sidebandObjectAttrs(t, "fixture")
 					var nstatus int
 					nout, nerr, nstatus = run(t, apple(t), append(args, "fixture")...)

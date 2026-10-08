@@ -242,3 +242,90 @@ func TestBundleCleanupCancellationAfterUnlink(t *testing.T) {
 		}
 	}
 }
+
+func TestBundleCanonicalRemovalLifecycle(t *testing.T) {
+	for _, state := range []string{"absent", "complete", "cancel-before", "cancel-after-component", "closed-root", "non-directory", "root-symlink", "component-directory", "component-symlink"} {
+		t.Run(state, func(t *testing.T) {
+			app := testBundle(t)
+			b, err := openAppBundle(app)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.close()
+			const base = "Contents/_CodeSignature/"
+			if state == "absent" {
+				if err := b.removeSignatureComponents(t.Context()); err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+			bundleFile(t, app, base+"CodeDirectory", []byte("directory"))
+			bundleFile(t, app, base+"CodeResources", []byte("resources"))
+			bundleFile(t, app, base+"unknown", []byte("flush later"))
+			ctx := t.Context()
+			var wantErr error
+			switch state {
+			case "cancel-before":
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithCancel(ctx)
+				cancel()
+				wantErr = context.Canceled
+			case "cancel-after-component":
+				ctx = cancelAfterSignatureUnlink{ctx, filepath.Join(app, base+"CodeDirectory")}
+				wantErr = context.Canceled
+			case "closed-root":
+				if err := b.root.Close(); err != nil {
+					t.Fatal(err)
+				}
+				wantErr = os.ErrClosed
+			case "non-directory", "root-symlink":
+				if err := b.root.Rename("Contents/_CodeSignature", "Contents/saved"); err != nil {
+					t.Fatal(err)
+				}
+				if state == "root-symlink" {
+					if err := b.root.Symlink("saved", "Contents/_CodeSignature"); err != nil {
+						t.Fatal(err)
+					}
+				} else {
+					bundleFile(t, app, "Contents/_CodeSignature", []byte("not a directory"))
+				}
+				wantErr = ErrUnsupported
+			case "component-directory", "component-symlink":
+				if err := b.root.Remove(base + "CodeDirectory"); err != nil {
+					t.Fatal(err)
+				}
+				if state == "component-directory" {
+					if err := b.root.Mkdir(base+"CodeDirectory", 0755); err != nil {
+						t.Fatal(err)
+					}
+					wantErr = ErrUnsupported
+				} else if err := b.root.Symlink("unknown", base+"CodeDirectory"); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := b.removeSignatureComponents(ctx); !errors.Is(err, wantErr) {
+				t.Fatal(err, wantErr)
+			}
+			metadata := filepath.Join(app, "Contents/_CodeSignature")
+			if state == "non-directory" || state == "root-symlink" {
+				metadata = filepath.Join(app, "Contents/saved")
+			}
+			if string(readTestFile(t, filepath.Join(metadata, "unknown"))) != "flush later" {
+				t.Fatal("canonical removal traversed or purged an unrelated entry")
+			}
+			_, directoryErr := os.Lstat(filepath.Join(metadata, "CodeDirectory"))
+			_, resourcesErr := os.Lstat(filepath.Join(metadata, "CodeResources"))
+			if wantErr == nil {
+				if !os.IsNotExist(directoryErr) || !os.IsNotExist(resourcesErr) {
+					t.Fatal("canonical components remain", directoryErr, resourcesErr)
+				}
+			} else if state == "cancel-after-component" {
+				if !os.IsNotExist(directoryErr) || resourcesErr != nil {
+					t.Fatal("cancellation did not retain the exact partial commit", directoryErr, resourcesErr)
+				}
+			} else if directoryErr != nil || resourcesErr != nil {
+				t.Fatal("failed acquisition changed components", directoryErr, resourcesErr)
+			}
+		})
+	}
+}

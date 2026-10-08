@@ -143,6 +143,9 @@ func verifyBundleResourcesWithOptions(ctx context.Context, data []byte, actual m
 		if err := bundleRelativePath(name); err != nil {
 			return 0, err
 		}
+		if _, exempt := actual[name].(xattrResourceExemption); exempt {
+			continue
+		}
 		var err error
 		if _, present := actual[name]; present {
 			if err := verifyResourceSideband(ctx, name, opts); err != nil && !failures.collect(err) {

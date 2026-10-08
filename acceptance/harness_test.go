@@ -80,6 +80,23 @@ func run(t *testing.T, exe string, args ...string) (string, string, int) {
 	if exe == binaryPath && os.Getenv("MACOSCODESIGN_COVERAGE_DIR") != "" {
 		cmd.Env = append(cmd.Env, "GOCOVERDIR="+os.Getenv("MACOSCODESIGN_COVERAGE_DIR"))
 	}
+	if runtime.GOOS == "linux" && exe == binaryPath && strings.HasPrefix(t.Name(), "TestFilesystemMetadataBundles/") && os.Getenv("MACOSCODESIGN_TRACE_FILESYSTEM") == "1" {
+		dir := filepath.Join(root, "artifacts/filesystem-traces")
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		log, err := os.CreateTemp(dir, "bundle-*.log")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := log.Close(); err != nil {
+			t.Fatal(err)
+		}
+		traced := exec.CommandContext(ctx, "strace", append([]string{"-f", "-qq", "-e", "trace=%file,ioctl,ftruncate,fchmod,fchown", "-o", log.Name(), exe}, args...)...)
+		traced.Env = cmd.Env
+		cmd = traced
+		t.Logf("filesystem syscall trace: %s", log.Name())
+	}
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

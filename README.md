@@ -67,13 +67,14 @@ wording, failing architecture and nested paths, with structured library errors.
 [Resource verification](docs/resource-verification.md) collects added, modified
 and missing paths, with explicit limits for native ordering and dangling links.
 [Strict verification](docs/strict-verification.md) supports bounded layout,
-symlink and Mach-O/bundle sideband policies. Explicit `--appledouble FILE` for
-standalone objects and `--appledouble-map FILE` for bundle members supplement native
-metadata on Linux, Windows and macOS. UDIF retains Apple's sideband exemption.
+symlink and Mach-O/bundle sideband policies. The APFS filesystem view selects
+metadata storage automatically, including dot-underscore storage on FAT/exFAT.
+UDIF retains Apple's sideband exemption. Explicit metadata snapshots remain a
+library API for callers that own their association and lifetime.
 
 [Signing preflight](docs/signing-sideband.md) checks prohibited attached metadata
 by default. `--strip-disallowed-xattrs` removes it through the APFS SDK, including
-explicit AppleDouble inputs. Removals also occur during dry runs and can remain
+filesystem-selected metadata and explicit library snapshots. Removals also occur during dry runs and can remain
 after later failures. `--deep` applies to selected nested signing operations.
 [Signing permissions](docs/signing-permissions.md) cover readable code with denied
 write access, metadata failures and partial removal, using APFS v0.17.1.
@@ -88,7 +89,7 @@ native executable-name selection and preserves all files when no representation
 can be selected.
 [Generic signature removal](docs/generic-removal.md) removes attached signature
 attributes from scripts, ordinary files and generic bundle executables without
-replacing their data. Explicit AppleDouble inputs carry macOS metadata on any host.
+replacing their data. Filesystem metadata selection is shared across all hosts.
 [Bundle removal](docs/bundle-removal-discovery.md) can select Info.plist when no
 executable is discoverable in a supported layout, including metadata-permission
 denial. Wider discovery remains on the roadmap.

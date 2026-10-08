@@ -2,7 +2,6 @@ package acceptance
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 )
 
@@ -71,7 +69,7 @@ func TestBundleSidebandVerification(t *testing.T) {
 				states = []string{"clean", "finder"}
 			} // macOS cannot attach a resource fork to a directory.
 			for _, state := range states {
-				for _, transport := range []string{"native", "appledouble"} {
+				for _, transport := range []string{"native"} {
 					t.Run(format+"/"+location+"/"+state+"/"+transport, func(t *testing.T) {
 						dir := extractionDirectory(t)
 						b, paths := sidebandBundleFixture(t, dir, format)
@@ -83,25 +81,7 @@ func TestBundleSidebandVerification(t *testing.T) {
 						if state == "finder" || state == "both" {
 							copy(metadata.FinderInfo[:], "TEXTttxt")
 						}
-						encoded, err := metadata.Encode()
-						if err != nil {
-							t.Fatal(err)
-						}
-						bundleWrite(t, dir, "metadata.ad", encoded)
-						rel, err := filepath.Rel(b, target)
-						if err != nil {
-							t.Fatal(err)
-						}
-						manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): "metadata.ad"})
-						if err != nil {
-							t.Fatal(err)
-						}
-						bundleWrite(t, dir, "metadata.json", manifest)
-						if transport == "native" {
-							setSidebandObject(t, target, metadata)
-						}
-						// Carrier-only comparisons run first. Native metadata is applied only
-						// afterwards, preserving a separate boundary for each read-only command.
+						setSidebandObject(t, target, metadata)
 						type result struct {
 							out, stderr string
 							status      int
@@ -127,9 +107,6 @@ func TestBundleSidebandVerification(t *testing.T) {
 								}
 								active := policy != "default" && policy != "none" && policy != "no-strict"
 								goArgs := append([]string{}, args...)
-								if active && transport == "appledouble" {
-									goArgs = append(goArgs, "--appledouble-map", filepath.Join(dir, "metadata.json"))
-								}
 								before, attrs := layoutArchive(t, dir), sidebandObjectAttrs(t, target)
 								out, se, status := run(t, binaryPath, append(goArgs, b)...)
 								checked := location != "signature" && location != "directory" && (location != "info" || !strings.HasPrefix(format, "app")) && (location != "root" || format != "framework")
@@ -140,7 +117,7 @@ func TestBundleSidebandVerification(t *testing.T) {
 									checked = false
 								}
 								want := 0
-								if active && checked && state != "clean" && (transport == "appledouble" || runtime.GOOS != "linux") {
+								if active && checked && state != "clean" && runtime.GOOS != "linux" {
 									want = 1
 								}
 								if status != want {
@@ -151,13 +128,10 @@ func TestBundleSidebandVerification(t *testing.T) {
 									t.Fatal("attributes changed")
 								}
 								results[policy] = result{out, se, status, args}
-								attest(t, map[string]any{"format": format, "location": location, "state": state, "transport": transport, "policy": policy, "exit": status, "stdout": out, "stderr": se, "input_preserved": true, "carrier_sha256": hash(encoded), "fixture_root": dir})
+								attest(t, map[string]any{"format": format, "location": location, "state": state, "transport": transport, "policy": policy, "exit": status, "stdout": out, "stderr": se, "input_preserved": true, "fixture_root": dir})
 							})
 						}
 						if runtime.GOOS == "darwin" {
-							if transport == "appledouble" {
-								setSidebandObject(t, target, metadata)
-							}
 							before, attrs := layoutArchive(t, dir), sidebandObjectAttrs(t, target)
 							for _, policy := range []string{"default", "sideband", "all", "plain", "deep", "ignore", "none", "no-strict"} {
 								t.Run("reference/"+policy, func(t *testing.T) {
@@ -278,32 +252,24 @@ func TestBundleSidebandFailureOrder(t *testing.T) {
 				}
 				layoutLink(t, b, "Contents/Resources/link", target)
 			}
-			manifest := map[string]string{}
-			for path, value := range assignments {
-				encoded, err := value.Encode()
-				if err != nil {
-					t.Fatal(err)
-				}
-				name := fmt.Sprintf("metadata-%d.ad", len(manifest))
-				bundleWrite(t, dir, name, encoded)
-				manifest[path] = name
+			for target, metadata := range assignments {
+				setSidebandObject(t, target, metadata)
 			}
-			encoded, err := json.Marshal(manifest)
-			if err != nil {
-				t.Fatal(err)
-			}
-			bundleWrite(t, dir, "metadata.json", encoded)
 			before := layoutArchive(t, dir)
 			args := []string{"--verify", "--verbose=1", "--strict=sideband"}
-			out, se, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble-map", filepath.Join(dir, "metadata.json"), b)...)
-			if status != 1 {
+			out, se, status := run(t, binaryPath, append(append([]string{}, args...), b)...)
+			want := 1
+			if runtime.GOOS == "linux" && (state == "root-main-resource" || state == "root-main") {
+				want = 0
+			}
+			if status != want {
 				t.Fatal(status, out, se)
 			}
 			nativeEqual(t, "mixed-failure preservation", layoutArchive(t, dir), before)
 			if state == "corrupt-main" && (!strings.Contains(se, "code or signature have been modified") || out != "") {
 				t.Fatal("integrity must precede metadata", out, se)
 			}
-			if state == "root-main" && !strings.Contains(out, "FinderInfo found on "+b+"\n") {
+			if runtime.GOOS != "linux" && state == "root-main" && !strings.Contains(out, "FinderInfo found on "+b+"\n") {
 				t.Fatal("root must precede executable", out, se)
 			}
 			if runtime.GOOS == "darwin" {
@@ -352,16 +318,7 @@ func TestBundleSidebandFrameworkVersions(t *testing.T) {
 						target = framework
 					}
 					metadata := appledouble.File{FinderInfo: [32]byte{'T', 'E', 'X', 'T'}}
-					encoded, err := metadata.Encode()
-					if err != nil {
-						t.Fatal(err)
-					}
-					bundleWrite(t, dir, "metadata.ad", encoded)
-					encoded, err = json.Marshal(map[string]string{target: "metadata.ad"})
-					if err != nil {
-						t.Fatal(err)
-					}
-					bundleWrite(t, dir, "metadata.json", encoded)
+					setSidebandObject(t, target, metadata)
 					for _, deep := range []bool{false, true} {
 						t.Run(fmt.Sprintf("deep-%t", deep), func(t *testing.T) {
 							args := []string{"--verify", "--verbose=1", "--strict=sideband"}
@@ -369,9 +326,9 @@ func TestBundleSidebandFrameworkVersions(t *testing.T) {
 								args = append(args, "--deep")
 							}
 							before := layoutArchive(t, dir)
-							out, se, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble-map", filepath.Join(dir, "metadata.json"), b)...)
+							out, se, status := run(t, binaryPath, append(append([]string{}, args...), b)...)
 							want := 0
-							if (nested || version == "B") && (location != "resource" || !nested || deep) && (location != "outer-root" || nested) {
+							if runtime.GOOS != "linux" && (nested || version == "B") && (location != "resource" || !nested || deep) && (location != "outer-root" || nested) {
 								want = 1
 							}
 							if status != want {
@@ -384,7 +341,6 @@ func TestBundleSidebandFrameworkVersions(t *testing.T) {
 								if status != nstatus || sortedSidebandDetails(out) != sortedSidebandDetails(nout) || se != nerr {
 									t.Error("native versions", status, nstatus, out, nout, se, nerr)
 								}
-								clearSidebandFinder(t, target)
 								nativeEqual(t, "native framework preservation", layoutArchive(t, dir), before)
 							}
 							attest(t, map[string]any{"nested": nested, "version": version, "location": location, "deep": deep, "exit": status, "stdout": out, "stderr": se, "native_compared": runtime.GOOS == "darwin", "input_preserved": true})
@@ -393,18 +349,6 @@ func TestBundleSidebandFrameworkVersions(t *testing.T) {
 				})
 			}
 		}
-	}
-}
-
-func clearSidebandFinder(t *testing.T, path string) {
-	t.Helper()
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-	if _, err := hostdata.RemoveXattr(f, appledouble.FinderInfoName); err != nil {
-		t.Fatal(err)
 	}
 }
 
@@ -431,20 +375,15 @@ func TestBundleSidebandParentPaths(t *testing.T) {
 					operand = filepath.Join(dir, "left/link") + string(filepath.Separator) + ".." + string(filepath.Separator) + suffix
 				}
 				value := appledouble.File{FinderInfo: [32]byte{'T', 'E', 'X', 'T'}}
-				encoded, err := value.Encode()
-				if err != nil {
-					t.Fatal(err)
-				}
-				bundleWrite(t, dir, "metadata.ad", encoded)
-				encoded, err = json.Marshal(map[string]string{target: "metadata.ad"})
-				if err != nil {
-					t.Fatal(err)
-				}
-				bundleWrite(t, dir, "metadata.json", encoded)
+				setSidebandObject(t, target, value)
 				args := []string{"--verify", "--verbose=1", "--strict=all"}
 				before := layoutArchive(t, dir)
-				out, se, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble-map", "metadata.json", operand)...)
-				if status != 1 || !strings.Contains(out, "FinderInfo found on "+target) {
+				out, se, status := run(t, binaryPath, append(append([]string{}, args...), operand)...)
+				if runtime.GOOS == "linux" {
+					if status != 0 {
+						t.Fatal(status, out, se)
+					}
+				} else if status != 1 || !strings.Contains(out, "FinderInfo found on "+target) {
 					t.Fatal(status, out, se)
 				}
 				nativeEqual(t, "metadata alias verification preservation", layoutArchive(t, dir), before)

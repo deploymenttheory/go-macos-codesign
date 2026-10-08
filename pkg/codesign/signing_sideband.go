@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
@@ -62,6 +63,8 @@ func signingIOError(err error) error {
 	}
 	message := ""
 	switch {
+	case errors.Is(err, hostdata.ErrXattrNotFound):
+		message = "Attribute not found"
 	case errors.Is(err, syscall.EPERM):
 		message = "Operation not permitted"
 	case errors.Is(err, os.ErrPermission):

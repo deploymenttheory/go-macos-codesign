@@ -215,6 +215,12 @@ func TestVerifyImportedArtifacts(t *testing.T) {
 		return
 	}
 	reference := apple(t)
+	t.Run("filesystem-bundles", func(t *testing.T) {
+		verifyImportedFilesystemBundles(t, dir, reference)
+	})
+	t.Run("filesystem-cli", func(t *testing.T) {
+		verifyImportedFilesystemCLI(t, dir, reference)
+	})
 	count, dmgs, binaryBundles, nestedBundles, recursiveBundles := 0, 0, 0, 0, 0
 	layoutArchives, versionArchives, pathArchives := 0, 0, 0
 	executableArchives, writerArchives, cleanupArchives := 0, 0, 0

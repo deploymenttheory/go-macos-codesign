@@ -44,13 +44,12 @@ func TestRemovalPlatformInfoNativePermissions(t *testing.T) {
 						mustRun(t, "/bin/chmod", "-N", path)
 					}
 				}
-				native := observeEmptyInfo(t, apple(t), tc, false)
-				local := observeEmptyInfo(t, binaryPath, tc, false)
-				carrier := observeEmptyInfo(t, binaryPath, tc, true)
-				if !reflect.DeepEqual(native, local) || !reflect.DeepEqual(native, carrier) {
-					t.Fatalf("native %#v; Go %#v; carrier %#v", native, local, carrier)
+				native := observeEmptyInfo(t, apple(t), tc, "darwin")
+				local := observeEmptyInfo(t, binaryPath, tc, "darwin")
+				if !reflect.DeepEqual(native, local) {
+					t.Fatalf("native %#v; Go %#v", native, local)
 				}
-				attest(t, map[string]any{"native": native, "go": local, "carrier": carrier})
+				attest(t, map[string]any{"native": native, "go": local})
 			})
 		}
 	}

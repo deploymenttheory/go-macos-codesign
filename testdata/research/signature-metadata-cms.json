@@ -12,8 +12,8 @@
   "SeedPrefixBytes": 9115,
   "Sources": {
     "/usr/bin/codesign": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
-    "go.mod": "1fbe31abed79ea529904d82e937c78e0a9ce79b1da2ebfee26967b5ebd54bf99",
-    "go.sum": "fd1287022c354875da07fd8a6cb96ee739d8f9427111b30ca5e05aa77601909b",
+    "go.mod": "3f2915ecd73a9a9de9839a0569284a8e6f99222cbeb580b3affede362a4a8d3a",
+    "go.sum": "3d74849143fd25bfab7e87e3628ec4ae048e31f8436278b92db28b12af594328",
     "pkg/codesign/cms.go": "e3c79036f6d2a1cad044b97138dcee4d8a3eeb69a5af6fd21ea129b2c2078685",
     "pkg/codesign/cms_binding.go": "e21882b3c7abd5c777b48b12c76dbd79addf773393c4402d269d419e4b2e533d",
     "scripts/probe-signature-metadata.go": "3d8557e14e9ca04748560c6a8ec1eaf6d5e86d6602e60804447f1cbcb01efa6f",

@@ -13,14 +13,16 @@ import (
 	"github.com/deploymenttheory/go-apfs-v2/pkg/apfs"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata/accesstime"
+	"github.com/deploymenttheory/go-macos-codesign/internal/sideband"
 )
 
 type preparedBundleExecutable struct {
-	write       bundleWrite
-	original    os.FileInfo
-	staged      os.FileInfo
-	replacement *bundleReplacement
-	compression uint32
+	write        bundleWrite
+	original     os.FileInfo
+	staged       os.FileInfo
+	stagedReader *os.File
+	replacement  *bundleReplacement
+	compression  uint32
 }
 
 // Keep the source descriptor through the SDK's deferred metadata restoration.
@@ -177,6 +179,59 @@ func (b *appBundle) createSignatureDirectory(ctx context.Context) (result error)
 		return err
 	}
 	return hostdata.CopyDirectoryStat(source, target)
+}
+
+// BundleDiskRep::Writer::remove unlinks canonical components before flush opens
+// its directory scanner. On attribute-file storage, deleting a component can
+// also delete its companion, so this must precede the purge inventory.
+func (b *appBundle) removeSignatureComponents(ctx context.Context) (result error) {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	name := b.base + "_CodeSignature"
+	st, err := b.root.Lstat(name)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return unsupported("signature directory is not a directory")
+	}
+	root, err := b.root.OpenRoot(name)
+	if err != nil {
+		return err
+	}
+	defer func() { result = errors.Join(result, root.Close()) }()
+	current, err := root.Stat(".")
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(st, current) {
+		return fmt.Errorf("bundle signature directory changed")
+	}
+	for _, component := range sideband.SignatureComponents() {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		info, err := root.Lstat(component)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		// os.Root.Remove can also remove an empty directory; native unlink
+		// cannot. Never traverse or remove a directory under a component name.
+		if info.IsDir() {
+			return unsupported("non-regular signature file: " + component)
+		}
+		if err := root.Remove(component); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+	}
+	return nil
 }
 
 // Purge regular signature files after executable commit. Keep the directory and
@@ -367,7 +422,13 @@ func prepareBundleExecutable(ctx context.Context, write bundleWrite, dryRun bool
 	return &preparedBundleExecutable{write: write, original: st, staged: staged, replacement: &bundleReplacement{r, source}}, nil
 }
 
-func (p *preparedBundleExecutable) commit(ctx context.Context) error {
+func (p *preparedBundleExecutable) commit(ctx context.Context) (result error) {
+	defer func() {
+		if p.stagedReader != nil {
+			result = errors.Join(result, p.stagedReader.Close())
+			p.stagedReader = nil
+		}
+	}()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -386,6 +447,13 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) error {
 		return fmt.Errorf("bundle write target changed")
 	}
 	if err := root.Rename(p.replacement.Path, p.write.name); err != nil {
+		return err
+	}
+	// FAT file IDs can change during rename. Refresh through the descriptor
+	// retained before metadata restoration, never through the published path:
+	// a concurrently substituted pathname must still fail the access check.
+	p.staged, err = p.stagedReader.Stat()
+	if err != nil {
 		return err
 	}
 	if err := recompressNativeRoot(ctx, root, p.write.name, p.compression); err != nil {
@@ -431,7 +499,11 @@ func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result
 	if err != nil {
 		return err
 	}
-	defer func() { result = errors.Join(result, target.Close()) }()
+	defer func() {
+		if result != nil {
+			result = errors.Join(result, target.Close())
+		}
+	}()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -462,7 +534,11 @@ func (p *preparedBundleExecutable) copySourceAccess(ctx context.Context) (result
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return errors.Join(p.replacement.File.Close(), p.replacement.closeSource())
+	if err := errors.Join(p.replacement.File.Close(), p.replacement.closeSource()); err != nil {
+		return err
+	}
+	p.stagedReader = target
+	return nil
 }
 
 func recordBundleReadAccess(root *os.Root, name string, expected os.FileInfo) (result error) {

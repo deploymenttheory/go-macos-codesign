@@ -16,6 +16,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/osversion"
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,8 +35,6 @@ type options struct {
 	strictMask                                                                           uint32
 	noStrict                                                                             bool
 	stripDisallowed                                                                      bool
-	appleDoublePath                                                                      string
-	appleDoubleMap                                                                       string
 	requirementsSet                                                                      bool
 	entitlementsSet                                                                      bool
 	fileList                                                                             bool
@@ -82,9 +81,9 @@ func Run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 				fmt.Fprintln(stdout, "Timestamp signing: --timestamp (Apple TSA) or --timestamp=http://URL. Optional --timestamp-root CA.pem and --timestamp-timeout 15s.\nTimestamp verification requires --timestamp-root CA.pem or --timestamp-root apple (bundled Apple roots).")
 				fmt.Fprintln(stdout, "Bundles: --deep signs or verifies supported nested Mach-O, app, plug-in, XPC and framework layouts. --bundle-version VERSION selects the input framework version; nested verification checks every physical version.")
 				fmt.Fprintln(stdout, "Verification: --ignore-resources skips resource envelopes and nested code, even with --deep. Code integrity, non-resource metadata, requirements and enabled layout checks remain enforced.")
-				fmt.Fprintln(stdout, "Sideband verification: --strict=sideband, --strict=all or --strict checks Mach-O and bundle metadata; DMGs retain Apple's exemption. Portable --appledouble FILE adds a standalone snapshot; --appledouble-map FILE maps bundle object paths to snapshots. Native attributes are always checked.")
-				fmt.Fprintln(stdout, "Signing checks sideband metadata by default. --strip-disallowed-xattrs removes prohibited native and explicit AppleDouble metadata, including during --dryrun; completed removals survive later failures. --no-strict disables code-object preflight, while explicit ordinary-resource stripping still runs.")
-				fmt.Fprintln(stdout, "Generic --remove-signature removes attached signature attributes in place. --appledouble and --appledouble-map explicitly supply portable metadata; unrelated attributes and file contents are preserved. Completed attribute removals survive later failures.")
+				fmt.Fprintln(stdout, "Sideband verification: --strict=sideband, --strict=all or --strict checks Mach-O and bundle metadata; DMGs retain Apple's exemption. Metadata storage is selected by the filesystem.")
+				fmt.Fprintln(stdout, "Signing checks sideband metadata by default. --strip-disallowed-xattrs removes prohibited filesystem metadata, including during --dryrun; completed removals survive later failures. --no-strict disables code-object preflight, while explicit ordinary-resource stripping still runs.")
+				fmt.Fprintln(stdout, "Generic --remove-signature removes attached signature attributes in place. Unrelated attributes and file contents are preserved. Completed attribute removals survive later failures.")
 				fmt.Fprintln(stdout, "Certificate extraction: -d --extract-certificates[=PREFIX] writes leaf-first DER files PREFIX0, PREFIX1, ... (default prefix: codesign). Existing files are overwritten; extraction does not establish trust.")
 				fmt.Fprintln(stdout, "Entitlement extraction: -d --entitlements PATH appends a typed dump; :- writes reconstructed XML to stdout with the native deprecation warning. Colon selection is consumed after the first operand.")
 				fmt.Fprintln(stdout, "File lists: -s or -d --file-list PATH appends absolute signature-file paths; use - for stdout. Lists describe the selected outer representation, not all nested writes. Signature removal with --file-list is unsupported.")
@@ -216,7 +215,7 @@ func parse(args []string) (options, error) {
 					return o, fmt.Errorf("--no-strict does not accept an argument")
 				}
 				o.strictRequested, o.noStrict = true, true
-			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list", "appledouble", "appledouble-map":
+			case "sign", "identifier", "architecture", "bundle-version", "requirements", "test-requirement", "options", "pagesize", "config", "entitlements", "runtime-version", "key", "trust", "trust-root", "password-file", "timestamp-root", "timestamp-timeout", "file-list":
 				if has {
 					val = attached
 				} else {
@@ -226,16 +225,6 @@ func parse(args []string) (options, error) {
 					return o, err
 				}
 				switch name {
-				case "appledouble-map":
-					if val == "" {
-						return o, fmt.Errorf("--appledouble-map requires a nonempty file path")
-					}
-					o.appleDoubleMap = val
-				case "appledouble":
-					if val == "" {
-						return o, fmt.Errorf("--appledouble requires a nonempty file path")
-					}
-					o.appleDoublePath = val
 				case "file-list":
 					o.fileList, o.fileListPath = true, val
 				case "sign":
@@ -402,13 +391,6 @@ func parse(args []string) (options, error) {
 			return o, fmt.Errorf("%w: --strict policy (supported bits: symlinks=128, sideband=512; none or --no-strict disables checks)", codesign.ErrUnsupported)
 		}
 	}
-	metadataOperation := o.operation == "sign" || o.operation == "remove" || o.operation == "verify" && o.strictMask&0x200 != 0 && !o.noStrict
-	if o.appleDoublePath != "" && (!metadataOperation || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble requires signing, removal or enabled strict sideband verification of exactly one standalone operand")
-	}
-	if o.appleDoubleMap != "" && (o.appleDoublePath != "" || !metadataOperation || len(o.paths) != 1) {
-		return o, fmt.Errorf("--appledouble-map requires signing, removal or enabled strict sideband verification of one bundle and cannot be combined with --appledouble")
-	}
 	return o, nil
 }
 
@@ -451,6 +433,14 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	if o.operation == "sign" {
+		profile, err := signingHostProfile(ctx, osversion.Detect)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		signOpts.MacOSProfile = profile
+	}
 	signOpts.PreserveAFSC = o.preserveAFSC
 	signOpts.NoStrict, signOpts.StripDisallowedXattrs = o.noStrict, o.stripDisallowed
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
@@ -599,7 +589,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			signOpts.OnReplace = func() {
 				fmt.Fprintf(stderr, "%s: replacing existing signature\n", path)
 			}
-			err = signWithMetadata(ctx, path, o.appleDoublePath, o.appleDoubleMap, signOpts)
+			err = codesign.Sign(ctx, path, signOpts)
 			if err == nil && o.fileList {
 				if report == nil {
 					report, err = codesign.InspectWithOptions(ctx, path, codesign.PathOptions{BundleVersion: o.bundleVersion})
@@ -612,10 +602,7 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			var opts codesign.RemoveOptions
 			// Native removal accepts --preserve-afsc but does not recompress.
 			opts.BundleVersion = o.bundleVersion
-			opts.AppleDouble, opts.AppleDoubleFiles, err = mutableMetadata(ctx, o.appleDoublePath, o.appleDoubleMap)
-			if err == nil {
-				err = codesign.Remove(ctx, path, opts)
-			}
+			err = codesign.Remove(ctx, path, opts)
 		case "verify":
 			opts := codesign.VerifyOptions{BundleVersion: o.bundleVersion, Deep: o.deep, Architecture: o.architecture, TrustedCertificates: trusted, TrustedRoots: roots, TimestampRoots: timestampRoots, NoStrict: o.noStrict, StrictSymlinks: o.strictMask&0x80 != 0, StrictSideband: o.strictMask&0x200 != 0, IgnoreResources: o.ignoreResources}
 			consume := func(report *codesign.Report, operationErr error) error {
@@ -637,10 +624,10 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 			}
 			if o.json {
 				var report *codesign.Report
-				report, err = verifyWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, opts)
+				report, err = codesign.Verify(ctx, path, opts)
 				err = errors.Join(err, consume(report, err))
 			} else {
-				err = visitVerificationWithMetadataMap(ctx, path, o.appleDoublePath, o.appleDoubleMap, opts, consume)
+				err = codesign.VisitVerification(ctx, path, opts, consume)
 			}
 		case "display":
 			consume := func(report *codesign.Report, operationErr error) error {
@@ -707,6 +694,19 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		}
 	}
 	return status
+}
+
+// Native CLI defaults follow the host's codesign version. Foreign hosts use
+// the project's macOS 27 reference; explicit profiles remain a portable API.
+func signingHostProfile(ctx context.Context, detect func(context.Context) (osversion.Version, error)) (osversion.MacOSProfile, error) {
+	version, err := detect(ctx)
+	if errors.Is(err, errors.ErrUnsupported) {
+		return osversion.MacOS27, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return osversion.ProfileForMacOS(version)
 }
 
 func parseVersion(s string) (uint32, error) {

@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"encoding/json"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -17,29 +16,23 @@ func TestSigningSidebandRelativeNested(t *testing.T) {
 			b, paths := sidebandBundleFixture(t, dir, "recursive")
 			target := paths[location]
 			metadata := appledouble.File{FinderInfo: [32]byte{1}}
-			encoded, err := metadata.Encode()
-			if err != nil {
-				t.Fatal(err)
-			}
-			bundleWrite(t, dir, "metadata.ad", encoded)
-			rel, err := filepath.Rel(b, target)
-			if err != nil {
-				t.Fatal(err)
-			}
-			manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): "metadata.ad"})
-			if err != nil {
-				t.Fatal(err)
-			}
-			bundleWrite(t, dir, "metadata.json", manifest)
+			setSidebandObject(t, target, metadata)
 			operand := filepath.Base(b)
 			args := []string{"-fs", "-", "--deep", "--verbose=1"}
 			before := layoutArchive(t, b)
-			out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), "--appledouble-map", "metadata.json", operand)...)
+			out, stderr, status := run(t, binaryPath, append(append([]string{}, args...), operand)...)
 			want := operand + ": replacing existing signature\n" + operand + ": resource fork, Finder information, or similar detritus not allowed\nIn subcomponent: " + filepath.Join(b, filepath.FromSlash(recursiveApps[1])) + "\n"
-			if status != 1 || out != "" || stderr != want {
+			if runtime.GOOS == "linux" {
+				if status != 0 {
+					t.Fatal(status, out, stderr)
+				}
+				mustRun(t, binaryPath, "--verify", "--deep", operand)
+			} else if status != 1 || out != "" || stderr != want {
 				t.Fatal(status, out, stderr, want)
 			}
-			nativeEqual(t, "failed tree preserved", before, layoutArchive(t, b))
+			if runtime.GOOS != "linux" {
+				nativeEqual(t, "failed tree preserved", before, layoutArchive(t, b))
+			}
 			if runtime.GOOS == "darwin" {
 				setSidebandObject(t, target, metadata)
 				nout, nerr, nstatus := run(t, apple(t), append(args, operand)...)

@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 	"slices"
 	"strings"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
-	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 // MutableCarrier explicitly authorizes changes to a supplied metadata snapshot.
@@ -25,13 +23,16 @@ type MutableCarrier interface {
 // Strip removes only nonempty prohibited attributes, from the held native object
 // first, then an explicitly supplied mutable carrier. It does not roll back a
 // completed removal when a later query, removal or cancellation fails.
-func Strip(ctx context.Context, file *os.File, carrier appledouble.Value) error {
-	if err := stripNative(ctx, runtime.GOOS,
-		func() ([]string, error) { return hostdata.ListXattrNames(file, hostdata.MaxXattrListSize) },
-		func(name string) (int, bool, error) { return hostdata.XattrSize(file, name) },
-		func(name string) error { return removeAttribute(file, name) }); err != nil {
+func Strip(ctx context.Context, file *os.File, carrier appledouble.Value) (err error) {
+	q, err := openFilesystemQueries(ctx, file)
+	if err != nil {
 		return err
 	}
+	defer func() { err = errors.Join(err, q.view.Close()) }()
+	if err = stripNative(ctx, q.platform(), q.list, q.size, q.remove); err != nil {
+		return err
+	}
+
 	if carrier == nil {
 		return nil
 	}
@@ -52,13 +53,6 @@ func Strip(ctx context.Context, file *os.File, carrier appledouble.Value) error 
 		}
 	}
 	return ctx.Err()
-}
-
-func removeAttribute(file *os.File, name string) error {
-	// FileDesc::removeAttr uses options=0: ENOATTR after a positive presence
-	// query is success. Another actor may have removed the attribute already.
-	_, err := hostdata.RemoveXattr(file, name)
-	return err
 }
 
 func stripNative(ctx context.Context, platform string, list func() ([]string, error), size func(string) (int, bool, error), remove func(string) error) error {

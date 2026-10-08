@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -65,17 +64,8 @@ func TestRemovalFallbackMetadataDenial(t *testing.T) {
 	dir := extractionDirectory(t)
 	operand, paths := sidebandBundleFixture(t, dir, "app")
 	metadata := genericMetadata("populated")
-	wire, err := metadata.Encode()
-	if err != nil {
-		t.Fatal(err)
-	}
-	carrier := filepath.Join(dir, "metadata.ad")
-	bundleWrite(t, dir, "metadata.ad", wire)
-	manifest, err := json.Marshal(map[string]string{"Contents/Info.plist": carrier})
-	if err != nil {
-		t.Fatal(err)
-	}
-	bundleWrite(t, dir, "map.json", manifest)
+	setSidebandObject(t, paths["info"], metadata)
+	initialAttrs := genericAttrs(t, paths["info"], metadata, "")
 	before := nativeRead(t, paths["main"])
 	infoBefore := nativeRead(t, paths["info"])
 	mainIdentity, infoIdentity := accessFileInfo(t, paths["main"]), accessFileInfo(t, paths["info"])
@@ -122,18 +112,14 @@ func TestRemovalFallbackMetadataDenial(t *testing.T) {
 	if !os.IsPermission(err) {
 		t.Fatal("metadata denial is ineffective", err)
 	}
-	mustRun(t, binaryPath, "--remove-signature", "--appledouble-map", filepath.Join(dir, "map.json"), operand)
+	mustRun(t, binaryPath, "--remove-signature", operand)
 	restore()
 	nativeEqual(t, "unselected executable", nativeRead(t, paths["main"]), before)
 	nativeEqual(t, "plist data", nativeRead(t, paths["info"]), infoBefore)
 	if !os.SameFile(mainIdentity, accessFileInfo(t, paths["main"])) || !os.SameFile(infoIdentity, accessFileInfo(t, paths["info"])) {
 		t.Fatal("file identity changed")
 	}
-	for name := range genericAttrs(t, paths["info"], metadata, carrier) {
-		if strings.HasPrefix(name, "com.apple.cs.") {
-			t.Fatal("signature retained", name)
-		}
-	}
+	assertNativeGenericRemoval(t, genericAttrs(t, paths["info"], metadata, ""), initialAttrs)
 	if _, err := os.Stat(paths["signature"]); !os.IsNotExist(err) {
 		t.Fatal("envelope retained", err)
 	}

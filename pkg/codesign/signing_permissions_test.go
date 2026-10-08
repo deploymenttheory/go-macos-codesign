@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/hostdata"
 )
 
 type deniedFinderCarrier struct {
@@ -111,6 +112,11 @@ func TestSigningPermissionDiagnosticIdentity(t *testing.T) {
 			t.Fatalf("replaced qualified/nonpermission error: %v", err)
 		}
 	}
+	failure := errors.Join(hostdata.ErrXattrNotFound, io.ErrUnexpectedEOF)
+	var diagnostic *VerificationError
+	if err := signingIOError(failure); !errors.As(err, &diagnostic) || diagnostic.Diagnostic != "Attribute not found" || !errors.Is(err, failure) {
+		t.Fatal("attribute error lost its native diagnostic or underlying causes", err)
+	}
 }
 
 func TestSigningResourceAcquisition(t *testing.T) {
@@ -138,7 +144,7 @@ func TestSigningResourceAcquisition(t *testing.T) {
 	if _, err := b.resourceInfo("Contents/Resources/link"); err == nil {
 		t.Fatal("followed resource link during acquisition")
 	}
-	walk := signingBundleFS{b}
+	walk := signingBundleWalker{b}
 	for _, name := range []string{"missing", "Contents/Resources/data"} {
 		if _, err := walk.ReadDir(name); err == nil {
 			t.Fatal("enumerated non-directory", name)

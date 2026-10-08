@@ -18,6 +18,7 @@ type bundleScan struct {
 	recurse           bool
 	verifyVersions    bool
 	verifyLinks       bool // verification compares sealed text without resolving targets
+	verifyResources   bool // native resource verification can exempt valid xattr files
 	signatureCleanup  bool // exclude stale entries; defer directory/symlink rejection to flush
 	seen              map[string]bool
 	regular, writable map[string]os.FileInfo

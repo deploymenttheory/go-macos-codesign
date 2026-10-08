@@ -1,8 +1,6 @@
 package acceptance
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"maps"
 	"os"
@@ -34,7 +32,7 @@ func TestSigningSideband(t *testing.T) {
 			}
 			for _, state := range states {
 				for _, policy := range []string{"default", "strip", "strip-dryrun", "no-strict", "strip-no-strict", "deep", "deep-strip", "already-strip"} {
-					for _, transport := range []string{"native", "appledouble"} {
+					for _, transport := range []string{"native"} {
 						t.Run(format+"/"+location+"/"+state+"/"+policy+"/"+transport, func(t *testing.T) {
 							dir := extractionDirectory(t)
 							var metadata appledouble.File
@@ -47,7 +45,7 @@ func TestSigningSideband(t *testing.T) {
 							metadata.Attrs = []appledouble.Attr{{Name: "user.codesign-control", Value: []byte("preserve")}}
 							var operand, target string
 							bundle := format == "app" || format == "recursive" || strings.Contains(format, "framework")
-							seed := func(native bool) {
+							seed := func() {
 								if bundle {
 									var paths map[string]string
 									operand, paths = sidebandBundleFixture(t, dir, format)
@@ -60,11 +58,9 @@ func TestSigningSideband(t *testing.T) {
 									bundleWrite(t, dir, "fixture", nativeRead(t, filepath.Join(root, fixture)))
 									operand, target = filepath.Join(dir, "fixture"), filepath.Join(dir, "fixture")
 								}
-								if native || transport == "native" {
-									setSidebandObject(t, target, metadata)
-								}
+								setSidebandObject(t, target, metadata)
 							}
-							seed(false)
+							seed()
 							args := []string{"--sign", "-", "--force", "--identifier", "org.example.sideband.signing"}
 							strip := strings.Contains(policy, "strip")
 							if strip {
@@ -83,35 +79,13 @@ func TestSigningSideband(t *testing.T) {
 								args = append(args[:2], args[3:]...)
 							}
 							goArgs := append([]string{}, args...)
-							carrierPath := filepath.Join(dir, "metadata.ad")
-							if transport == "appledouble" {
-								encoded, err := metadata.Encode()
-								if err != nil {
-									t.Fatal(err)
-								}
-								bundleWrite(t, dir, "metadata.ad", encoded)
-								if bundle {
-									rel, err := filepath.Rel(operand, target)
-									if err != nil {
-										t.Fatal(err)
-									}
-									manifest, err := json.Marshal(map[string]string{filepath.ToSlash(rel): "metadata.ad"})
-									if err != nil {
-										t.Fatal(err)
-									}
-									bundleWrite(t, dir, "metadata.json", manifest)
-									goArgs = append(goArgs, "--appledouble-map", filepath.Join(dir, "metadata.json"))
-								} else {
-									goArgs = append(goArgs, "--appledouble", carrierPath)
-								}
-							}
 							visited := format != "dmg" && location != "directory" && location != "signature" && (format != "app" || location != "info") && (format != "framework" || location != "root")
 							if location == "helper" || strings.HasPrefix(location, "child-") || strings.HasPrefix(location, "grandchild-") {
 								visited = strings.Contains(policy, "deep")
 							}
 							resource := location == "resource" || location == "child-resource" || location == "info"
 							removed := visited && strip && policy != "already-strip" && (!strings.Contains(policy, "no-strict") || resource)
-							prohibited := state != "clean" && (transport == "appledouble" || runtime.GOOS != "linux")
+							prohibited := state != "clean" && runtime.GOOS != "linux"
 							wantStatus := 0
 							if policy == "already-strip" || visited && prohibited && !strip && !strings.Contains(policy, "no-strict") {
 								wantStatus = 1
@@ -148,7 +122,7 @@ func TestSigningSideband(t *testing.T) {
 								if err := os.RemoveAll(operand); err != nil {
 									t.Fatal(err)
 								}
-								seed(false)
+								seed()
 							}
 							before, err := os.Stat(target)
 							if err != nil {
@@ -173,7 +147,7 @@ func TestSigningSideband(t *testing.T) {
 								t.Fatal(err)
 							}
 							same := os.SameFile(before, after)
-							if removed && transport == "native" && runtime.GOOS != "linux" {
+							if removed && runtime.GOOS != "linux" {
 								for name := range attrs {
 									if name == appledouble.FinderInfoName || name == appledouble.ResourceForkName || runtime.GOOS == "windows" && (strings.EqualFold(name, appledouble.FinderInfoName) || strings.EqualFold(name, appledouble.ResourceForkName)) {
 										delete(attrs, name)
@@ -184,26 +158,12 @@ func TestSigningSideband(t *testing.T) {
 							if !reflect.DeepEqual(attrs, afterAttrs) {
 								t.Fatalf("native attributes changed incorrectly: expected=%v after=%v", attrs, afterAttrs)
 							}
-							if transport == "appledouble" {
-								decoded, err := appledouble.Decode(nativeRead(t, carrierPath))
-								if err != nil {
-									t.Fatal(err)
-								}
-								expected := metadata
-								if removed {
-									expected.FinderInfo = [32]byte{}
-									expected.ResourceFork = nil
-								}
-								if decoded.FinderInfo != expected.FinderInfo || !bytes.Equal(decoded.ResourceFork, expected.ResourceFork) || !reflect.DeepEqual(decoded.Attrs, expected.Attrs) {
-									t.Fatalf("carrier metadata: got=%+v want=%+v", decoded, expected)
-								}
-							}
 							referenceEvidence := map[string]any{}
 							if runtime.GOOS == "darwin" {
 								if err := os.RemoveAll(operand); err != nil {
 									t.Fatal(err)
 								}
-								seed(true)
+								seed()
 								nativeBefore, err := os.Stat(target)
 								if err != nil {
 									t.Fatal(err)

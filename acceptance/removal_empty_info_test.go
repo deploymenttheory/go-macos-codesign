@@ -2,7 +2,6 @@ package acceptance
 
 import (
 	"encoding/json"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -33,6 +32,7 @@ type emptyInfoCase struct {
 type emptyInfoResult struct {
 	Status       int
 	Output, Tree string
+	Platform     string
 	Envelope     bool
 	Files        map[string]emptyInfoFile
 }
@@ -107,62 +107,82 @@ func emptyInfoFixture(t *testing.T, dir string, tc emptyInfoCase) (string, strin
 	return operand, base
 }
 
-func observeEmptyInfo(t *testing.T, exe string, tc emptyInfoCase, carrier bool) emptyInfoResult {
+func observeEmptyInfo(t *testing.T, exe string, tc emptyInfoCase, platform string) emptyInfoResult {
 	t.Helper()
-	dir := extractionDirectory(t)
+	return observeEmptyInfoAt(t, exe, tc, platform, extractionDirectory(t))
+}
+
+// The platform identifies the fixture's actual attribute namespace. "appledouble"
+// requires a directory on a mounted FAT volume and a genuine COPYFILE_PACK seed;
+// it is never passed to the CLI or used to change its storage selection.
+func observeEmptyInfoAt(t *testing.T, exe string, tc emptyInfoCase, platform, dir string) emptyInfoResult {
+	t.Helper()
 	operand, base := emptyInfoFixture(t, dir, tc)
+	if platform == "appledouble" {
+		// Match the captured input metadata on every host. Remove only fixture-
+		// creation bookkeeping, before installing native seeds or running codesign.
+		if err := filepath.WalkDir(operand, func(path string, entry os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if entry.Type().IsRegular() && strings.HasPrefix(entry.Name(), "._") {
+				return os.Remove(path)
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	metadata := appledouble.File{Attrs: []appledouble.Attr{{Name: "com.apple.cs.CodeDirectory", Value: []byte("attached signature")}, {Name: "user.codesign-control", Value: []byte("unchanged")}}}
-	manifest := map[string]string{}
-	before := map[string]os.FileInfo{}
+	carriers := map[string]string{}
+	before := map[string]*os.File{}
 	for name, want := range tc.Files {
 		path := filepath.Join(operand, name)
 		if hash(nativeRead(t, path)) != want.SHA256 {
 			t.Fatal("input differs from captured native case", name)
 		}
-		before[name] = accessFileInfo(t, path)
-		if carrier {
-			wire, err := metadata.Encode()
-			if err != nil {
-				t.Fatal(err)
-			}
-			ad := filepath.Join(dir, strings.ReplaceAll(name, "/", "-")+".ad")
-			if err := os.WriteFile(ad, wire, 0600); err != nil {
-				t.Fatal(err)
-			}
-			manifest[name] = ad
+		if platform == "appledouble" {
+			installFilesystemCarrier(t, path, filesystemSeedInputs(t)["discovery"])
+			carriers[name] = filepath.Join(filepath.Dir(path), "._"+filepath.Base(path))
 		} else {
-			setSidebandObject(t, path, metadata)
+			setSidebandObjectForPlatform(t, path, metadata, platform)
 		}
-	}
-	args := []string{"--remove-signature"}
-	if carrier && len(manifest) != 0 {
-		b, err := json.Marshal(manifest)
+		held, err := os.Open(path)
 		if err != nil {
 			t.Fatal(err)
 		}
-		bundleWrite(t, dir, "map.json", b)
-		args = append(args, "--appledouble-map", filepath.Join(dir, "map.json"))
+		defer held.Close()
+		before[name] = held
 	}
 	var afterRun func()
 	if tc.BeforeRun != nil {
 		afterRun = tc.BeforeRun(t, operand)
 	}
-	out, stderr, status := run(t, exe, append(args, operand)...)
+	out, stderr, status := run(t, exe, "--remove-signature", operand)
 	if afterRun != nil {
 		afterRun()
 	}
-	got := emptyInfoResult{Status: status, Output: strings.ReplaceAll(stderr, operand, "$BUNDLE"), Tree: hash(layoutArchive(t, operand)), Files: map[string]emptyInfoFile{}}
+	got := emptyInfoResult{Status: status, Output: strings.ReplaceAll(stderr, operand, "$BUNDLE"), Tree: hash(layoutArchive(t, operand)), Platform: platform, Files: map[string]emptyInfoFile{}}
 	if out != "" || got.Status != tc.Status || got.Output != tc.Output {
 		t.Fatalf("native discovery outcome differs: %d %q %q; want %d %q", status, out, stderr, tc.Status, tc.Output)
 	}
 	for name, want := range tc.Files {
 		path := filepath.Join(operand, name)
-		attrs := genericAttrs(t, path, metadata, manifest[name])
+		attrs := genericAttrsForPlatform(t, path, metadata, carriers[name], platform)
 		_, signature := attrs["com.apple.cs.CodeDirectory"]
 		if attrs["user.codesign-control"] != "756e6368616e676564" {
 			t.Fatal("unrelated metadata changed", name, attrs)
 		}
-		got.Files[name] = emptyInfoFile{hash(nativeRead(t, path)), os.SameFile(before[name], accessFileInfo(t, path)), signature}
+		identity, err := before[name].Stat()
+		if err != nil {
+			t.Fatal(err)
+		}
+		got.Files[name] = emptyInfoFile{hash(nativeRead(t, path)), os.SameFile(identity, accessFileInfo(t, path)), signature}
+		if platform == "linux" {
+			// user.com.apple.cs.* is unrelated metadata. Canonical signature
+			// selection is exercised on FAT and by the full library corpus replay.
+			want.Signature = true
+		}
 		if got.Files[name] != want {
 			t.Fatal("native file outcome differs", name, got.Files[name], want)
 		}
@@ -190,12 +210,11 @@ func emptyInfoName(tc emptyInfoCase) string {
 func TestRemovalEmptyInfo(t *testing.T) {
 	for _, tc := range emptyInfoCases(t) {
 		t.Run(tc.Shape+"/"+tc.State+"/"+tc.Location, func(t *testing.T) {
-			got := observeEmptyInfo(t, binaryPath, tc, true)
+			got := observeEmptyInfo(t, binaryPath, tc, runtime.GOOS)
 			if runtime.GOOS == "darwin" {
-				native := observeEmptyInfo(t, apple(t), tc, false)
-				local := observeEmptyInfo(t, binaryPath, tc, false)
-				if !reflect.DeepEqual(got, native) || !reflect.DeepEqual(local, native) {
-					t.Fatalf("native %#v; portable %#v; native metadata %#v", native, got, local)
+				native := observeEmptyInfo(t, apple(t), tc, runtime.GOOS)
+				if !reflect.DeepEqual(got, native) {
+					t.Fatalf("native %#v; Go %#v", native, got)
 				}
 			}
 			attest(t, got)
@@ -212,38 +231,5 @@ func TestRemovalEmptyInfo(t *testing.T) {
 
 func verifyImportedEmptyInfo(t *testing.T, dir, reference string) {
 	t.Helper()
-	expected := map[string]emptyInfoResult{}
-	for _, tc := range emptyInfoCases(t) {
-		expected[emptyInfoName(tc)] = observeEmptyInfo(t, reference, tc, false)
-	}
-	seen := map[string]int{}
-	if err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() || !strings.HasPrefix(d.Name(), "empty-info-") {
-			return nil
-		}
-		want, ok := expected[d.Name()]
-		if !ok {
-			t.Fatal("unexpected discovery artifact", path)
-		}
-		var got emptyInfoResult
-		if err := json.Unmarshal(nativeRead(t, path), &got); err != nil {
-			return err
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("%s: foreign %#v; native %#v", path, got, want)
-		}
-		seen[d.Name()]++
-		return nil
-	}); err != nil {
-		t.Fatal(err)
-	}
-	for name := range expected {
-		if seen[name] != 2 {
-			t.Fatal("expected both discovery producers", name, seen[name])
-		}
-	}
-	attest(t, map[string]any{"native_cases": len(expected), "per_case_producers": seen})
+	verifyImportedDiscoveryCases(t, dir, reference, emptyInfoCases(t), "empty-info-", emptyInfoName)
 }

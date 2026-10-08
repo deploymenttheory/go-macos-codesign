@@ -5926,8 +5926,8 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.17.3-0.20261007144907-6829b607475e",
-    "sum": "h1:FvRn5T2O2vgFS9r36qdHIoOffOipw8uhdBQhTx79o+0=",
+    "version": "v0.18.1-0.20261008142750-571c1dca84d8",
+    "sum": "h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
@@ -5943,7 +5943,7 @@
       },
       {
         "path": "pkg/hostdata/replacement.go",
-        "sha256": "57ef257d84793941400c66920c7123beb348ae4a3d87df67f94dee8c37325653",
+        "sha256": "f8c39b60aebcb7546713ffeccb7792d2da40f88ca0e8dfa7b294e5f0b520785d",
         "symbols": [
           "PrepareReplacement",
           "PrepareReplacementContext",
@@ -6009,21 +6009,21 @@
       },
       {
         "path": "pkg/hostdata/replacement_darwin.go",
-        "sha256": "478b97f4bd9d59c98fc31927b1fbfdba73e442cee99ccfdd430a739d5061c6d6",
+        "sha256": "893e4d9ebf4a7ef42e2c1ab0b70bb16c33b2c65f3cecfe3a27386400ee02827f",
         "symbols": [
           "prepareReplacementContext",
           "restoreReplacementMetadataContext"
         ],
-        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+        "decision": "Reuse fresh staging for compressed sources, target-state restoration and held-volume ACL capability checks. File creation time retains native setter precision. Codesign qualifies complete lifecycle and commit policy separately."
       },
       {
         "path": "pkg/hostdata/replacement_root_darwin.go",
-        "sha256": "e90f17dc5d7b51a7f5cf70b5211921652c9fd1ab9eebda50673ba7b1ac7c03c6",
+        "sha256": "7d337f77f4ab437eaadb2639f6d894705cd9c75e21afb0deef6490faed58a4c1",
         "symbols": [
           "prepareReplacementAtContext",
           "restoreReplacementMetadataAtContext"
         ],
-        "decision": "Merged PR198: fresh staging for compressed sources and restoration using the target compression state. Reuse the SDK implementation; native lifecycle comparison remains codesign policy evidence."
+        "decision": "Reuse rooted held-directory staging and volume capability checks. ACL clearing uses the typed held libSystem wrapper, with restoration only where the source filesystem supports ACLs. Native FAT/HFS+/APFS controls remain required."
       },
       {
         "path": "pkg/hostdata/replacement_stage_windows.go",
@@ -6048,6 +6048,53 @@
           "nativeCompressionPathXattr"
         ],
         "decision": "The native query uses existing typed x/sys no-follow libSystem xattr wrappers; no custom binding or deprecated direct syscall."
+      },
+      {
+        "path": "pkg/hostdata/filesystem_metadata.go",
+        "sha256": "77191746e73d622678d91299d92d289bac08dda32b50987ff27b606fa230a993",
+        "symbols": [
+          "OpenFilesystemMetadata",
+          "List",
+          "OpenValue",
+          "Read",
+          "Close"
+        ],
+        "decision": "Use held filesystem dispatch and resource-fork visibility. Filesystem-selected AppleDouble parsing follows native attribute admission; explicit lossless snapshots retain their separate library contract."
+      },
+      {
+        "path": "pkg/hostdata/filesystem_metadata_held.go",
+        "sha256": "684cbe4b90098b0f4fb0ec04d89486bfaf7643866e5c8b7affae656ab1aaaab5",
+        "symbols": [
+          "FilesystemMetadataForFile",
+          "Size",
+          "UsesAppleDouble"
+        ],
+        "decision": "Borrow the already-held code object, retain namespace identity, and bound reads without reopening the operand."
+      },
+      {
+        "path": "pkg/hostdata/filesystem_metadata_remove.go",
+        "sha256": "729d9d80e03ab83ef031a5d5bb449f6cd615771ee9bc1d7d70876ff907d95dba",
+        "symbols": [
+          "Remove"
+        ],
+        "decision": "Use native ordered, in-place filesystem attribute removal with preserved carrier layout, context cancellation and partial-effect semantics."
+      },
+      {
+        "path": "pkg/hostdata/filesystem_metadata_storage.go",
+        "sha256": "72f5c625904c1f0b186d65f21971c3220fd8b41d197710285534b5f96e87d5dd",
+        "symbols": [
+          "FilesystemUsesXattrFiles"
+        ],
+        "decision": "Use the held volume query for Apple attribute-file admission; filenames alone do not establish a metadata association."
+      },
+      {
+        "path": "pkg/appledouble/filesystem_remove.go",
+        "sha256": "fdc89ce1a7d8726a73697c233c2acb8f4582715066c1027151f2c3c86abcc273",
+        "symbols": [
+          "DecodeFilesystemStream",
+          "RemoveFilesystemAttribute"
+        ],
+        "decision": "Use the native filesystem profile, including rejection of zero-offset packed-empty ATTR entries. Do not change lossless DecodeStream acceptance to mimic VFS admission."
       }
     ],
     "prerequisite_findings": [

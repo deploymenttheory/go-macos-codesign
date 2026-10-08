@@ -99,7 +99,7 @@ func boolInt(b bool) int {
 
 func TestErrorsNeverBecomeAbsence(t *testing.T) {
 	names := []string{appledouble.ResourceForkName, appledouble.FinderInfoName}
-	for _, platform := range []string{"darwin", "linux", "windows"} {
+	for _, platform := range []string{"darwin", "linux", "windows", "appledouble"} {
 		for _, failure := range []error{syscall.EPERM, syscall.EACCES, syscall.EIO, hostdata.ErrXattrUnsupported, hostdata.ErrXattrChanged} {
 			for _, failedName := range names {
 				t.Run(platform+"/"+failure.Error()+"/"+failedName, func(t *testing.T) {
@@ -109,7 +109,7 @@ func TestErrorsNeverBecomeAbsence(t *testing.T) {
 						}
 						return 4, true, nil
 					}, carrier(t, appledouble.File{}))
-					if platform == "darwin" && errors.Is(failure, syscall.EPERM) {
+					if (platform == "darwin" || platform == "appledouble") && errors.Is(failure, syscall.EPERM) {
 						want := Attributes{ResourceFork: failedName != names[0], FinderInfo: failedName != names[1]}
 						if err != nil || got != want {
 							t.Fatal(got, err)

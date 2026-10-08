@@ -39,7 +39,8 @@ executable preservation and 30 envelope comparisons on each of mounted APFS and
 HFS+ volumes. These 138 additional leaf cases pass locally on macOS 27.0.1;
 the exact test manifest requires all of them in Darwin CI. The pathname query
 comes from merged [APFS #212](https://github.com/deploymenttheory/go-apfs-v2/pull/212),
-consumed at `6829b607475e82f8ececc42775f212278da7b9c0`. Both compression volume profiles have genuine dependency-sensitive recaptures;
+included in the current APFS pin `571c1dca84d82630c6582a9ae495afe2146a3759`.
+Both compression volume profiles have genuine dependency-sensitive recaptures;
 all 32 retained observations are unchanged. Their independent C `fstatfs`
 observations and two-target ASTs select the applicable mount policy before
 comparison. Original build-specific captures remain immutable historical evidence.

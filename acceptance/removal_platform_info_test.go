@@ -85,12 +85,11 @@ func checkRemovalPlistCases(t *testing.T, cases []emptyInfoCase, prefix string) 
 	t.Helper()
 	for _, tc := range cases {
 		t.Run(tc.Shape+"/"+tc.State, func(t *testing.T) {
-			got := observeEmptyInfo(t, binaryPath, tc, true)
+			got := observeEmptyInfo(t, binaryPath, tc, runtime.GOOS)
 			if runtime.GOOS == "darwin" {
-				native := observeEmptyInfo(t, apple(t), tc, false)
-				local := observeEmptyInfo(t, binaryPath, tc, false)
-				if !reflect.DeepEqual(got, native) || !reflect.DeepEqual(local, native) {
-					t.Fatalf("native %#v; portable %#v; native metadata %#v", native, got, local)
+				native := observeEmptyInfo(t, apple(t), tc, runtime.GOOS)
+				if !reflect.DeepEqual(got, native) {
+					t.Fatalf("native %#v; Go %#v", native, got)
 				}
 			}
 			attest(t, got)
@@ -111,11 +110,20 @@ func verifyImportedPlatformInfo(t *testing.T, dir, reference string) {
 
 func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []emptyInfoCase, prefix string) {
 	t.Helper()
-	expected := map[string]emptyInfoResult{}
+	verifyImportedDiscoveryCases(t, dir, reference, cases, prefix, func(tc emptyInfoCase) string { return removalPlistName(prefix, tc) })
+}
+
+func verifyImportedDiscoveryCases(t *testing.T, dir, reference string, cases []emptyInfoCase, prefix string, name func(emptyInfoCase) string) {
+	t.Helper()
+	expected := map[string]map[string]emptyInfoResult{}
 	for _, tc := range cases {
-		expected[removalPlistName(prefix, tc)] = observeEmptyInfo(t, reference, tc, false)
+		profiles := map[string]emptyInfoResult{}
+		for _, platform := range []string{"linux", "windows"} {
+			profiles[platform] = observeEmptyInfo(t, reference, tc, platform)
+		}
+		expected[name(tc)] = profiles
 	}
-	seen := map[string]int{}
+	seen := map[string]map[string]bool{}
 	if err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -123,7 +131,7 @@ func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []empty
 		if d.IsDir() || !strings.HasPrefix(d.Name(), prefix) {
 			return nil
 		}
-		want, ok := expected[d.Name()]
+		profiles, ok := expected[d.Name()]
 		if !ok {
 			t.Fatal("unexpected platform selection artifact", path)
 		}
@@ -131,16 +139,23 @@ func verifyImportedPlistCases(t *testing.T, dir, reference string, cases []empty
 		if err := json.Unmarshal(nativeRead(t, path), &got); err != nil {
 			return err
 		}
+		want, ok := profiles[got.Platform]
+		if !ok || seen[d.Name()][got.Platform] {
+			t.Fatal("unknown or duplicate discovery producer", path, got.Platform)
+		}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("%s: foreign %#v; native %#v", path, got, want)
 		}
-		seen[d.Name()]++
+		if seen[d.Name()] == nil {
+			seen[d.Name()] = map[string]bool{}
+		}
+		seen[d.Name()][got.Platform] = true
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
 	for name := range expected {
-		if seen[name] != 2 {
+		if !seen[name]["linux"] || !seen[name]["windows"] {
 			t.Fatal("expected both platform selection producers", name, seen[name])
 		}
 	}

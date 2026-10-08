@@ -10,7 +10,6 @@ This is a bounded implementation, not full `codesign --strict` equivalence.
 macoscodesign --verify --strict=symlinks --deep Example.app
 macoscodesign --verify --no-strict executable
 macoscodesign --verify --strict=sideband executable
-macoscodesign --verify --strict=all --appledouble metadata.appledouble executable
 ```
 
 ## Selectors and API
@@ -38,7 +37,7 @@ parity. No unsupported policy silently falls back to ordinary verification.
 Library callers use `VerifyOptions.StrictSymlinks`, `VerifyOptions.StrictSideband`
 and `VerifyOptions.NoStrict`. Optional `VerifyOptions.AppleDouble` adds an explicit
 carrier for one standalone operand; `AppleDoubleFiles` binds snapshots to bundle
-members. The CLI uses `--appledouble-map FILE` for those bindings. See [sideband policy](sideband-policy.md) for
+members. These are library inputs; CLI operations use filesystem-selected metadata. See [sideband policy](sideband-policy.md) for
 held-object lifetime, format-specific behavior and first-error ordering.
 Zero-value options now reject additional malformed layouts that previously passed
 cryptographic checks. `NoStrict` is the explicit compatibility escape for those
