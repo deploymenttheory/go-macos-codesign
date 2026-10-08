@@ -136,6 +136,8 @@
     "TestNativeNestedAppFixtures": 2,
     "TestNativeNestedFixtures": 2,
     "TestNativeNestedSealRequirements": 0,
+    "TestNativeSigningProfileResourceOrder": 3,
+    "TestNativeSigningProfiles": 3,
     "TestNestedAppLifecycle": 1,
     "TestNestedAppMutationParity": 2,
     "TestNestedMutationParity": 3,
@@ -815,6 +817,14 @@
           "cases": 3,
           "sha256": "a76b6d8928d4a2169492832d3c6cc5decce8257c51885ba7e1b5beae36ddcb5e"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfileResourceOrder": {
+          "cases": 15,
+          "sha256": "420596ae5ee7a62684c9ea31ade81a103576bd429a5e2350e6c9f42700fa2076"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfiles": {
+          "cases": 97,
+          "sha256": "cde796999a593b51a8c77baeff4065685db0a6a037e602c059f598c2671b8de5"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNestedAppLifecycle": {
           "cases": 3,
           "sha256": "3dd04c436c74872720ea88d6984d1382104445bd58d96f267116dfba1eb4e9af"
@@ -1277,8 +1287,8 @@
         }
       },
       "attestations": {
-        "count": 21027,
-        "sha256": "70c078a36e9a5d60697965fd31f3bc636b8123af9b3e181e867cbe5dd69844e1"
+        "count": 21135,
+        "sha256": "873b894bcd096caf659acc36a53fb795cd4ed9fb4a54e9f1440f5eb5d594242f"
       },
       "baseline_logs": {
         "acceptance.jsonl": "471156684f6b15e8c46facde4453181764f42fe5e98352568f48bf961fde1d92",
@@ -1367,6 +1377,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
           "sha256": "6cd46a9ed059388c118398d6bdc07d024056228d2f1d98fcc8da36baa7f0cc13"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestSigningHostProfile": {
+          "cases": 4,
+          "sha256": "d7c995f97f5ed462464f4a874deaa86ac444b6404f89868cb5ae561544f9f1f1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestStrictSelectors": {
           "cases": 20,
@@ -2676,6 +2690,14 @@
           "cases": 1,
           "sha256": "5f0fae28b54ac3c1440567d2f4bfdb6dcaa3d0a918a3ffe27f24d4537ba6e35b"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfileNativeArchives": {
+          "cases": 11,
+          "sha256": "b557689ca552bc63ffc0a4b5f3cf35b5f780911cb1db672eb79608a749d89c81"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfiles": {
+          "cases": 5,
+          "sha256": "e2442e21de279396c0f6aff340adba82ed9d1b5651cd3210f24f6e35d2fff2f7"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningResourceAcquisition": {
           "cases": 1,
           "sha256": "38ffee695354c2c8c48ff7e32e47cb08586671dea290e0f20f270710b0fc9d43"
@@ -3440,6 +3462,14 @@
           "cases": 3,
           "sha256": "28e3ff89119bbd7f082359848dea535327131b0e479eb48289f8040b64b49c1f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfileResourceOrder": {
+          "cases": 1,
+          "sha256": "e3de57d5ac5d0a2a8cebea45708b8750c181a22d8b7cf3b0896180f5a67b0869"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfiles": {
+          "cases": 1,
+          "sha256": "0c9e27752ee7bb61b7989cbeef4fe54ae1fd554dbd6f800154e47d7f84ebb22a"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNestedAppLifecycle": {
           "cases": 3,
           "sha256": "105b6552065f9ebaad41abc748d8ffdfe262480c0a590887154c5415d1ca391d"
@@ -3948,6 +3978,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
           "sha256": "6cd46a9ed059388c118398d6bdc07d024056228d2f1d98fcc8da36baa7f0cc13"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestSigningHostProfile": {
+          "cases": 4,
+          "sha256": "d7c995f97f5ed462464f4a874deaa86ac444b6404f89868cb5ae561544f9f1f1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestStrictSelectors": {
           "cases": 20,
@@ -5225,6 +5259,14 @@
           "cases": 1,
           "sha256": "5f0fae28b54ac3c1440567d2f4bfdb6dcaa3d0a918a3ffe27f24d4537ba6e35b"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfileNativeArchives": {
+          "cases": 11,
+          "sha256": "b557689ca552bc63ffc0a4b5f3cf35b5f780911cb1db672eb79608a749d89c81"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfiles": {
+          "cases": 5,
+          "sha256": "e2442e21de279396c0f6aff340adba82ed9d1b5651cd3210f24f6e35d2fff2f7"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningResourceAcquisition": {
           "cases": 1,
           "sha256": "38ffee695354c2c8c48ff7e32e47cb08586671dea290e0f20f270710b0fc9d43"
@@ -5985,6 +6027,14 @@
           "cases": 3,
           "sha256": "28e3ff89119bbd7f082359848dea535327131b0e479eb48289f8040b64b49c1f"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfileResourceOrder": {
+          "cases": 1,
+          "sha256": "e3de57d5ac5d0a2a8cebea45708b8750c181a22d8b7cf3b0896180f5a67b0869"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNativeSigningProfiles": {
+          "cases": 1,
+          "sha256": "0c9e27752ee7bb61b7989cbeef4fe54ae1fd554dbd6f800154e47d7f84ebb22a"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestNestedAppLifecycle": {
           "cases": 3,
           "sha256": "105b6552065f9ebaad41abc748d8ffdfe262480c0a590887154c5415d1ca391d"
@@ -6493,6 +6543,10 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestRequirementWriterFailure": {
           "cases": 1,
           "sha256": "6cd46a9ed059388c118398d6bdc07d024056228d2f1d98fcc8da36baa7f0cc13"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestSigningHostProfile": {
+          "cases": 4,
+          "sha256": "d7c995f97f5ed462464f4a874deaa86ac444b6404f89868cb5ae561544f9f1f1"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestStrictSelectors": {
           "cases": 20,
@@ -7777,6 +7831,14 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningPreconditions": {
           "cases": 1,
           "sha256": "5f0fae28b54ac3c1440567d2f4bfdb6dcaa3d0a918a3ffe27f24d4537ba6e35b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfileNativeArchives": {
+          "cases": 11,
+          "sha256": "b557689ca552bc63ffc0a4b5f3cf35b5f780911cb1db672eb79608a749d89c81"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningProfiles": {
+          "cases": 5,
+          "sha256": "e2442e21de279396c0f6aff340adba82ed9d1b5651cd3210f24f6e35d2fff2f7"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestSigningResourceAcquisition": {
           "cases": 1,

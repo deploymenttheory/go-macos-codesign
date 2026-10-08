@@ -137,3 +137,21 @@ Real FAT/exFAT volume creation and cleanup must be qualified on all three CI
 hosts. No private test selector or direct library call may stand in for CLI
 filesystem acceptance. Broader APFS creation/assignment, authorization and
 association requirements remain in the Phase 2 completion ledger.
+
+### Versioned signing results
+
+The native CLI uses APFS `osversion.Detect` to select macOS 15, 26 or 27 signing
+behavior. Linux and Windows use the macOS 27 reference default. Library callers
+can set `SignOptions.MacOSProfile` on any host; zero retains the macOS 27 default.
+No additional CLI option or environment override is introduced. Unknown native
+macOS major versions are rejected rather than silently assigned another profile.
+
+The qualified differences are ad-hoc CMS space reservation (15/26), default
+ARM64 signing pages (4 KiB on 15, 16 KiB on 26/27), and resource-preflight error
+propagation. This is not complete per-version signing parity. Retained native
+archives, source provenance and SDK ASTs are in
+[`testdata/filesystem-metadata/profiles`](../testdata/filesystem-metadata/profiles/README.md).
+All hosts replay the native signature bytes. The existing macOS 15/26 jobs and
+macOS 27 suite additionally require live allocation-alignment comparisons and
+repeated default/serial resource-error probes. These add assertions without
+relaxing the existing whole-bundle comparisons or foreign readback requirements.

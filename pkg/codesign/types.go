@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/deploymenttheory/go-apfs-v2/pkg/appledouble"
+	"github.com/deploymenttheory/go-apfs-v2/pkg/osversion"
 )
 
 var (
@@ -53,6 +54,10 @@ type RemoveOptions struct {
 
 // SignOptions controls the signed representation. A nil Identity requests ad-hoc signing.
 type SignOptions struct {
+	// MacOSProfile selects versioned signing behavior on every host. Zero uses
+	// the macOS 27 reference. This covers signature reservation, default signing
+	// page size and resource preflight ordering, not complete OS compatibility.
+	MacOSProfile osversion.MacOSProfile
 	// BundleVersion has the same meaning as PathOptions.BundleVersion.
 	BundleVersion string
 	// PreserveAFSC requests recompression after replacing a compressed file.

@@ -444,6 +444,9 @@ func (b *appBundle) scanTree(ctx context.Context, scope *bundleScan, depth int, 
 		b.observeSideband(name, f)
 		if b.signing != nil && include2 {
 			if err := b.signingFile(ctx, f, filepath.Join(b.sidebandBase, filepath.FromSlash(name)), true); err != nil {
+				if b.signing.legacySigningProfile() {
+					return &signingMetadataError{err}
+				}
 				if b.signingFailure == nil {
 					b.signingFailure = err
 				}

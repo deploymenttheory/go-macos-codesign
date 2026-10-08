@@ -568,7 +568,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/filesystem-metadata
-          go test -count=1 -json ./acceptance -run '^Test(FilesystemMetadata|NativeFilesystemIgnores)' | tee artifacts/filesystem-metadata/tests.jsonl
+          go test -count=1 -json ./acceptance -run '^Test(FilesystemMetadata|NativeFilesystemIgnores|NativeSigningProfile)' | tee artifacts/filesystem-metadata/tests.jsonl
       - name: Retain native seeds, source binding, ASTs and before/after observations
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

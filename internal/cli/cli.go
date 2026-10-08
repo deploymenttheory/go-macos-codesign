@@ -16,6 +16,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/deploymenttheory/go-apfs-v2/pkg/osversion"
 	"github.com/deploymenttheory/go-macos-codesign/pkg/codesign"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -432,6 +433,14 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		return 1
 	}
 	signOpts := codesign.SignOptions{BundleVersion: o.bundleVersion, Identifier: o.identifier, Force: o.force, Deep: o.deep, DryRun: o.dryrun, Flags: o.flags, PageSize: o.pageSize, ForceLibraryEntitlements: o.forceLibrary, RuntimeVersion: o.runtimeVersion}
+	if o.operation == "sign" {
+		profile, err := signingHostProfile(ctx, osversion.Detect)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		signOpts.MacOSProfile = profile
+	}
 	signOpts.PreserveAFSC = o.preserveAFSC
 	signOpts.NoStrict, signOpts.StripDisallowedXattrs = o.noStrict, o.stripDisallowed
 	if (o.keyFile != "" || o.passwordFile != "") && (o.operation != "sign" || o.identity == "-") || (o.trustFile != "" || o.trustRootFile != "") && o.operation != "verify" || o.passwordFile != "" && o.keyFile != "" {
@@ -685,6 +694,19 @@ func execute(ctx context.Context, o options, stdout, stderr io.Writer) int {
 		}
 	}
 	return status
+}
+
+// Native CLI defaults follow the host's codesign version. Foreign hosts use
+// the project's macOS 27 reference; explicit profiles remain a portable API.
+func signingHostProfile(ctx context.Context, detect func(context.Context) (osversion.Version, error)) (osversion.MacOSProfile, error) {
+	version, err := detect(ctx)
+	if errors.Is(err, errors.ErrUnsupported) {
+		return osversion.MacOS27, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return osversion.ProfileForMacOS(version)
 }
 
 func parseVersion(s string) (uint32, error) {
