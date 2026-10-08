@@ -292,6 +292,11 @@ a testing requirement. Detailed completed evidence belongs in focused guides and
 
 ### Streaming, accounting and lifecycle
 
+The [allocation and limit audit](phase2-allocation-audit.md) identifies the live
+whole-value consumers, policy ceilings, owned API contracts and accounting
+dependencies that this work must replace or qualify. CMS envelope-copy reductions
+and a range walker alone do not close these consumers.
+
 - Complete checked range parsing and output plans for remaining metadata,
   strings and indexes. Remove the separate 16 MiB CMS message ceiling through
   bounded BER/DER parsing and streamed authenticated ranges, not a larger constant.
