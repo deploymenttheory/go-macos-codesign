@@ -13,21 +13,31 @@ type cmsDirectoryBinding struct {
 	primary []byte
 }
 
-func (s *Signature) verifyCMS(cms []byte) (*CMSInfo, error) {
+func (s *Signature) verifyCMS() (*CMSInfo, error) {
 	if s.view == nil {
+		cms, err := s.componentBytes(SlotCMS)
+		if err != nil || len(cms) <= 8 {
+			return nil, err
+		}
 		directories := [][]byte{s.find(SlotDirectory)}
 		for slot := uint32(0x1000); slot < 0x1005; slot++ {
 			if cd := s.find(slot); cd != nil {
 				directories = append(directories, cd)
 			}
 		}
-		return VerifyCMS(cms, directories)
+		return VerifyCMS(cms[8:], directories)
 	}
+	source, found, err := s.view.component(SlotCMS)
+	if err != nil || !found || source.source.size <= 8 {
+		return nil, err
+	}
+	source.source.offset += 8
+	source.source.size -= 8
 	bound, err := s.view.cmsBinding()
 	if err != nil {
 		return nil, err
 	}
-	return verifyCMSBound(cms, bound)
+	return verifyCMSSourceBound(source, bound)
 }
 
 func (v *signatureView) cmsBinding() (cmsDirectoryBinding, error) {

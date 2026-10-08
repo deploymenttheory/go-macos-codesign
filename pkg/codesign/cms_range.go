@@ -94,3 +94,59 @@ func readCMSBERRange(source codeSource, at, end uint64, depth int, budget *int) 
 	value.contentSize, value.length = length, value.content-at+length
 	return value, nil
 }
+
+func cmsBERChildRanges(source codeSource, at, length uint64, tag byte, budget *int) ([]cmsBERRange, error) {
+	if source.source.size < 0 || !rangeOK(at, length, uint64(source.source.size)) {
+		return nil, malformed("CMS BER container range")
+	}
+	v, err := readCMSBERRange(source, at, at+length, 0, budget)
+	if err != nil {
+		return nil, err
+	}
+	if v.tag != tag || v.length != length {
+		return nil, malformed("CMS BER container")
+	}
+	var children []cmsBERRange
+	end := v.content + v.contentSize
+	for next := v.content; next < end; {
+		child, err := readCMSBERRange(source, next, end, 0, budget)
+		if err != nil {
+			return nil, err
+		}
+		children = append(children, child)
+		next += child.length
+	}
+	return children, nil
+}
+
+// Locate fields in the held component without reading definite-length payloads.
+// The message ceiling remains until individual certificate and signer fields
+// also have bounded decoders; locating them alone does not remove that limit.
+func cmsEnvelopeRanges(source codeSource) (cmsBERRange, []cmsBERRange, error) {
+	if source.source.size > 16<<20 {
+		return cmsBERRange{}, nil, malformed("CMS size limit")
+	}
+	budget := 4096
+	outer, err := cmsBERChildRanges(source, 0, uint64(source.source.size), 0x30, &budget)
+	if err != nil {
+		return cmsBERRange{}, nil, err
+	}
+	if len(outer) != 2 {
+		return cmsBERRange{}, nil, malformed("CMS ContentInfo fields")
+	}
+	wrapped, err := cmsBERChildRanges(source, outer[1].offset, outer[1].length, 0xa0, &budget)
+	if err != nil {
+		return cmsBERRange{}, nil, err
+	}
+	if len(wrapped) != 1 {
+		return cmsBERRange{}, nil, malformed("CMS explicit content")
+	}
+	fields, err := cmsBERChildRanges(source, wrapped[0].offset, wrapped[0].length, 0x30, &budget)
+	if err != nil {
+		return cmsBERRange{}, nil, err
+	}
+	if len(fields) < 4 || len(fields) > 6 || fields[2].tag != 0x30 {
+		return cmsBERRange{}, nil, malformed("CMS SignedData fields")
+	}
+	return outer[0], fields, nil
+}

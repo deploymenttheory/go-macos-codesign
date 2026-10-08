@@ -44,32 +44,15 @@ func cmsBERChildren(data []byte, tag byte, budget *int) ([]cmsBERValue, error) {
 // cmsEnvelopeFields borrows the original field encodings. Verification must not
 // rebuild the complete message just to remove its four BER container headers.
 func cmsEnvelopeFields(data []byte) ([]byte, []cmsBERValue, error) {
-	if len(data) > 16<<20 {
-		return nil, nil, malformed("CMS size limit")
-	}
-	budget := 4096
-	outer, err := cmsBERChildren(data, 0x30, &budget)
+	oid, ranges, err := cmsEnvelopeRanges(codeSource{context.Background(), byteOutput(data)})
 	if err != nil {
 		return nil, nil, err
 	}
-	if len(outer) != 2 {
-		return nil, nil, malformed("CMS ContentInfo fields")
+	fields := make([]cmsBERValue, len(ranges))
+	for i, field := range ranges {
+		fields[i] = cmsBERValue{field.tag, data[field.offset : field.offset+field.length], data[field.content : field.content+field.contentSize]}
 	}
-	wrapped, err := cmsBERChildren(outer[1].raw, 0xa0, &budget)
-	if err != nil {
-		return nil, nil, err
-	}
-	if len(wrapped) != 1 {
-		return nil, nil, malformed("CMS explicit content")
-	}
-	fields, err := cmsBERChildren(wrapped[0].raw, 0x30, &budget)
-	if err != nil {
-		return nil, nil, err
-	}
-	if len(fields) < 4 || len(fields) > 6 || fields[2].tag != 0x30 {
-		return nil, nil, malformed("CMS SignedData fields")
-	}
-	return outer[0].raw, fields, nil
+	return data[oid.offset : oid.offset+oid.length], fields, nil
 }
 
 // Encoding a new timestamped message still needs owned DER envelope bytes.
