@@ -260,6 +260,51 @@
   three native fixtures, two complete Apple methods in the Clang AST record,
   and eighteen additional Linux/Windows trees for native CI verification.
 
+## [0.5.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.4.0...v0.5.0) (2026-10-08)
+
+
+### Features
+
+* add bounded cancellable operation I/O ([#99](https://github.com/deploymenttheory/go-macos-codesign/issues/99)) ([c3373fa](https://github.com/deploymenttheory/go-macos-codesign/commit/c3373fafa0314c38119b7ecb9fe4959d3a067488))
+* add bounded ignore-resources verification ([#68](https://github.com/deploymenttheory/go-macos-codesign/issues/68)) ([78825e4](https://github.com/deploymenttheory/go-macos-codesign/commit/78825e4ac1efb579ca8752e73e68a58505094fcf))
+* add cancellable incremental signature hashing ([#100](https://github.com/deploymenttheory/go-macos-codesign/issues/100)) ([ca06d02](https://github.com/deploymenttheory/go-macos-codesign/commit/ca06d02a3d66ace8c40f2a8a479c6467a7f15b9d))
+* add portable sideband metadata inspection ([#71](https://github.com/deploymenttheory/go-macos-codesign/issues/71)) ([ea4edf3](https://github.com/deploymenttheory/go-macos-codesign/commit/ea4edf32218c4504cbd76f4078fbd428b20a55b2))
+* add strict verification policies for layouts and resource links ([#66](https://github.com/deploymenttheory/go-macos-codesign/issues/66)) ([eed319d](https://github.com/deploymenttheory/go-macos-codesign/commit/eed319dce8c402f5740ea73887032f7220361116))
+* extend phase 2 streaming and compressed-file signing ([#105](https://github.com/deploymenttheory/go-macos-codesign/issues/105)) ([74c4845](https://github.com/deploymenttheory/go-macos-codesign/commit/74c4845368afe45e1ef9eaca724484e39cfde3d0))
+* extend Phase 2 streaming and compression lifecycle ([#106](https://github.com/deploymenttheory/go-macos-codesign/issues/106)) ([b9055a2](https://github.com/deploymenttheory/go-macos-codesign/commit/b9055a2797dcc6217c268b1a56e91120fbbb72a9))
+* implement signing sideband preflight and stripping ([#74](https://github.com/deploymenttheory/go-macos-codesign/issues/74)) ([96b06a8](https://github.com/deploymenttheory/go-macos-codesign/commit/96b06a8af1680a8d0624475060137314b823f1c0))
+* interpret BOM-marked UTF-16 plists during removal ([#85](https://github.com/deploymenttheory/go-macos-codesign/issues/85)) ([b5575bc](https://github.com/deploymenttheory/go-macos-codesign/commit/b5575bc3402a2628d7791f544147102116ccd393))
+* interpret BOM-marked UTF-32 plists during removal ([#86](https://github.com/deploymenttheory/go-macos-codesign/issues/86)) ([db5a89a](https://github.com/deploymenttheory/go-macos-codesign/commit/db5a89a67f9f35d2f6d58588f648895b2dea0882))
+* interpret bundle plists for native removal discovery ([#84](https://github.com/deploymenttheory/go-macos-codesign/issues/84)) ([905b687](https://github.com/deploymenttheory/go-macos-codesign/commit/905b6874d5f0c5eb883c953868c4397ceec891dd))
+* interpret native declared legacy plist encodings ([#90](https://github.com/deploymenttheory/go-macos-codesign/issues/90)) ([188ed3a](https://github.com/deploymenttheory/go-macos-codesign/commit/188ed3a4a1602710958c6e0d34872bc0be250b4f))
+* interpret native EUC-JP plist streams ([#92](https://github.com/deploymenttheory/go-macos-codesign/issues/92)) ([69ef71f](https://github.com/deploymenttheory/go-macos-codesign/commit/69ef71fc485a4df761cf8177f788f085299912f3))
+* interpret native ISO-2022 extension plists ([#94](https://github.com/deploymenttheory/go-macos-codesign/issues/94)) ([3046fce](https://github.com/deploymenttheory/go-macos-codesign/commit/3046fce37ee1fa97a3cd0eb826006eaad0aceb05))
+* interpret native Shift-JIS plist streams ([#91](https://github.com/deploymenttheory/go-macos-codesign/issues/91)) ([8b0830a](https://github.com/deploymenttheory/go-macos-codesign/commit/8b0830a43727cd44f24c2f93ca711a78224a6129))
+* match native ISO-2022-JP plist interpretation ([#93](https://github.com/deploymenttheory/go-macos-codesign/issues/93)) ([759a00c](https://github.com/deploymenttheory/go-macos-codesign/commit/759a00cd6a80809cb92722da2edcd17f6fcee21b))
+* match unmarked plist interpretation during removal ([#88](https://github.com/deploymenttheory/go-macos-codesign/issues/88)) ([c77e62b](https://github.com/deploymenttheory/go-macos-codesign/commit/c77e62b723be6bdf16de3e9f05f39aa514dd2cd7))
+* preserve native XML strings during signature removal ([#87](https://github.com/deploymenttheory/go-macos-codesign/issues/87)) ([f65572d](https://github.com/deploymenttheory/go-macos-codesign/commit/f65572d61b9d9459c6c83a31c1478710d1a280cb))
+* remove bundle signatures through Info.plist fallback ([#79](https://github.com/deploymenttheory/go-macos-codesign/issues/79)) ([d436fdd](https://github.com/deploymenttheory/go-macos-codesign/commit/d436fdd5ba6126b516af9fba870144b8c4186bd4))
+* remove bundle signatures with absent or empty metadata ([#80](https://github.com/deploymenttheory/go-macos-codesign/issues/80)) ([a7d1d16](https://github.com/deploymenttheory/go-macos-codesign/commit/a7d1d16f4774a3089f3331602fbddd17edb15d6f))
+* remove generic attached signatures across platforms ([#78](https://github.com/deploymenttheory/go-macos-codesign/issues/78)) ([3f8ea68](https://github.com/deploymenttheory/go-macos-codesign/commit/3f8ea6880b13fc5eb5a86ad54b7aca97dbca89db))
+* select macOS platform metadata for bundle removal ([#83](https://github.com/deploymenttheory/go-macos-codesign/issues/83)) ([e5aaee2](https://github.com/deploymenttheory/go-macos-codesign/commit/e5aaee2c3dfb8530ba08c7fd129735e83ee216a5))
+* stream bundle executables and large resources ([#104](https://github.com/deploymenttheory/go-macos-codesign/issues/104)) ([c94ba6a](https://github.com/deploymenttheory/go-macos-codesign/commit/c94ba6aa78149adc6050cae92b3f93f938fdb8ca))
+* stream disk-image signing from held files ([#102](https://github.com/deploymenttheory/go-macos-codesign/issues/102)) ([338c901](https://github.com/deploymenttheory/go-macos-codesign/commit/338c901c368a44032a132c4c85a201be3ba3a76f))
+* stream standalone inspection and verification ([#101](https://github.com/deploymenttheory/go-macos-codesign/issues/101)) ([8c7b47a](https://github.com/deploymenttheory/go-macos-codesign/commit/8c7b47abf5e695c9521957fa4830f2cceb5342f4))
+* stream standalone Mach-O signing and removal ([#103](https://github.com/deploymenttheory/go-macos-codesign/issues/103)) ([bfa7c2c](https://github.com/deploymenttheory/go-macos-codesign/commit/bfa7c2c183c3fbef1c74a87b2dc1315f54167514))
+* use filesystem-selected metadata for codesign operations ([#107](https://github.com/deploymenttheory/go-macos-codesign/issues/107)) ([c2cf7d6](https://github.com/deploymenttheory/go-macos-codesign/commit/c2cf7d6d91038fd35adbdfea966fba66fa4fd244))
+* verify standalone sideband metadata across platforms ([#72](https://github.com/deploymenttheory/go-macos-codesign/issues/72)) ([ba6ecf7](https://github.com/deploymenttheory/go-macos-codesign/commit/ba6ecf783d4cd31d5a5d2bed318c8c9ef3bb5401))
+* verify strict bundle sideband metadata across platforms ([#73](https://github.com/deploymenttheory/go-macos-codesign/issues/73)) ([5cfffbe](https://github.com/deploymenttheory/go-macos-codesign/commit/5cfffbe8082e9be1f7b7e8abd074e971bbd751e8))
+
+
+### Bug Fixes
+
+* enable HFS+ replacement with APFS v0.17.1 ([#98](https://github.com/deploymenttheory/go-macos-codesign/issues/98)) ([41da4e5](https://github.com/deploymenttheory/go-macos-codesign/commit/41da4e52b4bd588781c689e06e5146a35637d2d0))
+* isolate signature removal from unrelated resources ([#77](https://github.com/deploymenttheory/go-macos-codesign/issues/77)) ([a5633fe](https://github.com/deploymenttheory/go-macos-codesign/commit/a5633fef987dac89e719749963ca625a982aa17c))
+* preserve native signing order and reduce CMS allocations ([#108](https://github.com/deploymenttheory/go-macos-codesign/issues/108)) ([e8d8c04](https://github.com/deploymenttheory/go-macos-codesign/commit/e8d8c04fb5cb9f74d9f63df849a921368e1b3a77))
+* qualify signing permissions with APFS v0.15.1 ([#75](https://github.com/deploymenttheory/go-macos-codesign/issues/75)) ([87d0a73](https://github.com/deploymenttheory/go-macos-codesign/commit/87d0a73ea4b04e7e1dfc778edeb1c9134d128590))
+* restore executable security after timestamp writes ([#76](https://github.com/deploymenttheory/go-macos-codesign/issues/76)) ([c5a245c](https://github.com/deploymenttheory/go-macos-codesign/commit/c5a245ca38f2ee59e320c2005392608af6cfe33c))
+* use shared APFS readers for resource and replacement access ([#81](https://github.com/deploymenttheory/go-macos-codesign/issues/81)) ([0701a24](https://github.com/deploymenttheory/go-macos-codesign/commit/0701a24555d1e7cae7536260b25ae48a090c9657))
+
 ## [0.4.0](https://github.com/deploymenttheory/go-macos-codesign/compare/v0.3.0...v0.4.0) (2026-09-27)
 
 
