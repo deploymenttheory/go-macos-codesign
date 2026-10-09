@@ -190,15 +190,18 @@ AppleDouble-backed metadata is transparent below the CLI wherever Apple's
 filesystem contract selects it. No new metadata, transport, source-context or
 version flags/configuration requirements may substitute for this integration.
 
-The integration consumes merged APFS main at `571c1dca84d8`, including held
-metadata removal, volume-aware replacement, attribute-file storage queries and
-the native rejection of packed zero-offset empty attribute entries.
+The integration includes merged APFS changes through `5c7222ef9172` and pins
+`9ab5cf856eb5` from draft [APFS #222](https://github.com/deploymenttheory/go-apfs-v2/pull/222).
+The prerequisite prepares fresh native filesystem metadata and publishes paired
+data/carrier replacements on foreign FAT/exFAT volumes. Its macOS 15/26/27 capture,
+Linux/Windows replay and complete CI must pass before dependency qualification
+can close; the draft commit is not a merged-main completion claim.
 Its exact pin and qualified local cases are recorded in the
 [filesystem migration guide](filesystem-metadata-migration.md). Final dependency
 selection and all-host qualification remain closure prerequisites.
 The foreign FAT resource-signing cases additionally require
 [APFS #220](https://github.com/deploymenttheory/go-apfs-v2/pull/220), which retains
-native `EPERM` for attribute-file targets. That merged fix is now pinned; its
+native `EPERM` for attribute-file targets. That merged fix remains included; its
 unchanged consumer cases must pass before closing P02-FS qualification.
 
 The next storage work must finish certificate and authenticated-attribute range

@@ -5926,12 +5926,12 @@
   ],
   "apfs_audit": {
     "module": "github.com/deploymenttheory/go-apfs-v2",
-    "version": "v0.18.1-0.20261008142750-571c1dca84d8",
-    "sum": "h1:WE4KcUl7w7xJ677G7GghZEldgYJlohzeSWtj7qRU2qc=",
+    "version": "v0.18.1-0.20261009082026-9ab5cf856eb5",
+    "sum": "h1:doTKxhFMb0iXAXJ1Hrw4zvIE66ei7FhtvdiSl2vHnYk=",
     "apis": [
       {
         "path": "pkg/hostdata/replacement_root.go",
-        "sha256": "61767be6a02c27f7990ba6b2db9ba4fb7cd0810a24b0a9cabebf8f13ff30ffab",
+        "sha256": "daf4c5a385bd88b9bfec9faff146bdd9ad6f7a7e50be7b2ba6e2004e341b3e79",
         "symbols": [
           "PrepareReplacementAt",
           "PrepareReplacementAtContext",
@@ -5939,11 +5939,11 @@
           "RestoreMetadataContext",
           "Close"
         ],
-        "decision": "Merged PR208 supplies cancellable rooted staging and restoration. Codesign threads its operation context into both APIs; retain unconditional cleanup and qualify consumer commit boundaries."
+        "decision": "Cancellable rooted staging and restoration remain required. APFS PR222 adds private filesystem metadata preparation; codesign restores and closes the staging handle before PublishContext and retains unconditional cleanup."
       },
       {
         "path": "pkg/hostdata/replacement.go",
-        "sha256": "f8c39b60aebcb7546713ffeccb7792d2da40f88ca0e8dfa7b294e5f0b520785d",
+        "sha256": "b6cf6434406d1625a918279d31a7429404d28a34d323eced2cae85d551dfd8a1",
         "symbols": [
           "PrepareReplacement",
           "PrepareReplacementContext",
@@ -5951,7 +5951,7 @@
           "RestoreMetadataContext",
           "Close"
         ],
-        "decision": "Merged PR208 supplies cancellable standalone preparation/restoration and complete cleanup errors. Codesign consumes these directly; metadata policy and final rename remain consumer responsibilities."
+        "decision": "Cancellable standalone preparation/restoration includes private filesystem metadata. Codesign uses PublishContext for the paired data/carrier publication, retaining identity validation and complete cleanup errors."
       },
       {
         "path": "pkg/disk/dmg_reconstruct.go",
@@ -5982,7 +5982,7 @@
       },
       {
         "path": "pkg/hostdata/replacement_copy_darwin.go",
-        "sha256": "46d7c00601a39e2a3007043f94dfa3bbdcfda28642d4fdf06edc2355cdc6b242",
+        "sha256": "2eeb45a2538f21f6217440b3253c45fb78a4332a6d6581568d9f9664ba746c2e",
         "symbols": [
           "replacementCloneUnavailable",
           "copyReplacementMetadata"
@@ -6027,7 +6027,7 @@
       },
       {
         "path": "pkg/hostdata/replacement_stage_windows.go",
-        "sha256": "bcc77cbae6a5a81d7b788809d7e5421e9925e04d45e2dfb0cb66f3a05594dd26",
+        "sha256": "7b90390104f21018a411c971f80f295bd215cd64c4721cd79b4cdf586e018544",
         "symbols": [
           "makeReplacementDirectoryAt"
         ],
@@ -6095,6 +6095,15 @@
           "RemoveFilesystemAttribute"
         ],
         "decision": "Use the native filesystem profile, including rejection of zero-offset packed-empty ATTR entries. Do not change lossless DecodeStream acceptance to mimic VFS admission."
+      },
+      {
+        "path": "pkg/hostdata/replacement_filesystem.go",
+        "sha256": "f4f0b0d7b196fd02c2ced02f23ad475cb07cdf1c310f8be36b63d7e60c5189a6",
+        "symbols": [
+          "PublishContext",
+          "ReplacementPublicationError"
+        ],
+        "decision": "Draft APFS PR222 prepares filesystem-selected carriers before publication, checks their identity and attempts paired metadata after data rename even if cancellation arrives. Partial publication is explicit; no two-entry atomicity or rollback is promised. Final all-host CI and upstream merge remain required."
       }
     ],
     "prerequisite_findings": [

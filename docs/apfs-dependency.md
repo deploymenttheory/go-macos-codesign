@@ -1,11 +1,17 @@
 # APFS integration
 
-During Phase 02, codesign pins merged APFS main commit
-[`571c1dca84d8`](https://github.com/deploymenttheory/go-apfs-v2/commit/571c1dca84d82630c6582a9ae495afe2146a3759)
-as `v0.18.1-0.20261008142750-571c1dca84d8`. Held filesystem metadata operations
+During Phase 02, codesign pins draft [APFS PR222](https://github.com/deploymenttheory/go-apfs-v2/pull/222)
+commit [`9ab5cf856eb5`](https://github.com/deploymenttheory/go-apfs-v2/commit/9ab5cf856eb576648f227d11f03a8122709fae29)
+as `v0.18.1-0.20261009082026-9ab5cf856eb5`, including merged main through PR221.
+Both repositories must pass final-revision CI and the upstream change must merge
+before this dependency is qualified. Held filesystem metadata operations
 select native attributes or associated FAT/exFAT storage from the volume contract.
 The pin includes packed-empty namespace validation, native `EPERM` for attribute-file queries,
-volume-aware replacement, compression and lifecycle prerequisites. Upstream releases are batched under the
+volume-aware replacement, compression and lifecycle prerequisites. Standalone and
+bundle executable replacement now use `PublishContext` to publish the data and
+its filesystem-selected carrier. A metadata failure after data publication is
+reported explicitly; the operation does not promise atomic replacement of two
+foreign filesystem entries. Upstream releases are batched under the
 [phase dependency policy](implementation_plan.md); development and CI use the
 same reproducible module version until the batch release is available.
 There is no local APFS replacement or workspace override. Existing replacement,
