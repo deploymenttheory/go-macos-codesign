@@ -1312,6 +1312,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
@@ -4013,6 +4014,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
@@ -6678,6 +6680,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",

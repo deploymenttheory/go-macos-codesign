@@ -14,6 +14,20 @@ import verify
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_reviewed_test_packages_are_in_the_coverage_inventory(self):
+        plan = e.load(e.PLAN)
+        for host, inventory in plan["platforms"].items():
+            with self.subTest(host=host):
+                packages = inventory["coverage_packages"]
+                self.assertEqual(len(packages), len(set(packages)))
+                for group in (inventory["unit"], inventory["acceptance"]):
+                    for test in group:
+                        package = test.rsplit("/", 1)[0]
+                        # Acceptance invokes separately instrumented CLI binaries.
+                        if package.endswith("/acceptance"):
+                            continue
+                        self.assertIn(package, packages)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
