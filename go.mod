@@ -1,6 +1,6 @@
 module github.com/deploymenttheory/go-macos-codesign
 
-go 1.27.1
+go 1.27.2
 
 // Retain only the legacy cipher; upstream PKCS#12 imports crypto/x509.
 replace github.com/deploymenttheory/go-macos-codesign/third_party/rc2 => ./third_party/rc2
