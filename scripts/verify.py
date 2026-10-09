@@ -18,9 +18,11 @@ def run(args, env, log=None):
     if log is None:
         subprocess.run(args, cwd=ROOT, env=env, check=True)
     else:
-        with log.open("w", encoding="utf-8") as output:
-            result = subprocess.run(args, cwd=ROOT, env=env, stdout=output, stderr=subprocess.STDOUT, text=True)
+        diagnostics = log.with_name(log.stem + ".stderr.log")
+        with log.open("x", encoding="utf-8") as output, diagnostics.open("x", encoding="utf-8") as stderr:
+            result = subprocess.run(args, cwd=ROOT, env=env, stdout=output, stderr=stderr, text=True)
         print(f"  transcript: {log}", flush=True)
+        print(f"  diagnostics: {diagnostics}", flush=True)
         if result.returncode:
             # Keep every event in the artifact, but show the failed tests and
             # package/compiler output directly in the CI job log.
@@ -36,6 +38,7 @@ def run(args, env, log=None):
                 if "Output" in event and (not event.get("Test") or
                                           (event.get("Package"), event.get("Test")) in failed):
                     print(event["Output"], end="")
+            print(diagnostics.read_text(encoding="utf-8", errors="replace"), end="")
             result.check_returncode()
 
 
