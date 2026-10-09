@@ -19,11 +19,11 @@
     "strip": "AAUWBwACAABNYWMgT1MgWCAgICAgICAgAAIAAAAJAAAAMgAAAJkAAAACAAAAywAAAARURVNUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQVRUUgAAAAAAAADLAAAAuAAAABMAAAAAAAAAAAAAAAAAAAACAAAAuAAAAAsAABVjb20uYXBwbGUucHJvdmVuYW5jZQAAAADDAAAACAAAFWNvbS5leGFtcGxlLnJldGFpbmVkAAECAJU8esKm/mO5cmV0YWluZWRmb3Jr"
   },
   "source_sha256": {
-    "go.mod": "3f2915ecd73a9a9de9839a0569284a8e6f99222cbeb580b3affede362a4a8d3a",
-    "go.sum": "3d74849143fd25bfab7e87e3628ec4ae048e31f8436278b92db28b12af594328",
+    "go.mod": "4e208ba3e285815ff4fc1303687fdb111cbc216fe110dee66fc2bb9e58ebb5e1",
+    "go.sum": "8773ebcbe1c961242b38af2b777b30fba5369d676e1bbce8d9f62cf738fef356",
     "scripts/probe-filesystem-metadata-seeds.go": "b3cb6576e1706b80bdd8442a125d2d4edd9e90034044fdf925cd750564a8594e",
-    "seed-arm64.ast.json.gz": "d2de8c064c1acb35a3f81e661a038adfa4bbcd0899bfb8c1c191620932f23750",
-    "seed-x86_64.ast.json.gz": "47f2b691d70b3ae9a526dd30e0f636b3eaa6ad400bad943df6d5a3e038e95cb9",
+    "seed-arm64.ast.json.gz": "79226d965f1fe2ee8c9d98e64a9cf715876d3d09c443dff1fde836e2bdc26a60",
+    "seed-x86_64.ast.json.gz": "61f194733d209ee375a3ba62736ffa73832afdb632c8f0c542637ebc5a126519",
     "testdata/filesystem-metadata/seed.c": "34245a0370d157a7c5559c35d6e2928d40db966962854106f04ae73319b656ca"
   }
 }

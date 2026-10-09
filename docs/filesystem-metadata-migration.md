@@ -28,9 +28,18 @@ behavior; they are not substitutes for invoking the codesign CLI on real volumes
 
 ## Qualified local integration and remaining acceptance
 
-The dependency is merged APFS main at `571c1dca84d8`, resolved through Go modules
-without a local replacement. Its held metadata APIs, Darwin replacement
-capability checks and `FilesystemUsesXattrFiles` query support the integration.
+The dependency pins `9ab5cf856eb5` from draft
+[APFS #222](https://github.com/deploymenttheory/go-apfs-v2/pull/222), including
+merged main through `5c7222ef9172`, without a local module replacement. Both
+repositories' final-revision CI and the upstream merge remain required.
+
+Standalone and bundle executable writes use APFS's `PublishContext` after
+metadata restoration. Foreign FAT/exFAT replacements privately reconstruct the
+native filesystem carrier, then publish both entries. This fixes the observed
+203-byte retained carrier versus Apple's fresh 4096-byte carrier after stripping
+disallowed metadata. The SDK retains identity checks and reports metadata
+publication failures after a committed data rename explicitly. No CLI routing
+option is introduced.
 
 `TestFilesystemMetadataCLI` passes locally against Apple's codesign on real
 FAT32 and exFAT volumes for verification, stripping before signing, and removal.

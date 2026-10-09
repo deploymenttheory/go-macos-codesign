@@ -80,15 +80,8 @@ func InspectCertificateMetadata(sig *Signature) (*CertificateMetadata, error) {
 	if sig == nil {
 		return nil, ErrUnsigned
 	}
-	cms, err := sig.componentBytes(SlotCMS)
-	if err != nil {
-		return nil, err
-	}
-	if len(cms) <= 8 {
-		return nil, nil
-	}
-	info, err := sig.verifyCMS(cms[8:])
-	if err != nil {
+	info, err := sig.verifyCMS()
+	if err != nil || info == nil {
 		return nil, err
 	}
 	path, err := linkedCertificates(info.SignerCertificate, info.Certificates)
@@ -197,15 +190,11 @@ func verifyInput(ctx context.Context, opts VerifyOptions, dmg bool, inspect func
 			return r, verificationFailure(ErrUnsigned.Error(), ErrUnsigned)
 		}
 		var signer []byte
-		cms, err := a.Signature.componentBytes(SlotCMS)
+		info, err := a.Signature.verifyCMS()
 		if err != nil {
 			return r, err
 		}
-		if len(cms) > 8 {
-			info, err := a.Signature.verifyCMS(cms[8:])
-			if err != nil {
-				return r, err
-			}
+		if info != nil {
 			signer = info.SignerCertificate
 			trusted := false
 			for _, pin := range opts.TrustedCertificates {

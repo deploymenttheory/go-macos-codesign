@@ -22,8 +22,15 @@ The shared BER walker represents values as checked source ranges. It reads only
 headers (at most six bytes per read), skips definite-length payload ranges, and
 walks child headers for indefinite containers. It checks source-base overflow,
 truncation, cancellation and I/O failures, and retains the existing depth and
-element bounds. The byte decoder uses this walker and borrows the resulting
-slices; verification still needs integration with held CMS component sources.
+element bounds. Both byte decoding and held-source decoding use this walker.
+Byte decoding borrows validated slices. Scoped inspection and verification locate
+the CMS component in the held signature, then decode each field separately. They
+do not request another complete CMS component buffer. The existing bounded
+SuperBlob scan still consumes every component once to preserve read-error ordering.
+
+Certificate sets, signer sets and their attributes still become byte buffers.
+Their aggregate parsed storage can therefore approach the message size. Reading
+fields separately is an integration step, not a complete bounded CMS decoder.
 
 This follows the existing Apple
 [CMS ASN.1 templates](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_smime/lib/cmsasn1.c)
@@ -48,6 +55,13 @@ all four digest algorithms. Both are required on every host.
 1/2 GiB and through the maximum four-octet length. These virtual ranges prove
 arithmetic and bounded header reads, not native acceptance or real-file scaling.
 `TestCMSRangeIOFailures` checks source offsets, short/failed reads and cancellation.
+
+`TestCMSHeldSourceVerification` exercises RSA and EC signatures in Mach-O and
+DMG inputs through the scoped verifier. Its instrumented source permits the
+mandatory bounded component scan and rejects a second whole-component read.
+It also compares owned and scoped results and checks real-file descriptor
+cleanup. `TestCMSSourceReadFailures` injects permission errors, truncation and
+cancellation at every observed CMS read. Both groups are required on every host.
 
 ## Remaining Phase 02 integration
 

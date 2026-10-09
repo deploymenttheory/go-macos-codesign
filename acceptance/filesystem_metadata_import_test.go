@@ -75,6 +75,7 @@ func verifyImportedFilesystemCLI(t *testing.T, directory, reference string) {
 			return err
 		}
 		if !reflect.DeepEqual(got, want) {
+			attest(t, map[string]any{"artifact": path, "foreign": got, "native": want})
 			t.Fatalf("%s: foreign filesystem outcome differs: data %s/%s carrier %s/%s diagnostics %q/%q", path, hash(got.Data), hash(want.Data), hash(got.Carrier), hash(want.Carrier), got.Stderr, want.Stderr)
 		}
 		seen[entry.Name()]++

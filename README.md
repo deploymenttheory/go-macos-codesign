@@ -100,7 +100,7 @@ Verbose output and the JSON `ResourcesIgnored` field identify this limited scope
 
 ## Build
 
-Use Go 1.27.1 or newer and GoReleaser 2.18.1. From a checkout:
+Use Go 1.27.2 or newer and GoReleaser 2.18.1. From a checkout:
 
 ```sh
 goreleaser check

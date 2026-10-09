@@ -253,7 +253,14 @@ func verifyCMSDigestSignature(pub crypto.PublicKey, alg algorithmIdentifier, h c
 }
 
 func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
-	sd, certs, err := decodeSignedData(der)
+	return validateCMS(decodeSignedData(der))
+}
+
+func decodeCMSSource(source codeSource) (*cmsSignedData, []*certificate, error) {
+	return validateCMS(validateCMSSignedData(decodeCMSFieldsSource(source)))
+}
+
+func validateCMS(sd *cmsSignedData, certs []*certificate, err error) (*cmsSignedData, []*certificate, error) {
 	if err != nil {
 		return nil, nil, err
 	}
@@ -270,7 +277,10 @@ func decodeCMS(der []byte) (*cmsSignedData, []*certificate, error) {
 }
 
 func decodeSignedData(der []byte) (*cmsSignedData, []*certificate, error) {
-	sd, err := decodeCMSFields(der)
+	return validateCMSSignedData(decodeCMSFields(der))
+}
+
+func validateCMSSignedData(sd *cmsSignedData, err error) (*cmsSignedData, []*certificate, error) {
 	if err != nil {
 		return nil, nil, err
 	}
@@ -361,6 +371,15 @@ func VerifyCMS(der []byte, directories [][]byte) (*CMSInfo, error) {
 
 func verifyCMSBound(der []byte, bound cmsDirectoryBinding) (*CMSInfo, error) {
 	sd, certs, err := decodeCMS(der)
+	return verifyCMSDecoded(bound, sd, certs, err)
+}
+
+func verifyCMSSourceBound(source codeSource, bound cmsDirectoryBinding) (*CMSInfo, error) {
+	sd, certs, err := decodeCMSSource(source)
+	return verifyCMSDecoded(bound, sd, certs, err)
+}
+
+func verifyCMSDecoded(bound cmsDirectoryBinding, sd *cmsSignedData, certs []*certificate, err error) (*CMSInfo, error) {
 	if err != nil {
 		if errors.Is(err, ErrUnsupported) {
 			return nil, err

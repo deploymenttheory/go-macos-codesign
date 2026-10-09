@@ -130,7 +130,7 @@ func replaceSource(ctx context.Context, path string, source *os.File, sourceClos
 	if !os.SameFile(st, current) {
 		return fmt.Errorf("target changed during signing")
 	}
-	if err := os.Rename(f.Name(), path); err != nil {
+	if err := replacement.PublishContext(ctx, path); err != nil {
 		return err
 	}
 	return recompressNativePath(ctx, path, kind)

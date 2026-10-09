@@ -1,9 +1,13 @@
 """Failure-injection tests for the required evidence gate (no native tools)."""
 import copy
+import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 import tempfile
 import tarfile
 import unittest
@@ -14,6 +18,44 @@ import verify
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_runner_retains_clean_json_and_separate_diagnostics(self):
+        log = self.root / "runner.jsonl"
+        child = "import sys; print('{\"Action\":\"start\"}'); sys.stderr.write('go: downloading fixture.invalid/module\\n')"
+        with contextlib.redirect_stdout(io.StringIO()):
+            verify.run([sys.executable, "-c", child], dict(os.environ), log)
+        self.assertEqual(json.loads(log.read_text()), {"Action": "start"})
+        diagnostic = log.with_name("runner.stderr.log")
+        self.assertEqual(diagnostic.read_text(), "go: downloading fixture.invalid/module\n")
+        with contextlib.redirect_stdout(io.StringIO()), self.assertRaises(FileExistsError):
+            verify.run([sys.executable, "-c", child], dict(os.environ), log)
+        self.assertEqual(json.loads(log.read_text()), {"Action": "start"})
+
+    def test_runner_retains_both_streams_on_failure(self):
+        log = self.root / "failed.jsonl"
+        child = "import sys; print('{\"Action\":\"fail\",\"Package\":\"fixture\",\"Output\":\"assertion failed\\\\n\"}'); sys.stderr.write('compiler diagnostics\\n'); sys.exit(7)"
+        console = io.StringIO()
+        with contextlib.redirect_stdout(console), self.assertRaises(subprocess.CalledProcessError) as failure:
+            verify.run([sys.executable, "-c", child], dict(os.environ), log)
+        self.assertEqual(failure.exception.returncode, 7)
+        self.assertEqual(json.loads(log.read_text())["Action"], "fail")
+        self.assertEqual(log.with_name("failed.stderr.log").read_text(), "compiler diagnostics\n")
+        self.assertIn("assertion failed", console.getvalue())
+        self.assertIn("compiler diagnostics", console.getvalue())
+
+    def test_reviewed_test_packages_are_in_the_coverage_inventory(self):
+        plan = e.load(e.PLAN)
+        for host, inventory in plan["platforms"].items():
+            with self.subTest(host=host):
+                packages = inventory["coverage_packages"]
+                self.assertEqual(len(packages), len(set(packages)))
+                for group in (inventory["unit"], inventory["acceptance"]):
+                    for test in group:
+                        package = test.rsplit("/", 1)[0]
+                        # Acceptance invokes separately instrumented CLI binaries.
+                        if package.endswith("/acceptance"):
+                            continue
+                        self.assertIn(package, packages)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

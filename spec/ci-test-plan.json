@@ -101,6 +101,7 @@
     "TestFilesystemMetadataEvidence": 3,
     "TestFilesystemMetadataRemoval": 3,
     "TestFilesystemMetadataResourceOrder": 3,
+    "TestForeignBundleDiagnostic": 2,
     "TestFrameworkPathsThroughParentLink": 3,
     "TestGenericRemoval": 1,
     "TestGenericRemovalAliases": 0,
@@ -253,7 +254,8 @@
     "TestVerifyImportedLargeBundles": 2,
     "TestVerifyImportedLargeDMGs": 3,
     "TestVerifyImportedLargeMachO": 3,
-    "TestVerifyImportedRemoval": 2
+    "TestVerifyImportedRemoval": 2,
+    "TestVerifyImportedRemovalPlists": 2
   },
   "baseline": {
     "export_artifacts": [
@@ -677,6 +679,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFilesystemMetadataResourceOrder": {
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
         },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
@@ -1289,6 +1295,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {
@@ -1302,6 +1312,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
@@ -1402,6 +1413,62 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestTimestampCommands": {
           "cases": 1,
           "sha256": "5c38c1447414adb2c38479f9884be92cf75e64607a6aafe45e8f7fd9537f575e"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAggregationRejectsMissingOrMixedQualification": {
+          "cases": 1,
+          "sha256": "4dde49cd976a027911d1e505ce3273928e89cb88d6cb9a6026e0cd13c5385084"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAllDeclaredConsumersAreRequired": {
+          "cases": 1,
+          "sha256": "00da0cfe3e21311337e4fac5a1a922baa01ca8ae9ee5573e9a944e9fcb1d5623"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestCancellationDuringArchiveRead": {
+          "cases": 1,
+          "sha256": "59fc3f74db395f0ca2dfa7ebee8b30a4d23da303162086a7858ccb2b1b77aaa2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestContractInventoryAndCycles": {
+          "cases": 1,
+          "sha256": "e2bbaa1f5391ef9a156d172b8b213694a9dde541247f7a3bce5149c64f25be8b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestDeduplicatedOriginalArchiveAndParts": {
+          "cases": 1,
+          "sha256": "94bed89f3fdf632f92ac37675f22cf4d170391b533ece2e2807e71b8c2368b41"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestExternalOriginalNamesRemainLossless": {
+          "cases": 1,
+          "sha256": "8e3134bbf972acc62746113b18b59b2d2862adb623665f2825a1fac41bdc6d48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeBundleFailures": {
+          "cases": 1,
+          "sha256": "dd7354a5a9b4791c433ee16558675ae0b19e0fc318d58d09c72ddce495b62e69"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeDifferenceDoesNotBlessGoResults": {
+          "cases": 1,
+          "sha256": "6f5edc01daaf5d47cda064473acf32cbbdb0b556b6311d41847e1390491654a3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveIOFailures": {
+          "cases": 1,
+          "sha256": "1818e8e0c7d5832efcefba3192e405731c0bb793477369f56a7b1eadafba67c6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveRejections": {
+          "cases": 1,
+          "sha256": "f6adb37b524b54b951c6b883509eb60e6296964f945214d3c93876bb5e4c3062"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalProvenanceAndCurrentExecutionAreIndependent": {
+          "cases": 1,
+          "sha256": "3259c769800abc481e714f987a2bd8db03d84e028d9cc505be8f7166e21321ec"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestReceiptFailures": {
+          "cases": 1,
+          "sha256": "7ae3addbf02fd99183dd6dbfa40529a9cc878ecc9a2f0798a81ff368656c1a61"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedCatalogRejections": {
+          "cases": 1,
+          "sha256": "86e4f9e02c97a0087091547ec84b172dddafb6fbc64ec0e8a3145687fedd8d00"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedOriginalBytesSurviveToolchainChanges": {
+          "cases": 1,
+          "sha256": "fc4d1bcc7cc728430fa33be83960158880083709f1bf510f03e7faccf648da0b"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestCancellation": {
           "cases": 6,
@@ -1871,6 +1938,10 @@
           "cases": 1,
           "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSHeldSourceVerification": {
+          "cases": 1,
+          "sha256": "4848c57b39ab0e5de9688da56fefb63bc9979ea867122782fdb84d01f9affe21"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
@@ -1886,6 +1957,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
           "cases": 1,
           "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSSourceReadFailures": {
+          "cases": 1,
+          "sha256": "cfb88338e48bdcb5a90788b43f91bc94758783d62f49121ed69231d401b5111e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -3367,6 +3442,10 @@
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -3918,6 +3997,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {
@@ -3931,6 +4014,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
@@ -4031,6 +4115,62 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestTimestampCommands": {
           "cases": 1,
           "sha256": "5c38c1447414adb2c38479f9884be92cf75e64607a6aafe45e8f7fd9537f575e"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAggregationRejectsMissingOrMixedQualification": {
+          "cases": 1,
+          "sha256": "4dde49cd976a027911d1e505ce3273928e89cb88d6cb9a6026e0cd13c5385084"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAllDeclaredConsumersAreRequired": {
+          "cases": 1,
+          "sha256": "00da0cfe3e21311337e4fac5a1a922baa01ca8ae9ee5573e9a944e9fcb1d5623"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestCancellationDuringArchiveRead": {
+          "cases": 1,
+          "sha256": "59fc3f74db395f0ca2dfa7ebee8b30a4d23da303162086a7858ccb2b1b77aaa2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestContractInventoryAndCycles": {
+          "cases": 1,
+          "sha256": "e2bbaa1f5391ef9a156d172b8b213694a9dde541247f7a3bce5149c64f25be8b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestDeduplicatedOriginalArchiveAndParts": {
+          "cases": 1,
+          "sha256": "94bed89f3fdf632f92ac37675f22cf4d170391b533ece2e2807e71b8c2368b41"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestExternalOriginalNamesRemainLossless": {
+          "cases": 1,
+          "sha256": "8e3134bbf972acc62746113b18b59b2d2862adb623665f2825a1fac41bdc6d48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeBundleFailures": {
+          "cases": 1,
+          "sha256": "dd7354a5a9b4791c433ee16558675ae0b19e0fc318d58d09c72ddce495b62e69"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeDifferenceDoesNotBlessGoResults": {
+          "cases": 1,
+          "sha256": "6f5edc01daaf5d47cda064473acf32cbbdb0b556b6311d41847e1390491654a3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveIOFailures": {
+          "cases": 1,
+          "sha256": "1818e8e0c7d5832efcefba3192e405731c0bb793477369f56a7b1eadafba67c6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveRejections": {
+          "cases": 1,
+          "sha256": "f6adb37b524b54b951c6b883509eb60e6296964f945214d3c93876bb5e4c3062"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalProvenanceAndCurrentExecutionAreIndependent": {
+          "cases": 1,
+          "sha256": "3259c769800abc481e714f987a2bd8db03d84e028d9cc505be8f7166e21321ec"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestReceiptFailures": {
+          "cases": 1,
+          "sha256": "7ae3addbf02fd99183dd6dbfa40529a9cc878ecc9a2f0798a81ff368656c1a61"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedCatalogRejections": {
+          "cases": 1,
+          "sha256": "86e4f9e02c97a0087091547ec84b172dddafb6fbc64ec0e8a3145687fedd8d00"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedOriginalBytesSurviveToolchainChanges": {
+          "cases": 1,
+          "sha256": "fc4d1bcc7cc728430fa33be83960158880083709f1bf510f03e7faccf648da0b"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestCancellation": {
           "cases": 6,
@@ -4472,6 +4612,10 @@
           "cases": 1,
           "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSHeldSourceVerification": {
+          "cases": 1,
+          "sha256": "4848c57b39ab0e5de9688da56fefb63bc9979ea867122782fdb84d01f9affe21"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
@@ -4487,6 +4631,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
           "cases": 1,
           "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSSourceReadFailures": {
+          "cases": 1,
+          "sha256": "cfb88338e48bdcb5a90788b43f91bc94758783d62f49121ed69231d401b5111e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
@@ -5960,6 +6108,10 @@
           "cases": 7,
           "sha256": "afaa6182e217257e716d4d2dce9359fc49a7ea125260ef93dc6cf42434a18147"
         },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestForeignBundleDiagnostic": {
+          "cases": 3,
+          "sha256": "2a5019f1a8d8e7750bb9f13ec60c8c931487ec7b389ed4398e2392d974f03680"
+        },
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestFrameworkPathsThroughParentLink": {
           "cases": 3,
           "sha256": "4af6cc2cb9f99534e8afe17de51a7f8e1f01c9aebc41dc242fdf256a7e7c56ef"
@@ -6511,6 +6663,10 @@
         "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemoval": {
           "cases": 1,
           "sha256": "49a07d4dc4a444f44ab2e458f3b70bdb339fa5396707a40679ccf1f9f45dde24"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/acceptance/TestVerifyImportedRemovalPlists": {
+          "cases": 1,
+          "sha256": "a92642c1ebd6f3545f4e1b1aa020ce369295bf8afe303902904ff5d920c5cf29"
         }
       },
       "attestations": {
@@ -6524,6 +6680,7 @@
       "coverage_packages": [
         "github.com/deploymenttheory/go-macos-codesign/cmd/macoscodesign",
         "github.com/deploymenttheory/go-macos-codesign/internal/cli",
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence",
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband",
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign",
         "github.com/deploymenttheory/go-macos-codesign/pkg/plist",
@@ -6624,6 +6781,62 @@
         "github.com/deploymenttheory/go-macos-codesign/internal/cli/TestTimestampCommands": {
           "cases": 1,
           "sha256": "5c38c1447414adb2c38479f9884be92cf75e64607a6aafe45e8f7fd9537f575e"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAggregationRejectsMissingOrMixedQualification": {
+          "cases": 1,
+          "sha256": "4dde49cd976a027911d1e505ce3273928e89cb88d6cb9a6026e0cd13c5385084"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestAllDeclaredConsumersAreRequired": {
+          "cases": 1,
+          "sha256": "00da0cfe3e21311337e4fac5a1a922baa01ca8ae9ee5573e9a944e9fcb1d5623"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestCancellationDuringArchiveRead": {
+          "cases": 1,
+          "sha256": "59fc3f74db395f0ca2dfa7ebee8b30a4d23da303162086a7858ccb2b1b77aaa2"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestContractInventoryAndCycles": {
+          "cases": 1,
+          "sha256": "e2bbaa1f5391ef9a156d172b8b213694a9dde541247f7a3bce5149c64f25be8b"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestDeduplicatedOriginalArchiveAndParts": {
+          "cases": 1,
+          "sha256": "94bed89f3fdf632f92ac37675f22cf4d170391b533ece2e2807e71b8c2368b41"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestExternalOriginalNamesRemainLossless": {
+          "cases": 1,
+          "sha256": "8e3134bbf972acc62746113b18b59b2d2862adb623665f2825a1fac41bdc6d48"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeBundleFailures": {
+          "cases": 1,
+          "sha256": "dd7354a5a9b4791c433ee16558675ae0b19e0fc318d58d09c72ddce495b62e69"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestNativeDifferenceDoesNotBlessGoResults": {
+          "cases": 1,
+          "sha256": "6f5edc01daaf5d47cda064473acf32cbbdb0b556b6311d41847e1390491654a3"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveIOFailures": {
+          "cases": 1,
+          "sha256": "1818e8e0c7d5832efcefba3192e405731c0bb793477369f56a7b1eadafba67c6"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalArchiveRejections": {
+          "cases": 1,
+          "sha256": "f6adb37b524b54b951c6b883509eb60e6296964f945214d3c93876bb5e4c3062"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestOriginalProvenanceAndCurrentExecutionAreIndependent": {
+          "cases": 1,
+          "sha256": "3259c769800abc481e714f987a2bd8db03d84e028d9cc505be8f7166e21321ec"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestReceiptFailures": {
+          "cases": 1,
+          "sha256": "7ae3addbf02fd99183dd6dbfa40529a9cc878ecc9a2f0798a81ff368656c1a61"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedCatalogRejections": {
+          "cases": 1,
+          "sha256": "86e4f9e02c97a0087091547ec84b172dddafb6fbc64ec0e8a3145687fedd8d00"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/internal/nativeevidence/TestRetainedOriginalBytesSurviveToolchainChanges": {
+          "cases": 1,
+          "sha256": "fc4d1bcc7cc728430fa33be83960158880083709f1bf510f03e7faccf648da0b"
         },
         "github.com/deploymenttheory/go-macos-codesign/internal/sideband/TestCancellation": {
           "cases": 6,
@@ -7069,6 +7282,10 @@
           "cases": 1,
           "sha256": "334cbd25b6f15f40bf28369b5ca1922840ecde1a5453da71858de2196bb4ebd6"
         },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSHeldSourceVerification": {
+          "cases": 1,
+          "sha256": "4848c57b39ab0e5de9688da56fefb63bc9979ea867122782fdb84d01f9affe21"
+        },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSIndependentVerification": {
           "cases": 5,
           "sha256": "e22b3454ce4f89f9376fa390ef3af13cfe694d8436f9687701856a2432538ec0"
@@ -7084,6 +7301,10 @@
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSRangeLargeValues": {
           "cases": 1,
           "sha256": "aae44d1096d7c34ea4b990a99506de0a439152d6038944fc7b3c5c63247450f8"
+        },
+        "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCMSSourceReadFailures": {
+          "cases": 1,
+          "sha256": "cfb88338e48bdcb5a90788b43f91bc94758783d62f49121ed69231d401b5111e"
         },
         "github.com/deploymenttheory/go-macos-codesign/pkg/codesign/TestCanonicalRequirementText": {
           "cases": 21,
