@@ -446,7 +446,7 @@ func (p *preparedBundleExecutable) commit(ctx context.Context) (result error) {
 	if !os.SameFile(p.original, current) {
 		return fmt.Errorf("bundle write target changed")
 	}
-	if err := root.Rename(p.replacement.Path, p.write.name); err != nil {
+	if err := p.replacement.PublishContext(ctx, p.write.name); err != nil {
 		return err
 	}
 	// FAT file IDs can change during rename. Refresh through the descriptor
