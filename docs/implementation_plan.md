@@ -97,6 +97,15 @@ release and rerun dependency-sensitive qualification.
 
 ## Evidence and test-data contract
 
+Phase 02 also requires the [native evidence harness migration](native-evidence-harness.md).
+Historical capture provenance must remain bound to original archived bytes;
+current Go/dependency changes belong to execution receipts. Fresh macOS 15, 26
+and 27 producer artifacts must reach every declared consumer through the same
+CI run's dependencies. Preserve the exact existing case inventories, live
+qualification, coverage, race/fuzz and foreign-output readback gates. No family
+closes with missing original inputs, an incomplete producer–consumer graph, or
+unqualified upstream CI.
+
 Extend the existing [research scripts](../scripts/), [specifications](../spec/),
 [test fixtures](../testdata/), [acceptance suite](../acceptance/) and
 [testing harness](testing.md). Keep existing native capture and foreign-producer

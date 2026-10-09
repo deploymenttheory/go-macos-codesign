@@ -37,7 +37,7 @@ the five shards and aggregation. Whole test matrices, assertions and native
 controls are retained.
 See the [phase 01 evidence contract](research-phase.md#required-evidence-partitioning)
 for pinned nested-case manifests, missing/duplicate/cancelled-shard rejection,
-four package race workers and four groups retaining all thirteen sixty-second
+five package race workers and four groups retaining all thirteen sixty-second
 fuzz targets. GoReleaser still produces all six release targets.
 
 The following file table describes the monolithic local `make verify` path.

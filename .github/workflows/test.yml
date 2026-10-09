@@ -474,7 +474,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [./pkg/codesign, ./pkg/plist, ./internal/cli, ./internal/sideband]
+        package: [./pkg/codesign, ./pkg/plist, ./internal/cli, ./internal/sideband, ./internal/nativeevidence]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
