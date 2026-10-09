@@ -9,9 +9,9 @@
     "acceptance/filesystem_metadata_test.go": "32f7d9dca5d71a2d9428cf37d650a9e8976117ddd6e6bfb03590e6bd16452598",
     "acceptance/harness_test.go": "bd7ed62da5d3d1e1a35bc38b3a94080b3ca259fc6e87858ba072b42340f21c03",
     "acceptance/removal_generic_test.go": "c575c51f1dd5d5f455e92337683a9fa92006881922f54d517ea3ec624e018457",
-    "go.mod": "3f2915ecd73a9a9de9839a0569284a8e6f99222cbeb580b3affede362a4a8d3a",
-    "go.sum": "3d74849143fd25bfab7e87e3628ec4ae048e31f8436278b92db28b12af594328",
-    "testdata/filesystem-metadata/native-seeds.json": "4677bb32fa0ecc170deba3a23e7692792474cf25cf7d7c267f2603df101ebc0e",
+    "go.mod": "4e208ba3e285815ff4fc1303687fdb111cbc216fe110dee66fc2bb9e58ebb5e1",
+    "go.sum": "8773ebcbe1c961242b38af2b777b30fba5369d676e1bbce8d9f62cf738fef356",
+    "testdata/filesystem-metadata/native-seeds.json": "d52ca385783176ab2a6cde305efb2c43ee6c8b609506b6a2c8d1a6cc68d65ee7",
     "testdata/macho/adhoc-arm64": "57480c4e147eb30f1cc9384eed9fb151d1c55310e5be554cbc98ff6e36765205"
   },
   "Cases": {
