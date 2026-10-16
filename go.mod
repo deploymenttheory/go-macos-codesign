@@ -13,7 +13,7 @@ require (
 	github.com/deploymenttheory/go-macos-codesign/third_party/rc2 v0.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
-	golang.org/x/sys v0.48.0
+	golang.org/x/sys v0.49.0
 	howett.net/plist v1.0.1
 )
 
