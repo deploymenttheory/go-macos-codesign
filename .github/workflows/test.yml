@@ -65,7 +65,7 @@ jobs:
           MACOSCODESIGN_TRACE_FILESYSTEM: ${{ runner.os == 'Linux' && matrix.part == 3 && '1' || '0' }}
       - name: Upload Linux filesystem diagnostics
         if: always() && runner.os == 'Linux' && matrix.part == 3
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: linux-filesystem-traces
           path: artifacts/filesystem-traces/
@@ -76,7 +76,7 @@ jobs:
         run: go run scripts/collect-native-diagnostics.go
       - name: Upload native failure diagnostics
         if: failure() && runner.os == 'macOS'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: native-failure-${{ matrix.part }}
           path: artifacts/native-diagnostics/
@@ -86,7 +86,7 @@ jobs:
         run: python3 scripts/evidence.py pack --inputs artifacts/shard --output artifacts/evidence.tar
       - name: Upload coverage and acceptance evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: evidence-shard-${{ matrix.os }}-${{ matrix.part }}
           path: artifacts/evidence.tar
@@ -127,7 +127,7 @@ jobs:
         run: python3 scripts/evidence.py pack --inputs artifacts/complete --output artifacts/evidence.tar
       - name: Upload complete OS evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: evidence-${{ matrix.os }}
           path: artifacts/evidence.tar
@@ -135,7 +135,7 @@ jobs:
           if-no-files-found: error
       - name: Upload signed artifacts and removal results from Linux and Windows
         if: runner.os != 'macOS'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-${{ matrix.os }}
           path: |
@@ -203,7 +203,7 @@ jobs:
         run: python3 scripts/evidence.py pack --inputs artifacts/shards --output artifacts/shards.tar
       - name: Upload exact macOS shard evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: evidence-shards-xcode-27
           path: artifacts/shards.tar
@@ -211,7 +211,7 @@ jobs:
           if-no-files-found: error
       - name: Upload native failure diagnostics
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: native-failure-macos
           path: artifacts/native-diagnostics/
@@ -221,7 +221,7 @@ jobs:
         run: python3 scripts/evidence.py pack --inputs artifacts/complete --output artifacts/evidence.tar
       - name: Upload complete OS evidence
         if: ${{ !cancelled() && hashFiles('artifacts/complete/complete.json') != '' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: evidence-xcode-27
           path: artifacts/evidence.tar
@@ -360,7 +360,7 @@ jobs:
         run: go run scripts/collect-native-diagnostics.go
       - name: Upload fresh native capture evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: native-capture-${{ matrix.group }}
           path: artifacts/
@@ -387,7 +387,7 @@ jobs:
           MACOSCODESIGN_REQUIRE_APPLE: '1'
           MACOSCODESIGN_IMPORT_DIR: ${{ github.workspace }}/artifacts/import
           MACOSCODESIGN_EVIDENCE_DIR: ${{ github.workspace }}/artifacts/verification
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apple-verification-of-foreign-signatures
           path: artifacts/verification/
@@ -415,7 +415,7 @@ jobs:
           MACOSCODESIGN_REQUIRE_APPLE: '1'
           MACOSCODESIGN_IMPORT_DIR: ${{ github.workspace }}/artifacts/import
           MACOSCODESIGN_EVIDENCE_DIR: ${{ github.workspace }}/artifacts/verification
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apple-verification-of-foreign-bundles
           path: artifacts/verification/
@@ -438,7 +438,7 @@ jobs:
           distribution: goreleaser
           version: v2.18.1
           args: release --snapshot --clean --parallelism 2 --skip=sign
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: development-binaries
           path: dist/
@@ -571,7 +571,7 @@ jobs:
           go test -count=1 -json ./acceptance -run '^Test(FilesystemMetadata|NativeFilesystemIgnores|NativeSigningProfile)' | tee artifacts/filesystem-metadata/tests.jsonl
       - name: Retain native seeds, source binding, ASTs and before/after observations
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: filesystem-metadata-${{ matrix.os }}
           path: |
